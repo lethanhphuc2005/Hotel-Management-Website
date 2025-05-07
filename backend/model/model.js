@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const PhongSchema = new mongoose.Schema({
+const RoomSchema = new mongoose.Schema({
   Tang: {
     type: Number,
     required: true,
@@ -16,5 +16,5 @@ const PhongSchema = new mongoose.Schema({
     required: true,
   },
 });
-let phong = mongoose.model("phong", PhongSchema, "phong");
-module.exports = { phong };
+let room = mongoose.model("room", RoomSchema, "phong");
+module.exports = { room };

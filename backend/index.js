@@ -3,7 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-const phongRouter = require("./routes/phong");
+const roomRouter = require("./routes/room");
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ mongoose
     });
 
 // Router
-app.use("/v1/phong", phongRouter);
+app.use("/v1/room", roomRouter);
 
 app.listen(8000, () => {
     console.log("sevver đang chạy");
