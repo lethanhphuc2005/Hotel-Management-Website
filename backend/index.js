@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 const roomRouter = require("./routes/room");
+const roomtypeRouter = require("./routes/roomtype")
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ mongoose
 
 // Router
 app.use("/v1/room", roomRouter);
+app.use("/v1/roomtype", roomtypeRouter);
 
 app.listen(8000, () => {
     console.log("sevver đang chạy");

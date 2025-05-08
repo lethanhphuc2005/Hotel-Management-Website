@@ -7,14 +7,33 @@ const RoomSchema = new mongoose.Schema({
   },
   TrangThai: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "TrangThai", // Tên model bạn dùng để lưu trạng thái
+    ref: "status", // Tên model bạn dùng để lưu trạng thái
     required: true,
   },
   MaLP: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "LoaiPhong", // Tên model bạn dùng để lưu loại phòng
+    ref: "roomtype", // Tên model bạn dùng để lưu loại phòng
     required: true,
   },
 });
+const RoomTypeSchema = new mongoose.Schema({
+  TenLP: {
+    type: String,
+    required: true
+  },
+  SoGiuong: {
+    type: Number,
+    required: true
+  },
+  GiaPhong: {
+    type: Number,
+    required: true
+  },
+  MoTa: {
+    type: String,
+    required: true
+  }
+});
 let room = mongoose.model("room", RoomSchema, "phong");
-module.exports = { room };
+let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong")
+module.exports = { room, roomtype };
