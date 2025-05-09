@@ -19,21 +19,21 @@ const RoomSchema = new mongoose.Schema({
 const RoomTypeSchema = new mongoose.Schema({
   TenLP: {
     type: String,
-    required: true
+    required: true,
   },
   SoGiuong: {
     type: Number,
-    required: true
+    required: true,
   },
   GiaPhong: {
     type: Number,
-    required: true
+    required: true,
   },
   MoTa: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 let room = mongoose.model("room", RoomSchema, "phong");
-let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong")
+let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong");
 module.exports = { room, roomtype };
