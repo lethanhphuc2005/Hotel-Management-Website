@@ -16,7 +16,13 @@ const roomCon = {
   getAllRoom: async (req, res) => {
     try {
       let limit = parseInt(req.query.limit) || 50;
-      const rooms = await room.find().limit(limit);
+      const rooms = await room.find().limit(limit).populate({
+        path: 'MaLP',
+        select: 'TenLP SoGiuong GiaPhong MoTa',
+        populate: {
+          path: 'TienNghi', // virtual trong roomtype nếu có
+        }
+      });
       res.status(200).json(rooms);
     } catch (error) {
       res.status(500).json(error);
