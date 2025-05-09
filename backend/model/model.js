@@ -15,7 +15,12 @@ const RoomSchema = new mongoose.Schema({
     ref: "roomtype", // Tên model bạn dùng để lưu loại phòng
     required: true,
   },
+  TenPhong: {
+    type: String,
+    required: true,
+  }
 });
+
 const RoomTypeSchema = new mongoose.Schema({
   TenLP: {
     type: String,
@@ -34,6 +39,48 @@ const RoomTypeSchema = new mongoose.Schema({
     required: true
   }
 });
+
+RoomTypeSchema.virtual('TienNghi', {
+  ref: 'amenity',        // Model tiện nghi
+  localField: '_id',     // _id của roomtype
+  foreignField: 'MaLP'   // Field trong Amenity tham chiếu đến roomtype
+});
+
+RoomTypeSchema.set('toJSON', { 
+  virtuals: true, 
+  versionKey: false, 
+  transform: (doc, ret) => {
+    delete ret.id;  // Xóa _id trước khi trả về kết quả
+    return ret;
+  }
+});
+
+RoomTypeSchema.set('toObject', { 
+  virtuals: true, 
+  versionKey: false, 
+  transform: (doc, ret) => {
+    delete ret.id;  // Xóa _id trước khi trả về kết quả
+    return ret;
+  }
+});
+
+const AmenitySchema = new mongoose.Schema({
+  TenTN: {
+    type: String,
+    required: true
+  },
+  MoTa: {
+    type: String,
+    required: true
+  },
+  MaLP: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "roomtype", // Tham chiếu đến loại phòng
+    required: true
+  }
+});
+
 let room = mongoose.model("room", RoomSchema, "phong");
 let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong")
-module.exports = { room, roomtype };
+let amenity = mongoose.model("amenity", AmenitySchema, "tiennghi")
+module.exports = { room, roomtype, amenity };
