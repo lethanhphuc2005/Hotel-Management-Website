@@ -1,0 +1,52 @@
+.bgColor{
+    background-color: #141627;
+    height: 204px;
+}
+.marginTop{
+    margin-top: 33px;
+}
+.search{
+    width: 450px;
+    height: 57px;
+    background-color: #1C1F37;
+}
+.btnSearch{
+    width: 131px;
+    height: 57px;
+    background-color: #D1F366;
+    color: black;
+}
+.user{
+    background-color: #1C1F37;
+}
+.notifycation{
+    width: 56px;
+    height: 56px;
+    background-color: #1C1F37;
+}
+.avt{
+    width: 64px;
+    height: 64px;
+}
+.nav{
+    margin-top: 36px;
+    height: 94px;
+    background-color: #1C1F37;
+}
+.spacing{
+    gap: 2.5rem;
+}
+.widthA{
+    width: 218px;
+    height: 48px;
+    background-color: #D1F366;
+}
+.widthB{
+    width: 218px;
+    height: 48px;
+    background-color: #1C1F37;
+}
+.nav ul li:hover{
+    color: black;
+    background-color: #D1F366;
+}

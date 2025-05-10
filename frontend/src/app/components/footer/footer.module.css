@@ -1,0 +1,30 @@
+.footerWrapper {
+  background-color: #1C1F37;
+  color: #D0D4E7;
+  height: 334px;
+}
+.quick{
+  margin-top: 37px;
+  padding-left: 5rem;
+}
+.send{
+  margin-top: 37px;
+}
+.emailInput{
+  width: 328px;
+  height: 57px;
+  background-color: #D0D4E7;
+}
+.sendButton{
+  width: 104px;
+  height: 57px;
+  background-color: #c4f160;
+}
+.socialIcons a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.socialIcons a:hover {
+  color: #c4f160;
+}
