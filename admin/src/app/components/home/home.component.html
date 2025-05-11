@@ -1,0 +1,87 @@
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <img src="img/image.png" alt="The Moon Logo" class="logo" width="150px" />
+      <ul>
+        <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Dashboard</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="/admin/room-list">Quản lí phòng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí đặt phòng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí nội dung website</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí nhân viên</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí dịch vụ</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí khuyến mãi</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí trạng thái đặt phòng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí đánh giá </a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí hoá đơn thanh toán</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí khách hàng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Đăng xuất</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Filter -->
+      <div class="filter-buttons">
+        <button>Đơn đặt mới 20 phòng</button>
+        <button>Check in 20 phòng</button>
+        <button>Check-out 20 phòng</button>
+        <button>Tổng doanh thu (USD)</button>
+      </div>
+
+      <!-- Chart -->
+      <section class="chart-section">
+        <h5>Doanh thu (6 tháng gần nhất)</h5>
+        <canvas #revenueChart></canvas>
+      </section>
+
+      <!-- Room & Rating -->
+      <section class="grid-2">
+        <div class="box">
+          <h5>Tình trạng phòng</h5>
+          <p>Đang sử dụng (Success): 128 phòng</p>
+          <p>Đã đặt (Reserved): 87 phòng</p>
+          <p>Còn trống (Cleaning): 25 phòng</p>
+          <p>Chưa sẵn sàng (Not Ready): 5 phòng</p>
+        </div>
+        <div class="box">
+          <h5>Đánh giá tổng thể <span>4.6/5 – 236 đánh giá</span></h5>
+          <p>Sạch sẽ <progress value="4.8" max="5"></progress></p>
+          <p>Vị trí <progress value="4.6" max="5"></progress></p>
+          <p>Thoải mái <progress value="4.6" max="5"></progress></p>
+          <p>Wifi <progress value="4.7" max="5"></progress></p>
+        </div>
+      </section>
+
+      <!-- Booking Table -->
+      <section class="box">
+        <h5>Danh sách đơn đặt phòng</h5>
+        <table>
+          <thead>
+            <tr><th>Mã đơn</th><th>Khách</th><th>Loại phòng</th><th>Số lượng</th><th>Ngày</th><th>Trạng thái</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>#123</td><td>Nguyễn Văn A</td><td>Standard</td><td>2</td><td>01-05-2025</td><td>Đã xác nhận</td></tr>
+            <tr><td>#124</td><td>Trần B</td><td>Suite</td><td>1</td><td>03-05-2025</td><td>Đã thanh toán</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Nhân sự -->
+      <section class="box">
+        <h5>Nhiệm vụ nhân sự</h5>
+        <table>
+          <thead>
+            <tr><th>Nhân viên</th><th>Ngày</th><th>Ghi chú</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Thịnh</td><td>01-05</td><td>Vệ sinh phòng 101, hỗ trợ khách check in</td></tr>
+            <tr><td>Huy</td><td>02-05</td><td>Kiểm tra phòng 202</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+</body>
