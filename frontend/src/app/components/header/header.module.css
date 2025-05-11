@@ -25,6 +25,7 @@
     background-color: #1C1F37;
 }
 .avt{
+    object-fit: cover;
     width: 64px;
     height: 64px;
 }

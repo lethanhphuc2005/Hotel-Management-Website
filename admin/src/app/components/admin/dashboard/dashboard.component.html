@@ -1,0 +1,30 @@
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <img src="img/image.png" alt="The Moon Logo" class="logo" width="150px" />
+      <ul>
+        <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Dashboard</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" [routerLink]="['/admin/room-list']">Quản lí phòng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí đặt phòng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí nội dung website</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí nhân viên</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí dịch vụ</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí khuyến mãi</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí trạng thái đặt phòng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí đánh giá </a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí hoá đơn thanh toán</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Quản lí khách hàng</a></li>
+                  <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Đăng xuất</a></li>
+      </ul>
+
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+ <router-outlet />
+
+    </main>
+  </div>
+
+</body>
