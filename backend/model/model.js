@@ -81,11 +81,6 @@ const AmenitySchema = new mongoose.Schema({
 });
 
 let room = mongoose.model("room", RoomSchema, "phong");
-<<<<<<< HEAD
-let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong");
-module.exports = { room, roomtype };
-=======
 let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong")
 let amenity = mongoose.model("amenity", AmenitySchema, "tiennghi")
 module.exports = { room, roomtype, amenity };
->>>>>>> f6c2b3b2358ace4ad21a1780640d329203cf4384
