@@ -11,6 +11,41 @@
   margin-bottom: 20px;
 }
 
+.banner {
+  height: 100vh;
+  width: 100%;
+  background-image: url('/img/banner1.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.bannerContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  /* hoặc đen nếu nền sáng */
+}
+
+.bannerContent h1 {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.btnBooking {
+  width: 130px;
+}
+
+.btnBooking:hover {
+  background-color: white !important;
+  color: black !important;
+  transition: background-color 0.3s ease;
+}
+
 .sectionTitle {
   font-size: 24px;
   font-weight: 700;

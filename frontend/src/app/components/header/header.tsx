@@ -61,13 +61,6 @@ export default function Header() {
           </div>
         </div>
       </nav>
-
-      <section className={style.banner}>
-        <div className={style.bannerContent}>
-          <h2 className="fw-bold">WELCOME TO THE MOON</h2>
-          <button className={`bg-transparent p-2 mt-3 ${style.btnBooking} fw-bold border-1`}>BOOKING</button>
-        </div>
-      </section>
     </>
   )
 }
