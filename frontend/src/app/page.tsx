@@ -16,7 +16,7 @@ export default function Home() {
         <Col lg={4} md={6}>
           <div className={styles.roomCard}>
             <Image
-              src="/img/phong1.jpg"
+              src="/img/r1.jpg"
               alt="Phòng Standard"
               layout="fill"
               objectFit="cover"
@@ -26,7 +26,7 @@ export default function Home() {
             <div className={styles.roomContent}>
               <p className={styles.roomLabel}>Phòng Standard</p>
               <div className={styles.priceContainer}>
-                <span className={styles.priceLabel}>Chi phí</span>
+                <span className={styles.priceLabel}>Giá chỉ từ:</span>
                 <span className={styles.price}>2.000.000 VND</span>
               </div>
               <a href="#" className={styles.seeMore}>Xem thêm</a>
@@ -36,7 +36,7 @@ export default function Home() {
         <Col lg={4} md={6}>
           <div className={styles.roomCard}>
             <Image
-              src="/img/phong2.jpg"
+              src="/img/r2.jpg"
               alt="Phòng Deluxe"
               layout="fill"
               objectFit="cover"
@@ -46,7 +46,7 @@ export default function Home() {
             <div className={styles.roomContent}>
               <p className={styles.roomLabel}>Phòng Deluxe</p>
               <div className={styles.priceContainer}>
-                <span className={styles.priceLabel}>Chi phí</span>
+                <span className={styles.priceLabel}>Giá chỉ từ:</span>
                 <span className={styles.price}>2.000.000 VND</span>
               </div>
               <a href="#" className={styles.seeMore}>Xem thêm</a>
@@ -56,7 +56,7 @@ export default function Home() {
         <Col lg={4} md={6}>
           <div className={styles.roomCard}>
             <Image
-              src="/img/phong3.jpg"
+              src="/img/r3.jpg"
               alt="Phòng Suite"
               layout="fill"
               objectFit="cover"
@@ -66,7 +66,7 @@ export default function Home() {
             <div className={styles.roomContent}>
               <p className={styles.roomLabel}>Phòng Suite</p>
               <div className={styles.priceContainer}>
-                <span className={styles.priceLabel}>Chi phí</span>
+                <span className={styles.priceLabel}>Giá chỉ từ:</span>
                 <span className={styles.price}>2.000.000 VND</span>
               </div>
               <a href="#" className={styles.seeMore}>Xem thêm</a>
@@ -185,7 +185,7 @@ export default function Home() {
         <Col lg={3} md={6}>
           <div className={styles.offerCard}>
             <Image
-              src="/img/phong11.jpg"
+              src="/img/r4.jpg"
               alt="Ưu đãi 1"
               layout="fill"
               objectFit="cover"
@@ -200,7 +200,7 @@ export default function Home() {
         <Col lg={3} md={6}>
           <div className={styles.offerCard}>
             <Image
-              src="/img/phong11.jpg"
+              src="/img/r5.jpg"
               alt="Ưu đãi 2"
               layout="fill"
               objectFit="cover"
@@ -215,7 +215,7 @@ export default function Home() {
         <Col lg={3} md={6}>
           <div className={styles.offerCard}>
             <Image
-              src="/img/phong11.jpg"
+              src="/img/r6.jpg"
               alt="Ưu đãi 3"
               layout="fill"
               objectFit="cover"
@@ -230,7 +230,7 @@ export default function Home() {
         <Col lg={3} md={6}>
           <div className={styles.offerCard}>
             <Image
-              src="/img/phong11.jpg"
+              src="/img/r7.jpg"
               alt="Ưu đãi 4"
               layout="fill"
               objectFit="cover"
@@ -259,6 +259,7 @@ export default function Home() {
             <h3 className={styles.infoTitle}>THE MOON</h3>
             <p className={styles.infoText}>
               Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại Hoshiyo Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /><br />
+              Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại Hoshiyo Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
               Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại Hoshiyo Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
               Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.
             </p>
