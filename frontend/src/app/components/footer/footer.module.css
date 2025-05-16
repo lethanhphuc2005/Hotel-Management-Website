@@ -1,7 +1,15 @@
 .footerWrapper {
-  background-color: #1C1F37;
   color: #D0D4E7;
-  height: 334px;
+  background-image: url('/img/ft1.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+  /* padding-top: 80px; */
+  padding-bottom: 40px;
+    background-color: rgba(0, 0, 0, 0.6); /* lớp đen mờ */
+  background-blend-mode: darken; /* trộn màu tối với ảnh */
+  position: relative;
 }
 .quick{
   margin-top: 37px;
@@ -14,11 +22,14 @@
   width: 328px;
   height: 57px;
   background-color: #D0D4E7;
+  padding: 20px;
+  outline: none;
+  color: black;
 }
 .sendButton{
   width: 104px;
   height: 57px;
-  background-color: #c4f160;
+  background-color: #FAB320;
 }
 .socialIcons a {
   color: white;
@@ -26,5 +37,5 @@
   transition: color 0.3s ease;
 }
 .socialIcons a:hover {
-  color: #c4f160;
+  color: #FAB320;
 }

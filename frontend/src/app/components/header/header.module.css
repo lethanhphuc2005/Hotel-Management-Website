@@ -1,7 +1,13 @@
-.bgColor{
-    background-color: #141627;
-    height: 204px;
+.bgColor {
+  /* background-color: #141627; */
+  height: 204px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
 }
+
 .marginTop{
     margin-top: 33px;
 }
@@ -9,6 +15,8 @@
     width: 450px;
     height: 57px;
     background-color: #1C1F37;
+    padding: 30px;
+      outline: none;
 }
 .btnSearch{
     width: 131px;
@@ -47,7 +55,25 @@
     height: 48px;
     background-color: #1C1F37;
 }
-.nav ul li:hover{
-    color: black;
-    background-color: #D1F366;
+.inputSearch{
+    background-color: transparent;
+}
+.inputSearch::placeholder{
+    color: white;
+}
+.inputSearch:focus{
+    background-color: transparent;
+}
+.formSearch{
+    margin-right: 100px;
+}
+.navbarScrollBg {
+  background-color: black !important;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.navbarScrollBg :global(.nav-link),
+.navbarScrollBg :global(.navbar-brand),
+.navbarScrollBg :global(.bi) {
+  color: white !important;
 }

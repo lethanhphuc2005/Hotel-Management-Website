@@ -18,7 +18,7 @@ const RoomSchema = new mongoose.Schema({
   TenPhong: {
     type: String,
     required: true,
-  }
+  },
 });
 
 const RoomTypeSchema = new mongoose.Schema({
@@ -40,52 +40,48 @@ const RoomTypeSchema = new mongoose.Schema({
   },
 });
 
-RoomTypeSchema.virtual('TienNghi', {
-  ref: 'amenity',        // Model tiện nghi
-  localField: '_id',     // _id của roomtype
-  foreignField: 'MaLP'   // Field trong Amenity tham chiếu đến roomtype
+RoomTypeSchema.virtual("TienNghi", {
+  ref: "amenity", // Model tiện nghi
+  localField: "_id", // _id của roomtype
+  foreignField: "MaLP", // Field trong Amenity tham chiếu đến roomtype
 });
 
-RoomTypeSchema.set('toJSON', { 
-  virtuals: true, 
-  versionKey: false, 
+RoomTypeSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
   transform: (doc, ret) => {
-    delete ret.id;  // Xóa _id trước khi trả về kết quả
+    delete ret.id; // Xóa _id trước khi trả về kết quả
     return ret;
-  }
+  },
 });
 
-RoomTypeSchema.set('toObject', { 
-  virtuals: true, 
-  versionKey: false, 
+RoomTypeSchema.set("toObject", {
+  virtuals: true,
+  versionKey: false,
   transform: (doc, ret) => {
-    delete ret.id;  // Xóa _id trước khi trả về kết quả
+    delete ret.id; // Xóa _id trước khi trả về kết quả
     return ret;
-  }
+  },
 });
 
 const AmenitySchema = new mongoose.Schema({
   TenTN: {
     type: String,
-    required: true
+    required: true,
   },
   MoTa: {
     type: String,
-    required: true
+    required: true,
   },
   MaLP: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "roomtype", // Tham chiếu đến loại phòng
-    required: true
-  }
+    required: true,
+  },
 });
 
 let room = mongoose.model("room", RoomSchema, "phong");
-<<<<<<< HEAD
 let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong");
-module.exports = { room, roomtype };
-=======
-let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong")
-let amenity = mongoose.model("amenity", AmenitySchema, "tiennghi")
+let amenity = mongoose.model("amenity", AmenitySchema, "tiennghi");
+
 module.exports = { room, roomtype, amenity };
->>>>>>> f6c2b3b2358ace4ad21a1780640d329203cf4384
