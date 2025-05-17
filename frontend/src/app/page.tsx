@@ -2,17 +2,34 @@ import Image from "next/image";
 import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import style from "./page.module.css";
+import { RoomSaleList, RoomTList, ServiceList } from "./components/roomList";
+import { RoomType } from "./types/roomtype";
+import { Room } from "./types/room";
+import { getRooms } from "./services/roomService";
+import { getRoomTypes } from "./services/roomtypeService"
+import { Banner } from "./components/bannerItem";
+import { WebsiteContent } from "./types/websitecontent";
+import { getWebsiteContents } from "./services/websitecontentService";
+import { Service } from "./types/service";
+import { getServices } from "./services/serviceService";
 
 
-export default function Home() {
+export default async function Home() {
+  let banners: WebsiteContent[] = await getWebsiteContents(
+    "http://localhost:8000/v1/websitecontent"
+  );
+  let roomtypes: RoomType[] = await getRoomTypes(
+    "http://localhost:8000/v1/roomtype"
+  );
+  let services: Service[] = await getServices(
+    "http://localhost:8000/v1/service"
+  );
+  let roomsales: Room[] = await getRooms(
+    "http://localhost:8000/v1/room"
+  );
   return (
     <>
-      <section className={style.banner}>
-        <div className={style.bannerContent}>
-          <h2 className="fw-bold">WELCOME TO THE MOON</h2>
-          <button className={`bg-transparent p-2 mt-3 ${style.btnBooking} fw-bold border-1`}>BOOKING</button>
-        </div>
-      </section>
+      <Banner banner={banners[0]}/>
       <Container fluid className={`${style.customContainer} container`}>
         {/* LOẠI PHÒNG Section */}
         <div className={style.headerContainer}>
@@ -20,66 +37,7 @@ export default function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <Col lg={4} md={6}>
-            <div className={style.roomCard}>
-              <Image
-                src="/img/r1.jpg"
-                alt="Phòng Standard"
-                layout="fill"
-                objectFit="cover"
-                className={style.roomImage}
-              />
-              <div className={style.roomOverlay}></div>
-              <div className={style.roomContent}>
-                <p className={style.roomLabel}>Phòng Standard</p>
-                <div className={style.priceContainer}>
-                  <span className={style.priceLabel}>Giá chỉ từ:</span>
-                  <span className={style.price}>2.000.000 VND</span>
-                </div>
-                <a href="#" className={style.seeMore}>Xem thêm</a>
-              </div>
-            </div>
-          </Col>
-          <Col lg={4} md={6}>
-            <div className={style.roomCard}>
-              <Image
-                src="/img/r2.jpg"
-                alt="Phòng Deluxe"
-                layout="fill"
-                objectFit="cover"
-                className={style.roomImage}
-              />
-              <div className={style.roomOverlay}></div>
-              <div className={style.roomContent}>
-                <p className={style.roomLabel}>Phòng Deluxe</p>
-                <div className={style.priceContainer}>
-                  <span className={style.priceLabel}>Giá chỉ từ:</span>
-                  <span className={style.price}>2.000.000 VND</span>
-                </div>
-                <a href="#" className={style.seeMore}>Xem thêm</a>
-              </div>
-            </div>
-          </Col>
-          <Col lg={4} md={6}>
-            <div className={style.roomCard}>
-              <Image
-                src="/img/r3.jpg"
-                alt="Phòng Suite"
-                layout="fill"
-                objectFit="cover"
-                className={style.roomImage}
-              />
-              <div className={style.roomOverlay}></div>
-              <div className={style.roomContent}>
-                <p className={style.roomLabel}>Phòng Suite</p>
-                <div className={style.priceContainer}>
-                  <span className={style.priceLabel}>Giá chỉ từ:</span>
-                  <span className={style.price}>2.000.000 VND</span>
-                </div>
-                <a href="#" className={style.seeMore}>Xem thêm</a>
-              </div>
-            </div>
-          </Col>
+          <RoomTList roomtypes={roomtypes} />
         </Row>
         <br />
 
@@ -89,96 +47,7 @@ export default function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <Col lg={2} md={4} sm={6}>
-            <div className={style.serviceCard}>
-              <Image
-                src="/img/phong5.jpg"
-                alt="Hồ bơi"
-                layout="fill"
-                objectFit="cover"
-                className={style.serviceImage}
-              />
-              <div className={style.serviceOverlay}></div>
-              <div className={style.serviceContent}>
-                <p className={style.serviceLabel}>HỒ BƠI</p>
-              </div>
-            </div>
-          </Col>
-          <Col lg={2} md={4} sm={6}>
-            <div className={style.serviceCard}>
-              <Image
-                src="/img/phong6.jpg"
-                alt="WIFI"
-                layout="fill"
-                objectFit="cover"
-                className={style.serviceImage}
-              />
-              <div className={style.serviceOverlay}></div>
-              <div className={style.serviceContent}>
-                <p className={style.serviceLabel}>WIFI</p>
-              </div>
-            </div>
-          </Col>
-          <Col lg={2} md={4} sm={6}>
-            <div className={style.serviceCard}>
-              <Image
-                src="/img/phong7.jpg"
-                alt="Spa & Massage"
-                layout="fill"
-                objectFit="cover"
-                className={style.serviceImage}
-              />
-              <div className={style.serviceOverlay}></div>
-              <div className={style.serviceContent}>
-                <p className={style.serviceLabel}>SPA & MASSAGE</p>
-              </div>
-            </div>
-          </Col>
-          <Col lg={2} md={4} sm={6}>
-            <div className={style.serviceCard}>
-              <Image
-                src="/img/phong10.jpeg"
-                alt="Yoga"
-                layout="fill"
-                objectFit="cover"
-                className={style.serviceImage}
-              />
-              <div className={style.serviceOverlay}></div>
-              <div className={style.serviceContent}>
-                <p className={style.serviceLabel}>YOGA</p>
-              </div>
-            </div>
-          </Col>
-          <Col lg={2} md={4} sm={6}>
-            <div className={style.serviceCard}>
-              <Image
-                src="/img/phong8.jpg"
-                alt="Gym"
-                layout="fill"
-                objectFit="cover"
-                className={style.serviceImage}
-              />
-              <div className={style.serviceOverlay}></div>
-              <div className={style.serviceContent}>
-                <p className={style.serviceLabel}>GYM</p>
-              </div>
-            </div>
-          </Col>
-          <Col lg={2} md={4} sm={6}>
-            <div className={style.serviceCard}>
-              <Image
-                src="/img/phong9.jpeg"
-                alt="Nhà hàng"
-                layout="fill"
-                objectFit="cover"
-                className={style.serviceImage}
-              />
-              <div className={style.serviceOverlay}></div>
-              <div className={style.serviceContent}>
-                <p className={style.serviceLabel}>NHÀ HÀNG</p>
-              </div>
-            </div>
-          </Col>
+          <ServiceList services={services}/>
         </Row>
         <br />
         <br />
@@ -189,66 +58,7 @@ export default function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <Col lg={3} md={6}>
-            <div className={style.offerCard}>
-              <Image
-                src="/img/r4.jpg"
-                alt="Ưu đãi 1"
-                layout="fill"
-                objectFit="cover"
-                className={style.offerImage}
-              />
-              <div className={style.offerOverlay}></div>
-              <div className={style.offerContent}>
-                <a href="#" className={style.offerButton}>Xem chi tiết →</a>
-              </div>
-            </div>
-          </Col>
-          <Col lg={3} md={6}>
-            <div className={style.offerCard}>
-              <Image
-                src="/img/r5.jpg"
-                alt="Ưu đãi 2"
-                layout="fill"
-                objectFit="cover"
-                className={style.offerImage}
-              />
-              <div className={style.offerOverlay}></div>
-              <div className={style.offerContent}>
-                <a href="#" className={style.offerButton}>Xem chi tiết →</a>
-              </div>
-            </div>
-          </Col>
-          <Col lg={3} md={6}>
-            <div className={style.offerCard}>
-              <Image
-                src="/img/r6.jpg"
-                alt="Ưu đãi 3"
-                layout="fill"
-                objectFit="cover"
-                className={style.offerImage}
-              />
-              <div className={style.offerOverlay}></div>
-              <div className={style.offerContent}>
-                <a href="#" className={style.offerButton}>Xem chi tiết →</a>
-              </div>
-            </div>
-          </Col>
-          <Col lg={3} md={6}>
-            <div className={style.offerCard}>
-              <Image
-                src="/img/r7.jpg"
-                alt="Ưu đãi 4"
-                layout="fill"
-                objectFit="cover"
-                className={style.offerImage}
-              />
-              <div className={style.offerOverlay}></div>
-              <div className={style.offerContent}>
-                <a href="#" className={style.offerButton}>Xem chi tiết →</a>
-              </div>
-            </div>
-          </Col>
+          <RoomSaleList rooms={roomsales} />
         </Row>
         <br />
         <br />
@@ -310,8 +120,8 @@ export default function Home() {
                 <div className={style.infoCardContent}>
                   <h4 className={style.infoCardTitle}>CHÍNH SÁCH ĐẶT PHÒNG</h4>
                   <ul className={style.infoList}>
-                    <li>Check-in: Từ 2:00 PM</li>
-                    <li>Check-out: Từ 12:00 PM</li>
+                    <li>Hủy phòng miễn phí trước 48 giờ</li>
+                    <li>Không cho phép mang thú cưng</li>
                     <li>Vị trí hoàn hảo tại trung tâm</li>
                   </ul>
                 </div>
@@ -330,16 +140,15 @@ export default function Home() {
                 <div className={style.infoCardContent}>
                   <h4 className={style.infoCardTitle}>CHÍNH SÁCH THANH TOÁN</h4>
                   <ul className={style.infoList}>
-                    <li>Thời gian từ 6:00 AM</li>
-                    <li>Thực đơn phong phú</li>
-                    <li>Phục vụ tại quầy bar</li>
+                    <li>Tiền mặt</li>
+                    <li>Thanh toán trực tiếp tại lễ tân</li>
+                    <li>Phải cọc tiền vào ngày lễ</li>
                   </ul>
                 </div>
               </div>
             </Col>
           </Row>
         </div>
-
       </Container>
     </>
   );

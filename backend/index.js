@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 const roomRouter = require("./routes/room");
 const roomtypeRouter = require("./routes/roomtype");
 const userRouter = require("./routes/user");
+const websitecontentRouter = require("./routes/websitecontent");
+const serviceRouter = require("./routes/service");
 
 dotenv.config();
 
@@ -32,6 +34,8 @@ mongoose
 app.use("/v1/room", roomRouter);
 app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);
+app.use("/v1/websitecontent", websitecontentRouter);
+app.use("/v1/service", serviceRouter);
 
 app.listen(8000, () => {
   console.log("sever đang chạy");
