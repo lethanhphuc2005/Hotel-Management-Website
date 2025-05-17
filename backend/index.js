@@ -8,6 +8,7 @@ const roomtypeRouter = require("./routes/roomtype");
 const userRouter = require("./routes/user");
 const websitecontentRouter = require("./routes/websitecontent");
 const serviceRouter = require("./routes/service");
+const imgroomtypeRouter = require("./routes/imgroomtype");
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/websitecontent", websitecontentRouter);
 app.use("/v1/service", serviceRouter);
+app.use("/v1/imgroomtype", serviceRouter);
 
 app.listen(8000, () => {
   console.log("server đang chạy");

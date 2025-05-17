@@ -7,7 +7,7 @@ export function RoomTList({ roomtypes }: { roomtypes: RoomType[] }) {
   return (
     <>
       {roomtypes.map((roomtype: RoomType) => (
-        <RoomT roomtype={roomtype} />
+        <RoomT key={roomtype._id} roomtype={roomtype} />
       ))}
     </>
   );

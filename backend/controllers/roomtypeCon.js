@@ -15,10 +15,10 @@ const roomtypeCon = {
   // lấy tất cả loại phòng
   getAllRoomtype: async (req, res) => {
     try {
-      const roomtypes = await roomtype.find().populate({
-        path: "TienNghi",
-        select: "TenTN MoTa",
-      });
+      const roomtypes = await roomtype.find().populate([
+        { path: "TienNghi", select: "TenTN MoTa" },
+        { path: "HinhAnh", select: "HinhAnh" },
+      ]);
       res.status(200).json(roomtypes);
     } catch (error) {
       res.status(500).json(error);

@@ -9,7 +9,8 @@ export async function getRoomTypes(url: string) {
       TenLP: p.TenLP,
       SoGiuong: p.SoGiuong,
       GiaPhong: p.GiaPhong,
-      MoTa: p.MoTa
+      MoTa: p.MoTa,
+      HinhAnh: p.HinhAnh
     };
   });
   return roomtypes;
