@@ -54,20 +54,13 @@ export default function Header() {
               <button className="btn btn-outline-light w-50" type="submit">Tìm kiếm</button>
             </form>
             <div className='d-flex gap-3'>
-              <i className="bi bi-bell fs-4"></i>
-              <i className="bi bi-person-circle fs-4"></i>
-              <i className="bi bi-receipt fs-4"></i>
+              <a className='text-white' href=""><i className="bi bi-bell fs-4"></i></a>
+              <a className='text-white' href=""><i className="bi bi-person-circle fs-4"></i></a>
+              <a className='text-white' href=""><i className="bi bi-receipt fs-4"></i></a>
             </div>
           </div>
         </div>
       </nav>
-
-      <section className={style.banner}>
-        <div className={style.bannerContent}>
-          <h2 className="fw-bold">WELCOME TO THE MOON</h2>
-          <button className={`bg-transparent p-2 mt-3 ${style.btnBooking} fw-bold border-1`}>BOOKING</button>
-        </div>
-      </section>
     </>
   )
 }

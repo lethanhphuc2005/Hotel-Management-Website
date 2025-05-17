@@ -9,9 +9,9 @@ export default function Footer() {
                     <div className={`mt-4 mb-3`}>
                         <img width="203px" height="57px" src="/img/image.png" alt="" />
                     </div>
-                    <p className='pb-1'>Địa chỉ: số 22 đường 29, Phường An Khánh, Thành phố Thủ Đức</p>
-                    <p className='pb-1'>Số điện thoại: 0385473364</p>
-                    <p>Email: prosdmusic06@gmail.com</p>
+                    <p className='pb-1 text-white'>Địa chỉ: số 22 đường 29, Phường An Khánh, Thành phố Thủ Đức</p>
+                    <p className='pb-1 text-white'>Số điện thoại: 0385473364</p>
+                    <p className='text-white'>Email: prosdmusic06@gmail.com</p>
                     <div className={`${style.socialIcons} mt-4 d-flex gap-4`}>
                         <a href="#"><i className="bi bi-facebook fs-4"></i></a>
                         <a href="#"><i className="bi bi-instagram fs-4"></i></a>
@@ -20,15 +20,15 @@ export default function Footer() {
                     </div>
                 </div>
                 <div className={`col-md-4 ${style.quick}`}>
-                    <h2 className='fs-4 mb-3'>LIÊN KẾT NHANH</h2>
-                    <p>Giới thiệu</p>
-                    <p>Chính sách bảo mật</p>
-                    <p>Điều khoản dịch vụ</p>
-                    <p>Liên hệ</p>
+                    <h2 className='fs-4 mb-3 text-white'>LIÊN KẾT NHANH</h2>
+                    <p className='text-white'>Giới thiệu</p>
+                    <p className='text-white'>Chính sách bảo mật</p>
+                    <p className='text-white'>Điều khoản dịch vụ</p>
+                    <p className='text-white'>Liên hệ</p>
                 </div>
                 <div className={`col-md-4 ${style.send}`}>
-                    <h2 className='fs-4 mb-3'>ĐĂNG KÝ NHẬN TIN</h2>
-                    <p className='mb-4'>
+                    <h2 className='fs-4 mb-3 text-white'>ĐĂNG KÝ NHẬN TIN</h2>
+                    <p className='mb-4 text-white'>
                         Hãy nhập địa chỉ email của bạn vào ô dưới đây để có
                         thể nhận được tất cả các tin tức mới nhất của Suplo về
                         các sản phẩm mới, các chương trình khuyến mãi mới.
