@@ -54,9 +54,9 @@ export default function Header() {
               <button className="btn btn-outline-light w-50" type="submit">Tìm kiếm</button>
             </form>
             <div className='d-flex gap-3'>
-              <a className='text-white' href=""><i className="bi bi-bell fs-4"></i></a>
-              <a className='text-white' href=""><i className="bi bi-person-circle fs-4"></i></a>
-              <a className='text-white' href=""><i className="bi bi-receipt fs-4"></i></a>
+              <i className="bi bi-bell fs-4"></i>
+              <i className="bi bi-person-circle fs-4"></i>
+              <i className="bi bi-receipt fs-4"></i>
             </div>
           </div>
         </div>
