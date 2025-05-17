@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const RoomSchema = new mongoose.Schema({
+  TenPhong: {
+    type: String,
+    required: true,
+  },
   Tang: {
     type: Number,
     required: true,
@@ -13,10 +17,6 @@ const RoomSchema = new mongoose.Schema({
   MaLP: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "roomtype", // Tên model bạn dùng để lưu loại phòng
-    required: true,
-  },
-  TenPhong: {
-    type: String,
     required: true,
   },
 });

@@ -22,7 +22,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Kết nối thành công đến MongoDB");
+    console.log("✅ Kết nối thành công đến MongoDB");
   })
   .catch((error) => {
     console.error("Lỗi kết nối MongoDB:", error);
@@ -34,5 +34,5 @@ app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);
 
 app.listen(8000, () => {
-  console.log("sever đang chạy");
+  console.log("server đang chạy");
 });

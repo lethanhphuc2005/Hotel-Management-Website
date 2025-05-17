@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   Email: { type: String, require: true },
   SoDT: { type: String, require: true, default: null },
   Password: { type: String, require: true },
+  YeuCau_DB: { type: String, require: true, default: null },
 });
 
 const userModel = mongoose.model("users", userSchema, "khachhang");

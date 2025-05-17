@@ -1,54 +1,52 @@
 <body>
-
   <!-- Main content -->
   <div class="main">
+    <!-- Content -->
+    <div class="content">
+      <!-- Danh sách phòng -->
+      <div class="room-list">
+        <div class="room-controls">
+          <input type="text" placeholder="Tìm kiếm phòng..." />
+          <select>
+            <option>Popular</option>
+            <option>Giá rẻ nhất</option>
+            <option>Tất cả</option>
+          </select>
+          <button class="add-room">+ Thêm Phòng</button>
+        </div>
 
-      <!-- Content -->
-      <div class="content">
-          <!-- Danh sách phòng -->
-          <div class="room-list">
-              <div class="room-controls">
-                  <input type="text" placeholder="Tìm kiếm phòng..." />
-                  <select>
-                      <option>Popular</option>
-                      <option>Giá rẻ nhất</option>
-                      <option>Tất cả</option>
-                  </select>
-                  <button class="add-room">+ Thêm Phòng</button>
-              </div>
-
-
-<div class="rooms">
-    <!-- Duyệt danh sách phòng -->
-    <div class="room-item" *ngFor="let room of rooms" (click)="onSelectRoom(room)">
-  <img [src]="room.image || 'img/phong1.jpg'" />
-  <div class="info">
-    <h5>{{ room.name }}</h5>
-    <p>{{ room.description }}</p>
-    <div class="price">VND {{ room.price | number:'1.0-0' }}</div>
-  </div>
-</div>
-
-</div>
+        <div class="rooms">
+          <!-- Duyệt danh sách phòng -->
+          <div
+            class="room-item"
+            *ngFor="let room of rooms"
+            (click)="onSelectRoom(room)"
+          >
+            <img [src]="room.image || 'img/phong1.jpg'" />
+            <div class="info">
+              <h5>{{ room.name }}</h5>
+              <p>{{ room.description }}</p>
+              <div class="price">VND {{ room.price | number : "1.0-0" }}</div>
+            </div>
           </div>
-
-          <!-- Chi tiết phòng -->
-          <!-- Chi tiết phòng -->
-
-              <!-- Chi tiết phòng -->
-           <div class="room-detail" *ngIf="selectedRoom">
-  <h5>{{ selectedRoom.name }}</h5>
-  <img [src]="selectedRoom.image || 'img/phong1.jpg'" />
-  <p>{{ selectedRoom.description }}</p>
-
-  <!-- Nút chức năng -->
-  <div class="detail-actions">
-    <button class="edit-btn">✏️ Sửa</button>
-    <button class="delete-btn">🗑️ Xóa</button>
-  </div>
-</div>
-
-
-          </div>
+        </div>
       </div>
+
+      <!-- Chi tiết phòng -->
+      <!-- Chi tiết phòng -->
+
+      <!-- Chi tiết phòng -->
+      <div class="room-detail" *ngIf="selectedRoom">
+        <h5>{{ selectedRoom.name }}</h5>
+        <img [src]="selectedRoom.image || 'img/phong1.jpg'" />
+        <p>{{ selectedRoom.description }}</p>
+
+        <!-- Nút chức năng -->
+        <div class="detail-actions">
+          <button class="edit-btn">✏️ Sửa</button>
+          <button class="delete-btn">🗑️ Xóa</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
