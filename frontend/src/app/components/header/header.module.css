@@ -1,79 +1,93 @@
 .bgColor {
-  /* background-color: #141627; */
-  height: 204px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
+    /* background-color: #141627; */
+    height: 204px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
 }
 
-.marginTop{
-    margin-top: 33px;
+.item {
+    position: relative;
+    display: inline-block;
+    /* Chỉ rộng theo chữ */
 }
-.search{
-    width: 450px;
-    height: 57px;
-    background-color: #1C1F37;
-    padding: 30px;
-      outline: none;
+
+.item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: white;
+    transform: scaleX(0);
+    transition: transform 0.3s;
 }
-.btnSearch{
-    width: 131px;
-    height: 57px;
-    background-color: #D1F366;
-    color: black;
+.item:hover::after{
+    transform: scale(1);
 }
-.user{
-    background-color: #1C1F37;
-}
-.notifycation{
-    width: 56px;
-    height: 56px;
-    background-color: #1C1F37;
-}
-.avt{
-    object-fit: cover;
-    width: 64px;
-    height: 64px;
-}
-.nav{
-    margin-top: 36px;
-    height: 94px;
-    background-color: #1C1F37;
-}
-.spacing{
-    gap: 2.5rem;
-}
-.widthA{
-    width: 218px;
-    height: 48px;
-    background-color: #D1F366;
-}
-.widthB{
-    width: 218px;
-    height: 48px;
-    background-color: #1C1F37;
-}
-.inputSearch{
+.inputSearch {
     background-color: transparent;
 }
-.inputSearch::placeholder{
+
+.inputSearch::placeholder {
     color: white;
 }
-.inputSearch:focus{
+
+.inputSearch:focus {
     background-color: transparent;
 }
-.formSearch{
+
+.formSearch {
     margin-right: 100px;
 }
+
 .navbarScrollBg {
-  background-color: black !important;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: black !important;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .navbarScrollBg :global(.nav-link),
 .navbarScrollBg :global(.navbar-brand),
 .navbarScrollBg :global(.bi) {
-  color: white !important;
+    color: white !important;
+}
+
+/* Dropdown styles */
+.dropdown {
+  position: relative;
+}
+
+.dropdownMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #333;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  z-index: 1000;
+  min-width: 160px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.dropdown:hover .dropdownMenu {
+  display: block;
+}
+
+.dropdownItem {
+  display: block;
+  padding: 10px 15px;
+  color: white;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover {
+  background-color: #555;
 }

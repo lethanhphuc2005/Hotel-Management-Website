@@ -34,19 +34,24 @@ export default function Header() {
               style={{ ['--bs-scroll-height']: '100px' }}
             >
               <li className="nav-item">
-                <a className="nav-link active text-white fw-bold" href="#">Trang chủ</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Trang chủ</a>
+              </li>
+              <li className={`nav-item ${style.dropdown}`}>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Phòng</a>
+                <ul className={style.dropdownMenu}>
+                  <li><a href="#" className={style.dropdownItem}>Deluxe</a></li>
+                  <li><a href="#" className={style.dropdownItem}>Suite</a></li>
+                  <li><a href="#" className={style.dropdownItem}>Standard</a></li>
+                </ul>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-white fw-bold" href="#">Phòng</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Dịch vụ</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-white fw-bold" href="#">Dịch vụ</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Liên hệ</a>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-white fw-bold" href="#">Liên hệ</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link disabled text-white fw-bold" aria-disabled="true">Tin tức</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} aria-disabled="true">Tin tức</a>
               </li>
             </ul>
             <form className={`d-flex ${style.formSearch}`} role="search">

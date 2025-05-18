@@ -36,14 +36,29 @@
   transform: translate(-50%, -50%);
   text-align: center;
   color: white;
-  /* hoặc đen nếu nền sáng */
 }
 
 .bannerContent h1 {
   font-size: 3rem;
   font-weight: bold;
 }
-
+.text{
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: typing 2.5s steps(22);
+  cursor: .4s step-end infinite alternate;
+}
+@keyframes typing {
+  from {
+    width: 0;
+  }
+}
+@keyframes cursor {
+  50% {
+    border-color: transparent;
+  }
+}
 .btnBooking {
   width: 130px;
 }
@@ -75,10 +90,8 @@
 /* LOẠI PHÒNG Styles */
 .roomCard {
   position: relative;
-  /* background-color: #2a2f4a; */
   border-radius: 10px;
   overflow: hidden;
-  /* border: 1px solid #3a4060; */
   height: 450px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
