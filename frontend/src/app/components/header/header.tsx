@@ -60,7 +60,14 @@ export default function Header() {
             </form>
             <div className='d-flex gap-3'>
               <a className='text-white' href=""><i className="bi bi-bell fs-4"></i></a>
-              <a className='text-white' href=""><i className="bi bi-person-circle fs-4"></i></a>
+              <div className={style.dropdown}>
+                <a className='text-white' href=""><i className="bi bi-person-circle fs-4"></i></a>
+                <div className={style.dropdownMenu}>
+                  <a className={style.dropdownItem} href="#">Đăng nhập</a>
+                  <a className={style.dropdownItem} href="#">Đăng ký</a>
+                  <a className={style.dropdownItem} href="#">Quản lý tài khoản</a>
+                </div>
+              </div>
               <a className='text-white' href=""><i className="bi bi-receipt fs-4"></i></a>
             </div>
           </div>
