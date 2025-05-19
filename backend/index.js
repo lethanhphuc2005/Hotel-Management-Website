@@ -13,6 +13,7 @@ const imgroomtypeRouter = require("./routes/imgroomtype");
 dotenv.config();
 
 const app = express();
+const path = require("path");
 
 // Middleware
 app.use(express.json());
@@ -20,10 +21,7 @@ app.use(cors());
 
 // Kết nối MongoDB
 mongoose
-  .connect(process.env.MONGOOSE_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGOOSE_URL)
   .then(() => {
     console.log("✅ Kết nối thành công đến MongoDB");
   })
@@ -32,6 +30,7 @@ mongoose
   });
 
 // Router
+app.use(express.static(path.join(__dirname, "public")));
 app.use("/v1/room", roomRouter);
 app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);

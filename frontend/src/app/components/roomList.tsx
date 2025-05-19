@@ -17,7 +17,7 @@ export function RoomSaleList({ rooms }: { rooms: Room[] }) {
   return (
     <>
       {rooms.map((room: Room) => (
-        <RoomSale room={room} />
+        <RoomSale room={room} key={room._id} />
       ))}
     </>
   );
@@ -27,7 +27,7 @@ export function ServiceList({ services }: { services: Service[] }) {
   return (
     <>
       {services.map((service: Service) => (
-        <ServiceItem service={service} />
+        <ServiceItem service={service} key={service._id} />
       ))}
     </>
   );

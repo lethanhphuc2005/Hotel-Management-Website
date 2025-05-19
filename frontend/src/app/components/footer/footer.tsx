@@ -11,7 +11,7 @@ export default function Footer() {
                     </div>
                     <p className='pb-1 text-white'>Địa chỉ: số 22 đường 29, Phường An Khánh, Thành phố Thủ Đức</p>
                     <p className='pb-1 text-white'>Số điện thoại: 0385473364</p>
-                    <p className='text-white'>Email: prosdmusic06@gmail.com</p>
+                    <p className='text-white'>Email: themoon@gmail.com</p>
                     <div className={`${style.socialIcons} mt-4 d-flex gap-4`}>
                         <a href="#"><i className="bi bi-facebook fs-4"></i></a>
                         <a href="#"><i className="bi bi-instagram fs-4"></i></a>
@@ -30,9 +30,9 @@ export default function Footer() {
                     <h2 className='fs-4 mb-3 text-white'>ĐĂNG KÝ NHẬN TIN</h2>
                     <p className='mb-4 text-white'>
                         Hãy nhập địa chỉ email của bạn vào ô dưới đây để có
-                        thể nhận được tất cả các tin tức mới nhất của Suplo về
+                        thể nhận được tất cả các tin tức mới nhất của The Moon về
                         các sản phẩm mới, các chương trình khuyến mãi mới.
-                        Suplo xin đảm bảo sẽ không gửi mail rác, mail spam tới bạn.
+                        The Moon xin đảm bảo sẽ không gửi mail rác, mail spam tới bạn.
                     </p>
                     <div>
                         <input type="email" placeholder="Nhập email của bạn" className={`${style.emailInput} border-0 rounded-start-4`} />

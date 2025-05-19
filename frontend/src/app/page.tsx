@@ -75,9 +75,9 @@ export default async function Home() {
             <div className={style.infoMainContent}>
               <h3 className={style.infoTitle}>THE MOON</h3>
               <p className={style.infoText}>
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại Hoshiyo Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /><br />
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại Hoshiyo Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại Hoshiyo Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
+                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại The Moon Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /><br />
+                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại The Moon Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
+                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại The Moon Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
                 Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.
               </p>
             </div>
