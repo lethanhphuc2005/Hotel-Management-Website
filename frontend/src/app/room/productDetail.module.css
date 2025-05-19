@@ -71,7 +71,7 @@
 
 .mainImage {
   width: 50%;
-  height: 15rem;
+  height: 21rem;
   object-fit: cover;
 }
 
@@ -84,7 +84,7 @@
 
 .smallImage {
   width: 100%;
-  height: 7.25rem;
+  height: 10.25rem;
   object-fit: cover;
 }
 
@@ -92,14 +92,14 @@
 .details {
   display: flex;
   justify-content: space-between;
-  padding: 1.25rem;
-  background-color: #1a1a1a;
+  
+  background-color: black;
   border-radius: 0.5rem;
   font-family: Arial, sans-serif;
 }
 
 .leftSection {
-  flex: 1;
+  flex: 1.8;
   margin-right: 1.25rem;
 }
 
@@ -118,7 +118,7 @@
 
 .roomInfo {
   font-size: 0.875rem;
-  color: #b0b0b0;
+  color: white;
   margin-bottom: 1.25rem;
 }
 
@@ -147,16 +147,17 @@
   border: 1px solid #444;
   padding: 0.75rem;
   border-radius: 0.25rem;
+  gap: 4rem;
 }
 
 .ratingIcons {
   font-size: 0.875rem;
-  color: #00ff00;
+  color: white;
 }
 
 .ratingText {
   font-size: 0.75rem;
-  color: #b0b0b0;
+  color: white;
   display: block;
   margin: 0.3125rem 0;
   flex: 1;
@@ -164,8 +165,9 @@
 
 .ratingScoreWrapper {
   display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   align-items: center;
-  gap: 0.625rem;
 }
 
 .ratingScore {
@@ -181,14 +183,14 @@
 
 .ratingCount {
   font-size: 0.875rem;
-  color: #b0b0b0;
+  color: white; /* đổi từ #b0b0b0 sang white */
 }
 
 /* Booking Info Section */
 .infoSection {
-  background-color: #1a1a1a;
+  background-color: black;
   padding: 0.75rem;
-  border: 3px solid #fff;
+  border: 1px solid #fff;
   border-radius: 0.5rem;
   width: 100%;
   max-width: 25rem;
@@ -236,7 +238,7 @@
 
 .bookingItem p:first-child {
   font-size: 0.75rem;
-  color: #b0b0b0;
+  color: white; /* đổi từ #b0b0b0 sang white */
   margin-bottom: 0.125rem;
 }
 
@@ -254,12 +256,12 @@
 }
 
 .dropdownIcon {
-  color: #b0b0b0;
+  color: white; /* đổi từ #b0b0b0 sang white */
   margin-left: 0.25rem;
 }
 
 .bookButton {
-  background-color: #ffd700;
+  background-color: #FAB320;
   color: #000;
   font-weight: bold;
   padding: 0.75rem;
@@ -276,36 +278,45 @@
 }
 .additionalInfo {
   background-color: #000;
-  padding: 1rem;
   margin-top: 1rem;
-  border: 1px solid #444;
   border-radius: 0.5rem;
 }
 
 .highlightsSection, .reviewsSection, .knowSection {
   margin-bottom: 1.5rem;
+  padding-top: 2rem;
 }
 
 .sectionTitle {
   font-size: 1.25rem;
   font-weight: bold;
   color: #fff;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .iconList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 10rem;
+}
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.reviewAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .iconItem {
   display: flex;
   align-items: center;
-  font-size: 0.875rem;
-  color: #b0b0b0;
-  width: calc(20% - 0.5rem); /* 5 items per row, accounting for gap */
-  box-sizing: border-box;
+  font-size: 14px;
+  margin-bottom: 12px;
 }
 
 .icon {
@@ -333,19 +344,22 @@
 
 .knowItem {
   font-size: 0.875rem;
-  color: #b0b0b0;
+  color: white; /* đổi từ #b0b0b0 sang white */
 }
 
 .reviewContainer {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  /* width: 50%; */
 }
 
 .reviewItem {
-  background-color: #1a1a1a;
+  flex: 1 1 calc(50% - 0.5rem);
   padding: 0.75rem;
   border-radius: 0.25rem;
   width: 100%;
+  
 }
 
 .reviewAuthor {
@@ -353,6 +367,7 @@
   font-weight: bold;
   color: #fff;
   margin-bottom: 0.25rem;
+  
 }
 
 .reviewRating {
@@ -363,5 +378,23 @@
 
 .reviewText {
   font-size: 0.75rem;
-  color: #b0b0b0;
+  color: white; /* đổi từ #b0b0b0 sang white */
+}
+.line {
+  border: none;                /* bỏ border mặc định */
+  height: 1px;                 /* độ dày */
+  background-color: white;     /* màu trắng đậm */
+  box-shadow: none;            /* xóa shadow nếu có */
+  width: 63%;
+  margin: 0;
+  opacity: 1;  
+}
+.line1{
+  border: none;                /* bỏ border mặc định */
+  height: 1px;                 /* độ dày */
+  background-color: white;     /* màu trắng đậm */
+  box-shadow: none;            /* xóa shadow nếu có */
+  width: 100%;
+  margin: 0;
+  opacity: 1;  
 }
