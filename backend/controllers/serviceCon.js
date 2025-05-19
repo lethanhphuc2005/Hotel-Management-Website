@@ -1,4 +1,4 @@
-const service = require("../model/serviceModel");
+const service = require("../models/serviceModel");
 
 const serviceCon = {
   // thêm dịch vụ

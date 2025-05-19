@@ -1,4 +1,4 @@
-const websitecontent = require("../model/websitecontentModel");
+const websitecontent = require("../models/websitecontentModel");
 
 const websitecontentCon = {
   // thêm nội dung website

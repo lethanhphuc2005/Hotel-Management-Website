@@ -1,4 +1,4 @@
-const { roomtype } = require("../model/model");
+const { roomtype } = require("../models/model");
 
 const roomtypeCon = {
   // thêm loại phòng

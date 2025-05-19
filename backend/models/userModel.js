@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  TenKH: { type: String, require: true },
+  TenKH: { type: String, require: true, default: null },
   DiaChi: { type: String, require: true, default: null },
   Email: { type: String, require: true },
   SoDT: { type: String, require: true, default: null },

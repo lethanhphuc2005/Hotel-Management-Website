@@ -1,4 +1,4 @@
-const imgroomtype = require("../model/model");
+const imgroomtype = require("../models/model");
 
 const imgroomtypeCon = {
   // thêm hình ảnh loại phòng
