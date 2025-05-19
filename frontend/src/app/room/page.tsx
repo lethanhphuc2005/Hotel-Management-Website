@@ -1,7 +1,7 @@
 import React from "react";
-import styles from "./productDetail.module.css";
+import styles from "./roomDetail.module.css";
 
-const ProductDetail = () => {
+const roomDetail = () => {
   return (
     <div className={styles.pageContainer}>
       {/* Header */}
@@ -330,4 +330,4 @@ const ProductDetail = () => {
   );
 };
 
-export default ProductDetail;
+export default roomDetail;
