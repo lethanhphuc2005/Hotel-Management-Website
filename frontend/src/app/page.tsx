@@ -29,7 +29,7 @@ export default async function Home() {
   );
   return (
     <>
-      <Banner banner={banners[0]}/>
+      <Banner banner={banners[1]}/>
       <Container fluid className={`${style.customContainer} container`}>
         {/* LOẠI PHÒNG Section */}
         <div className={style.headerContainer}>
