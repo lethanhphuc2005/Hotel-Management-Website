@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 
 const roomRouter = require("./routes/room");
 const roomtypeRouter = require("./routes/roomtype");
+const accountRouter = require("./routes/account");
 const userRouter = require("./routes/user");
 const websitecontentRouter = require("./routes/websitecontent");
 const serviceRouter = require("./routes/service");
@@ -34,9 +35,10 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/v1/room", roomRouter);
 app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);
+app.use("/v1/account", accountRouter);
 app.use("/v1/websitecontent", websitecontentRouter);
 app.use("/v1/service", serviceRouter);
-app.use("/v1/imgroomtype", serviceRouter);
+app.use("/v1/imgroomtype", imgroomtypeRouter);
 
 app.listen(8000, () => {
   console.log("server đang chạy");

@@ -1,28 +1,21 @@
-var express = require("express");
-var router = express.Router();
-
+const router = require("express").Router();
+const { verifyToken } = require("../controllers/middlewareCon");
 const {
+  getUser,
   getAnUser,
-  getAllUsers,
   updateUser,
   changePassword,
 } = require("../controllers/userCon");
-const { verifyToken, register, login } = require("../controllers/accountCon");
 
 // Lấy thông tin 1 user theo token
-router.get("/", getAllUsers);
+router.get("/", getUser);
 
 // Lấy thông tin 1 user theo token
-router.get("/userinfo", verifyToken, getAnUser);
+router.get("/userinfo/:id", verifyToken, getAnUser);
 
-// Đăng ký
-router.post("/register", register);
+router.put("/update/:id", verifyToken, updateUser);
 
-// Đăng nhập
-router.post("/login", login);
-
-router.put("/update/", verifyToken, updateUser);
-
-router.put("/changepassword", verifyToken, changePassword);
+router.put("/changepassword/:id", verifyToken, changePassword);
 
 module.exports = router;
+

@@ -1,12 +1,53 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  TenKH: { type: String, require: true, default: null },
-  DiaChi: { type: String, require: true, default: null },
-  Email: { type: String, require: true },
-  SoDT: { type: String, require: true, default: null },
-  Password: { type: String, require: true },
-  YeuCau_DB: { type: String, require: true, default: null },
+  TenKH: {
+    type: String,
+    require: true,
+    default: "no name",
+    unique: true,
+    minlength: 6,
+  },
+  DiaChi: {
+    type: String,
+    require: true,
+    default: "no address",
+    minlength: 6,
+  },
+  Email: {
+    type: String,
+    require: true,
+    unique: true,
+    validate: {
+      validator: function (v) {
+        return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
+      },
+      message: (props) => `${props.value} không phải là email hợp lệ!`,
+    },
+  },
+  SoDT: {
+    type: String,
+    require: true,
+    default: "no phone",
+    unique: true,
+    minlength: 10,
+    validate: {
+      validator: function (v) {
+        return /^(0[3|5|7|8|9])+([0-9]{8})$/.test(v);
+      },
+      message: (props) => `${props.value} không phải là số điện thoại hợp lệ!`,
+    },
+  },
+  Password: {
+    type: String,
+    require: true,
+    minlength: 6,
+  },
+  YeuCau_DB: {
+    type: String,
+    require: true,
+    default: "no request",
+  },
 });
 
 const userModel = mongoose.model("users", userSchema, "khachhang");

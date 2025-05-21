@@ -1,129 +1,129 @@
-//chèn multer để upload file
-const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./public/images");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-const checkfile = (req, file, cb) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-    return cb(new Error("Bạn chỉ được upload file ảnh"));
-  }
-  return cb(null, true);
-};
-const upload = multer({ storage: storage, fileFilter: checkfile });
-
 const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const register = [
-  upload.single("img"),
-  async (req, res) => {
+let refreshTokens = [];
+const accountCon = {
+  creareToken: (user) => {
+    return jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.ACCESS_TOKEN,
+      { expiresIn: "30s" }
+    );
+  },
+  creareRefreshToken: (user) => {
+    return jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.REFRESH_TOKEN,
+      { expiresIn: "20d" }
+    );
+  },
+  // add
+  addAccount: async (req, res) => {
     try {
-      // Kiểm tra email đã tồn tại chưa bằng hàm findOne()
-      const checkuser = await userModel.findOne({
+       const checkAccount = await userModel.findOne({
         Email: req.body.email,
       });
-      if (checkuser) {
-        throw new Error("Email đã tồn tại");
+      if (checkAccount) {
+        return res.status(400).json("Email đã tồn tại");
       }
       // Mã hoá mật khẩu bằng bcrypt
       const hashPassword = await bcrypt.hash(req.body.password, 10);
       // Tạo một instance mới của userModel
-      const newUser = new userModel({
+      const newAccount = new userModel({
         Email: req.body.email,
         Password: hashPassword,
       });
       // Lưu vào database bằng hàm save()
-      const data = await newUser.save();
-      res.json(data);
+      const savedAccount = await newAccount.save();
+      res.status(200).json(savedAccount);
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json(error);
     }
   },
-];
-
-const login = [
-  upload.single("img"),
-  async (req, res) => {
+  login: async (req, res) => {
     try {
-      console.log(req.body);
-      // Kiểm tra email có tồn tại ko
-      const checkuser = await userModel.findOne({
-        Email: req.body.email,
-      });
-      if (!checkuser) {
-        throw new Error("Email không tồn tại");
+      const checkUser = await userModel.findOne({ Email: req.body.email });
+      if (!checkUser) {
+        return res.status(400).json("sai email");
       }
-      // So sánh mật khẩu
+      console.log(checkUser);
+      console.log(req.body);
+      // const validPassword = (await req.body.password) == user.Password;
+      // console.log(validPassword);
       const isMatch = await bcrypt.compare(
         req.body.password,
-        checkuser.Password
+        checkUser.Password
       );
       if (!isMatch) {
-        throw new Error("Mật khẩu không đúng");
+        return res.status(400).json("sai password");
       }
-      // Tạo token với mã bí mật là 'secretkey' và thời gian sống là 1 giờ
-      const token = jwt.sign({ id: checkuser._id }, "motconcamapbichetduoi", {
-        expiresIn: "1h",
-      });
-      res.json(token);
+      if (checkUser && isMatch) {
+        const accessToken = accountCon.creareToken(checkUser);
+        const refreshToken = accountCon.creareRefreshToken(checkUser);
+        /*
+        refreshTokens.push(refreshToken)
+        console.log(refreshTokens);
+        res.cookie("refreshToken", refreshToken,{
+          httpOnly: true,
+          secure:false,
+          path: "/",
+          sameSite:"strict"
+        })
+        */
+        const { password, ...others } = checkUser._doc;
+        res.status(200).json({ ...others, accessToken, refreshToken });
+      }
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json(error);
     }
   },
-];
+  requestRefreshToken: async (req, res) => {
+    // Lấy refresh từ người dùng
+    //const refreshToken = req.cookies.refreshToken;
+    let { refreshToken } = req.body;
+    if (!refreshToken) return res.status(401).json("Không có token");
 
-// Bảo mật token
-const verifyToken = (req, res, next) => {
-  // Lấy token từ header
-  const token = req.headers.authorization.slice(7);
-  console.log(token);
-  if (!token) {
-    return res.status(403).json({ message: "Không có token" });
-  }
-  // Xác thực token với mã bí mật
-  jwt.verify(token, "motconcamapbichetduoi", (err, decoded) => {
-    if (err) {
-      if (err.name === "TokenExpiredError") {
-        return res.status(401).json({ message: "Token đã hết hạn" });
-      } else if (err.name === "JsonWebTokenError") {
-        return res.status(401).json({ message: "Token không hợp lệ" });
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
+      if (err) {
+        console.error(err);
+        return res.status(403).json("Lỗi xác thực token");
       }
-      return res.status(401).json({ message: "Lỗi xác thực token" });
-    }
-    // decoded chứa thông tin user đã mã hoá trong token và lưu vào req
-    req.userId = decoded.id;
-    next();
-  });
-};
 
-// Xác thực admin
-const verifyAdmin = async (req, res, next) => {
-  try {
-    //Lấy thông tin user từ id lưu trong req khi đã xác thực token
-    const user = await userModel.findById(req.userId);
-    if (!user) {
-      throw new Error("Không tìm thấy user");
-    }
-    if (user.role !== "admin") {
-      throw new Error("Không có quyền truy cập");
-    }
-    next();
-  } catch {
-    res.status(500).json({ message: error.message });
-  }
-};
+      // Xóa refreshToken cũ khỏi danh sách
+      //refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
-module.exports = {
-  register,
-  login,
-  verifyToken,
-  verifyAdmin,
+      // Tạo accessToken và refreshToken mới
+      const newAccessToken = accountCon.creareToken(user);
+      const newRefreshToken = accountCon.creareRefreshToken(user);
+
+      // Thêm refreshToken mới vào danh sách
+      //refreshTokens.push(newRefreshToken);
+
+      // Đặt cookie với refreshToken mới
+      /*
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: false,
+        path: "/",
+        sameSite: "strict",
+      });
+      */
+      res
+        .status(200)
+        .json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+    });
+  },
+  logout: async (req, res) => {
+    res.clearCookie("refreshToken");
+    refreshTokens = refreshTokens.filter(
+      (token) => token !== req.cookies.refreshToken
+    );
+    res.status(200).json("đăng xuất thành công");
+  },
 };
+module.exports = accountCon;

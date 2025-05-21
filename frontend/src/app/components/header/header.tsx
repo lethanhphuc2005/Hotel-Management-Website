@@ -31,7 +31,7 @@ export default function Header() {
           <div className="collapse navbar-collapse" id="navbarScroll">
             <ul
               className="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
-              // style={{ ['--bs-scroll-height']: '100px' }}
+            // style={{ ['--bs-scroll-height']: '100px' }}
             >
               <li className="nav-item">
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Trang chủ</a>
@@ -51,7 +51,7 @@ export default function Header() {
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Liên hệ</a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link active text-white fw-bold ${style.item}`} aria-disabled="true">Tin tức</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href='#'>Tin tức</a>
               </li>
             </ul>
             <form className={`d-flex ${style.formSearch}`} role="search">

@@ -20,77 +20,155 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 
 // Lấy thông tin user khi có token
-const getAnUser = async (req, res) => {
-  try {
-    const user = await userModel.findById(req.userId, { password: 0 });
-    if (!user) {
-      throw new Error("Không tìm thấy user");
-    }
-    res.status(200).json(user);
-  } catch {
-    res.status(500).json({ message: error.message });
-  }
-};
+// const getAnUser = async (req, res) => {
+//   try {
+//     const user = await userModel.findById(req.userId, { password: 0 });
+//     if (!user) {
+//       throw new Error("Không tìm thấy user");
+//     }
+//     res.status(200).json(user);
+//   } catch {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
-const getAllUsers = async (req, res, next) => {
-  try {
-    const arr = await userModel.find();
-    res.status(200).json(arr);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// const getAllUsers = async (req, res, next) => {
+//   try {
+//     const arr = await userModel.find();
+//     res.status(200).json(arr);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
-const changePassword = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { password, newPassword } = req.body;
-    console.log(password, newPassword);
+// const changePassword = async (req, res) => {
+//   try {
+//     const userId = req.userId;
+//     const { password, newPassword } = req.body;
 
-    if (!password || !newPassword) {
-      return res.status(400).json({ message: "Missing password fields" });
-    }
-    const user = await userModel.findById(userId, { password: 0 });
+//     if (!password || !newPassword) {
+//       return res.status(400).json({ message: "Missing password fields" });
+//     }
+//     const user = await userModel.findById(userId, { password: 0 });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    const isMatch = await bcrypt.compare(password, user.Password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Mật khẩu hiện tại không đúng" });
-    }
+//     const isMatch = await bcrypt.compare(password, user.Password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Mật khẩu hiện tại không đúng" });
+//     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await user.updateOne({ $set: { Password: hashedPassword } });
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     await user.updateOne({ $set: { Password: hashedPassword } });
 
-    res.status(200).json("Đổi mật khẩu thành công!");
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Đổi mật khẩu không thành công", error: err });
-  }
-};
+//     res.status(200).json("Đổi mật khẩu thành công!");
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ message: "Đổi mật khẩu không thành công", error: err });
+//   }
+// };
 
-const updateUser = [
-  upload.single("img"),
-  async (req, res) => {
+// const updateUser = [
+//   upload.single("img"),
+//   async (req, res) => {
+//     try {
+//       const userToUpdate = await userModel.findById(req.params.id);
+//       if (!userToUpdate) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+//       await userToUpdate.updateOne({ $set: req.body });
+//       res.status(200).json("Cập nhật thành công !!!");
+//     } catch (error) {
+//       res.status(500).json(error);
+//     }
+//   },
+// ];
+
+// module.exports = {
+//   getAllUsers,
+//   getAnUser,
+//   updateUser,
+//   changePassword,
+// };
+
+const userCon = {
+  // add
+  getUser: async (req, res) => {
     try {
-      const userToUpdate = await userModel.findById(req.params.id);
-      if (!userToUpdate) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      await userToUpdate.updateOne({ $set: req.body });
-      res.status(200).json("Cập nhật thành công !!!");
+      const user = await userModel.find();
+      res.status(200).json(user);
     } catch (error) {
       res.status(500).json(error);
     }
   },
-];
+  deleteUser: async (req, res) => {
+    try {
+      //chưa xóa theme :(((
+      await userModel.findByIdAndDelete(req.params.id);
+      res.status(200).json("Xóa thành công !!!");
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getAnUser: async (req, res) => {
+    try {
+      const au = await userModel.findById(req.params.id);
+      res.status(200).json(au);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  changePassword: async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { password, newPassword } = req.body;
+      console.log(password, newPassword);
 
-module.exports = {
-  getAllUsers,
-  getAnUser,
-  updateUser,
-  changePassword,
+      if (!password || !newPassword) {
+        return res.status(400).json({ message: "Mật khẩu không được để trống" });
+      }
+      const user = await userModel.findById(userId, { password: 0 });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.Password);
+      if (!isMatch) {
+        return res
+          .status(401)
+          .json({ message: "Mật khẩu hiện tại không đúng" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await user.updateOne({ $set: { Password: hashedPassword } });
+
+      res.status(200).json("Đổi mật khẩu thành công!");
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "Đổi mật khẩu không thành công", error: err });
+    }
+  },
+
+  updateUser: [
+    upload.single("img"),
+    async (req, res) => {
+      try {
+        const userToUpdate = await userModel.findById(req.params.id);
+        if (!userToUpdate) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        await userToUpdate.updateOne({ $set: req.body });
+        res.status(200).json("Cập nhật thành công !!!");
+      } catch (error) {
+        res.status(500).json(error);
+      }
+    },
+  ],
 };
+
+module.exports = userCon;
