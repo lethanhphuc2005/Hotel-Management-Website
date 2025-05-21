@@ -27,8 +27,7 @@ const userSchema = new mongoose.Schema({
   },
   SoDT: {
     type: String,
-    require: true,
-    default: "no phone",
+    default: "0300000000",
     unique: true,
     minlength: 10,
     validate: {
@@ -38,7 +37,7 @@ const userSchema = new mongoose.Schema({
       message: (props) => `${props.value} không phải là số điện thoại hợp lệ!`,
     },
   },
-  Password: {
+  MatKhau: {
     type: String,
     require: true,
     minlength: 6,
@@ -47,6 +46,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     require: true,
     default: "no request",
+  },
+  TrangThai: {
+    type: Boolean,
+    require: true,
+    default: true,
   },
 });
 

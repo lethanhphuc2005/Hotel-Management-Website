@@ -36,7 +36,7 @@ const accountCon = {
       // Tạo một instance mới của userModel
       const newAccount = new userModel({
         Email: req.body.email,
-        Password: hashPassword,
+        MatKhau: hashPassword,
       });
       // Lưu vào database bằng hàm save()
       const savedAccount = await newAccount.save();
@@ -57,7 +57,7 @@ const accountCon = {
       // console.log(validPassword);
       const isMatch = await bcrypt.compare(
         req.body.password,
-        checkUser.Password
+        checkUser.MatKhau
       );
       if (!isMatch) {
         return res.status(400).json("sai password");
