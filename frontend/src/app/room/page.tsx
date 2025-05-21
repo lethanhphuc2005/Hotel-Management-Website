@@ -77,35 +77,37 @@ const roomDetail = () => {
             </p>
           </div>
 
-          <div className={styles.rightSection}>
-            <div className={styles.price}></div>
-            <div className={styles.infoSection}>
-              <p className={styles.priceText}>400.000 VNĐ / Đêm</p>
-              <div className={styles.bookingDetails}>
-                <div className={styles.checkInOutRow}>
-                  <div className={styles.bookingItem}>
-                    <p>NHẬN PHÒNG</p>
-                    <p>10/04/2025</p>
-                  </div>
-                  <div className={styles.divider}></div>
-                  <div className={styles.bookingItem}>
-                    <p>TRẢ PHÒNG</p>
-                    <p>Thêm ngày</p>
-                  </div>
-                </div>
-                <div className={styles.guestRow}>
-                  <div className={styles.bookingItem}>
-                    <p>KHÁCH</p>
-
-                    <p>
-                      1 khách <span className={styles.dropdownIcon}>▼</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <button className={styles.bookButton}>ĐẶT</button>
-            </div>
-          </div>
+        <div className={styles.rightSection}>
+  <div className={styles.price}></div>
+  <div className={styles.infoSection}>
+    <p className={styles.priceText}>400.000 VNĐ / Đêm</p>
+    <div className={styles.bookingDetails}>
+      <div className={styles.checkInOutRow}>
+        <div className={styles.bookingItem}>
+          <label>NHẬN PHÒNG</label>
+          <input type="date" className={styles.dateInput} />
+        </div>
+        <div className={styles.bookingItem}>
+          <label>TRẢ PHÒNG</label>
+          <input type="date" className={styles.dateInput} />
+        </div>
+      </div>
+      <div className={styles.guestRow}>
+        <div className={styles.bookingItem}>
+          <label className={styles.note}>KHÁCH</label>
+          <select className={styles.guestSelect}>
+            <option value="1">1 khách</option>
+            <option value="2">2 khách</option>
+            <option value="3">3 khách</option>
+            <option value="4">4 khách</option>
+            
+          </select>
+        </div>
+      </div>
+    </div>
+    <button className={styles.bookButton}>ĐẶT</button>
+  </div>
+</div>
         </div>
         <hr className={styles.line} />
 
@@ -298,7 +300,7 @@ const roomDetail = () => {
             <h3 className={styles.sectionTitle}>NHỮNG ĐIỀU CẦN BIẾT</h3>
             <div className={styles.knowList}>
               <div className={styles.knowColumn}>
-                <h4 className={styles.columnTitle}>Nội quy nhà</h4>
+                <h4 className={styles.columnTitle}>Nội quy phòng</h4>
                 <div className={styles.knowItem}>Nhận phòng: 14:00 - 22:00</div>
                 <div className={styles.knowItem}>Trả phòng: 12:00</div>
                 <div className={styles.knowItem}>Tối đa 4 khách</div>
