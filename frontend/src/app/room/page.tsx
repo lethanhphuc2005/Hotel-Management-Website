@@ -54,17 +54,20 @@ const roomDetail = () => {
                 🌿 Được khách yêu thích 🌿
               </span>
               <span className={styles.ratingText}>
-                Khách đánh giá đây là một trong những căn phòng <br /> được yêu
-                thích và đáng giá tốt nhất trên The Moon
+                Khách đánh giá đây là một trong những căn phòng được yêu
+                thích nhất trên The Moon
               </span>
               <div className={styles.ratingScoreWrapper}>
                 <span className={styles.ratingScore}>4,9/5</span>
                 <span className={styles.stars}>★★★★★</span>
               </div>
-              <span className={styles.ratingCount}>111 Đánh giá</span>
+              <div className={styles.ratingCountWrapper}>
+              <span className={styles.ratingCount}>111</span>
+              <span className={styles.feadback}>Đánh giá</span>
+              </div>
             </div>
             <br />
-            <p className={styles.sectionTitle}>GIỚI THIỆU VÉ CHỖ NGÀY</p>
+            <p className={styles.sectionTitle}>GIỚI THIỆU VỀ CHỖ NGÀY</p>
             <p className={styles.sectionText}>
               Một tổ nhỏ để nghỉ ngơi sau những ngày bận rộn làm việc, mua sắm
               hoặc ghé thăm các bảo tàng và phòng trưng bày ở Milan. Phòng ấm
@@ -210,7 +213,7 @@ const roomDetail = () => {
           </div>
           <hr className={styles.line} />
           <div className={styles.reviewsSection}>
-            <h3 className={styles.sectionTitle}>NHẬN ĐÁNH GIÁ KHÁCH HÀNG</h3>
+            <h3 className={styles.sectionTitle}>NHỮNG ĐÁNH GIÁ CỦA KHÁCH HÀNG</h3>
             <div className={styles.reviewContainer}>
               <div className={styles.reviewItem}>
                 <div className={styles.reviewHeader}>

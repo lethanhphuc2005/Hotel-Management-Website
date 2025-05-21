@@ -4,6 +4,7 @@
   color: #fff;
   min-height: 100vh;
   padding-bottom: 30px;
+  padding-top: 2rem;
 }
 
 /* Header Styles */
@@ -58,7 +59,7 @@
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: bold;
   margin-bottom: 0.75rem;
 }
@@ -70,8 +71,8 @@
 }
 
 .mainImage {
-  width: 50%;
-  height: 21rem;
+  width: 51.52%;
+  height: 400px;
   object-fit: cover;
 }
 
@@ -84,7 +85,7 @@
 
 .smallImage {
   width: 100%;
-  height: 10.25rem;
+  height: 195px;
   object-fit: cover;
 }
 
@@ -92,7 +93,7 @@
 .details {
   display: flex;
   justify-content: space-between;
-  
+
   background-color: black;
   border-radius: 0.5rem;
   font-family: Arial, sans-serif;
@@ -111,15 +112,15 @@
 }
 
 .roomNumber {
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: bold;
   margin-bottom: 0.3125rem;
 }
 
 .roomInfo {
-  font-size: 0.875rem;
+  font-size: 16px;
   color: white;
-  margin-bottom: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .availableIcon {
@@ -129,13 +130,6 @@
 
 .price {
   margin-bottom: 0.625rem;
-}
-
-.priceText {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
-  text-align: left;
 }
 
 /* Rating Styles */
@@ -148,15 +142,16 @@
   padding: 0.75rem;
   border-radius: 0.25rem;
   gap: 4rem;
+  margin-bottom: 1rem;
 }
 
 .ratingIcons {
-  font-size: 0.875rem;
+  font-size: 16px;
   color: white;
 }
 
 .ratingText {
-  font-size: 0.75rem;
+  font-size: 16px;
   color: white;
   display: block;
   margin: 0.3125rem 0;
@@ -166,30 +161,41 @@
 .ratingScoreWrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
   align-items: center;
 }
 
 .ratingScore {
-  font-size: 1rem;
+  font-size: 20px;
   font-weight: bold;
-  color: #ffd700;
+  color: white;
 }
 
 .stars {
   color: #ffd700;
-  font-size: 0.875rem;
+  font-size: 1rem;
+}
+
+.ratingCountWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 1.5rem;
 }
 
 .ratingCount {
-  font-size: 0.875rem;
-  color: white; /* đổi từ #b0b0b0 sang white */
+  font-size: 20px;
+  align-items: center;
+  font-weight: bold;
+}
+
+.feadback {
+  font-size: 14px;
 }
 
 /* Booking Info Section */
 .infoSection {
   background-color: black;
-  padding: 0.75rem;
+  padding: 1rem;
   border: 1px solid #fff;
   border-radius: 0.5rem;
   width: 100%;
@@ -199,17 +205,17 @@
 }
 
 .priceText {
-  font-size: 1.75rem;
+  font-size: 20px;
   font-weight: bold;
   color: #fff;
   margin-bottom: 0.5rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #444;
+  text-align: left;
 }
 
 .bookingDetails {
   background-color: #000;
-  border: 1px solid #444;
+  border: 1px solid white;
   border-radius: 0.25rem;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
@@ -221,7 +227,7 @@
   align-items: center;
   margin-bottom: 0.25rem;
   padding-bottom: 0.25rem;
-  border-bottom: 1px solid #444; /* Horizontal line between rows */
+  border-bottom: 1px solid white;
 }
 
 .guestRow {
@@ -237,9 +243,11 @@
 }
 
 .bookingItem p:first-child {
-  font-size: 0.75rem;
-  color: white; /* đổi từ #b0b0b0 sang white */
+  font-size: 14px;
+  color: white;
+  /* đổi từ #b0b0b0 sang white */
   margin-bottom: 0.125rem;
+  font-weight: bold;
 }
 
 .bookingItem p:last-child {
@@ -250,13 +258,14 @@
 
 .divider {
   width: 1px;
-  background-color: #444;
-  height: 2rem;
+  background-color: white;
+  height: 3.65rem;
   align-self: center;
 }
 
 .dropdownIcon {
-  color: white; /* đổi từ #b0b0b0 sang white */
+  color: white;
+  /* đổi từ #b0b0b0 sang white */
   margin-left: 0.25rem;
 }
 
@@ -268,36 +277,49 @@
   width: 100%;
   border: none;
   border-radius: 0.25rem;
-  font-size: 1.1rem;
+  font-size: 16px;
   cursor: pointer;
   text-transform: uppercase;
 }
 
-.bookButton:hover {
-  background-color: #ffcc00;
-}
 .additionalInfo {
   background-color: #000;
   margin-top: 1rem;
   border-radius: 0.5rem;
 }
 
-.highlightsSection, .reviewsSection, .knowSection {
+.highlightsSection {
+  margin-bottom: 1.5rem;
+  padding-top: 1rem;
+}
+
+.reviewsSection {
+  margin-bottom: 1.5rem;
+  padding-top: 2rem;
+}
+
+.knowSection {
   margin-bottom: 1.5rem;
   padding-top: 2rem;
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: bold;
   color: #fff;
   margin-bottom: 1.5rem;
+}
+
+.sectionText {
+  margin-bottom: 2.5rem;
+  font-size: 16px;
 }
 
 .iconList {
   display: flex;
   gap: 10rem;
 }
+
 .reviewHeader {
   display: flex;
   align-items: center;
@@ -306,8 +328,8 @@
 }
 
 .reviewAvatar {
-  width: 40px;
-  height: 40px;
+  width: 63px;
+  height: 63px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -336,15 +358,16 @@
 }
 
 .columnTitle {
-  font-size: 1rem;
+  font-size: 20px;
   font-weight: bold;
   color: #fff;
   margin-bottom: 0.5rem;
 }
 
 .knowItem {
-  font-size: 0.875rem;
-  color: white; /* đổi từ #b0b0b0 sang white */
+  font-size: 16px;
+  color: white;
+  /* đổi từ #b0b0b0 sang white */
 }
 
 .reviewContainer {
@@ -356,10 +379,9 @@
 
 .reviewItem {
   flex: 1 1 calc(50% - 0.5rem);
-  padding: 0.75rem;
   border-radius: 0.25rem;
   width: 100%;
-  
+
 }
 
 .reviewAuthor {
@@ -367,7 +389,7 @@
   font-weight: bold;
   color: #fff;
   margin-bottom: 0.25rem;
-  
+
 }
 
 .reviewRating {
@@ -377,24 +399,35 @@
 }
 
 .reviewText {
-  font-size: 0.75rem;
-  color: white; /* đổi từ #b0b0b0 sang white */
+  font-size: 14px;
+  color: white;
+  /* đổi từ #b0b0b0 sang white */
 }
+
 .line {
-  border: none;                /* bỏ border mặc định */
-  height: 1px;                 /* độ dày */
-  background-color: white;     /* màu trắng đậm */
-  box-shadow: none;            /* xóa shadow nếu có */
+  border: none;
+  /* bỏ border mặc định */
+  height: 1px;
+  /* độ dày */
+  background-color: white;
+  /* màu trắng đậm */
+  box-shadow: none;
+  /* xóa shadow nếu có */
   width: 63%;
   margin: 0;
-  opacity: 1;  
+  opacity: 1;
 }
-.line1{
-  border: none;                /* bỏ border mặc định */
-  height: 1px;                 /* độ dày */
-  background-color: white;     /* màu trắng đậm */
-  box-shadow: none;            /* xóa shadow nếu có */
+
+.line1 {
+  border: none;
+  /* bỏ border mặc định */
+  height: 1px;
+  /* độ dày */
+  background-color: white;
+  /* màu trắng đậm */
+  box-shadow: none;
+  /* xóa shadow nếu có */
   width: 100%;
   margin: 0;
-  opacity: 1;  
+  opacity: 1;
 }
