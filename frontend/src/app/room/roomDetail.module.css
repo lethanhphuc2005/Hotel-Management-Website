@@ -74,6 +74,10 @@
   width: 51.52%;
   height: 400px;
   object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.mainImage:hover {
+  transform: scale(1.05); /* Phóng to nhẹ khi hover */
 }
 
 .smallImageGrid {
@@ -82,12 +86,19 @@
   gap: 0.5rem;
   width: 50%;
 }
+.smallImage:hover {
+  transform: scale(1.05); /* Phóng to nhẹ khi hover */
+}
 
 .smallImage {
   width: 100%;
   height: 195px;
   object-fit: cover;
+  transition: transform 0.5s ease;
+
 }
+
+
 
 /* Room Details Styles */
 .details {
@@ -131,6 +142,20 @@
 .price {
   margin-bottom: 0.625rem;
 }
+.dateInput {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  background-color: black;
+}
+
+.guestSelect {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  background-color: black;
+}
+
 
 /* Rating Styles */
 .rating {
@@ -209,16 +234,16 @@
   font-weight: bold;
   color: #fff;
   margin-bottom: 0.5rem;
-  padding: 0.5rem 0;
+  padding: 1rem 0;
   text-align: left;
 }
 
 .bookingDetails {
   background-color: #000;
   border: 1px solid white;
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-  margin-bottom: 0.75rem;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .checkInOutRow {
@@ -226,7 +251,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.25rem;
-  padding-bottom: 0.25rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid white;
 }
 
@@ -239,13 +264,16 @@
 .bookingItem {
   text-align: center;
   flex: 1;
-  padding: 0 0.25rem;
+  padding: 0 0.5rem;
+}
+.note{
+  /* display: flex; */
+  margin-top: 0.5rem;
 }
 
 .bookingItem p:first-child {
   font-size: 14px;
   color: white;
-  /* đổi từ #b0b0b0 sang white */
   margin-bottom: 0.125rem;
   font-weight: bold;
 }
@@ -256,16 +284,10 @@
   font-weight: 500;
 }
 
-.divider {
-  width: 1px;
-  background-color: white;
-  height: 3.65rem;
-  align-self: center;
-}
+
 
 .dropdownIcon {
   color: white;
-  /* đổi từ #b0b0b0 sang white */
   margin-left: 0.25rem;
 }
 
