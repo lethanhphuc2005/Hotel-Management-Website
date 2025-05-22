@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     require: true,
     default: "no name",
-    unique: true,
     minlength: 6,
   },
   DiaChi: {
@@ -17,7 +16,6 @@ const userSchema = new mongoose.Schema({
   Email: {
     type: String,
     require: true,
-    unique: true,
     validate: {
       validator: function (v) {
         return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
@@ -28,7 +26,6 @@ const userSchema = new mongoose.Schema({
   SoDT: {
     type: String,
     default: "0300000000",
-    unique: true,
     minlength: 10,
     validate: {
       validator: function (v) {
