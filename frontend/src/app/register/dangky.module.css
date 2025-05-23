@@ -1,0 +1,105 @@
+.container {
+  display: flex;
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  height: 100vh; /* Chiều cao toàn bộ màn hình */
+  background-color: rgba(0, 0, 0, 0.6); /* Nền mờ */
+
+
+}
+
+.formContainer {
+  width: 600px; /* Chiều rộng của container */
+ 
+  padding: 20px; /* Khoảng cách bên trong */
+  border-radius: 10px; /* Bo tròn các góc */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+}
+
+.title {
+  text-align: center; /* Căn giữa tiêu đề */
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+ 
+}
+
+.input {
+  width: 100%; /* Chiều rộng 100% */
+  padding: 10px; /* Khoảng cách bên trong */
+  margin: 10px 0; /* Khoảng cách giữa các input */
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.continueButton {
+  width: 100%; /* Chiều rộng 100% */
+  padding: 10px; /* Khoảng cách bên trong */
+  margin: 10px 0; /* Khoảng cách dưới nút */
+  border: none;
+  border-radius: 5px;
+  background-color: #f9a825; /* Màu nền cho nút "Tiếp tục" */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.orContainer {
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  margin: 20px 0; /* Khoảng cách phía trên và dưới */
+}
+
+.orLine {
+  flex-grow: 1; /* Đường kẻ kéo dài hết chiều rộng */
+  height: 2px; /* Độ dày của đường kẻ */
+  background-color: #ccc; /* Màu đường kẻ */
+}
+
+.orText {
+  margin: 0 10px; /* Khoảng cách giữa đường kẻ và chữ */
+  font-size: 16px; /* Kích thước chữ */
+  color: #fff;
+}
+
+.socialLogin {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Căn giữa các nút */
+  width: 100%;
+}
+
+.google, .apple, .facebook {
+  width: 100%; /* Đảm bảo chiều rộng 100% */
+  margin: 5px 0;
+  padding: 10px; /* Khoảng cách bên trong nút */
+  border: 2px solid #fff; /* Viền trắng mặc định */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  text-align: center; /* Căn giữa chữ */
+}
+.title {
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+  color: #fff;
+  font-size: 24px; /* Kích thước chữ */
+}
+.separator {
+  height: 2px; /* Độ dày của đường kẻ */
+  background-color: #ccc; /* Màu đường kẻ */
+  margin: 10px 0; /* Khoảng cách phía trên và dưới */
+}
+
+.welcomeText {
+  text-align: left; /* Căn giữa lời chào */
+  margin: 10px 0; /* Khoảng cách phía trên và dưới */
+  font-size: 18px; /* Kích thước chữ */
+   color: #fff;
+}
+.infoText {
+  text-align: left; /* Căn giữa thông báo */
+  margin: 10px 0; /* Khoảng cách phía trên và dưới */
+  font-size: 14px; /* Kích thước chữ */
+   color: #fff;
+}
