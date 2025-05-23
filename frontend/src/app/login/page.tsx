@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FaGoogle, FaApple, FaFacebook } from 'react-icons/fa';
 import styles from './Login.module.css';
 
 const LoginPage = () => {
@@ -17,8 +16,8 @@ const LoginPage = () => {
     <div className={styles.container}>
       <div className={styles.formContainer}>
         <h2 className={styles.title}>Đăng Nhập</h2>
-        <div className={styles.separator}></div> {/* Đường kẻ ngang */}
-        <p className={styles.welcomeText}>Chào mừng đến với The Moon</p> {/* Lời chào */}
+        <div className={styles.separator}></div>
+        <p className={styles.welcomeText}>Chào mừng đến với The Moon</p>
 
         <form onSubmit={handleSubmit}>
           <input
@@ -37,9 +36,9 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-           <p className={styles.infoText}>
-          Chúng tôi sẽ gọi điện hoặc nhắn tin cho bạn để xác nhận số điện thoại. Có áp dụng phí dữ liệu và phí tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
-        </p>
+          <p className={styles.infoText}>
+            Chúng tôi sẽ gọi điện hoặc nhắn tin cho bạn để xác nhận số điện thoại. Có áp dụng phí dữ liệu và phí tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
+          </p>
 
           <button type="submit" className={styles.continueButton}>Tiếp tục</button>
         </form>
@@ -52,13 +51,13 @@ const LoginPage = () => {
 
         <div className={styles.socialLogin}>
           <button className={styles.google}>
-            <FaGoogle className={styles.icon} /> Tiếp tục với Google
+            <i className="bi bi-google"></i> Tiếp tục với Google
           </button>
           <button className={styles.apple}>
-            <FaApple className={styles.icon} /> Tiếp tục với Apple
+            <i className="bi bi-apple"></i> Tiếp tục với Apple
           </button>
           <button className={styles.facebook}>
-            <FaFacebook className={styles.icon} /> Tiếp tục với Facebook
+            <i className="bi bi-facebook"></i> Tiếp tục với Facebook
           </button>
         </div>
       </div>
