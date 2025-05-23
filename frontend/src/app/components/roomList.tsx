@@ -1,7 +1,7 @@
 import { Room } from "../types/room";
 import { RoomType } from "../types/roomtype";
 import { Service } from "../types/service";
-import { Roomofrt, RoomSale, RoomT, ServiceItem } from "./roomItem";
+import {  RoomSale, RoomT, RoomTypeItem, ServiceItem } from "./roomItem";
 
 export function RoomTList({ roomtypes }: { roomtypes: RoomType[] }) {
   return (
@@ -33,11 +33,11 @@ export function ServiceList({ services }: { services: Service[] }) {
   );
 }
 
-export function RoomofrtList({ roomofrts }: { roomofrts: Room[] }) {
+export function RoomTypeList({ roomtypes }: { roomtypes: RoomType[] }) {
   return (
     <>
-      {roomofrts.map((roomofrt: Room) => (
-        <Roomofrt roomofrt={roomofrt} key={roomofrt._id} />
+      {roomtypes.map((roomtype: RoomType) => (
+        <RoomTypeItem roomtype={roomtype} key={roomtype._id} />
       ))}
     </>
   );

@@ -1,33 +1,27 @@
 "use client"
-import { useParams } from 'next/navigation';
-import { getRooms } from '../../services/roomService';
-import { Room } from '../../types/room';
 import { useEffect, useState } from 'react';
-import { RoomofrtList } from '../../components/roomList';
+import {  RoomTypeList } from '../components/roomList';
+import { RoomType } from '../types/roomtype';
+import { getRoomTypes } from '../services/roomtypeService';
 
 export default function Roomtype() {
-    const params = useParams();
-    const id = params?.id as string;
     const [price, setPrice] = useState(500000);
     const [floor, setFloor] = useState('');
     const [status, setStatus] = useState('');
-    const [rooms, setRooms] = useState<Room[]>([]);
+    const [roomtypes, setRoomTypes] = useState<RoomType[]>([]);
     useEffect(() => {
-        const fetchRooms = async () => {
+        const fetchRoomTypes = async () => {
             try {
-                const res: Room[] = await getRooms('http://localhost:8000/v1/room');
-
-                const filtered = res.filter(room => room.MaLP && room.MaLP._id === id);
-
-                setRooms(filtered);
-                // console.log('Phòng theo loại:', filteredRooms);
+                const res: RoomType[] = await getRoomTypes(`http://localhost:8000/v1/roomtype`);
+                
+                setRoomTypes(res);
             } catch (err) {
                 console.error('Lỗi khi lấy danh sách phòng:', err);
             }
         };
+        fetchRoomTypes();
+    }, []);
 
-        if (id) fetchRooms();
-    }, [id]);
     const handleChange = (e: any) => {
         setPrice(Number(e.target.value));
     };
@@ -40,7 +34,7 @@ export default function Roomtype() {
     return (
         <>
             <div className={`container text-white`} style={{ height: '1750px', marginTop: '7%', marginBottom: '10%' }}>
-                <p className='fs-5 fw-bold'>{rooms[0]?.MaLP?.TenLP}</p>
+                <p className='fs-5 fw-bold'>TẤT CẢ LOẠI PHÒNG</p>
                 <div className="row">
                     <div className='col-3 border-end border-top h-auto'>
                         <div className='sticky-top' style={{ top: '13%' }}>
@@ -87,7 +81,7 @@ export default function Roomtype() {
                     </div>
                     <div className="col-9 border-top">
                         <div className='row p-3 gap-3'>
-                            <RoomofrtList roomofrts={rooms}/>
+                            <RoomTypeList roomtypes={roomtypes}/>
                         </div>
                     </div>
                 </div>
