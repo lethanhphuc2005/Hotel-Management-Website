@@ -49,7 +49,7 @@ export default function Header() {
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="/">Trang chủ</a>
               </li>
               <li className={`nav-item ${style.dropdown}`}>
-                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Phòng</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="/roomtype">Phòng</a>
                 <ul className={style.dropdownMenu}>
                   {roomtypes.map(type => (
                   <li><a href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</a></li>
