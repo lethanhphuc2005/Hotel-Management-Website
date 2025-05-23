@@ -1,9 +1,11 @@
+"use client"
 import { RoomType } from "../types/roomtype";
 import { Col } from "react-bootstrap";
 import Image from "next/image";
 import style from "../page.module.css";
 import { Room } from "../types/room";
 import { Service } from "../types/service";
+import { useState } from "react";
 
 export function RoomT({ roomtype }: { roomtype: RoomType }) {
   return (
@@ -72,5 +74,56 @@ export function ServiceItem({ service }: { service: Service }) {
         </div>
       </div>
     </Col>
+  );
+}
+
+export function Roomofrt({ roomofrt }: { roomofrt: Room }) {
+  const [liked, setLiked] = useState(false);
+
+  const handleLikeClick = () => {
+    setLiked(prev => !prev);
+  };
+  return (
+    <div className='col border rounded-4 d-flex p-3 gap-3' style={{ height: '280px' }}>
+      <div className="position-relative">
+        <img src="/img/r1.jpg" alt="" className="rounded-4 h-100" />
+
+        <button type="button"
+          className="btn btn-light position-absolute top-0 end-0 m-1 rounded-circle shadow"
+          onClick={handleLikeClick}
+        >
+          <i className={`bi bi-heart-fill ${liked ? 'text-danger' : 'text-dark'}`}></i>
+        </button>
+      </div>
+      <div>
+        <div className='d-flex gap-3'>
+          <p className='fs-5 fw-bold mb-2'>The Moon Hotel - Phòng {roomofrt.TenPhong}</p>
+          <span className='d-flex gap-1 mt-2' style={{ color: '#FAB320', fontSize: '12px' }}>
+            <i className="bi bi-star-fill"></i>
+            <i className="bi bi-star-fill"></i>
+            <i className="bi bi-star-fill"></i>
+            <i className="bi bi-star-fill"></i>
+            <i className="bi bi-star-fill"></i>
+          </span>
+        </div>
+        <p className='mb-1'>Loại phòng: {roomofrt.MaLP.TenLP}</p>
+        <p className='mb-1'>Vị trí: Tầng {roomofrt.Tang}</p>
+        <p className='mb-1'>Diện tích: 25m2</p>
+        <p className='mb-1'>Sức chứa: 2 người lớn + 2 trẻ em</p>
+        <p>Trạng thái: {roomofrt.TrangThai.TenTT} <i className="bi bi-check-circle-fill" style={{ color: '#D1F366' }}></i></p>
+        <p className='mb-1' style={{ color: '#FAB320' }}>
+          <i className="bi bi-check2" style={{ color: '#FAB320' }}></i> Miễn phí hủy</p>
+        <p className='mb-1' style={{ color: '#FAB320' }}>
+          <i className="bi bi-check2" style={{ color: '#FAB320' }}></i> Không cần thanh toán trước - thanh toán tại lễ tân
+        </p>
+      </div>
+      <div className='ms-auto align-self-end mb-2 text-end'>
+        <h5>{roomofrt.MaLP.GiaPhong.toLocaleString('vi-VN')} VND/đêm</h5>
+        <p style={{ fontSize: '12px' }}>Đã bao gồm thuế và phí</p>
+        <button className='border-0 rounded text-black' style={{ height: '40px', width: '150px', backgroundColor: '#FAB320' }}>
+          Xem chỗ trống <i className="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
   );
 }

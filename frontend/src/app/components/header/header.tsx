@@ -1,10 +1,22 @@
 "use client"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import style from './header.module.css';
+import { RoomType } from '../../types/roomtype';
+import { getRoomTypes } from '../../services/roomtypeService';
 
 export default function Header() {
+  const [roomtypes, setRoomtypes] = useState<RoomType[]>([]);
+  
+    useEffect(() => {
+    const fetchData = async () => {
+      const data = await getRoomTypes("http://localhost:8000/v1/roomtype");
+      setRoomtypes(data);
+    };
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       const navbar = document.querySelector('.navbar');
@@ -24,7 +36,7 @@ export default function Header() {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark fixed-top">
         <div className="container">
-          <a className="navbar-brand text-white" href="#"><img width="203px" height="57px" src="/img/image.png" alt="" /></a>
+          <a className="navbar-brand text-white" href="/"><img width="203px" height="57px" src="/img/image.png" alt="" /></a>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
@@ -34,14 +46,14 @@ export default function Header() {
             // style={{ ['--bs-scroll-height']: '100px' }}
             >
               <li className="nav-item">
-                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Trang chủ</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="/">Trang chủ</a>
               </li>
               <li className={`nav-item ${style.dropdown}`}>
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Phòng</a>
                 <ul className={style.dropdownMenu}>
-                  <li><a href="#" className={style.dropdownItem}>Deluxe</a></li>
-                  <li><a href="#" className={style.dropdownItem}>Suite</a></li>
-                  <li><a href="#" className={style.dropdownItem}>Standard</a></li>
+                  {roomtypes.map(type => (
+                  <li><a href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</a></li>
+                  ))}
                 </ul>
               </li>
               <li className="nav-item">
