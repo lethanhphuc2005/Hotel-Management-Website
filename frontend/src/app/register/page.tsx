@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FaGoogle, FaApple, FaFacebook } from 'react-icons/fa';
 import styles from './dangky.module.css';
 
 const LoginPage = () => {

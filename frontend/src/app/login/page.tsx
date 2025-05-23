@@ -50,13 +50,13 @@ const LoginPage = () => {
         </div>
 
         <div className={styles.socialLogin}>
-          <button className={styles.google}>
-            <i className="bi bi-google"></i> Tiếp tục với Google
+          <button className={`${styles.google} d-flex`} style={{gap:'180px'}}>
+            <div><i  className="bi bi-google"></i></div> <div className='text-center'>Tiếp tục với Google</div>
           </button>
-          <button className={styles.apple}>
+          <button className={`${styles.apple} d-flex`} style={{gap:'180px'}}>
             <i className="bi bi-apple"></i> Tiếp tục với Apple
           </button>
-          <button className={styles.facebook}>
+          <button className={`${styles.facebook} d-flex`} style={{gap:'180px'}}>
             <i className="bi bi-facebook"></i> Tiếp tục với Facebook
           </button>
         </div>
