@@ -11,7 +11,7 @@ const RoomSchema = new mongoose.Schema({
   },
   TrangThai: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "status", // Tên model bạn dùng để lưu trạng thái
+    ref: "status",
     required: true,
   },
   MaLP: {

@@ -10,6 +10,7 @@ const userRouter = require("./routes/user");
 const websitecontentRouter = require("./routes/websitecontent");
 const serviceRouter = require("./routes/service");
 const imgroomtypeRouter = require("./routes/imgroomtype");
+const statusRouter = require("./routes/status");
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use("/v1/account", accountRouter);
 app.use("/v1/websitecontent", websitecontentRouter);
 app.use("/v1/service", serviceRouter);
 app.use("/v1/imgroomtype", imgroomtypeRouter);
+app.use("/v1/status", statusRouter);
 
 app.listen(8000, () => {
   console.log("server đang chạy");

@@ -21,8 +21,11 @@ const roomCon = {
         select: 'TenLP SoGiuong GiaPhong MoTa',
         populate: {
           path: 'TienNghi', // virtual trong roomtype nếu có
-        }
-      });
+        },
+      }).populate({
+        path: 'TrangThai',
+        select: 'TenTT LoaiTT',
+      });;
       res.status(200).json(rooms);
     } catch (error) {
       res.status(500).json(error);
