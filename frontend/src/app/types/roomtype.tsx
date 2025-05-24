@@ -4,6 +4,7 @@ export interface RoomType {
   SoGiuong: number;
   GiaPhong: number;
   MoTa: string;
+  View: string;
   HinhAnh?: RoomImage[];
 }
 

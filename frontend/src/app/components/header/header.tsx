@@ -50,11 +50,6 @@ export default function Header() {
               </li>
               <li className={`nav-item ${style.dropdown}`}>
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="/roomtype">Phòng</a>
-                <ul className={style.dropdownMenu}>
-                  {roomtypes.map((type,index) => (
-                  <li key={index}><a  href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</a></li>
-                  ))}
-                </ul>
               </li>
               <li className="nav-item">
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Dịch vụ</a>

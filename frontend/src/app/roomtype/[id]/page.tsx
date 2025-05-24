@@ -11,28 +11,28 @@ const roomDetail = () => {
         <h1 className={styles.title}>STANDARD ROOM - VIEW BIỂN</h1>
         <div className={styles.imageContainer}>
           <img
-            src="img/lau1.jpg"
+            src="/img/lau1.jpg"
             alt="Main Room View"
             className={styles.mainImage}
           />
           <div className={styles.smallImageGrid}>
             <img
-              src="img/lau1.jpg"
+              src="/img/lau1.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="img/lau1.jpg"
+              src="/img/lau1.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="img/lau1.jpg"
+              src="/img/lau1.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="img/lau1.jpg"
+              src="/img/lau1.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
