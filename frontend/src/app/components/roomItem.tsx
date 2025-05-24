@@ -88,7 +88,9 @@ export function RoomTypeItem({ roomtype }: { roomtype: RoomType }) {
       <div className="position-relative">
         {roomtype.HinhAnh?.map((img, index) => {
           return (
-            <img key={index} src={`/img/${img.HinhAnh}`} alt="" className="rounded-4 h-100" />
+            <a href={`/roomtype/${roomtype._id}`}>
+              <img key={index} src={`/img/${img.HinhAnh}`} alt="" className="rounded-4 h-100" />
+            </a>
           )
         })}
 
@@ -111,11 +113,9 @@ export function RoomTypeItem({ roomtype }: { roomtype: RoomType }) {
           </span>
         </div>
         <p className='mb-1'>Loại phòng: {roomtype.TenLP}</p>
-        {/* <p className='mb-1'>Vị trí: Tầng 1</p> */}
-        {/* <p className='mb-1'>Diện tích: 25m2</p> */}
+        <p className='mb-1'>View: {roomtype.View}</p>
         <p className='mb-1'>Số giường: {roomtype.SoGiuong}</p>
         <p className='mb-1'>Mô tả: {roomtype.MoTa}</p>
-        {/* <p>Trạng thái: Đang trống <i className="bi bi-check-circle-fill" style={{ color: '#D1F366' }}></i></p> */}
         <p className='mb-1' style={{ color: '#FAB320' }}>
           <i className="bi bi-check2" style={{ color: '#FAB320' }}></i> Miễn phí hủy</p>
         <p className='mb-1' style={{ color: '#FAB320' }}>
