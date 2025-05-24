@@ -5,7 +5,8 @@ import styles from './dangky.module.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword, ] = useState('');
+  const [repassword, setRepassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,11 +38,11 @@ const LoginPage = () => {
             required
           />
            <input
-            type="repassword"
+            type="password"
             className={styles.input}
             placeholder="Nhập lại password của bạn"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={repassword}
+            onChange={(e) => setRepassword(e.target.value)}
             required
           />
            <p className={styles.infoText}>
