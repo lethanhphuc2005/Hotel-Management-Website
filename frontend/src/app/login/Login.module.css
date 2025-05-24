@@ -5,6 +5,16 @@
   height: 100vh; /* Chiều cao toàn bộ màn hình */
   margin-top: 80px;
   margin-bottom:50px;
+  background-image: url('/img/banner1.webp'); /* sửa đường dẫn đúng */
+  background-size: cover;
+  background-position: center;
+}
+.container::before {
+  content: "";
+  position: absolute;
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  background-color: rgba(0, 0, 0, 0.6); /* màu đen mờ 50% */
+  z-index: 1; /* lớp phủ nằm dưới form */
 }
 
 .formContainer {
@@ -12,6 +22,8 @@
   padding: 20px; /* Khoảng cách bên trong */
   border-radius: 10px; /* Bo tròn các góc */
   border: 1px solid white;
+  z-index: 10;
+  position: relative;
 }
 
 .title {
