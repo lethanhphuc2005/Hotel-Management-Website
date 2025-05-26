@@ -28,7 +28,7 @@ export function RoomT({ roomtype }: { roomtype: RoomType }) {
           <p className={style.roomLabel}>Phòng {roomtype.TenLP}</p>
           <div className={style.priceContainer}>
             <span className={style.priceLabel}>Giá chỉ từ:</span>
-            <span className={style.price}>{roomtype.GiaPhong} VND</span>
+            <span className={style.price}>{roomtype.GiaPhong.toLocaleString('vi-VN')} VND</span>
           </div>
           <a href="#" className={style.seeMore}>Xem thêm</a>
         </div>
