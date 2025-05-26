@@ -76,18 +76,12 @@
   object-fit: cover;
   transition: transform 0.5s ease;
 }
-.mainImage:hover {
-  transform: scale(1.05); /* Phóng to nhẹ khi hover */
-}
 
 .smallImageGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
   width: 50%;
-}
-.smallImage:hover {
-  transform: scale(1.05); /* Phóng to nhẹ khi hover */
 }
 
 .smallImage {
