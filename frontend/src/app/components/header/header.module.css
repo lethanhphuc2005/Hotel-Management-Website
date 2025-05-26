@@ -30,6 +30,9 @@
 }
 .inputSearch {
     background-color: transparent;
+    width: 20rem;
+    height: 40px;
+    border: 0.2px solid white !important;
 }
 
 .inputSearch::placeholder {
@@ -43,7 +46,9 @@
 .formSearch {
     margin-right: 100px;
 }
-
+.btnSearch{
+  height: 40px;
+}
 .navbarScrollBg {
     background-color: black !important;
     transition: background-color 0.3s ease;

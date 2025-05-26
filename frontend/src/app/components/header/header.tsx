@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import style from './header.module.css';
 import { RoomType } from '../../types/roomtype';
 import { getRoomTypes } from '../../services/roomtypeService';
+import Link from 'next/link';
 
 export default function Header() {
   const [roomtypes, setRoomtypes] = useState<RoomType[]>([]);
@@ -63,19 +64,20 @@ export default function Header() {
             </ul>
             <form className={`d-flex ${style.formSearch}`} role="search">
               <input className={`form-control me-2 text-white ${style.inputSearch}`} type="search" placeholder="Tìm kiếm..." aria-label="Search" />
-              <button className="btn btn-outline-light w-50" type="submit">Tìm kiếm</button>
+              <button className={`btn btn-outline-light ${style.btnSearch}`} type="submit"><i className="bi bi-search fs-6"></i></button>
             </form>
             <div className='d-flex gap-3'>
-              <a className='text-white' href=""><i className="bi bi-bell fs-4"></i></a>
+              {/* <a className='text-white' href=""><i className="bi bi-search fs-5"></i></a> */}
+              <a className='text-white' href=""><i className="bi bi-bell fs-5"></i></a>
               <div className={style.dropdown}>
-                <a className='text-white' href=""><i className="bi bi-person-circle fs-4"></i></a>
+                <a className='text-white' href=""><i className="bi bi-person-circle fs-5"></i></a>
                 <div className={style.dropdownMenu}>
-                  <a className={style.dropdownItem} href="#">Đăng nhập</a>
-                  <a className={style.dropdownItem} href="#">Đăng ký</a>
-                  <a className={style.dropdownItem} href="#">Quản lý tài khoản</a>
+                  <Link className={style.dropdownItem} href="/login">Đăng nhập</Link>
+                  <Link className={style.dropdownItem} href="/register">Đăng ký</Link>
+                  <Link className={style.dropdownItem} href="#">Quản lý tài khoản</Link>
                 </div>
               </div>
-              <a className='text-white' href=""><i className="bi bi-receipt fs-4"></i></a>
+              <a className='text-white' href=""><i className="bi bi-receipt fs-5"></i></a>
             </div>
           </div>
         </div>
