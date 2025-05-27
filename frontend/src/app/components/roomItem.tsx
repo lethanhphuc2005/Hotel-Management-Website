@@ -88,8 +88,8 @@ export function RoomTypeItem({ roomtype }: { roomtype: RoomType }) {
       <div className="position-relative">
         {roomtype.HinhAnh?.map((img, index) => {
           return (
-            <a href={`/roomtype/${roomtype._id}`}>
-              <img key={index} src={`/img/${img.HinhAnh}`} alt="" className="rounded-4 h-100" />
+            <a key={index} href={`/roomtype/${roomtype._id}`}>
+              <img src={`/img/${img.HinhAnh}`} alt="" className="rounded-4 h-100" />
             </a>
           )
         })}
