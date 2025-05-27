@@ -50,6 +50,14 @@ const LoginPage = () => {
         </p>
 
           <button type="submit" className={styles.continueButton}>Tiếp tục</button>
+           <div className={styles.text}>
+           <p>
+               Bạn đã có tài khoản?  <a href="">Đăng nhập</a>
+          </p>
+              <p>
+              <a href="">Tạo tài khoản?</a>
+          </p>
+          </div>
         </form>
          </div>
       </div>
