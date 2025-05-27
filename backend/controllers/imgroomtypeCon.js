@@ -1,42 +1,42 @@
-const imgroomtype = require("../models/model");
+const imgRoomType = require("../models/model");
 
-const imgroomtypeCon = {
+const imgRoomTypeCon = {
   // thêm hình ảnh loại phòng
-  addImgroomtype: async (req, res) => {
+  addImgRoomType: async (req, res) => {
     try {
-      const newImgroomtype = new imgroomtype(req.body);
-      const saveImgroomtype = await newImgroomtype.save();
-      res.status(200).json(saveImgroomtype);
+      const newimgRoomType = new imgRoomType(req.body);
+      const saveimgRoomType = await newimgRoomType.save();
+      res.status(200).json(saveimgRoomType);
     } catch (error) {
       res.status(500).json(error);
     }
   },
 
   // lấy tất cả hình ảnh loại phòng
-  getAllImgroomtype: async (req, res) => {
+  getAllimgRoomType: async (req, res) => {
     try {
-      const imgroomtypes = await imgroomtype.find()
-      res.status(200).json(imgroomtypes);
+      const imgRoomTypes = await imgRoomType.find()
+      res.status(200).json(imgRoomTypes);
     } catch (error) {
       res.status(500).json(error);
     }
   },
 
   // lấy hình ảnh loại phòng theo ID
-  getAnImgroomtype: async (req, res) => {
+  getAnimgRoomType: async (req, res) => {
     try {
-      const imgroomtypeData = await imgroomtype.findById(req.params.id);
-      res.status(200).json(imgroomtypeData);
+      const imgRoomTypeData = await imgRoomType.findById(req.params.id);
+      res.status(200).json(imgRoomTypeData);
     } catch (error) {
       res.status(500).json(error);
     }
   },
 
   // cập nhật hình ảnh loại phòng
-  updateImgroomtype: async (req, res) => {
+  updateimgRoomType: async (req, res) => {
     try {
-      const imgroomtypeToUpdate = await imgroomtype.findById(req.params.id);
-      await imgroomtypeToUpdate.updateOne({ $set: req.body });
+      const imgRoomTypeToUpdate = await imgRoomType.findById(req.params.id);
+      await imgRoomTypeToUpdate.updateOne({ $set: req.body });
       res.status(200).json("Cập nhật thành công !!!");
     } catch (error) {
       res.status(500).json(error);
@@ -44,9 +44,9 @@ const imgroomtypeCon = {
   },
 
   // xóa hình ảnh loại phòng
-  deleteImgroomtype: async (req, res) => {
+  deleteimgRoomType: async (req, res) => {
     try {
-      await imgroomtype.findByIdAndDelete(req.params.id);
+      await imgRoomType.findByIdAndDelete(req.params.id);
       res.status(200).json("Xóa thành công !!!");
     } catch (error) {
       res.status(500).json(error);
@@ -54,4 +54,4 @@ const imgroomtypeCon = {
   },
 };
 
-module.exports = imgroomtypeCon;
+module.exports = imgRoomTypeCon;

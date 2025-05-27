@@ -11,11 +11,13 @@ const websitecontentRouter = require("./routes/websitecontent");
 const serviceRouter = require("./routes/service");
 const imgroomtypeRouter = require("./routes/imgroomtype");
 const statusRouter = require("./routes/status");
+const employersRouter = require("./routes/employers");
 
 dotenv.config();
 
 const app = express();
 const path = require("path");
+require('./swagger')(app);
 
 // Middleware
 app.use(express.json());
@@ -41,6 +43,7 @@ app.use("/v1/websitecontent", websitecontentRouter);
 app.use("/v1/service", serviceRouter);
 app.use("/v1/imgroomtype", imgroomtypeRouter);
 app.use("/v1/status", statusRouter);
+app.use("/v1/employers", employersRouter);
 
 app.listen(8000, () => {
   console.log("server đang chạy");

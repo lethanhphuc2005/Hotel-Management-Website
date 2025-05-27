@@ -1,4 +1,5 @@
 const userModel = require("../models/userModel");
+const employersModel = require("../models/employersModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -22,10 +23,11 @@ const accountCon = {
       { expiresIn: "20d" }
     );
   },
-  // add
-  addAccount: async (req, res) => {
+
+  // ====== THÊM TÀI KHOẢN USER =====
+  addUserAccount: async (req, res) => {
     try {
-       const checkAccount = await userModel.findOne({
+      const checkAccount = await userModel.findOne({
         Email: req.body.email,
       });
       if (checkAccount) {
@@ -45,85 +47,107 @@ const accountCon = {
       res.status(500).json(error);
     }
   },
-  login: async (req, res) => {
+
+  // ====== THÊM TÀI KHOẢN ADMIN =====
+  addAdminAccount: async (req, res) => {
+    try {
+      if (req.body.secretKey !== process.env.ADMIN_SECRET_KEY) {
+        return res.status(403).json("Bạn không có quyền tạo admin");
+      }
+
+      const checkAccount = await employersModel.findOne({
+        Email: req.body.email,
+      });
+      if (checkAccount) {
+        return res.status(400).json("Email admin đã tồn tại");
+      }
+
+      const hashPassword = await bcrypt.hash(req.body.password, 10);
+      const newAccount = new employersModel({
+        Email: req.body.email,
+        MatKhau: hashPassword,
+      });
+      const savedAccount = await newAccount.save();
+      res.status(200).json(savedAccount);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  },
+
+  // ====== ĐĂNG NHẬP USER =====
+  loginUser: async (req, res) => {
     try {
       const checkUser = await userModel.findOne({ Email: req.body.email });
       if (!checkUser) {
-        return res.status(400).json("sai email");
+        return res.status(400).json("Email không tồn tại");
       }
-      console.log(checkUser);
-      console.log(req.body);
-      // const validPassword = (await req.body.password) == user.Password;
-      // console.log(validPassword);
+
       const isMatch = await bcrypt.compare(
         req.body.password,
         checkUser.MatKhau
       );
       if (!isMatch) {
-        return res.status(400).json("sai password");
+        return res.status(400).json("Sai mật khẩu");
       }
       if (checkUser && isMatch) {
         const accessToken = accountCon.creareToken(checkUser);
         const refreshToken = accountCon.creareRefreshToken(checkUser);
-        /*
-        refreshTokens.push(refreshToken)
-        console.log(refreshTokens);
-        res.cookie("refreshToken", refreshToken,{
-          httpOnly: true,
-          secure:false,
-          path: "/",
-          sameSite:"strict"
-        })
-        */
-        const { password, ...others } = checkUser._doc;
+
+        const { MatKhau , ...others } = checkUser._doc;
         res.status(200).json({ ...others, accessToken, refreshToken });
       }
     } catch (error) {
       res.status(500).json(error);
     }
   },
+
+  // ====== ĐĂNG NHẬP ADMIN =====
+  loginAdmin: async (req, res) => {
+    try {
+      const admin = await employersModel.findOne({ Email: req.body.email });
+      if (!admin) return res.status(400).json("Admin không tồn tại");
+
+      const isMatch = await bcrypt.compare(req.body.password, admin.MatKhau);
+      if (!isMatch) return res.status(400).json("Sai mật khẩu");
+
+      const accessToken = accountCon.creareToken(admin);
+      const refreshToken = accountCon.creareRefreshToken(admin);
+      const { MatKhau, ...others } = admin._doc;
+
+      res.status(200).json({ ...others, accessToken, refreshToken });
+    } catch (err) {
+      res.status(500).json(err.message);
+    }
+  },
+
+  // ====== LẤY TOKEN MỚI =====
   requestRefreshToken: async (req, res) => {
-    // Lấy refresh từ người dùng
-    //const refreshToken = req.cookies.refreshToken;
+    // Kiểm tra xem refreshToken có trong body không
     let { refreshToken } = req.body;
     if (!refreshToken) return res.status(401).json("Không có token");
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
       if (err) {
-        console.error(err);
         return res.status(403).json("Lỗi xác thực token");
       }
-
-      // Xóa refreshToken cũ khỏi danh sách
-      //refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
       // Tạo accessToken và refreshToken mới
       const newAccessToken = accountCon.creareToken(user);
       const newRefreshToken = accountCon.creareRefreshToken(user);
 
-      // Thêm refreshToken mới vào danh sách
-      //refreshTokens.push(newRefreshToken);
-
-      // Đặt cookie với refreshToken mới
-      /*
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: false,
-        path: "/",
-        sameSite: "strict",
-      });
-      */
       res
         .status(200)
         .json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
     });
   },
+
+  // ====== ĐĂNG XUẤT =====
   logout: async (req, res) => {
     res.clearCookie("refreshToken");
     refreshTokens = refreshTokens.filter(
       (token) => token !== req.cookies.refreshToken
     );
-    res.status(200).json("đăng xuất thành công");
+    res.status(200).json("Đăng xuất thành công");
   },
 };
 module.exports = accountCon;

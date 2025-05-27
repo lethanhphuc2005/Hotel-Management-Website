@@ -1,19 +1,19 @@
 const router = require("express").Router();
-const imgroomtypeCon = require("../controllers/imgroomtypeCon");
+const imgRoomTypeCon = require("../controllers/imgroomtypeCon");
 
 // Thêm hình ảnh loại phòng
-router.post("/", imgroomtypeCon.addImgroomtype);
+router.post("/", imgRoomTypeCon.addImgRoomType);
 
 // Lấy tất cả hình ảnh loại phòng
-router.get("/", imgroomtypeCon.getAllImgroomtype);
+router.get("/", imgRoomTypeCon.getAllimgRoomType);
 
 // Lấy hình ảnh loại phòng theo ID
-router.get("/:id", imgroomtypeCon.getAnImgroomtype);
+router.get("/:id", imgRoomTypeCon.getAnimgRoomType);
 
 // Cập nhật hình ảnh loại phòng
-router.put("/:id", imgroomtypeCon.updateImgroomtype);
+router.put("/:id", imgRoomTypeCon.updateimgRoomType);
 
 // Xóa hình ảnh loại phòng
-router.delete("/:id", imgroomtypeCon.deleteImgroomtype);
+router.delete("/:id", imgRoomTypeCon.deleteimgRoomType);
 
 module.exports = router;

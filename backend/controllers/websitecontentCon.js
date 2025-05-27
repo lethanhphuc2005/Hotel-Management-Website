@@ -1,42 +1,42 @@
-const websitecontent = require("../models/websitecontentModel");
+const websiteContent = require("../models/websiteContentModel");
 
-const websitecontentCon = {
+const websiteContentCon = {
   // thêm nội dung website
-  addWebsitecontent: async (req, res) => {
+  addWebsiteContent: async (req, res) => {
     try {
-      const newWebsitecontent = new websitecontent(req.body);
-      const saveWebsitecontent = await newWebsitecontent.save();
-      res.status(200).json(saveWebsitecontent);
+      const newWebsiteContent = new websiteContent(req.body);
+      const saveWebsiteContent = await newWebsiteContent.save();
+      res.status(200).json(saveWebsiteContent);
     } catch (error) {
       res.status(500).json(error);
     }
   },
 
   // lấy tất cả nội dung website
-  getAllWebsitecontent: async (req, res) => {
+  getAllWebsiteContent: async (req, res) => {
     try {
-      const websitecontents = await websitecontent.find()
-      res.status(200).json(websitecontents);
+      const websiteContents = await websiteContent.find()
+      res.status(200).json(websiteContents);
     } catch (error) {
       res.status(500).json(error);
     }
   },
 
   // lấy nội dung website theo ID
-  getAnWebsitecontent: async (req, res) => {
+  getAWebsiteContent: async (req, res) => {
     try {
-      const websitecontentData = await websitecontent.findById(req.params.id);
-      res.status(200).json(websitecontentData);
+      const websiteContentData = await websiteContent.findById(req.params.id);
+      res.status(200).json(websiteContentData);
     } catch (error) {
       res.status(500).json(error);
     }
   },
 
   // cập nhật nội dung website
-  updateWebsitecontent: async (req, res) => {
+  updateWebsiteContent: async (req, res) => {
     try {
-      const websitecontentToUpdate = await websitecontent.findById(req.params.id);
-      await websitecontentToUpdate.updateOne({ $set: req.body });
+      const websiteContentToUpdate = await websiteContent.findById(req.params.id);
+      await websiteContentToUpdate.updateOne({ $set: req.body });
       res.status(200).json("Cập nhật thành công !!!");
     } catch (error) {
       res.status(500).json(error);
@@ -44,9 +44,9 @@ const websitecontentCon = {
   },
 
   // xóa nội dung website
-  deleteWebsitecontent: async (req, res) => {
+  deleteWebsiteContent: async (req, res) => {
     try {
-      await websitecontent.findByIdAndDelete(req.params.id);
+      await websiteContent.findByIdAndDelete(req.params.id);
       res.status(200).json("Xóa thành công !!!");
     } catch (error) {
       res.status(500).json(error);
@@ -54,4 +54,4 @@ const websitecontentCon = {
   },
 };
 
-module.exports = websitecontentCon;
+module.exports = websiteContentCon;

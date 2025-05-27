@@ -1,19 +1,19 @@
 const router = require("express").Router();
-const websitecontentCon = require("../controllers/websitecontentCon");
+const websiteContentCon = require("../controllers/websiteContentCon");
 
 // Thêm nội dung website
-router.post("/", websitecontentCon.addWebsitecontent);
+router.post("/", websiteContentCon.addWebsiteContent);
 
 // Lấy tất cả nội dung website
-router.get("/", websitecontentCon.getAllWebsitecontent);
+router.get("/", websiteContentCon.getAllWebsiteContent);
 
 // Lấy nội dung website theo ID
-router.get("/:id", websitecontentCon.getAnWebsitecontent);
+router.get("/:id", websiteContentCon.getAWebsiteContent);
 
 // Cập nhật nội dung website
-router.put("/:id", websitecontentCon.updateWebsitecontent);
+router.put("/:id", websiteContentCon.updateWebsiteContent);
 
 // Xóa nội dung website
-router.delete("/:id", websitecontentCon.deleteWebsitecontent);
+router.delete("/:id", websiteContentCon.deleteWebsiteContent);
 
 module.exports = router;

@@ -50,15 +50,14 @@ const userCon = {
     try {
       const userId = req.params.id;
       const { password, newPassword } = req.body;
-      console.log(password, newPassword);
 
       if (!password || !newPassword) {
         return res.status(400).json({ message: "Mật khẩu không được để trống" });
       }
-      const user = await userModel.findById(userId, { MatKhau: 0 });
+      const user = await userModel.findById(userId);
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Không tìm thấy user" });
       }
 
       const isMatch = await bcrypt.compare(password, user.MatKhau);
@@ -85,7 +84,7 @@ const userCon = {
       try {
         const userToUpdate = await userModel.findById(req.params.id);
         if (!userToUpdate) {
-          return res.status(404).json({ message: "User not found" });
+          return res.status(404).json({ message: "Không tìm thấy user" });
         }
         await userToUpdate.updateOne({ $set: req.body });
         res.status(200).json("Cập nhật thành công !!!");

@@ -29,7 +29,7 @@ export default async function Home() {
   );
   return (
     <>
-      <Banner banner={banners[1]}/>
+      <Banner banner={banners[1]} />
       <Container fluid className={`${style.customContainer} container`}>
         {/* LOẠI PHÒNG Section */}
         <div className={style.headerContainer}>
@@ -47,7 +47,7 @@ export default async function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <ServiceList services={services}/>
+          <ServiceList services={services} />
         </Row>
         <br />
         <br />
