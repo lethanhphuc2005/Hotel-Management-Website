@@ -1,19 +1,20 @@
 "use client"
 import { useEffect, useState } from 'react';
-import {  RoomTypeList } from '../components/roomList';
+import { RoomTypeList } from '../components/roomList';
 import { RoomType } from '../types/roomtype';
 import { getRoomTypes } from '../services/roomtypeService';
 
 export default function Roomtype() {
     const [price, setPrice] = useState(500000);
-    const [floor, setFloor] = useState('');
-    const [status, setStatus] = useState('');
+    const [roomtype, setRoomtype] = useState('');
+    const [view, setView] = useState('');
+    const [amenity, setAmenity] = useState('');
     const [roomtypes, setRoomTypes] = useState<RoomType[]>([]);
     useEffect(() => {
         const fetchRoomTypes = async () => {
             try {
                 const res: RoomType[] = await getRoomTypes(`http://localhost:8000/v1/roomtype`);
-                
+
                 setRoomTypes(res);
             } catch (err) {
                 console.error('Lỗi khi lấy danh sách phòng:', err);
@@ -25,11 +26,14 @@ export default function Roomtype() {
     const handleChange = (e: any) => {
         setPrice(Number(e.target.value));
     };
-    const handleChangeFloor = (e: any) => {
-        setFloor(e.target.value);
+    const handleChangeRT = (e: any) => {
+        setRoomtype(e.target.value);
     };
-    const handleChangeStatus = (e: any) => {
-        setStatus(e.target.value);
+    const handleChangeView = (e: any) => {
+        setView(e.target.value);
+    };
+    const handleChangeAmenity = (e: any) => {
+        setAmenity(e.target.value);
     };
     return (
         <>
@@ -38,19 +42,6 @@ export default function Roomtype() {
                 <div className="row">
                     <div className='col-3 border-end border-top h-auto'>
                         <div className='sticky-top' style={{ top: '13%' }}>
-                            <p className='mt-3 fw-bold'>LỌC THEO TẦNG</p>
-
-                            <select className="form-select bg-black text-white" value={floor} onChange={handleChangeFloor}>
-                                <option value="">Tất cả các tầng</option>
-                                <option value="1">Tầng 1</option>
-                                <option value="2">Tầng 2</option>
-                                <option value="3">Tầng 3</option>
-                                <option value="4">Tầng 4</option>
-                            </select>
-                            <p className="mt-2">
-                                {floor ? `Đang lọc: Tầng ${floor}` : 'Hiển thị tất cả'}
-                            </p>
-
                             <p className='mt-3 fw-bold'>LỌC THEO GIÁ</p>
                             <input
                                 type="range"
@@ -63,17 +54,37 @@ export default function Roomtype() {
                             />
                             <p className="mt-2">Giá: {price.toLocaleString('vi-VN')}đ</p>
 
-                            <p className="mt-3 fw-bold">LỌC THEO TRẠNG THÁI</p>
+                            <p className='mt-3 fw-bold'>LỌC THEO LOẠI PHÒNG</p>
+                            <select className="form-select bg-black text-white" value={roomtype} onChange={handleChangeRT}>
+                                <option value="">Tất cả loại phòng</option>
+                                <option value="Standard">Standard</option>
+                                <option value="Deluxe">Deluxe</option>
+                                <option value="Suite">Suite</option>
+                            </select>
+                            <p className="mt-2">
+                                {roomtype ? `Đang lọc: ${roomtype}` : 'Hiển thị tất cả'}
+                            </p>
 
-                            <select className="form-select bg-black text-white" value={status} onChange={handleChangeStatus}>
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="Còn trống">Còn trống</option>
-                                <option value="Đã đặt">Đã đặt</option>
-                                <option value="Đang ở">Đang ở</option>
+
+                            <p className='mt-3 fw-bold'>LỌC THEO VIEW</p>
+                            <select className="form-select bg-black text-white" value={view} onChange={handleChangeView}>
+                                <option value="">Tất cả view</option>
+                                <option value="Sea">Sea</option>
+                                <option value="City">City</option>
+                            </select>
+                            <p className="mt-2">
+                                {view ? `Đang lọc: ${view}` : 'Hiển thị tất cả'}
+                            </p>
+
+                            <p className="mt-3 fw-bold">LỌC THEO TIỆN NGHI</p>
+                            <select className="form-select bg-black text-white" value={amenity} onChange={handleChangeAmenity}>
+                                <option value="">Tất cả tiện nghi</option>
+                                <option value="Ban công">Ban công</option>
+                                <option value="Bồn tắm">Bồn tắm</option>
                             </select>
 
                             <p className="mt-2">
-                                {status ? `Đang lọc: ${status}` : 'Hiển thị tất cả'}
+                                {amenity ? `Đang lọc: ${amenity}` : 'Hiển thị tất cả'}
                             </p>
 
                             <button className='w-100 border-0 text-black' style={{ background: '#FAB320', height: '40px' }}>Lọc</button>
@@ -81,7 +92,7 @@ export default function Roomtype() {
                     </div>
                     <div className="col-9 border-top">
                         <div className='row p-3 gap-3'>
-                            <RoomTypeList roomtypes={roomtypes}/>
+                            <RoomTypeList roomtypes={roomtypes} />
                         </div>
                     </div>
                 </div>
