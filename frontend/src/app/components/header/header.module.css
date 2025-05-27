@@ -31,12 +31,13 @@
 .inputSearch {
     background-color: transparent;
     width: 20rem;
-    height: 40px;
+    height: 30px;
     border: 0.2px solid white !important;
 }
 
 .inputSearch::placeholder {
     color: white;
+    font-size: 14px;
 }
 
 .inputSearch:focus {
@@ -47,7 +48,12 @@
     margin-right: 100px;
 }
 .btnSearch{
-  height: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+.search{
+  font-size: 14px;
 }
 .navbarScrollBg {
     background-color: black !important;

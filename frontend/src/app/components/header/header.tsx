@@ -9,8 +9,8 @@ import Link from 'next/link';
 
 export default function Header() {
   const [roomtypes, setRoomtypes] = useState<RoomType[]>([]);
-  
-    useEffect(() => {
+
+  useEffect(() => {
     const fetchData = async () => {
       const data = await getRoomTypes("http://localhost:8000/v1/roomtype");
       setRoomtypes(data);
@@ -64,7 +64,9 @@ export default function Header() {
             </ul>
             <form className={`d-flex ${style.formSearch}`} role="search">
               <input className={`form-control me-2 text-white ${style.inputSearch}`} type="search" placeholder="Tìm kiếm..." aria-label="Search" />
-              <button className={`btn btn-outline-light ${style.btnSearch}`} type="submit"><i className="bi bi-search fs-6"></i></button>
+              <button className={`btn btn-outline-light ${style.btnSearch}`} type="submit">
+                <i className={`bi bi-search ${style.search}`}></i>
+              </button>
             </form>
             <div className='d-flex gap-3'>
               {/* <a className='text-white' href=""><i className="bi bi-search fs-5"></i></a> */}

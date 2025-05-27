@@ -15,7 +15,21 @@ const roomtypeCon = {
   // lấy tất cả loại phòng
   getAllRoomtype: async (req, res) => {
     try {
-      const roomtypes = await roomtype.find().populate([
+      const { TenLP, limit, page } = req.query;
+      const query = {}; // chứa các điều kiện tìm kiếm
+      const options = {}; // chứa các tùy chọn limit, sort, page,...
+      if (TenLP) { // Tìm kiếm theo tên
+        query.TenLP = new RegExp(TenLP, 'i');
+        // RegExp: biểu thức chính quy
+        // 1 không phân biệt chữ hoa chữ thường
+      }
+      if (limit) { // Giới hạn sản phẩm lấy ra
+        options.limit = parseInt(limit);
+      }
+      if (page) {
+        options.skip = (parseInt(page) - 1) * options.limit;
+      }
+      const roomtypes = await roomtype.find(query, null, options).populate([
         { path: "TienNghi", select: "TenTN MoTa" },
         { path: "HinhAnh", select: "HinhAnh" },
       ]);
