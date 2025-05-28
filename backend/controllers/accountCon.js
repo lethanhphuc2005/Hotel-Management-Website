@@ -8,17 +8,17 @@ const accountCon = {
   creareToken: (user) => {
     return jwt.sign(
       {
-        id: user.id,
+        id: user._id,
         role: user.Role,
       },
       process.env.ACCESS_TOKEN,
-      { expiresIn: "30s" }
+      { expiresIn: "15m" }
     );
   },
   creareRefreshToken: (user) => {
     return jwt.sign(
       {
-        id: user.id,
+        id: user._id,
         role: user.Role,
       },
       process.env.REFRESH_TOKEN,
@@ -121,7 +121,7 @@ const accountCon = {
   // ====== ĐĂNG NHẬP USER =====
   loginUser: async (req, res) => {
     try {
-      const checkUser = await userModel.findOne({ Email: req.body.email });
+      const checkUser = await userModel.findOne({ Email: req.body.Email });
       if (!checkUser) return res.status(400).json("Email không tồn tại");
 
       if (!checkUser.TrangThai) {
@@ -130,8 +130,8 @@ const accountCon = {
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
 
-      const isMatch = await bcrypt.compare(
-        req.body.password,
+      const isMatch = bcrypt.compare(
+        req.body.MatKhau,
         checkUser.MatKhau
       );
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
@@ -150,7 +150,7 @@ const accountCon = {
   // ====== ĐĂNG NHẬP ADMIN =====
   loginAdmin: async (req, res) => {
     try {
-      const admin = await employerModel.findOne({ Email: req.body.email });
+      const admin = await employerModel.findOne({ Email: req.body.Email });
       if (!admin) return res.status(400).json("Admin không tồn tại");
 
       if (!admin.TrangThai) {
@@ -159,7 +159,7 @@ const accountCon = {
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
 
-      const isMatch = await bcrypt.compare(req.body.password, admin.MatKhau);
+      const isMatch = bcrypt.compare(req.body.MatKhau, admin.MatKhau);
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
 
       const accessToken = accountCon.creareToken(admin);

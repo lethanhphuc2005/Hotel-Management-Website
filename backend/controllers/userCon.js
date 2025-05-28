@@ -18,6 +18,7 @@ const upload = multer({ storage: storage, fileFilter: checkfile });
 
 const userModel = require("../models/userModel");
 const bcrypt = require("bcryptjs");
+const account = require("./accountCon"); // Assuming you have an account controller for validation
 
 const userCon = {
   // add
@@ -51,8 +52,11 @@ const userCon = {
   },
   getAnUser: async (req, res) => {
     try {
-      const au = await userModel.findById(req.params.id);
-      res.status(200).json(au);
+      const user = await userModel.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json("Không tìm thấy user");
+      }
+      res.status(200).json(user);
     } catch (error) {
       res.status(500).json(error);
     }
@@ -73,7 +77,7 @@ const userCon = {
         return res.status(404).json({ message: "Không tìm thấy user" });
       }
 
-      const isMatch = await bcrypt.compare(password, user.MatKhau);
+      const isMatch = bcrypt.compare(password, user.MatKhau);
       if (!isMatch) {
         return res
           .status(401)
@@ -99,6 +103,22 @@ const userCon = {
         if (!userToUpdate) {
           return res.status(404).json({ message: "Không tìm thấy user" });
         }
+        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? userToUpdate.toObject()
+            : { ...userToUpdate.toObject(), ...req.body };
+
+        // Validate dữ liệu cập nhật (dùng validateDiscount bạn đã tạo)
+        const validation = await account.validateUser(
+          updatedData,
+          req.params.id
+        );
+
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
         await userToUpdate.updateOne({ $set: req.body });
         res.status(200).json("Cập nhật thành công !!!");
       } catch (error) {

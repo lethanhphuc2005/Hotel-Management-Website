@@ -4,6 +4,8 @@ const StatusSchema = new mongoose.Schema({
     TenTT: {
         type: String,
         required: true,
+        maxlength: 100,
+        
     },
     LoaiTT: {
         type: String,
@@ -11,6 +13,6 @@ const StatusSchema = new mongoose.Schema({
     }
 });
 
-let status = mongoose.model("status", StatusSchema, "trangthai");
+const statusModel = mongoose.model("status", StatusSchema, "trangthai");
 
-module.exports = status;
+module.exports = statusModel;
