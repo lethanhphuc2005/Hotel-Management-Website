@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const employersSchema = new mongoose.Schema({
+const employerSchema = new mongoose.Schema({
   TenNV: {
     type: String,
     require: true,
@@ -58,5 +58,5 @@ const employersSchema = new mongoose.Schema({
   },
 });
 
-const employersModel = mongoose.model("employers", employersSchema, "nhanvien");
-module.exports = employersModel;
+const employerModel = mongoose.model("employer", employerSchema, "nhanvien");
+module.exports = employerModel;

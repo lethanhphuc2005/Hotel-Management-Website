@@ -16,14 +16,14 @@ const checkfile = (req, file, cb) => {
 };
 const upload = multer({ storage: storage, fileFilter: checkfile });
 
-const employersModel = require("../models/employersModel");
+const employerModel = require("../models/employerModel");
 const bcrypt = require("bcryptjs");
 
-const employersCon = {
+const employerCon = {
   // ====== LẤY TẤT CẢ NHÂN VIÊN =====
   getAllEmployers: async (req, res) => {
     try {
-      const users = await employersModel.find();
+      const users = await employerModel.find();
       res.status(200).json(users);
     } catch (error) {
       res.status(500).json(error);
@@ -33,7 +33,7 @@ const employersCon = {
   // ====== XOÁ NHÂN VIÊN =====
   deleteEmployer: async (req, res) => {
     try {
-      const checkUser = await employersModel.findByIdAndDelete(req.params.id);
+      const checkUser = await employerModel.findByIdAndDelete(req.params.id);
       if (!checkUser) {
         return res.status(404).json({ message: "Không tìm thấy nhân viên" });
       }
@@ -46,7 +46,7 @@ const employersCon = {
   // ====== LẤY 1 NHÂN VIÊN =====
   getAnEmployer: async (req, res) => {
     try {
-      const checkUser = await employersModel.findById(req.params.id);
+      const checkUser = await employerModel.findById(req.params.id);
       if (!checkUser) {
         return res.status(404).json({ message: "Không tìm thấy nhân viên" });
       }
@@ -67,7 +67,7 @@ const employersCon = {
           .status(400)
           .json({ message: "Mật khẩu không được để trống" });
       }
-      const checkUser = await employersModel.findById(userId);
+      const checkUser = await employerModel.findById(userId);
 
       if (!checkUser) {
         return res.status(404).json({ message: "Không tìm thấy nhân viên" });
@@ -96,13 +96,13 @@ const employersCon = {
     upload.single("img"),
     async (req, res) => {
       try {
-        const checkEmail = await employersModel.findOne({
+        const checkEmail = await employerModel.findOne({
           Email: req.body.email,
         });
         if (checkEmail && checkEmail._id !== req.params.id) {
           return res.status(400).json("Email đã tồn tại");
         }
-        const userToUpdate = await employersModel.findById(req.params.id);
+        const userToUpdate = await employerModel.findById(req.params.id);
         if (!userToUpdate) {
           return res.status(404).json({ message: "Không tìm thấy nhân viên" });
         }
@@ -116,4 +116,4 @@ const employersCon = {
   ],
 };
 
-module.exports = employersCon;
+module.exports = employerCon;

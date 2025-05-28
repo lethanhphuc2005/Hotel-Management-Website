@@ -8,7 +8,7 @@ router.post("/register/user", accountCon.addUserAccount);
 router.post("/login/user", accountCon.loginUser);
 
 // ADMIN
-router.post("/register/admin", accountCon.addAdminAccount);
+router.post("/register/admin", middlewareCon.authorizeRoles("admin"), accountCon.addAdminAccount);
 router.post("/login/admin", accountCon.loginAdmin);
 
 // CHUNG

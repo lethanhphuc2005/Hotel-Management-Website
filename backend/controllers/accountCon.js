@@ -1,5 +1,5 @@
 const userModel = require("../models/userModel");
-const employersModel = require("../models/employersModel");
+const employerModel = require("../models/employerModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -9,6 +9,7 @@ const accountCon = {
     return jwt.sign(
       {
         id: user.id,
+        role: user.Role,
       },
       process.env.ACCESS_TOKEN,
       { expiresIn: "30s" }
@@ -18,6 +19,7 @@ const accountCon = {
     return jwt.sign(
       {
         id: user.id,
+        role: user.Role,
       },
       process.env.REFRESH_TOKEN,
       { expiresIn: "20d" }
@@ -55,7 +57,7 @@ const accountCon = {
         return res.status(403).json("Bạn không có quyền tạo admin");
       }
 
-      const checkAccount = await employersModel.findOne({
+      const checkAccount = await employerModel.findOne({
         Email: req.body.email,
       });
       if (checkAccount) {
@@ -63,7 +65,7 @@ const accountCon = {
       }
 
       const hashPassword = await bcrypt.hash(req.body.password, 10);
-      const newAccount = new employersModel({
+      const newAccount = new employerModel({
         Email: req.body.email,
         MatKhau: hashPassword,
       });
@@ -93,7 +95,7 @@ const accountCon = {
         const accessToken = accountCon.creareToken(checkUser);
         const refreshToken = accountCon.creareRefreshToken(checkUser);
 
-        const { MatKhau , ...others } = checkUser._doc;
+        const { MatKhau, ...others } = checkUser._doc;
         res.status(200).json({ ...others, accessToken, refreshToken });
       }
     } catch (error) {
@@ -104,7 +106,7 @@ const accountCon = {
   // ====== ĐĂNG NHẬP ADMIN =====
   loginAdmin: async (req, res) => {
     try {
-      const admin = await employersModel.findOne({ Email: req.body.email });
+      const admin = await employerModel.findOne({ Email: req.body.email });
       if (!admin) return res.status(400).json("Admin không tồn tại");
 
       const isMatch = await bcrypt.compare(req.body.password, admin.MatKhau);

@@ -1,33 +1,33 @@
 const router = require("express").Router();
 const middlewareCon = require("../controllers/middlewareCon");
-const userCon = require("../controllers/userCon");
+const employerCon = require("../controllers/employerCon");
 
-// Lấy tất cả user
+// Lấy tất cả nhân viên
 router.get(
   "/",
   middlewareCon.authorizeRoles("admin", "receptionist"),
-  userCon.getUser
+  employerCon.getAllEmployers
 );
 
-// Lấy thông tin 1 user
+// Lấy thông tin 1 nhân viên
 router.get(
   "/userinfo/:id",
-  middlewareCon.authorizeSelfOrRoles("admin", "receptionist"),
-  userCon.getAnUser
+  middlewareCon.authorizeSelfOrRoles("admin"),
+  employerCon.getAnEmployer
 );
 
-// Cập nhật thông tin user
+// Cập nhật thông tin nhân viên
 router.put(
   "/update/:id",
   middlewareCon.authorizeSelfOrRoles("admin"),
-  userCon.updateUser
+  employerCon.updateEmployer
 );
 
-// Đổi mật khẩu user
+// Đổi mật khẩu nhân viên
 router.put(
   "/changepassword/:id",
   middlewareCon.authorizeSelfOnly,
-  userCon.changePassword
+  employerCon.changePassword
 );
 
 module.exports = router;
