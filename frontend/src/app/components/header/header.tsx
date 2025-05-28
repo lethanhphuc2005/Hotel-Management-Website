@@ -56,10 +56,10 @@ export default function Header() {
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Dịch vụ</a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Liên hệ</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href="/contact">Liên hệ</a>
               </li>
               <li className="nav-item">
-                <a className={`nav-link active text-white fw-bold ${style.item}`} href='#'>Tin tức</a>
+                <a className={`nav-link active text-white fw-bold ${style.item}`} href='/news'>Tin tức</a>
               </li>
             </ul>
             <form className={`d-flex ${style.formSearch}`} role="search">
