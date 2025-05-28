@@ -37,10 +37,18 @@ const LoginPage = () => {
             required
           />
           <p className={styles.infoText}>
-            Chúng tôi sẽ gọi điện hoặc nhắn tin cho bạn để xác nhận số điện thoại. Có áp dụng phí dữ liệu và phí tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
+           Chúng tôi sẽ gọi hoặc nhắn tin cho bạn để xác nhận số điện thoại. Có áp dụng phí dữ liệu và tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
           </p>
 
           <button type="submit" className={styles.continueButton}>Tiếp tục</button>
+           <div className={styles.text}>
+           <p>
+               Bạn chưa có tài khoản?  <a href="">Đăng ký</a>
+          </p>
+              <p>
+              <a href="">Quên mật khẩu?</a>
+          </p>
+          </div>
         </form>
 
         <div className={styles.orContainer}>

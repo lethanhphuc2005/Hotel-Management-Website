@@ -3,6 +3,8 @@
   justify-content: center; /* Căn giữa theo chiều ngang */
   align-items: center; /* Căn giữa theo chiều dọc */
   height: 100vh; /* Chiều cao toàn bộ màn hình */
+  margin-top: 30px;
+  /* margin-bottom: 50px; */
   background-image: url('/img/banner1.webp'); /* sửa đường dẫn đúng */
   background-size: cover;
   background-position: center;
@@ -100,4 +102,12 @@
   margin: 10px 0; /* Khoảng cách phía trên và dưới */
   font-size: 14px; /* Kích thước chữ */
    color: #fff;
+}
+.text{
+  text-align: center;
+}
+.text a{
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
 }
