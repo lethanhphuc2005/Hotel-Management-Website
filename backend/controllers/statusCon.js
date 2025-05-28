@@ -36,7 +36,6 @@ const statusCon = {
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
-      console.log(newStatus);
       const saveStatus = await newStatus.save();
       res.status(200).json(saveStatus);
     } catch (error) {
@@ -70,7 +69,7 @@ const statusCon = {
     }
   },
 
-  // cập nhật trạng thái
+  // === CẬP NHẬT TRẠNG THÁI ===
   updateStatus: async (req, res) => {
     try {
       const statusToUpdate = await statusModel.findById(req.params.id);
@@ -96,7 +95,7 @@ const statusCon = {
     }
   },
 
-  // xóa trạng thái
+  // === XÓA TRẠNG THÁI ===
   deleteStatus: async (req, res) => {
     try {
       const statusToDelete = await statusModel.findById(req.params.id);

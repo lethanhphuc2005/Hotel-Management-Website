@@ -1,4 +1,5 @@
 const router = require("express").Router();
+
 const discountCon = require("../controllers/discountCon");
 const middlewareCon = require("../controllers/middlewareCon");
 

@@ -1,4 +1,5 @@
 const router = require("express").Router();
+
 const imgRoomTypeCon = require("../controllers/imgroomtypeCon");
 
 // Thêm hình ảnh loại phòng

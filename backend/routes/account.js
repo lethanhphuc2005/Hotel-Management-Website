@@ -1,7 +1,7 @@
+const router = require("express").Router();
+
 const accountCon = require("../controllers/accountCon");
 const middlewareCon = require("../controllers/middlewareCon");
-
-const router = require("express").Router();
 
 // USER
 router.post("/register/user", accountCon.addUserAccount);

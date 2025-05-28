@@ -1,4 +1,5 @@
 const router = require("express").Router();
+
 const roomtypeCon = require("../controllers/roomtypeCon");
 
 // Thêm loại phòng

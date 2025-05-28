@@ -7,12 +7,13 @@ const roomRouter = require("./routes/room");
 const roomtypeRouter = require("./routes/roomtype");
 const accountRouter = require("./routes/account");
 const userRouter = require("./routes/user");
-const websitecontentRouter = require("./routes/websitecontent");
+const websiteContentRouter = require("./routes/websiteContent");
 const serviceRouter = require("./routes/service");
 const imgroomtypeRouter = require("./routes/imgRoomType");
 const statusRouter = require("./routes/status");
 const employerRouter = require("./routes/employer");
 const discountRouter = require("./routes/discount");
+const contentTypeRouter = require("./routes/contentType");
 
 dotenv.config();
 
@@ -40,12 +41,13 @@ app.use("/v1/room", roomRouter);
 app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/account", accountRouter);
-app.use("/v1/websitecontent", websitecontentRouter);
+app.use("/v1/websitecontent", websiteContentRouter);
 app.use("/v1/service", serviceRouter);
 app.use("/v1/imgroomtype", imgroomtypeRouter);
 app.use("/v1/status", statusRouter);
 app.use("/v1/employer", employerRouter);
 app.use("/v1/discount", discountRouter);
+app.use("/v1/contenttype", contentTypeRouter);
 
 app.listen(8000, () => {
   console.log("server đang chạy");
