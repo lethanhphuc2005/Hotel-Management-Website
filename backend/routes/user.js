@@ -6,7 +6,7 @@ const userCon = require("../controllers/userCon");
 router.get(
   "/",
   middlewareCon.authorizeRoles("admin", "receptionist"),
-  userCon.getUser
+  userCon.getAllUsers
 );
 
 // Lấy thông tin 1 user

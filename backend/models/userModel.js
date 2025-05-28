@@ -6,12 +6,14 @@ const userSchema = new mongoose.Schema({
     require: true,
     default: "no name",
     minlength: 6,
+    maxlength: 100,
   },
   DiaChi: {
     type: String,
     require: true,
     default: "no address",
     minlength: 6,
+    maxlength: 500,
   },
   Email: {
     type: String,
@@ -49,6 +51,8 @@ const userSchema = new mongoose.Schema({
     require: true,
     default: true,
   },
+  // verifyToken: String,
+  // verifyTokenExpires: Date,
 });
 
 const userModel = mongoose.model("user", userSchema, "khachhang");

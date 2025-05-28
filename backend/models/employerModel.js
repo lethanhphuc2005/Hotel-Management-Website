@@ -56,6 +56,11 @@ const employerSchema = new mongoose.Schema({
     require: true,
     default: "staff",
   },
+  TrangThai: {
+    type: Boolean,
+    require: true,
+    default: true,
+  },
 });
 
 const employerModel = mongoose.model("employer", employerSchema, "nhanvien");

@@ -21,18 +21,29 @@ const bcrypt = require("bcryptjs");
 
 const userCon = {
   // add
-  getUser: async (req, res) => {
+  getAllUsers: async (req, res) => {
     try {
-      const user = await userModel.find();
-      res.status(200).json(user);
+      const checkUsers = await userModel.find();
+      if (!checkUsers || checkUsers.length === 0) {
+        return res.status(404).json("Không tìm thấy user nào");
+      }
+      res.status(200).json(checkUsers);
     } catch (error) {
       res.status(500).json(error);
     }
   },
   deleteUser: async (req, res) => {
     try {
-      //chưa xóa theme :(((
+      const userToDelete = await userModel.findById(req.params.id);
+      if (!userToDelete) {
+        return res.status(404).json("Không tìm thấy user để xóa");
+      } else if (userToDelete.TrangThai === true) {
+        return res.status(400).json("Không thể xóa user đang hoạt động");
+      } else if (userToDelete.TrangThai === false) {
+        return res.status(400).json("User đã bị xóa trước đó");
+      }
       await userModel.findByIdAndDelete(req.params.id);
+
       res.status(200).json("Xóa thành công !!!");
     } catch (error) {
       res.status(500).json(error);
@@ -52,7 +63,9 @@ const userCon = {
       const { password, newPassword } = req.body;
 
       if (!password || !newPassword) {
-        return res.status(400).json({ message: "Mật khẩu không được để trống" });
+        return res
+          .status(400)
+          .json({ message: "Mật khẩu không được để trống" });
       }
       const user = await userModel.findById(userId);
 
