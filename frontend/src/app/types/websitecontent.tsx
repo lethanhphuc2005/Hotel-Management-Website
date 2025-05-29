@@ -1,3 +1,8 @@
+export interface ContentType {
+  _id: string;
+  TenND: string;
+  MoTa: string;
+}
 export interface WebsiteContent {
   _id: string;
   TieuDe: string;
@@ -5,4 +10,5 @@ export interface WebsiteContent {
   MaND: string;
   NgayDang: Date;
   HinhAnh: string;
+  LoaiNoiDung: ContentType;
 }

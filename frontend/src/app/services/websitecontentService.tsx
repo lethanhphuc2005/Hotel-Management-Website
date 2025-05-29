@@ -9,8 +9,9 @@ export async function getWebsiteContents(url: string) {
       TieuDe: p.TieuDe,
       NoiDung: p.NoiDung,
       MaND: p.MaND,
-      NgayDang: p.NgayDang,
-      HinhAnh: p.HinhAnh
+      NgayDang: new Date(p.NgayDang),
+      HinhAnh: p.HinhAnh,
+      LoaiNoiDung: p.LoaiNoiDung
     };
   });
   return websitecontents;
