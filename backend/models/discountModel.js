@@ -4,13 +4,11 @@ const DiscountSchema = new mongoose.Schema({
   TenKM: {
     type: String,
     required: true,
-    minlength: 6,
     maxlength: 100,
   },
   MoTa: {
     type: String,
     required: true,
-    minlength: 10,
     maxlength: 500,
   },
   LoaiKM: {
@@ -46,6 +44,9 @@ const DiscountSchema = new mongoose.Schema({
     default: false,
   },
 });
+
+DiscountSchema.set("toJSON", { versionKey: false });
+DiscountSchema.set("toObject", { versionKey: false });
 
 const discountModel = mongoose.model("discount", DiscountSchema, "khuyenmai");
 module.exports = discountModel;

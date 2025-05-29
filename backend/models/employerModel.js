@@ -4,26 +4,23 @@ const employerSchema = new mongoose.Schema({
   TenNV: {
     type: String,
     require: true,
-    default: "no name",
-    minlength: 6,
+    default: null,
   },
   ChucVu: {
     type: String,
     require: true,
-    default: "no position",
-    minlength: 6,
+    default: null,
   },
   BoPhan: {
     type: String,
     require: true,
-    default: "no department",
-    minlength: 6,
+    default: null,
   },
   DiaChi: {
     type: String,
     require: true,
-    default: "no address",
-    minlength: 6,
+    default: null,
+    maxlength: 500,
   },
   Email: {
     type: String,
@@ -49,12 +46,11 @@ const employerSchema = new mongoose.Schema({
   MatKhau: {
     type: String,
     require: true,
-    minlength: 6,
   },
   Role: {
     type: String,
     require: true,
-    default: "staff",
+    default: null,
   },
   TrangThai: {
     type: Boolean,
@@ -62,6 +58,9 @@ const employerSchema = new mongoose.Schema({
     default: true,
   },
 });
+
+employerSchema.set("toJSON", { versionKey: false });
+employerSchema.set("toObject", { versionKey: false });
 
 const employerModel = mongoose.model("employer", employerSchema, "nhanvien");
 module.exports = employerModel;

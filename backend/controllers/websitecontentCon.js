@@ -7,7 +7,6 @@ const websiteContentCon = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===
   validateWebsiteContent: async (websiteContentData, websiteContentId) => {
     const { TieuDe, NoiDung, MaND, HinhAnh } = websiteContentData;
-    console.log(websiteContentData);
     // Kiểm tra các trường bắt buộc
     if (!TieuDe || !NoiDung || !MaND || !HinhAnh) {
       return {

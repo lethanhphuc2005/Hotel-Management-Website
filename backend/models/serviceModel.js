@@ -19,6 +19,9 @@ const ServiceSchema = new mongoose.Schema({
     },
 });
 
-let service = mongoose.model("service", ServiceSchema, "dichvu");
+ServiceSchema.set("toJSON", { versionKey: false });
+ServiceSchema.set("toObject", { versionKey: false });
+
+const service = mongoose.model("service", ServiceSchema, "dichvu");
 
 module.exports = service;

@@ -4,15 +4,13 @@ const userSchema = new mongoose.Schema({
   TenKH: {
     type: String,
     require: true,
-    default: "no name",
-    minlength: 6,
+    default: null,
     maxlength: 100,
   },
   DiaChi: {
     type: String,
     require: true,
-    default: "no address",
-    minlength: 6,
+    default: null,
     maxlength: 500,
   },
   Email: {
@@ -39,12 +37,12 @@ const userSchema = new mongoose.Schema({
   MatKhau: {
     type: String,
     require: true,
-    minlength: 6,
   },
   YeuCau_DB: {
     type: String,
     require: true,
-    default: "no request",
+    default: null,
+    maxlength: 500,
   },
   TrangThai: {
     type: Boolean,
@@ -54,6 +52,9 @@ const userSchema = new mongoose.Schema({
   // verifyToken: String,
   // verifyTokenExpires: Date,
 });
+
+userSchema.set("toJSON", { versionKey: false });
+userSchema.set("toObject", { versionKey: false });
 
 const userModel = mongoose.model("user", userSchema, "khachhang");
 module.exports = userModel;
