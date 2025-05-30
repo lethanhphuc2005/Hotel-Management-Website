@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 const roomRouter = require("./routes/room");
+const roomTypeMainRouter = require("./routes/roomTypeMain");
 const roomtypeRouter = require("./routes/roomtype");
 const accountRouter = require("./routes/account");
 const userRouter = require("./routes/user");
@@ -38,6 +39,7 @@ mongoose
 // Router
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/v1/room", roomRouter);
+app.use("/v1/roomtypemain", roomTypeMainRouter);
 app.use("/v1/roomtype", roomtypeRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/account", accountRouter);

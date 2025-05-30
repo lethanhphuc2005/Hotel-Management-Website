@@ -1,4 +1,4 @@
-const imgRoomType = require("../models/model");
+const imgRoomType = require("../models/roomModel");
 
 const imgRoomTypeCon = {
   // thêm hình ảnh loại phòng
@@ -15,7 +15,7 @@ const imgRoomTypeCon = {
   // lấy tất cả hình ảnh loại phòng
   getAllimgRoomType: async (req, res) => {
     try {
-      const imgRoomTypes = await imgRoomType.find()
+      const imgRoomTypes = await imgRoomType.find();
       res.status(200).json(imgRoomTypes);
     } catch (error) {
       res.status(500).json(error);

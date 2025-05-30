@@ -41,7 +41,7 @@ const RoomTypeSchema = new mongoose.Schema({
 });
 
 RoomTypeSchema.virtual("TienNghi", {
-  ref: "amenity", // Model tiện nghi
+  ref: "amenityx", // Model tiện nghi
   localField: "_id", // _id của roomtype
   foreignField: "MaLP", // Field trong Amenity tham chiếu đến roomtype
 });
@@ -118,7 +118,7 @@ RoomTypeSchema.set("toObject", {
 
 let room = mongoose.model("room", RoomSchema, "phong");
 let roomtype = mongoose.model("roomtype", RoomTypeSchema, "loaiphong");
-let amenity = mongoose.model("amenity", AmenitySchema, "tiennghi");
+let amenity = mongoose.model("amenityx", AmenitySchema, "tiennghi");
 let imgroomtype = mongoose.model("imgroomtype", ImgRoomTypeSchema, "hinhanh");
 
 module.exports = { room, roomtype, amenity, imgroomtype };

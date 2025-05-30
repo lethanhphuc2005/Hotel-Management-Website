@@ -1,4 +1,4 @@
-const { room } = require("../models/model");
+const { room } = require("../models/roomModel");
 
 const roomCon = {
   // Thêm phòng mới
