@@ -102,3 +102,7 @@
 .dropdownItem:hover {
   background-color: #555;
 }
+
+.searchInput::placeholder{
+  color: white;
+}

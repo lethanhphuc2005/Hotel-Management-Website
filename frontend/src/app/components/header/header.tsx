@@ -3,20 +3,27 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import React, { useEffect, useState } from 'react';
 import style from './header.module.css';
-import { RoomType } from '../../types/roomtype';
-import { getRoomTypes } from '../../services/roomtypeService';
 import Link from 'next/link';
+import { getRoomTypeMain } from '../../services/roomtypemainService';
+import { RoomTypeMain } from '../../types/roomtypemain';
 
 export default function Header() {
-  const [roomtypes, setRoomtypes] = useState<RoomType[]>([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [roomtypes, setRoomtypes] = useState<RoomTypeMain[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getRoomTypes("http://localhost:8000/v1/roomtype");
+      const data = await getRoomTypeMain("http://localhost:8000/v1/roomtypemain/user");
       setRoomtypes(data);
     };
     fetchData();
   }, []);
+
+
+  const toggleSearch = (e: any) => {
+    e.preventDefault(); // chặn chuyển trang khi click vào <a>
+    setShowSearch(!showSearch);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,6 +58,14 @@ export default function Header() {
               </li>
               <li className={`nav-item ${style.dropdown}`}>
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="/roomtype">Phòng</a>
+                <ul className={style.dropdownMenu}>
+                  {/* <li><a href="#" className={style.dropdownItem}>Deluxe</a></li>
+                  <li><a href="#" className={style.dropdownItem}>Suite</a></li>
+                  <li><a href="#" className={style.dropdownItem}>Standard</a></li> */}
+                  {roomtypes.map(type => (
+                    <li><a href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</a></li>
+                  ))}
+                </ul>
               </li>
               <li className="nav-item">
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Dịch vụ</a>
@@ -62,14 +77,30 @@ export default function Header() {
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href='/news'>Tin tức</a>
               </li>
             </ul>
-            <form className={`d-flex ${style.formSearch}`} role="search">
+            {/* <form className={`d-flex ${style.formSearch}`} role="search">
               <input className={`form-control me-2 text-white ${style.inputSearch}`} type="search" placeholder="Tìm kiếm..." aria-label="Search" />
               <button className={`btn btn-outline-light ${style.btnSearch}`} type="submit">
                 <i className={`bi bi-search ${style.search}`}></i>
               </button>
-            </form>
+            </form> */}
             <div className='d-flex gap-3'>
               {/* <a className='text-white' href=""><i className="bi bi-search fs-5"></i></a> */}
+              <a className='text-white' onClick={toggleSearch} href=""><i className='bi bi-search fs-5'></i></a>
+              {showSearch && (
+                <input
+                  type="text"
+                  className={`form-control bg-transparent text-white ${style.searchInput}`}
+                  placeholder="Tìm kiếm..."
+                  style={{
+                    position: 'absolute',
+                    top: '22px',         // khoảng cách phía dưới icon
+                    right: '250px',        // canh bên phải
+                    width: '400px',
+                    zIndex: 1000,
+                    borderRadius: '8px',
+                  }}
+                />
+              )}
               <a className='text-white' href=""><i className="bi bi-bell fs-5"></i></a>
               <div className={style.dropdown}>
                 <a className='text-white' href=""><i className="bi bi-person-circle fs-5"></i></a>
