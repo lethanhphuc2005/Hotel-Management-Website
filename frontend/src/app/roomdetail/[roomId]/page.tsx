@@ -11,28 +11,28 @@ const roomDetail = () => {
         <h1 className={styles.title}>STANDARD ROOM - VIEW BIỂN</h1>
         <div className={styles.imageContainer}>
           <img
-            src="/img/lau1.jpg"
+            src="/img/r1.jpg"
             alt="Main Room View"
             className={styles.mainImage}
           />
           <div className={styles.smallImageGrid}>
             <img
-              src="/img/lau1.jpg"
+              src="/img/r2.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="/img/lau1.jpg"
+              src="/img/r3.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="/img/lau1.jpg"
+              src="/img/r4.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="/img/lau1.jpg"
+              src="/img/r5.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
@@ -67,7 +67,7 @@ const roomDetail = () => {
               </div>
             </div>
             <br />
-            <p className={styles.sectionTitle}>GIỚI THIỆU VỀ CHỖ NGÀY</p>
+            <p className={styles.sectionTitle}>GIỚI THIỆU VỀ CHỖ NÀY</p>
             <p className={styles.sectionText}>
               Một tổ nhỏ để nghỉ ngơi sau những ngày bận rộn làm việc, mua sắm
               hoặc ghé thăm các bảo tàng và phòng trưng bày ở Milan. Phòng ấm
