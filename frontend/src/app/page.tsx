@@ -3,10 +3,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import style from "./page.module.css";
 import { RoomSaleList, RoomTList, ServiceList } from "./components/roomList";
-import { RoomType } from "./types/roomtype";
+import { RoomTypeMain } from "./types/roomtypemain";
 import { Room } from "./types/room";
 import { getRooms } from "./services/roomService";
-import { getRoomTypes } from "./services/roomtypeService"
+import { getRoomTypeMain } from "./services/roomtypemainService"
 import { Banner } from "./components/bannerItem";
 import { WebsiteContent } from "./types/websitecontent";
 import { getWebsiteContents } from "./services/websitecontentService";
@@ -18,15 +18,17 @@ export default async function Home() {
   let banners: WebsiteContent[] = await getWebsiteContents(
     "http://localhost:8000/v1/websitecontent"
   );
-  let roomtypes: RoomType[] = await getRoomTypes(
-    "http://localhost:8000/v1/roomtype"
+  let roomtypes: RoomTypeMain[] = await getRoomTypeMain(
+    "http://localhost:8000/v1/roomtypemain/user"
   );
+
   let services: Service[] = await getServices(
     "http://localhost:8000/v1/service"
   );
   let roomsales: Room[] = await getRooms(
     "http://localhost:8000/v1/room"
   );
+
   return (
     <>
       <Banner banner={banners[1]} />
