@@ -63,7 +63,7 @@ export default function Header() {
                   <li><a href="#" className={style.dropdownItem}>Suite</a></li>
                   <li><a href="#" className={style.dropdownItem}>Standard</a></li> */}
                   {roomtypes.map(type => (
-                    <li><a href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</a></li>
+                    <li><Link href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</Link></li>
                   ))}
                 </ul>
               </li>
