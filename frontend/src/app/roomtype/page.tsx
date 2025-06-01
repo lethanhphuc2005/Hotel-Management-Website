@@ -1,19 +1,19 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { RoomTypeList } from '../components/roomList';
-import { RoomType } from '../types/roomtype';
-import { getRoomTypes } from '../services/roomtypeService';
+import { RoomTypeMain } from '../types/roomtypemain';
+import { getRoomTypeMain } from '../services/roomtypemainService';
 
 export default function Roomtype() {
     const [price, setPrice] = useState(500000);
     const [roomtype, setRoomtype] = useState('');
     const [view, setView] = useState('');
     const [amenity, setAmenity] = useState('');
-    const [roomtypes, setRoomTypes] = useState<RoomType[]>([]);
+    const [roomtypes, setRoomTypes] = useState<RoomTypeMain[]>([]);
     useEffect(() => {
         const fetchRoomTypes = async () => {
             try {
-                const res: RoomType[] = await getRoomTypes(`http://localhost:8000/v1/roomtype`);
+                const res: RoomTypeMain[] = await getRoomTypeMain(`http://localhost:8000/v1/roomtypemain/user`);
 
                 setRoomTypes(res);
             } catch (err) {

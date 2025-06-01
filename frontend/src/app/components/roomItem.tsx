@@ -1,5 +1,5 @@
 "use client"
-import { RoomType } from "../types/roomtype";
+import { RoomTypeMain } from "../types/roomtypemain";
 import { Col } from "react-bootstrap";
 import Image from "next/image";
 import style from "../page.module.css";
@@ -7,7 +7,7 @@ import { Room } from "../types/room";
 import { Service } from "../types/service";
 import { useState } from "react";
 
-export function RoomT({ roomtype }: { roomtype: RoomType }) {
+export function RoomT({ roomtype }: { roomtype: RoomTypeMain }) {
   return (
     <Col lg={4} md={6}>
       <div className={style.roomCard}>
@@ -27,8 +27,8 @@ export function RoomT({ roomtype }: { roomtype: RoomType }) {
         <div className={style.roomContent}>
           <p className={style.roomLabel}>Phòng {roomtype.TenLP}</p>
           <div className={style.priceContainer}>
-            <span className={style.priceLabel}>Giá chỉ từ:</span>
-            <span className={style.price}>{roomtype.GiaPhong.toLocaleString('vi-VN')} VND</span>
+            <span className={style.priceLabel}>{roomtype.MoTa}</span>
+            {/* <span className={style.price}>{roomtype.GiaPhong.toLocaleString('vi-VN')} VND</span> */}
           </div>
           <a href="#" className={style.seeMore}>Xem thêm</a>
         </div>
@@ -77,7 +77,7 @@ export function ServiceItem({ service }: { service: Service }) {
   );
 }
 
-export function RoomTypeItem({ roomtype }: { roomtype: RoomType }) {
+export function RoomTypeItem({ roomtype }: { roomtype: RoomTypeMain }) {
   const [liked, setLiked] = useState(false);
 
   const handleLikeClick = () => {
@@ -113,8 +113,8 @@ export function RoomTypeItem({ roomtype }: { roomtype: RoomType }) {
           </span>
         </div>
         <p className='mb-1'>Loại phòng: {roomtype.TenLP}</p>
-        <p className='mb-1'>View: {roomtype.View}</p>
-        <p className='mb-1'>Số giường: {roomtype.SoGiuong}</p>
+        {/* <p className='mb-1'>View: {roomtype.View}</p> */}
+        {/* <p className='mb-1'>Số giường: {roomtype.SoGiuong}</p> */}
         <p className='mb-1'>Mô tả: {roomtype.MoTa}</p>
         <p className='mb-1' style={{ color: '#FAB320' }}>
           <i className="bi bi-check2" style={{ color: '#FAB320' }}></i> Miễn phí hủy</p>
@@ -123,7 +123,7 @@ export function RoomTypeItem({ roomtype }: { roomtype: RoomType }) {
         </p>
       </div>
       <div className='ms-auto align-self-end mb-2 text-end'>
-        <h5>{roomtype.GiaPhong.toLocaleString('vi-VN')} VND/đêm</h5>
+        {/* <h5>{roomtype.GiaPhong.toLocaleString('vi-VN')} VND/đêm</h5> */}
         <p style={{ fontSize: '12px' }}>Đã bao gồm thuế và phí</p>
         <button className='border-0 rounded text-black' style={{ height: '40px', width: '150px', backgroundColor: '#FAB320' }}>
           Xem chỗ trống <i className="bi bi-chevron-right"></i>

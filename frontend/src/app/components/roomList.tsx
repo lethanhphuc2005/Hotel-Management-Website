@@ -1,12 +1,12 @@
 import { Room } from "../types/room";
-import { RoomType } from "../types/roomtype";
+import { RoomTypeMain } from "../types/roomtypemain";
 import { Service } from "../types/service";
-import {  RoomSale, RoomT, RoomTypeItem, ServiceItem } from "./roomItem";
+import { RoomSale, RoomT, RoomTypeItem, ServiceItem } from "./roomItem";
 
-export function RoomTList({ roomtypes }: { roomtypes: RoomType[] }) {
+export function RoomTList({ roomtypes }: { roomtypes: RoomTypeMain[] }) {
   return (
     <>
-      {roomtypes.map((roomtype: RoomType) => (
+      {roomtypes.map((roomtype: RoomTypeMain) => (
         <RoomT key={roomtype._id} roomtype={roomtype} />
       ))}
     </>
@@ -33,10 +33,10 @@ export function ServiceList({ services }: { services: Service[] }) {
   );
 }
 
-export function RoomTypeList({ roomtypes }: { roomtypes: RoomType[] }) {
+export function RoomTypeList({ roomtypes }: { roomtypes: RoomTypeMain[] }) {
   return (
     <>
-      {roomtypes.map((roomtype: RoomType) => (
+      {roomtypes.map((roomtype: RoomTypeMain) => (
         <RoomTypeItem roomtype={roomtype} key={roomtype._id} />
       ))}
     </>
