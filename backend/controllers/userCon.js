@@ -28,7 +28,10 @@ const userCon = {
       if (!checkUsers || checkUsers.length === 0) {
         return res.status(404).json("Không tìm thấy user nào");
       }
-      res.status(200).json(checkUsers);
+      res.status(200).json({
+        message: "Lấy tất cả user thành công",
+        data: checkUsers,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -39,7 +42,10 @@ const userCon = {
       if (!user) {
         return res.status(404).json("Không tìm thấy user");
       }
-      res.status(200).json(user);
+      res.status(200).json({
+        message: "Lấy user thành công",
+        data: user,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -70,7 +76,10 @@ const userCon = {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await user.updateOne({ $set: { MatKhau: hashedPassword } });
 
-      res.status(200).json("Đổi mật khẩu thành công!");
+      res.status(200).json({
+        message: "Đổi mật khẩu thành công",
+        data: { userId: user._id },
+      });
     } catch (err) {
       res
         .status(500)
@@ -103,7 +112,10 @@ const userCon = {
         }
 
         await userToUpdate.updateOne({ $set: req.body });
-        res.status(200).json("Cập nhật thành công !!!");
+        res.status(200).json({
+          message: "Cập nhật user thành công",
+          data: updatedData,
+        });
       } catch (error) {
         res.status(500).json(error);
       }
@@ -122,7 +134,10 @@ const userCon = {
   //     }
   //     await userModel.findByIdAndDelete(req.params.id);
 
-  //     res.status(200).json("Xóa thành công !!!");
+  //     res.status(200).json({
+  //       message: "Xóa user thành công ",
+  //       data: { userId: user._id },
+  //     });
   //   } catch (error) {
   //     res.status(500).json(error);
   //   }

@@ -48,7 +48,10 @@ const statusCon = {
       if (!statusData) {
         return res.status(404).json({ message: "Trạng thái không tồn tại" });
       }
-      res.status(200).json(statusData);
+      res.status(200).json({
+        message: "Lấy trạng thái thành công",
+        data: statusData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -63,7 +66,10 @@ const statusCon = {
         return res.status(400).json({ message: validation.message });
       }
       const saveStatus = await newStatus.save();
-      res.status(200).json(saveStatus);
+      res.status(200).json({
+        message: "Thêm trạng thái thành công",
+        data: saveStatus,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -92,7 +98,10 @@ const statusCon = {
       }
 
       await statusToUpdate.updateOne({ $set: req.body });
-      res.status(200).json("Cập nhật thành công !!!");
+      res.status(200).json({
+        message: "Cập nhật trạng thái thành công",
+        data: updatedData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -119,7 +128,10 @@ const statusCon = {
 
       await statusModel.findByIdAndDelete(req.params.id);
 
-      res.status(200).json("Xóa thành công !!!");
+      res.status(200).json({
+        message: "Xóa trạng thái thành công",
+        data: statusToDelete,
+      });
     } catch (error) {
       res.status(500).json(error);
     }

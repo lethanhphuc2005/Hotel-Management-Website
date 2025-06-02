@@ -61,7 +61,10 @@ const discountCon = {
       if (discounts.length === 0) {
         return res.status(404).json({ message: "Không có khuyến mãi nào." });
       }
-      res.status(200).json(discounts);
+      res.status(200).json({
+        message: "Lấy tất cả khuyến mãi thành công",
+        data: discounts,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -76,7 +79,10 @@ const discountCon = {
       if (discounts.length === 0) {
         return res.status(404).json({ message: "Không có khuyến mãi nào." });
       }
-      res.status(200).json(discounts);
+      res.status(200).json({
+        message: "Lấy tất cả khuyến mãi thành công",
+        data: discounts,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -89,7 +95,10 @@ const discountCon = {
       if (!discountData) {
         return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
       }
-      res.status(200).json(discountData);
+      res.status(200).json({
+        message: "Lấy khuyến mãi thành công",
+        data: discountData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -107,7 +116,10 @@ const discountCon = {
       }
 
       const saveDiscount = await newDiscount.save();
-      res.status(200).json(saveDiscount);
+      res.status(200).json({
+        message: "Thêm khuyến mãi thành công",
+        data: saveDiscount,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -137,7 +149,10 @@ const discountCon = {
       }
 
       await discountToUpdate.updateOne({ $set: req.body });
-      res.status(200).json("Cập nhật thành công !!!");
+      res.status(200).json({
+        message: "Cập nhật khuyến mãi thành công",
+        data: updatedData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -157,7 +172,10 @@ const discountCon = {
 
       await discount.findByIdAndDelete(req.params.id);
 
-      res.status(200).json("Xóa thành công !!!");
+      res.status(200).json({
+        message: "Xoá khuyến mãi thành công",
+        data: discountToDelete,
+      });
     } catch (error) {
       res.status(500).json(error);
     }

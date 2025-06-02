@@ -39,7 +39,10 @@ const contentTypeCon = {
           .status(404)
           .json({ message: "Không có loại nội dung nào được tìm thấy." });
       }
-      res.status(200).json(contentTypes);
+      res.status(200).json({
+        message: "Lấy tất cả loại nội dung thành công",
+        data: contentTypes,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -62,7 +65,10 @@ const contentTypeCon = {
           .status(404)
           .json({ message: "Không có loại nội dung nào được tìm thấy." });
       }
-      res.status(200).json(contentTypes);
+      res.status(200).json({
+        message: "Lấy tất cả loại nội dung thành công",
+        data: contentTypes,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -80,7 +86,10 @@ const contentTypeCon = {
           .status(404)
           .json({ message: "Loại nội dung không tồn tại." });
       }
-      res.status(200).json(contentType);
+      res.status(200).json({
+        message: "Lấy loại nội dung thành công",
+        data: contentType,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -99,7 +108,10 @@ const contentTypeCon = {
       }
 
       const saveContentType = await newContentType.save();
-      res.status(200).json(saveContentType);
+      res.status(200).json({
+        message: "Thêm loại nội dung thành công",
+        data: saveContentType,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -135,7 +147,10 @@ const contentTypeCon = {
 
       // Cập nhật nội dung website
       await contentTypeToUpdate.updateOne({ $set: req.body });
-      res.status(200).json("Cập nhật thành công !!!");
+      res.status(200).json({
+        message: "Cập nhật loại nội dung thành công",
+        data: updatedData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -164,7 +179,10 @@ const contentTypeCon = {
       }
 
       await contentTypeToDelete.deleteOne();
-      res.status(200).json("Xóa loại nội dung thành công !!!");
+      res.status(200).json({
+        message: "Xóa loại nội dung thành công",
+        data: contentTypeToDelete,
+      });
     } catch (error) {
       res.status(500).json(error);
     }

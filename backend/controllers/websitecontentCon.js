@@ -51,7 +51,10 @@ const websiteContentCon = {
           .json({ message: "Không có nội dung website nào." });
       }
 
-      res.status(200).json(websiteContents);
+      res.status(200).json({
+        message: "Lấy tất cả nội dung website thành công",
+        data: websiteContents,
+      });
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
     }
@@ -76,7 +79,10 @@ const websiteContentCon = {
           .json({ message: "Không có nội dung website nào." });
       }
 
-      res.status(200).json(websiteContents);
+      res.status(200).json({
+        message: "Lấy tất cả nội dung website thành công",
+        data: websiteContents,
+      });
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
     }
@@ -96,7 +102,10 @@ const websiteContentCon = {
           .json({ message: "Nội dung website không tồn tại." });
       }
 
-      res.status(200).json(websiteContentData);
+      res.status(200).json({
+        message: "Lấy nội dung website thành công",
+        data: websiteContentData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -115,7 +124,10 @@ const websiteContentCon = {
       }
 
       const saveWebsiteContent = await newWebsiteContent.save();
-      res.status(200).json(saveWebsiteContent);
+      res.status(200).json({
+        message: "Thêm nội dung website thành công",
+        data: saveWebsiteContent,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -151,7 +163,10 @@ const websiteContentCon = {
 
       // Cập nhật nội dung website
       await websiteContentToUpdate.updateOne({ $set: req.body });
-      res.status(200).json("Cập nhật thành công !!!");
+      res.status(200).json({
+        message: "Cập nhật nội dung website thành công",
+        data: updatedData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -160,19 +175,24 @@ const websiteContentCon = {
   // === XÓA NỘI DUNG WEBSITE ===
   deleteWebsiteContent: async (req, res) => {
     try {
-      const websiteContent = await websiteContentModel.findById(req.params.id);
-      if (!websiteContent) {
+      const websiteContentToDelete = await websiteContentModel.findById(
+        req.params.id
+      );
+      if (!websiteContentToDelete) {
         return res
           .status(404)
           .json({ message: "Nội dung website không tồn tại." });
-      } else if (websiteContent.TrangThai) {
+      } else if (websiteContentToDelete.TrangThai) {
         return res
           .status(400)
           .json({ message: "Không thể xóa nội dung đã được đăng." });
       }
 
-      await websiteContent.deleteOne();
-      res.status(200).json("Xóa thành công !!!");
+      await websiteContentToDelete.deleteOne();
+      res.status(200).json({
+        message: "Xóa nội dung website thành công",
+        data: websiteContentToDelete,
+      });
     } catch (error) {
       res.status(500).json(error);
     }

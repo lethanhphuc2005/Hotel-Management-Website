@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 let refreshTokens = [];
 const accountCon = {
-  // ====== TẠO TOKEN VÀ REFRESH TOKEN
+  // === TẠO TOKEN VÀ REFRESH TOKEN ===
   creareToken: (user) => {
     return jwt.sign(
       {
@@ -86,7 +86,10 @@ const accountCon = {
       // Lưu vào database bằng hàm save()
       const savedAccount = await newAccountToSave.save();
       const { MatKhau, ...accountData } = savedAccount._doc;
-      res.status(200).json(accountData);
+      res.status(200).json({
+        message: "Tạo tài khoản thành công",
+        data: accountData,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -113,7 +116,10 @@ const accountCon = {
       });
       const savedAccount = await newAccount.save();
       const { MatKhau, ...accountData } = savedAccount._doc;
-      res.status(200).json(accountData);
+      res.status(200).json({
+        message: "Tạo tài khoản admin thành công",
+        data: accountData,
+      });
     } catch (error) {
       res.status(500).json(error.message);
     }
@@ -131,17 +137,17 @@ const accountCon = {
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
 
-      const isMatch = bcrypt.compare(
-        req.body.MatKhau,
-        checkUser.MatKhau
-      );
+      const isMatch = bcrypt.compare(req.body.MatKhau, checkUser.MatKhau);
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
       if (checkUser && isMatch) {
         const accessToken = accountCon.creareToken(checkUser);
         const refreshToken = accountCon.creareRefreshToken(checkUser);
 
         const { MatKhau, ...others } = checkUser._doc;
-        res.status(200).json({ ...others, accessToken, refreshToken });
+        res.status(200).json({
+          message: "Đăng nhập thành công",
+          data: { ...others, accessToken, refreshToken },
+        });
       }
     } catch (error) {
       res.status(500).json(error);
@@ -167,7 +173,10 @@ const accountCon = {
       const refreshToken = accountCon.creareRefreshToken(admin);
       const { MatKhau, ...others } = admin._doc;
 
-      res.status(200).json({ ...others, accessToken, refreshToken });
+      res.status(200).json({
+        message: "Đăng nhập thành công",
+        data: { ...others, accessToken, refreshToken },
+      });
     } catch (err) {
       res.status(500).json(err.message);
     }
@@ -188,9 +197,10 @@ const accountCon = {
       const newAccessToken = accountCon.creareToken(user);
       const newRefreshToken = accountCon.creareRefreshToken(user);
 
-      res
-        .status(200)
-        .json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+      res.status(200).json({
+        message: "Cấp token mới thành công",
+        data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+      });
     });
   },
 

@@ -48,7 +48,7 @@ const amenityCon = {
       }
       res.status(200).json({
         message: "Lấy tất cả tiện nghi thành công",
-        amenities: amenities,
+        data: amenities,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -74,7 +74,7 @@ const amenityCon = {
       }
       res.status(200).json({
         message: "Lấy tất cả tiện nghi thành công",
-        amenities: amenities,
+        data: amenities,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -97,7 +97,7 @@ const amenityCon = {
       }
       res.status(200).json({
         message: "Lấy tiện nghi thành công",
-        amenity: amenity,
+        data: amenity,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -118,7 +118,7 @@ const amenityCon = {
       await newAmenity.save();
       res.status(201).json({
         message: "Thêm tiện nghi thành công",
-        amenity: newAmenity,
+        data: newAmenity,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -169,7 +169,7 @@ const amenityCon = {
 
       res.status(200).json({
         message: "Cập nhật tiện nghi thành công",
-        amenity: updatedAmenity,
+        data: updatedAmenity,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -200,7 +200,10 @@ const amenityCon = {
       // Xoá tiện nghi khỏi bảng trung gian nếu có
       await RoomType_AmenityModel.deleteMany({ MaTN: req.params.id });
 
-      res.status(200).json({ message: "Xoá tiện nghi thành công." });
+      res.status(200).json({
+        message: "Xoá tiện nghi thành công",
+        data: amenityToDelete,
+      });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

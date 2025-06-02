@@ -72,7 +72,7 @@ const roomTypeMainCon = {
       roomTypeMains.sort((a, b) => a.TenLP.localeCompare(b.TenLP));
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        roomTypeMains: roomTypeMains,
+        data: roomTypeMains,
       });
     } catch (error) {
       res.status(500).json(error);
@@ -102,7 +102,7 @@ const roomTypeMainCon = {
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        roomTypeMains: roomTypeMains,
+        data: roomTypeMains,
       });
     } catch (error) {
       res.status(500).json(error);
@@ -173,7 +173,7 @@ const roomTypeMainCon = {
       const savedRoomTypeMain = await newRoomTypeMain.save();
       return res.status(200).json({
         message: "Thêm loại phòng chính thành công",
-        roomTypeMain: savedRoomTypeMain,
+        data: savedRoomTypeMain,
       });
     } catch (error) {
       console.error("Lỗi khi thêm loại phòng chính:", error);
@@ -241,7 +241,7 @@ const roomTypeMainCon = {
       ).populate([{ path: "HinhAnh", select: "HinhAnh" }]);
       res.status(200).json({
         message: "Cập nhật loại phòng chính thành công",
-        roomTypeMain: updatedRoomTypeMain,
+        data: updatedRoomTypeMain,
       });
     } catch (error) {
       res.status(500).json(error);
@@ -278,7 +278,7 @@ const roomTypeMainCon = {
       await roomTypeMain.deleteOne();
       res.status(200).json({
         message: "Xóa loại phòng chính thành công",
-        roomTypeMain: roomTypeMain,
+        data: roomTypeMain,
       });
     } catch (error) {
       res.status(500).json(error);

@@ -7,8 +7,7 @@ const ImageSchema = new mongoose.Schema({
   },
   MaLP: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "roomtype", // Tên model bạn dùng để lưu loại phòng
-    required: true,
+    refPath: "Loai", // Tên model bạn dùng để lưu loại phòng
   },
   Loai: {
     type: String,

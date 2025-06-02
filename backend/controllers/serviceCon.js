@@ -15,7 +15,7 @@ const serviceCon = {
   // lấy tất cả dịch vụ
   getAllService: async (req, res) => {
     try {
-      const services = await service.find();
+      const services = await service.find()
       res.status(200).json(services);
     } catch (error) {
       res.status(500).json(error);
