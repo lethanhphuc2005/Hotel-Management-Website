@@ -450,3 +450,88 @@
   margin: 0;
   opacity: 1;
 }
+.reviewItem {
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+.commentAvatar{
+  width: 30px;
+  height: 30px;
+}
+
+.avatar{
+  width: 30px;
+  border-radius: 40px;
+}
+.commentInputSection {
+  display: flex;
+  margin-top: 10px;
+  gap: 8px;
+  align-items: center;
+}
+
+.commentInput {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.commentInput::placeholder {
+  color: #aaa;
+}
+.commentButton {
+  background-color: #FAB320;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+
+.line1 {
+  border: none;
+  /* bỏ border mặc định */
+  height: 1px;
+  /* độ dày */
+  background-color: white;
+  /* màu trắng đậm */
+  box-shadow: none;
+  /* xóa shadow nếu có */
+  width: 100%;
+  margin: 0;
+  opacity: 1;
+}
+.kc {
+  margin-top: 30px;
+}
+.commentItem {
+  display: flex;
+  align-items: flex-start; /* hoặc center nếu bạn muốn chữ ngang hàng giữa avatar */
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #f5f5f5;
+}
+
+.commentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.commentContent p {
+  margin: 0;
+  line-height: 1.5;
+}
+.reviewItem {
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}

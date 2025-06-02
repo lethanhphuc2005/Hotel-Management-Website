@@ -68,7 +68,7 @@ export default function Header() {
                 </ul>
               </li>
               <li className="nav-item">
-                <a className={`nav-link active text-white fw-bold ${style.item}`} href="#">Dịch vụ</a>
+                <Link className={`nav-link active text-white fw-bold ${style.item}`} href="hotelservice">Dịch vụ</Link>
               </li>
               <li className="nav-item">
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="/contact">Liên hệ</a>

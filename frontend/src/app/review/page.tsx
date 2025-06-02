@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import styles from './danhgia.module.css';
+import styles from './review.module.css';
 
 const ReviewPage = () => {
   const [rating, setRating] = useState<number>(0);

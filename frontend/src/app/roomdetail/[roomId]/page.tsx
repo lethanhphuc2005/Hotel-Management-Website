@@ -11,28 +11,28 @@ const roomDetail = () => {
         <h1 className={styles.title}>STANDARD ROOM - VIEW BIỂN</h1>
         <div className={styles.imageContainer}>
           <img
-            src="/img/lau1.jpg"
+            src="/img/r1.jpg"
             alt="Main Room View"
             className={styles.mainImage}
           />
           <div className={styles.smallImageGrid}>
             <img
-              src="/img/lau1.jpg"
+              src="/img/r2.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="/img/lau1.jpg"
+              src="/img/r3.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="/img/lau1.jpg"
+              src="/img/r4.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
             <img
-              src="/img/lau1.jpg"
+              src="/img/r5.jpg"
               alt="Room View"
               className={styles.smallImage}
             />
@@ -67,7 +67,7 @@ const roomDetail = () => {
               </div>
             </div>
             <br />
-            <p className={styles.sectionTitle}>GIỚI THIỆU VỀ CHỖ NGÀY</p>
+            <p className={styles.sectionTitle}>GIỚI THIỆU VỀ CHỖ NÀY</p>
             <p className={styles.sectionText}>
               Một tổ nhỏ để nghỉ ngơi sau những ngày bận rộn làm việc, mua sắm
               hoặc ghé thăm các bảo tàng và phòng trưng bày ở Milan. Phòng ấm
@@ -295,6 +295,46 @@ const roomDetail = () => {
               </div>
             </div>
           </div>
+          <section className={styles.commentSection}>
+            <h3>BÌNH LUẬN CỦA KHÁCH HÀNG</h3>
+
+            <div className={styles.commentItem}>
+              <img src="/img/about.jpg" alt="avatar" className={styles.commentAvatar} />
+              <div className={styles.commentContent}>
+                <p><strong>Trần Minh</strong>: Phòng đẹp, sạch sẽ và rất thoáng mát. Sẽ quay lại!</p>
+              </div>
+            </div>
+
+            <div className={styles.commentItem}>
+              <img src="/img/about.jpg" alt="avatar" className={styles.commentAvatar} />
+              <div className={styles.commentContent}>
+                <p><strong>Ngọc Anh</strong>: Vị trí tiện lợi, gần biển, nhân viên thân thiện.</p>
+              </div>
+            </div>
+
+            <div className={styles.commentItem}>
+              <img src="/img/about.jpg" alt="avatar" className={styles.commentAvatar} />
+              <div className={styles.commentContent}>
+                <p><strong>Lê Văn Tùng</strong>: Giá cả hợp lý, rất hài lòng với dịch vụ.</p>
+              </div>
+            </div>
+
+            <div className={styles.commentInputSection}>
+              <img
+                className={styles.avatar}
+                src="https://th.bing.com/th/id/R.6b0022312d41080436c52da571d5c697?rik=4kYwQ1H0Af8lGw&riu=http%3a%2f%2fassets.stickpng.com%2fimages%2f585e4bcdcb11b227491c3396.png&ehk=qIyBqqHtuGh6Q4AT6rdJLjmcvimJ9e8r05TLahpkS0o%3d&risl=&pid=ImgRaw&r=0"
+                alt="User avatar"
+              />
+              <input
+                className={styles.commentInput}
+                placeholder="Viết bình luận của bạn…"
+              />
+              <button className={styles.commentButton}>Gửi</button>
+              <div className={styles.kc}></div>
+               
+            </div>
+          </section>
+          <br />
           <hr className={styles.line1} />
           <div className={styles.knowSection}>
             <h3 className={styles.sectionTitle}>NHỮNG ĐIỀU CẦN BIẾT</h3>
