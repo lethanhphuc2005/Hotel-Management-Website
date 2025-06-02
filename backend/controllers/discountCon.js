@@ -54,16 +54,58 @@ const discountCon = {
     return { valid: true };
   },
 
-  // === LẤY TẤT CẢ KHUYẾN MÃI ===
+  // === LẤY TẤT CẢ KHUYẾN MÃI (CÓ TÌM KIẾM, PHÂN TRANG, SẮP XẾP, LỌC) ===
   getAllDiscounts: async (req, res) => {
     try {
-      const discounts = await discount.find();
-      if (discounts.length === 0) {
-        return res.status(404).json({ message: "Không có khuyến mãi nào." });
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "NgayBD",
+        order = "desc",
+        status,
+        discountType,
+      } = req.query;
+
+      // Xây dựng bộ lọc
+      const query = {};
+      if (typeof status !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) query.TrangThai = true;
+        else if (status === "false" || status === false)
+          query.TrangThai = false;
       }
+      if (discountType) {
+        query.LoaiKM = discountType;
+      }
+      if (search) {
+        query.$or = [
+          { TenKM: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Sắp xếp
+      const sortObj = {};
+      sortObj[sort] = order === "asc" ? 1 : -1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [discounts, total] = await Promise.all([
+        discount.find(query).sort(sortObj).skip(skip).limit(parseInt(limit)),
+        discount.countDocuments(query),
+      ]);
+
       res.status(200).json({
         message: "Lấy tất cả khuyến mãi thành công",
         data: discounts,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error) {
       res.status(500).json(error);
@@ -73,15 +115,48 @@ const discountCon = {
   // === LẤY TẤT CẢ KHUYẾN MÃI CHO USER ===
   getAllDiscountsForUser: async (req, res) => {
     try {
-      const discounts = await discount
-        .find({ TrangThai: true })
-        .select("-TrangThai"); // Không trả về trường TrangThai;
-      if (discounts.length === 0) {
-        return res.status(404).json({ message: "Không có khuyến mãi nào." });
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "NgayBD",
+        order = "desc",
+        discountType,
+      } = req.query;
+
+      // Xây dựng bộ lọc
+      const query = { TrangThai: true }; // Chỉ lấy khuyến mãi đang hoạt động
+      if (discountType) {
+        query.LoaiKM = discountType;
       }
+      if (search) {
+        query.$or = [
+          { TenKM: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Sắp xếp
+      const sortObj = {};
+      sortObj[sort] = order === "asc" ? 1 : -1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [discounts, total] = await Promise.all([
+        discount.find(query).sort(sortObj).skip(skip).limit(parseInt(limit)).select("-TrangThai"),
+        discount.countDocuments(query),
+      ]);
+
       res.status(200).json({
         message: "Lấy tất cả khuyến mãi thành công",
         data: discounts,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error) {
       res.status(500).json(error);

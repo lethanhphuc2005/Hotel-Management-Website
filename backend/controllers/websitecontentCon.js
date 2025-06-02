@@ -37,13 +37,53 @@ const websiteContentCon = {
     return { valid: true };
   },
 
-  // === LẤY TẤT CẢ NỘI DUNG WEBSITE ===
+  // === LẤY TẤT CẢ NỘI DUNG WEBSITE (CÓ TÌM KIẾM, SẮP XẾP, PHÂN TRANG, TRẠNG THÁI) ===
   getAllWebsiteContents: async (req, res) => {
     try {
-      const websiteContents = await websiteContentModel
-        .find()
-        .populate("LoaiNoiDung") // populate theo virtual field
-        .exec();
+      const {
+        search = "",
+        sort = "createdAt",
+        order = "desc",
+        page = 1,
+        limit = 10,
+        status,
+      } = req.query;
+
+      const query = {};
+
+      // Tìm kiếm theo tiêu đề (không phân biệt hoa thường)
+      if (search) {
+        query.$or = [
+          { TieuDe: { $regex: search, $options: "i" } },
+          { NoiDung: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Lọc theo trạng thái nếu có
+      if (typeof status !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) query.TrangThai = true;
+        else if (status === "false" || status === false)
+          query.TrangThai = false;
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "asc" ? 1 : -1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [websiteContents, total] = await Promise.all([
+        websiteContentModel
+          .find(query)
+          .populate("LoaiNoiDung")
+          .sort(sortOption)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        websiteContentModel.countDocuments(query),
+      ]);
 
       if (!websiteContents || websiteContents.length === 0) {
         return res
@@ -54,6 +94,12 @@ const websiteContentCon = {
       res.status(200).json({
         message: "Lấy tất cả nội dung website thành công",
         data: websiteContents,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
@@ -63,15 +109,46 @@ const websiteContentCon = {
   // === LẤY TẤT CẢ NỘI DUNG WEBSITE CHO USER ===
   getAllWebsiteContentsForUser: async (req, res) => {
     try {
-      const websiteContents = await websiteContentModel
-        .find({ TrangThai: true }) // Chỉ lấy nội dung đã được đăng
-        .select("-TrangThai") // Không trả về trường TrangThai
-        .populate({
-          path: "LoaiNoiDung", // Virtual field từ websiteContentModel -> contentTypeModel
-          match: { TrangThai: true }, // Chỉ lấy loại nội dung đang hoạt động
-          select: "-TrangThai", // Bỏ trường TrangThai
-        }) // populate theo virtual field
-        .exec();
+      const {
+        search = "",
+        sort = "createdAt",
+        order = "desc",
+        page = 1,
+        limit = 10,
+      } = req.query;
+
+      const query = { TrangThai: true }; // Chỉ lấy nội dung đã được đăng
+
+      // Tìm kiếm theo tiêu đề (không phân biệt hoa thường)
+      if (search) {
+        query.$or = [
+          { TieuDe: { $regex: search, $options: "i" } },
+          { NoiDung: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "asc" ? 1 : -1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [websiteContents, total] = await Promise.all([
+        websiteContentModel
+          .find(query)
+          .populate({
+            path: "LoaiNoiDung",
+            match: { TrangThai: true }, // Chỉ lấy loại nội dung đã được đăng
+            select: "-TrangThai",
+          })
+          .select("-TrangThai") // Không trả về trường TrangThai của nội dung
+          .sort(sortOption)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        websiteContentModel.countDocuments(query),
+      ]);
 
       if (!websiteContents || websiteContents.length === 0) {
         return res
@@ -82,6 +159,12 @@ const websiteContentCon = {
       res.status(200).json({
         message: "Lấy tất cả nội dung website thành công",
         data: websiteContents,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });

@@ -11,7 +11,7 @@ router.get(
 );
 
 // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH CHO USER ===
-router.get("/user", roomTypeMainCon.getRoomTypeMainsForUser);
+router.get("/user", roomTypeMainCon.getAllRoomTypeMainsForUser);
 
 // === LẤY LOẠI PHÒNG CHÍNH THEO ID ===
 router.get("/:id", roomTypeMainCon.getRoomTypeMainById);

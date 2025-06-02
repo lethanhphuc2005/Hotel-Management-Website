@@ -14,7 +14,7 @@ router.get(
 router.get("/user", contentTypeCon.getAllContentTypesForUser);
 
 // === LẤY LOẠI NỘI DUNG THEO ID ===
-router.get("/:id", contentTypeCon.getContentTypeByid);
+router.get("/:id", contentTypeCon.getContentTypeById);
 
 // === THÊM LOẠI NỘI DUNG ===
 router.post(

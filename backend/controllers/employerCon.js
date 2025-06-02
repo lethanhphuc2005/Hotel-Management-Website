@@ -20,11 +20,62 @@ const employerModel = require("../models/employerModel");
 const bcrypt = require("bcryptjs");
 
 const employerCon = {
-  // ====== LẤY TẤT CẢ NHÂN VIÊN =====
+  // ====== LẤY TẤT CẢ NHÂN VIÊN (TÌM KIẾM, SẮP XẾP, PHÂN TRANG, LỌC THEO VỊ TRÍ, PHÒNG BAN, VAI TRÒ) =====
   getAllEmployers: async (req, res) => {
     try {
-      const users = await employerModel.find();
-      res.status(200).json(users);
+      const {
+        search,
+        sort = "_id",
+        order = "desc",
+        limit = 10,
+        page = 1,
+        role,
+      } = req.query;
+
+      const query = {};
+
+      // Search by name or email
+      if (search) {
+        query.$or = [
+          { TenNV: { $regex: search, $options: "i" } },
+          { Email: { $regex: search, $options: "i" } },
+          { SDT: { $regex: search, $options: "i" } },
+          { DiaChi: { $regex: search, $options: "i" } },
+          { BoPhan: { $regex: search, $options: "i" } },
+          { ChucVu: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Filter by role
+      if (role) {
+        query.Role = role;
+      }
+
+      // Sort
+      const sortObj = {};
+      sortObj[sort] = order === "asc" ? 1 : -1;
+
+      // Pagination
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const users = await employerModel
+        .find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit));
+
+      const total = await employerModel.countDocuments(query);
+
+      res.status(200).json({
+        message: "Lấy tất cả nhân viên thành công",
+        data: users,
+        total,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -60,7 +111,7 @@ const employerCon = {
         return res.status(404).json({ message: "Không tìm thấy nhân viên" });
       }
 
-      const isMatch = await bcrypt.compare(password, checkUser.MatKhau);
+      const isMatch = bcrypt.compare(password, checkUser.MatKhau);
       if (!isMatch) {
         return res
           .status(401)

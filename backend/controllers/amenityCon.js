@@ -33,22 +33,70 @@ const amenityCon = {
     return { valid: true };
   },
 
-  // === LẤY TẤT CẢ TIỆN NGHI ===
+  // === LẤY TẤT CẢ TIỆN NGHI (CÓ TÌM KIẾM, PHÂN TRANG, SẮP XẾP, SẮP XẾP THEO TRẠNG THÁI) ===
   getAllAmenities: async (req, res) => {
     try {
-      const amenities = await AmenityModel.find().populate({
-        path: "LoaiPhongSuDung", // Virtual field từ Amenity -> RoomType_Amenity
-        populate: {
-          path: "MaLP", // Trong bảng trung gian -> roomType
-          model: "roomType",
-        },
-      });
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "TenTN",
+        order = "asc",
+        status, // Thêm tham số lọc theo trạng thái
+      } = req.query;
+
+      // Tạo điều kiện tìm kiếm
+      const query = {};
+      if (search) {
+        query.$or = [
+          { TenTN: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+      if (typeof status !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) query.TrangThai = true;
+        else if (status === "false" || status === false)
+          query.TrangThai = false;
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      // Nếu sort là "TrangThai", cho phép sắp xếp theo trạng thái
+      sortOption[sort] = order === "desc" ? -1 : 1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      // Lấy tổng số tiện nghi (phục vụ phân trang)
+      const total = await AmenityModel.countDocuments(query);
+
+      // Lấy dữ liệu tiện nghi
+      const amenities = await AmenityModel.find(query)
+        .sort(sortOption)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate({
+          path: "LoaiPhongSuDung",
+          populate: {
+            path: "MaLP",
+            model: "roomType",
+          },
+        });
+
       if (!amenities || amenities.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
       }
+
       res.status(200).json({
         message: "Lấy tất cả tiện nghi thành công",
         data: amenities,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -58,23 +106,62 @@ const amenityCon = {
   // === LẤY TẤT CẢ TIỆN NGHI CHO USER ===
   getAllAmenitiesForUser: async (req, res) => {
     try {
-      const amenities = await AmenityModel.find({ TrangThai: true })
-        .select("-TrangThai")
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "_id",
+        order = "asc",
+      } = req.query;
+
+      // Tạo bộ lọc tìm kiếm
+      const query = { TrangThai: true };
+      if (search) {
+        query.$or = [
+          { TenTN: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "desc" ? -1 : 1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      // Lấy tổng số tiện nghi (phục vụ phân trang)
+      const total = await AmenityModel.countDocuments(query);
+
+      // Lấy dữ liệu tiện nghi
+      const amenities = await AmenityModel.find(query)
+        .sort(sortOption)
+        .skip(skip)
+        .select("-TrangThai") // Không trả về trường TrangThai cho người dùng
+        .limit(parseInt(limit))
         .populate({
-          path: "LoaiPhongSuDung", // Virtual field từ Amenity -> RoomType_Amenity
-          match: { TrangThai: true }, // Chỉ lấy những loại phòng đang hoạt động
+          path: "LoaiPhongSuDung",
           populate: {
-            path: "MaLP", // Trong bảng trung gian -> roomType
-            select: "-TrangThai", // Chỉ lấy tên và mã loại phòng
+            path: "MaLP",
             model: "roomType",
+            match: { TrangThai: true }, // Chỉ lấy loại phòng đang hoạt động
+            select: "-TrangThai", // Không trả về trường TrangThai của loại phòng
           },
         });
-      if (amenities.length === 0) {
+
+      if (!amenities || amenities.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
       }
+
       res.status(200).json({
         message: "Lấy tất cả tiện nghi thành công",
         data: amenities,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error.message });

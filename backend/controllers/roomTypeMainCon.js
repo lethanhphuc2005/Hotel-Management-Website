@@ -56,23 +56,67 @@ const roomTypeMainCon = {
 
     return { valid: true };
   },
-  // === Lấy tất cả loại phòng ===
+  // === Lấy tất cả loại phòng với tìm kiếm, sắp xếp, phân trang ===
   getAllRoomTypeMains: async (req, res) => {
     try {
-      const roomTypeMains = await RoomTypeMainModel.find().populate([
-        { path: "DanhSachLoaiPhong" },
-        { path: "HinhAnh", select: "HinhAnh" },
-      ]);
+      const {
+        search = "",
+        sort = "_id",
+        order = "asc",
+        page = 1,
+        limit = 10,
+        status,
+      } = req.query;
+
+      // Tạo điều kiện tìm kiếm
+      const query = {};
+      if (search && search.trim() !== "") {
+        query.$or = [
+          { TenND: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Lọc theo trạng thái nếu có
+      if (typeof status !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) query.TrangThai = true;
+        else if (status === "false" || status === false)
+          query.TrangThai = false;
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "desc" ? -1 : 1;
+
+      // Đếm tổng số bản ghi
+      const total = await RoomTypeMainModel.countDocuments(query);
+
+      // Lấy dữ liệu với phân trang
+      const roomTypeMains = await RoomTypeMainModel.find(query)
+        .populate([
+          { path: "DanhSachLoaiPhong" },
+          { path: "HinhAnh", select: "HinhAnh" },
+        ])
+        .sort(sortOption)
+        .skip((page - 1) * limit)
+        .limit(limit);
+
       if (!roomTypeMains || roomTypeMains.length === 0) {
         return res
           .status(404)
           .json({ message: "Không có loại phòng chính nào" });
       }
-      // Sắp xếp theo tên loại phòng
-      roomTypeMains.sort((a, b) => a.TenLP.localeCompare(b.TenLP));
+
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
         data: roomTypeMains,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error) {
       res.status(500).json(error);
@@ -80,20 +124,50 @@ const roomTypeMainCon = {
   },
 
   // === Lấy loại phòng cho user ===
-  getRoomTypeMainsForUser: async (req, res) => {
+  getAllRoomTypeMainsForUser: async (req, res) => {
     try {
-      const roomTypeMains = await RoomTypeMainModel.find({
-        TrangThai: true,
-      })
-        .select("-TrangThai")
+      const {
+        search = "",
+        sort = "_id",
+        order = "asc",
+        page = 1,
+        limit = 10,
+      } = req.query;
+
+      // Tạo điều kiện tìm kiếm
+      const query = { TrangThai: true }; // Chỉ lấy loại phòng chính đang hoạt động
+      if (search && search.trim() !== "") {
+        query.$or = [
+          { TenND: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "desc" ? -1 : 1;
+
+      // Đếm tổng số bản ghi
+      const total = await RoomTypeMainModel.countDocuments(query);
+
+      // Lấy dữ liệu với phân trang
+      const roomTypeMains = await RoomTypeMainModel.find(query)
         .populate([
           {
             path: "DanhSachLoaiPhong",
-            select: "-TrangThai",
             match: { TrangThai: true },
-          },
-          { path: "HinhAnh", select: "HinhAnh", match: { TrangThai: true } },
-        ]);
+            select: "-TrangThai",
+          }, // Chỉ lấy loại phòng đang hoạt động
+          {
+            path: "HinhAnh",
+            select: "HinhAnh",
+            match: { TrangThai: true },
+          }, // Chỉ lấy hình ảnh đang hoạt động
+        ])
+        .sort(sortOption)
+        .skip((page - 1) * limit)
+        .limit(limit);
+
       if (!roomTypeMains || roomTypeMains.length === 0) {
         return res
           .status(404)
@@ -103,6 +177,12 @@ const roomTypeMainCon = {
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
         data: roomTypeMains,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error) {
       res.status(500).json(error);

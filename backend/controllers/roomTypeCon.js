@@ -107,30 +107,38 @@ const roomTypeCon = {
         minPrice,
         maxPrice,
         amenity,
+        status,
       } = req.query;
 
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
       const skip = (pageNumber - 1) * limitNumber;
 
-      // Điều kiện ban đầu
-      const searchCondition = {};
+      // Điều kiện tìm kiếm
+      const query = {};
       if (search && search.trim() !== "") {
-        searchCondition.TenLP = { $regex: search, $options: "i" };
+        query.TenLPCT = { $regex: search, $options: "i" };
       }
-
       if (type) {
-        searchCondition.MaLP = type;
+        query.MaLP = type;
       }
-
       if (minPrice || maxPrice) {
-        searchCondition.GiaPhong = {};
-        if (minPrice) searchCondition.GiaPhong.$gte = parseInt(minPrice, 10);
-        if (maxPrice) searchCondition.GiaPhong.$lte = parseInt(maxPrice, 10);
+        query.GiaPhong = {};
+        if (minPrice) query.GiaPhong.$gte = parseInt(minPrice, 10);
+        if (maxPrice) query.GiaPhong.$lte = parseInt(maxPrice, 10);
+      }
+      if (status !== undefined) {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) query.TrangThai = true;
+        else if (status === "false" || status === false)
+          query.TrangThai = false;
       }
 
-      // Lấy dữ liệu thô theo điều kiện cơ bản
-      let roomTypes = await RoomTypeModel.find(searchCondition)
+      // Đếm tổng số bản ghi phù hợp
+      const total = await RoomTypeModel.countDocuments(query);
+
+      // Lấy dữ liệu loại phòng
+      let roomTypes = await RoomTypeModel.find(query)
         .sort({ _id: -1 })
         .skip(skip)
         .limit(limitNumber)
@@ -143,14 +151,8 @@ const roomTypeCon = {
               model: "amenity",
             },
           },
-          { path: "HinhAnh", select: "HinhAnh" },
+          { path: "HinhAnh" },
         ]);
-
-      if (!roomTypes || roomTypes.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
-      }
 
       // Lọc theo tiện nghi nếu có
       let filteredRoomTypes = roomTypes;
@@ -164,7 +166,7 @@ const roomTypeCon = {
         });
       }
 
-      if (filteredRoomTypes.length === 0) {
+      if (!filteredRoomTypes || filteredRoomTypes.length === 0) {
         return res
           .status(404)
           .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
@@ -172,10 +174,13 @@ const roomTypeCon = {
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        total: filteredRoomTypes.length,
-        page: pageNumber,
-        limit: limitNumber,
         data: filteredRoomTypes,
+        pagination: {
+          total,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(total / limitNumber),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -190,6 +195,8 @@ const roomTypeCon = {
         page = 1,
         limit = 10,
         type,
+        minBed = 1,
+        maxBed = 10,
         minPrice,
         maxPrice,
         amenity,
@@ -199,46 +206,50 @@ const roomTypeCon = {
       const limitNumber = parseInt(limit, 10);
       const skip = (pageNumber - 1) * limitNumber;
 
-      // Điều kiện ban đầu
-      const searchCondition = {};
+      // Điều kiện tìm kiếm
+      const query = { TrangThai: true }; // Chỉ lấy loại phòng đang hoạt động
       if (search && search.trim() !== "") {
-        searchCondition.TenLP = { $regex: search, $options: "i" };
+        query.TenLPCT = { $regex: search, $options: "i" };
       }
-
       if (type) {
-        searchCondition.MaLP = type;
+        query.MaLP = type;
       }
-
       if (minPrice || maxPrice) {
-        searchCondition.GiaPhong = {};
-        if (minPrice) searchCondition.GiaPhong.$gte = parseInt(minPrice, 10);
-        if (maxPrice) searchCondition.GiaPhong.$lte = parseInt(maxPrice, 10);
+        query.GiaPhong = {};
+        if (minPrice) query.GiaPhong.$gte = parseInt(minPrice, 10);
+        if (maxPrice) query.GiaPhong.$lte = parseInt(maxPrice, 10);
+      }
+      if (minBed || maxBed) {
+        query.SoGiuong = {};
+        if (minBed) query.SoGiuong.$gte = parseInt(minBed, 10);
+        if (maxBed) query.SoGiuong.$lte = parseInt(maxBed, 10);
       }
 
-      // Lấy dữ liệu thô theo điều kiện cơ bản
-      let roomTypes = await RoomTypeModel.find(searchCondition)
+      // Đếm tổng số bản ghi phù hợp
+      const total = await RoomTypeModel.countDocuments(query);
+
+      // Lấy dữ liệu loại phòng
+      let roomTypes = await RoomTypeModel.find(query)
         .sort({ _id: -1 })
-        .select("-TrangThai") // Không trả về trường TrangThai
         .skip(skip)
         .limit(limitNumber)
         .populate([
-          { path: "LoaiPhong", select: "-TrangThai" }, // Không trả về trường TrangThai
+          {
+            path: "LoaiPhong",
+            select: "-TrangThai",
+            match: { TrangThai: true },
+          }, // Chỉ lấy loại phòng chính đang hoạt động
           {
             path: "TienNghi",
             populate: {
               path: "MaTN",
               model: "amenity",
-              select: "-TrangThai", // Không trả về trường TrangThai
+              select: "-TrangThai",
+              match: { TrangThai: true }, // Chỉ lấy tiện nghi đang hoạt động
             },
           },
           { path: "HinhAnh", select: "HinhAnh" },
         ]);
-
-      if (!roomTypes || roomTypes.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
-      }
 
       // Lọc theo tiện nghi nếu có
       let filteredRoomTypes = roomTypes;
@@ -252,7 +263,7 @@ const roomTypeCon = {
         });
       }
 
-      if (filteredRoomTypes.length === 0) {
+      if (!filteredRoomTypes || filteredRoomTypes.length === 0) {
         return res
           .status(404)
           .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
@@ -260,10 +271,13 @@ const roomTypeCon = {
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        total: filteredRoomTypes.length,
-        page: pageNumber,
-        limit: limitNumber,
         data: filteredRoomTypes,
+        pagination: {
+          total,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(total / limitNumber),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -300,7 +314,7 @@ const roomTypeCon = {
     }
   },
 
-    // === THÊM LOẠI PHÒNG MỚI ===
+  // === THÊM LOẠI PHÒNG MỚI ===
   addRoomType: async (req, res) => {
     try {
       const { TenLPCT, MoTa, MaLP, HinhAnh = [], TienNghi = [] } = req.body;

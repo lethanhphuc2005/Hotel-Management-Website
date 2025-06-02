@@ -27,13 +27,57 @@ const contentTypeCon = {
     return { valid: true };
   },
 
-  // === LẤY TẤT CẢ LOẠI NỘI DUNG ===
+  // === LẤY TẤT CẢ LOẠI NỘI DUNG (CÓ TÌM KIẾM, PHÂN TRANG, SẮP XẾP, SẮP XẾP THEO TRẠNG THÁI) ===
   getAllContentTypes: async (req, res) => {
     try {
-      const contentTypes = await contentTypeModel
-        .find()
-        .populate("DanhSachNoiDungWebsite")
-        .exec();
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "_id",
+        order = "desc",
+        status, // Thêm tham số lọc trạng thái
+      } = req.query;
+
+      // Tạo bộ lọc tìm kiếm
+      const query = {};
+      if (search) {
+        query.$or = [
+          { TenND: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+      // Lọc theo trạng thái nếu có
+      if (typeof status !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) query.TrangThai = true;
+        else if (status === "false" || status === false)
+          query.TrangThai = false;
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      // Nếu sort là 'TrangThai', sắp xếp theo trạng thái
+      if (sort === "TrangThai") {
+        sortOption.TrangThai = order === "asc" ? 1 : -1;
+      } else {
+        sortOption[sort] = order === "asc" ? 1 : -1;
+      }
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [contentTypes, total] = await Promise.all([
+        contentTypeModel
+          .find(query)
+          .populate("DanhSachNoiDungWebsite")
+          .sort(sortOption)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        contentTypeModel.countDocuments(query),
+      ]);
+
       if (!contentTypes || contentTypes.length === 0) {
         return res
           .status(404)
@@ -42,6 +86,12 @@ const contentTypeCon = {
       res.status(200).json({
         message: "Lấy tất cả loại nội dung thành công",
         data: contentTypes,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error) {
       res.status(500).json(error);
@@ -51,15 +101,46 @@ const contentTypeCon = {
   // === LẤY TẤT CẢ LOẠI NỘI DUNG CHO USER ===
   getAllContentTypesForUser: async (req, res) => {
     try {
-      const contentTypes = await contentTypeModel
-        .find({ TrangThai: true })
-        .select("-TrangThai") // Không trả về trường TrangThai
-        .populate({
-          path: "DanhSachNoiDungWebsite",
-          match: { TrangThai: true }, // Chỉ lấy nội dung có trạng thái true
-          select: "-TrangThai", // bỏ trường TrangThai
-        })
-        .exec();
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "_id",
+        order = "desc",
+      } = req.query;
+
+      // Tạo bộ lọc tìm kiếm
+      const query = { TrangThai: true };
+      if (search) {
+        query.$or = [
+          { TenND: { $regex: search, $options: "i" } },
+          { MoTa: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "asc" ? 1 : -1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [contentTypes, total] = await Promise.all([
+        contentTypeModel
+          .find(query)
+          .select("-TrangThai") // Không trả về trường TrangThai cho người dùng
+          .populate({
+            path: "DanhSachNoiDungWebsite",
+            match: { TrangThai: true }, // Chỉ lấy nội dung đang hoạt động
+            select: "-TrangThai", // Không trả về trường TrangThai của nội dung
+          })
+          .sort(sortOption)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        contentTypeModel.countDocuments(query),
+      ]);
+
       if (!contentTypes || contentTypes.length === 0) {
         return res
           .status(404)
@@ -68,6 +149,12 @@ const contentTypeCon = {
       res.status(200).json({
         message: "Lấy tất cả loại nội dung thành công",
         data: contentTypes,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (error) {
       res.status(500).json(error);
@@ -75,7 +162,7 @@ const contentTypeCon = {
   },
 
   // === LẤY LOẠI NỘI DUNG THEO ID ===
-  getContentTypeByid: async (req, res) => {
+  getContentTypeById: async (req, res) => {
     try {
       const contentType = await contentTypeModel
         .findById(req.params.id)
