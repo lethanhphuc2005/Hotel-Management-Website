@@ -15,6 +15,7 @@ const statusRouter = require("./routes/status");
 const employerRouter = require("./routes/employer");
 const discountRouter = require("./routes/discount");
 const contentTypeRouter = require("./routes/contentType");
+const amenityRouter = require("./routes/amenity");
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ app.use("/v1/status", statusRouter);
 app.use("/v1/employer", employerRouter);
 app.use("/v1/discount", discountRouter);
 app.use("/v1/contenttype", contentTypeRouter);
+app.use("/v1/amenity", amenityRouter);
 
 app.listen(8000, () => {
   console.log("server đang chạy");

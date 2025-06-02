@@ -61,18 +61,6 @@ const RoomTypeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // TienNghi: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: "amenity", // Tên model bạn dùng để lưu tiện nghi
-  //   },
-  // ],
-  // HinhAnh: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: "image", // Tên model bạn dùng để lưu hình ảnh
-  //   },
-  // ],
   View: {
     type: String,
   },
@@ -166,6 +154,12 @@ const AmenitySchema = new mongoose.Schema({
     default: false,
     required: true,
   },
+});
+
+AmenitySchema.virtual("LoaiPhongSuDung", {
+  ref: "roomType_Amenity", // Model loại phòng
+  localField: "_id", // _id của tiện nghi
+  foreignField: "MaTN", // Field trong RoomTypeSchema tham chiếu đến tiện nghi
 });
 
 AmenitySchema.set("toJSON", {
