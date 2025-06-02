@@ -21,7 +21,7 @@ router.get(
 router.get("/user", roomTypeMainCon.getRoomTypeMainsForUser);
 
 // Lấy loại phòng theo ID
-router.get("/:id", roomTypeMainCon.getOneRoomTypeMain);
+router.get("/:id", roomTypeMainCon.getRoomTypeMainById);
 
 // Cập nhật loại phòng
 router.put(

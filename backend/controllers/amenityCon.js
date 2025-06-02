@@ -1,7 +1,7 @@
 const {
   AmenityModel,
   RoomType_AmenityModel,
-} = require("../models/roomTypeModel");
+} = require("../models/amenityModel");
 
 const amenityCon = {
   // Validate amenity data

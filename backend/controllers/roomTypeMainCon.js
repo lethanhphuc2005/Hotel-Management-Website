@@ -1,9 +1,7 @@
-const {
-  RoomTypeMainModel,
-  ImgRoomTypeModel,
-  RoomType_AmenityModel,
-  RoomTypeModel,
-} = require("../models/roomTypeModel");
+const RoomTypeMainModel = require("../models/roomTypeMainModel");
+const ImageModel = require("../models/imageModel");
+const { RoomType_AmenityModel } = require("../models/amenityModel");
+const RoomTypeModel = require("../models/roomTypeModel");
 
 const roomTypeMainCon = {
   validateRoomTypeMain: async (RoomTypeMainData, RoomTypeMainId) => {
@@ -81,7 +79,7 @@ const roomTypeMainCon = {
         const imageDocs = [];
         for (const imagePath of HinhAnh) {
           try {
-            const newImage = new ImgRoomTypeModel({
+            const newImage = new ImageModel({
               MaLP: newRoomTypeMain._id,
               HinhAnh: imagePath,
               Loai: "roomTypeMain",
@@ -152,7 +150,7 @@ const roomTypeMainCon = {
     }
   },
   // === Lấy loại phòng theo ID ===
-  getOneRoomTypeMain: async (req, res) => {
+  getRoomTypeMainById: async (req, res) => {
     try {
       const roomTypeMain = await RoomTypeMainModel.findById(
         req.params.id
@@ -208,7 +206,7 @@ const roomTypeMainCon = {
       if (HinhAnh && Array.isArray(HinhAnh) && HinhAnh.length > 0) {
         try {
           // Xóa các hình ảnh cũ liên kết với roomTypeMain
-          await ImgRoomTypeModel.deleteMany({
+          await ImageModel.deleteMany({
             MaLP: req.params.id,
           });
 
@@ -219,7 +217,7 @@ const roomTypeMainCon = {
             Loai: "roomTypeMain",
           }));
 
-          await ImgRoomTypeModel.insertMany(imageData);
+          await ImageModel.insertMany(imageData);
         } catch (imageError) {
           return res.status(400).json({
             message: "Lỗi khi cập nhật hình ảnh",
@@ -258,7 +256,7 @@ const roomTypeMainCon = {
 
       // Xóa các hình ảnh liên quan
       try {
-        await ImgRoomTypeModel.deleteMany({ MaLP: req.params.id });
+        await ImageModel.deleteMany({ MaLP: req.params.id });
       } catch (imageError) {
         return res.status(400).json({
           message: "Lỗi khi xóa hình ảnh liên quan",

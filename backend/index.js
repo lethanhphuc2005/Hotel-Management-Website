@@ -3,9 +3,10 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-const roomRouter = require("./routes/room");
+// const roomRouter = require("./routes/room");
+const authRouter = require("./routes/auth");
 const roomTypeMainRouter = require("./routes/roomTypeMain");
-const roomtypeRouter = require("./routes/roomtype");
+const roomTypeRouter = require("./routes/roomType");
 const accountRouter = require("./routes/account");
 const userRouter = require("./routes/user");
 const websiteContentRouter = require("./routes/websiteContent");
@@ -39,9 +40,10 @@ mongoose
 
 // Router
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/v1/room", roomRouter);
+app.use("/v1/auth", authRouter);
+// app.use("/v1/room", roomRouter);
 app.use("/v1/roomtypemain", roomTypeMainRouter);
-app.use("/v1/roomtype", roomtypeRouter);
+app.use("/v1/roomtype", roomTypeRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/account", accountRouter);
 app.use("/v1/websitecontent", websiteContentRouter);
