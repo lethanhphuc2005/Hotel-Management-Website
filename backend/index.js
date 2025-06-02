@@ -42,17 +42,17 @@ mongoose
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/v1/auth", authRouter);
 // app.use("/v1/room", roomRouter);
-app.use("/v1/roomtypemain", roomTypeMainRouter);
-app.use("/v1/roomtype", roomTypeRouter);
+app.use("/v1/room-type-main", roomTypeMainRouter);
+app.use("/v1/room-type", roomTypeRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/account", accountRouter);
-app.use("/v1/websitecontent", websiteContentRouter);
+app.use("/v1/website-content", websiteContentRouter);
 app.use("/v1/service", serviceRouter);
 app.use("/v1/imgroomtype", imgroomtypeRouter);
 app.use("/v1/status", statusRouter);
 app.use("/v1/employer", employerRouter);
 app.use("/v1/discount", discountRouter);
-app.use("/v1/contenttype", contentTypeRouter);
+app.use("/v1/content-type", contentTypeRouter);
 app.use("/v1/amenity", amenityRouter);
 
 app.listen(8000, () => {

@@ -33,24 +33,7 @@ const userCon = {
       res.status(500).json(error);
     }
   },
-  deleteUser: async (req, res) => {
-    try {
-      const userToDelete = await userModel.findById(req.params.id);
-      if (!userToDelete) {
-        return res.status(404).json("Không tìm thấy user để xóa");
-      } else if (userToDelete.TrangThai === true) {
-        return res.status(400).json("Không thể xóa user đang hoạt động");
-      } else if (userToDelete.TrangThai === false) {
-        return res.status(400).json("User đã bị xóa trước đó");
-      }
-      await userModel.findByIdAndDelete(req.params.id);
-
-      res.status(200).json("Xóa thành công !!!");
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  getAnUser: async (req, res) => {
+  getUserById: async (req, res) => {
     try {
       const user = await userModel.findById(req.params.id);
       if (!user) {
@@ -126,6 +109,24 @@ const userCon = {
       }
     },
   ],
+
+  // deleteUser: async (req, res) => {
+  //   try {
+  //     const userToDelete = await userModel.findById(req.params.id);
+  //     if (!userToDelete) {
+  //       return res.status(404).json("Không tìm thấy user để xóa");
+  //     } else if (userToDelete.TrangThai === true) {
+  //       return res.status(400).json("Không thể xóa user đang hoạt động");
+  //     } else if (userToDelete.TrangThai === false) {
+  //       return res.status(400).json("User đã bị xóa trước đó");
+  //     }
+  //     await userModel.findByIdAndDelete(req.params.id);
+
+  //     res.status(200).json("Xóa thành công !!!");
+  //   } catch (error) {
+  //     res.status(500).json(error);
+  //   }
+  // },
 };
 
 module.exports = userCon;

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 let refreshTokens = [];
 const accountCon = {
+  // ====== TẠO TOKEN VÀ REFRESH TOKEN
   creareToken: (user) => {
     return jwt.sign(
       {
@@ -91,8 +92,8 @@ const accountCon = {
     }
   },
 
-  // ====== THÊM TÀI KHOẢN ADMIN =====
-  addAdminAccount: async (req, res) => {
+  // ====== THÊM TÀI KHOẢN QUẢN TRỊ VIÊN =====
+  addAuthAccount: async (req, res) => {
     try {
       if (req.body.secretKey !== process.env.ADMIN_SECRET_KEY) {
         return res.status(403).json("Bạn không có quyền tạo admin");
@@ -147,8 +148,8 @@ const accountCon = {
     }
   },
 
-  // ====== ĐĂNG NHẬP ADMIN =====
-  loginAdmin: async (req, res) => {
+  // ====== ĐĂNG NHẬP QUẢN TRỊ VIÊN =====
+  loginAuth: async (req, res) => {
     try {
       const admin = await employerModel.findOne({ Email: req.body.Email });
       if (!admin) return res.status(400).json("Admin không tồn tại");

@@ -2,25 +2,30 @@ const router = require("express").Router();
 const roomTypeCon = require("../controllers/roomTypeCon");
 const middleware = require("../controllers/middlewareCon");
 
-// Lấy tất cả loại phòng
+// === LẤY TẤT CẢ LOẠI PHÒNG ===
 router.get(
   "/",
   middleware.authorizeRoles("admin", "receptionist"),
   roomTypeCon.getAllRoomTypes
 );
-// Lấy tất cả loại phòng cho user
+
+// === LẤY TẤT CẢ LOẠI PHÒNG CHO USER ===
 router.get("/user", roomTypeCon.getAllRoomTypesForUser);
-// Lấy loại phòng theo ID
+
+// === LẤY LOẠI PHÒNG THEO ID ===
 router.get("/:id", roomTypeCon.getRoomTypeById);
-// Thêm loại phòng mới
+
+// === THÊM LOẠI PHÒNG ===
 router.post("/", middleware.authorizeRoles("admin"), roomTypeCon.addRoomType);
-// Cập nhật loại phòng theo ID
+
+// === CẬP NHẬT LOẠI PHÒNG ===
 router.put(
   "/:id",
   middleware.authorizeRoles("admin", "receptionist"),
   roomTypeCon.updateRoomType
 );
-// Xóa loại phòng theo ID
+
+// === XÓA LOẠI PHÒNG ===
 router.delete(
   "/:id",
   middleware.authorizeRoles("admin"),

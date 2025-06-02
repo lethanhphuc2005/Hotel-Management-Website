@@ -1,7 +1,5 @@
-const {
-  websiteContentModel,
-  contentTypeModel,
-} = require("../models/websiteContentModel");
+const contentTypeModel = require("../models/contentTypeModel");
+const websiteContentModel = require("../models/websiteContentModel");
 
 const websiteContentCon = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===
@@ -39,25 +37,6 @@ const websiteContentCon = {
     return { valid: true };
   },
 
-  // === THÊM NỘI DUNG WEBSITE ===
-  addWebsiteContent: async (req, res) => {
-    try {
-      const newWebsiteContent = new websiteContentModel(req.body);
-      // Validate website content data
-      const validation = await websiteContentCon.validateWebsiteContent(
-        newWebsiteContent
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      const saveWebsiteContent = await newWebsiteContent.save();
-      res.status(200).json(saveWebsiteContent);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-
   // === LẤY TẤT CẢ NỘI DUNG WEBSITE ===
   getAllWebsiteContents: async (req, res) => {
     try {
@@ -78,8 +57,33 @@ const websiteContentCon = {
     }
   },
 
+  // === LẤY TẤT CẢ NỘI DUNG WEBSITE CHO USER ===
+  getAllWebsiteContentsForUser: async (req, res) => {
+    try {
+      const websiteContents = await websiteContentModel
+        .find({ TrangThai: true }) // Chỉ lấy nội dung đã được đăng
+        .select("-TrangThai") // Không trả về trường TrangThai
+        .populate({
+          path: "LoaiNoiDung", // Virtual field từ websiteContentModel -> contentTypeModel
+          match: { TrangThai: true }, // Chỉ lấy loại nội dung đang hoạt động
+          select: "-TrangThai", // Bỏ trường TrangThai
+        }) // populate theo virtual field
+        .exec();
+
+      if (!websiteContents || websiteContents.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không có nội dung website nào." });
+      }
+
+      res.status(200).json(websiteContents);
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi server", error });
+    }
+  },
+
   // === LẤY NỘI DUNG WEBSITE THEO ID ===
-  getOneWebsiteContent: async (req, res) => {
+  getWebsiteContentById: async (req, res) => {
     try {
       const websiteContentData = await websiteContentModel
         .findById(req.params.id)
@@ -93,6 +97,25 @@ const websiteContentCon = {
       }
 
       res.status(200).json(websiteContentData);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === THÊM NỘI DUNG WEBSITE ===
+  addWebsiteContent: async (req, res) => {
+    try {
+      const newWebsiteContent = new websiteContentModel(req.body);
+      // Validate website content data
+      const validation = await websiteContentCon.validateWebsiteContent(
+        newWebsiteContent
+      );
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      const saveWebsiteContent = await newWebsiteContent.save();
+      res.status(200).json(saveWebsiteContent);
     } catch (error) {
       res.status(500).json(error);
     }

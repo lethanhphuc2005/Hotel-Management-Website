@@ -3,19 +3,22 @@ const router = require("express").Router();
 const discountCon = require("../controllers/discountCon");
 const middlewareCon = require("../controllers/middlewareCon");
 
-// Lấy tất cả khuyến mãi
-router.get("/", discountCon.getAllDiscounts);
+// === LẤY TẤT CẢ KHUYẾN MÃI ===
+router.get("/",middlewareCon.authorizeRoles("admin"), discountCon.getAllDiscounts);
 
-// Lấy khuyến mãi theo ID
-router.get("/:id", discountCon.getOneDiscount);
+// === LẤY TẤT CẢ KHUYẾN MÃI CHO USER ===
+router.get("/user", discountCon.getAllDiscountsForUser);
 
-// Thêm khuyến mãi
+// === LẤY KHUYẾN MÃI THEO ID ===
+router.get("/:id", discountCon.getDiscountById);
+
+// === THÊM KHUYẾN MÃI ===
 router.post("/", middlewareCon.authorizeRoles("admin"), discountCon.addDiscount);
 
-// Cập nhật khuyến mãi
+// === CẬP NHẬT KHUYẾN MÃI ===
 router.put("/:id", middlewareCon.authorizeRoles("admin"), discountCon.updateDiscount);
 
-// Xóa khuyến mãi
+// === XÓA KHUYẾN MÃI ===
 router.delete("/:id", middlewareCon.authorizeRoles("admin"), discountCon.deleteDiscount);
 
 module.exports = router;

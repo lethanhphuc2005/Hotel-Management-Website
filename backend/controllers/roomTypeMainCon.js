@@ -56,6 +56,82 @@ const roomTypeMainCon = {
 
     return { valid: true };
   },
+  // === Lấy tất cả loại phòng ===
+  getAllRoomTypeMains: async (req, res) => {
+    try {
+      const roomTypeMains = await RoomTypeMainModel.find().populate([
+        { path: "DanhSachLoaiPhong" },
+        { path: "HinhAnh", select: "HinhAnh" },
+      ]);
+      if (!roomTypeMains || roomTypeMains.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không có loại phòng chính nào" });
+      }
+      // Sắp xếp theo tên loại phòng
+      roomTypeMains.sort((a, b) => a.TenLP.localeCompare(b.TenLP));
+      res.status(200).json({
+        message: "Lấy tất cả loại phòng thành công",
+        roomTypeMains: roomTypeMains,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === Lấy loại phòng cho user ===
+  getRoomTypeMainsForUser: async (req, res) => {
+    try {
+      const roomTypeMains = await RoomTypeMainModel.find({
+        TrangThai: true,
+      })
+        .select("-TrangThai")
+        .populate([
+          {
+            path: "DanhSachLoaiPhong",
+            select: "-TrangThai",
+            match: { TrangThai: true },
+          },
+          { path: "HinhAnh", select: "HinhAnh", match: { TrangThai: true } },
+        ]);
+      if (!roomTypeMains || roomTypeMains.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không có loại phòng chính nào" });
+      }
+
+      res.status(200).json({
+        message: "Lấy tất cả loại phòng thành công",
+        roomTypeMains: roomTypeMains,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === Lấy loại phòng theo ID ===
+  getRoomTypeMainById: async (req, res) => {
+    try {
+      const roomTypeMain = await RoomTypeMainModel.findById(
+        req.params.id
+      ).populate([
+        { path: "DanhSachLoaiPhong" },
+        { path: "HinhAnh", select: "HinhAnh" },
+      ]);
+      if (!roomTypeMain) {
+        return res
+          .status(404)
+          .json({ message: "Loại phòng chính không tồn tại" });
+      }
+      res.status(200).json({
+        message: "Lấy loại phòng chính thành công",
+        roomTypeMain: roomTypeMain,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
   // === Thêm loại phòng ===
   addRoomTypeMain: async (req, res) => {
     try {
@@ -104,73 +180,7 @@ const roomTypeMainCon = {
       return res.status(500).json({ message: "Lỗi server", error });
     }
   },
-  // === Lấy tất cả loại phòng ===
-  getAllRoomTypeMains: async (req, res) => {
-    try {
-      const roomTypeMains = await RoomTypeMainModel.find().populate([
-        { path: "DanhSachLoaiPhong" },
-        { path: "HinhAnh", select: "HinhAnh" },
-      ]);
-      if (!roomTypeMains || roomTypeMains.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Không có loại phòng chính nào" });
-      }
-      // Sắp xếp theo tên loại phòng
-      roomTypeMains.sort((a, b) => a.TenLP.localeCompare(b.TenLP));
-      res.status(200).json({
-        message: "Lấy tất cả loại phòng thành công",
-        roomTypeMains: roomTypeMains,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  // === Lấy loại phòng cho user ===
-  getRoomTypeMainsForUser: async (req, res) => {
-    try {
-      const roomTypeMains = await RoomTypeMainModel.find({
-        TrangThai: true,
-      }).populate([
-        { path: "DanhSachLoaiPhong", match: { TrangThai: true } },
-        { path: "HinhAnh", select: "HinhAnh", match: { TrangThai: true } },
-      ]);
-      if (!roomTypeMains || roomTypeMains.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Không có loại phòng chính nào" });
-      }
 
-      res.status(200).json({
-        message: "Lấy tất cả loại phòng thành công",
-        roomTypeMains: roomTypeMains,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  // === Lấy loại phòng theo ID ===
-  getRoomTypeMainById: async (req, res) => {
-    try {
-      const roomTypeMain = await RoomTypeMainModel.findById(
-        req.params.id
-      ).populate([
-        { path: "DanhSachLoaiPhong" },
-        { path: "HinhAnh", select: "HinhAnh" },
-      ]);
-      if (!roomTypeMain) {
-        return res
-          .status(404)
-          .json({ message: "Loại phòng chính không tồn tại" });
-      }
-      res.status(200).json({
-        message: "Lấy loại phòng chính thành công",
-        roomTypeMain: roomTypeMain,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
   // === Cập nhật loại phòng ===
   updateRoomTypeMain: async (req, res) => {
     try {
@@ -237,6 +247,7 @@ const roomTypeMainCon = {
       res.status(500).json(error);
     }
   },
+
   // === Xóa loại phòng ===
   deleteRoomTypeMain: async (req, res) => {
     try {

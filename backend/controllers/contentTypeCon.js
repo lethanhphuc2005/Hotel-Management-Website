@@ -1,10 +1,8 @@
-const {
-  websiteContentModel,
-  contentTypeModel,
-} = require("../models/websiteContentModel");
+const contentTypeModel = require("../models/contentTypeModel");
+const websiteContentModel = require("../models/websiteContentModel");
 
 const contentTypeCon = {
-  // Kiểm tra loại nội dung
+  // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI NỘI DUNG ===
   validateContentType: async (contentTypeData, contentTypeId) => {
     const { TenND, MoTa } = contentTypeData;
     // Kiểm tra các trường bắt buộc
@@ -29,7 +27,66 @@ const contentTypeCon = {
     return { valid: true };
   },
 
-  // Thêm loại nội dung
+  // === LẤY TẤT CẢ LOẠI NỘI DUNG ===
+  getAllContentTypes: async (req, res) => {
+    try {
+      const contentTypes = await contentTypeModel
+        .find()
+        .populate("DanhSachNoiDungWebsite")
+        .exec();
+      if (!contentTypes || contentTypes.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không có loại nội dung nào được tìm thấy." });
+      }
+      res.status(200).json(contentTypes);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === LẤY TẤT CẢ LOẠI NỘI DUNG CHO USER ===
+  getAllContentTypesForUser: async (req, res) => {
+    try {
+      const contentTypes = await contentTypeModel
+        .find({ TrangThai: true })
+        .select("-TrangThai") // Không trả về trường TrangThai
+        .populate({
+          path: "DanhSachNoiDungWebsite",
+          match: { TrangThai: true }, // Chỉ lấy nội dung có trạng thái true
+          select: "-TrangThai", // bỏ trường TrangThai
+        })
+        .exec();
+      if (!contentTypes || contentTypes.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không có loại nội dung nào được tìm thấy." });
+      }
+      res.status(200).json(contentTypes);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === LẤY LOẠI NỘI DUNG THEO ID ===
+  getContentTypeByid: async (req, res) => {
+    try {
+      const contentType = await contentTypeModel
+        .findById(req.params.id)
+        .populate("DanhSachNoiDungWebsite")
+        .exec();
+      if (!contentType) {
+        return res
+          .status(404)
+          .json({ message: "Loại nội dung không tồn tại." });
+      }
+      res.status(200).json(contentType);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === THÊM LOẠI NỘI DUNG MỚI ===
   addContentType: async (req, res) => {
     try {
       const newContentType = new contentTypeModel(req.body);
@@ -47,41 +104,8 @@ const contentTypeCon = {
       res.status(500).json(error);
     }
   },
-  // Lấy tất cả loại nội dung
-  getAllContentTypes: async (req, res) => {
-    try {
-      const contentTypes = await contentTypeModel
-        .find()
-        .populate("DanhSachNoiDungWebsite")
-        .exec();
-      if (!contentTypes || contentTypes.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Không có loại nội dung nào được tìm thấy." });
-      }
-      res.status(200).json(contentTypes);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  // Lấy loại nội dung theo ID
-  getOneContentType: async (req, res) => {
-    try {
-      const contentType = await contentTypeModel
-        .findById(req.params.id)
-        .populate("DanhSachNoiDungWebsite")
-        .exec();
-      if (!contentType) {
-        return res
-          .status(404)
-          .json({ message: "Loại nội dung không tồn tại." });
-      }
-      res.status(200).json(contentType);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-  // Cập nhật loại nội dung
+
+  // === CẬP NHẬT LOẠI NỘI DUNG ===
   updateContentType: async (req, res) => {
     try {
       const contentTypeToUpdate = await contentTypeModel.findById(
@@ -116,7 +140,8 @@ const contentTypeCon = {
       res.status(500).json(error);
     }
   },
-  // Xóa loại nội dung
+
+  // === XÓA LOẠI NỘI DUNG ===
   deleteContentType: async (req, res) => {
     try {
       const contentTypeToDelete = await contentTypeModel.findById(

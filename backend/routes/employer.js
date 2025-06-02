@@ -3,28 +3,28 @@ const router = require("express").Router();
 const middlewareCon = require("../controllers/middlewareCon");
 const employerCon = require("../controllers/employerCon");
 
-// Lấy tất cả nhân viên
+// === LẤY TẤT CẢ NHÂN VIÊN ===
 router.get(
   "/",
   middlewareCon.authorizeRoles("admin", "receptionist"),
   employerCon.getAllEmployers
 );
 
-// Lấy thông tin 1 nhân viên
+// == LẤY NHÂN VIÊN THEO ID ===
 router.get(
   "/userinfo/:id",
   middlewareCon.authorizeSelfOrRoles("admin"),
-  employerCon.getAnEmployer
+  employerCon.getEmployerById
 );
 
-// Cập nhật thông tin nhân viên
+// === CẬP NHẬT THÔNG TIN NHÂN VIÊN ===
 router.put(
   "/update/:id",
   middlewareCon.authorizeSelfOrRoles("admin"),
   employerCon.updateEmployer
 );
 
-// Đổi mật khẩu nhân viên
+// === ĐỔI MẬT KHẨU NHÂN VIÊN ===
 router.put(
   "/changepassword/:id",
   middlewareCon.authorizeSelfOnly,

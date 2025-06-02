@@ -30,21 +30,8 @@ const employerCon = {
     }
   },
 
-  // ====== XOÁ NHÂN VIÊN =====
-  deleteEmployer: async (req, res) => {
-    try {
-      const checkUser = await employerModel.findByIdAndDelete(req.params.id);
-      if (!checkUser) {
-        return res.status(404).json({ message: "Không tìm thấy nhân viên" });
-      }
-      res.status(200).json("Xóa thành công !!!");
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-
-  // ====== LẤY 1 NHÂN VIÊN =====
-  getAnEmployer: async (req, res) => {
+  // ====== LẤY NHÂN VIÊN THEO ID =====
+  getEmployerById: async (req, res) => {
     try {
       const checkUser = await employerModel.findById(req.params.id);
       if (!checkUser) {
@@ -114,6 +101,19 @@ const employerCon = {
       }
     },
   ],
+
+  //   // ====== XOÁ NHÂN VIÊN =====
+  // deleteEmployer: async (req, res) => {
+  //   try {
+  //     const checkUser = await employerModel.findByIdAndDelete(req.params.id);
+  //     if (!checkUser) {
+  //       return res.status(404).json({ message: "Không tìm thấy nhân viên" });
+  //     }
+  //     res.status(200).json("Xóa thành công !!!");
+  //   } catch (error) {
+  //     res.status(500).json(error);
+  //   }
+  // },
 };
 
 module.exports = employerCon;

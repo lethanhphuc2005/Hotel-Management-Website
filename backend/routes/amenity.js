@@ -2,25 +2,30 @@ const router = require("express").Router();
 const amenityCon = require("../controllers/amenityCon");
 const middlewareCon = require("../controllers/middlewareCon");
 
-// Get all amenities
+// === LẤY TẤT CẢ TIỆN NGHI ===
 router.get(
   "/",
   middlewareCon.authorizeRoles("admin", "receptionist"),
   amenityCon.getAllAmenities
 );
-// Get all amenities for user
+
+// === LẤY TẤT CẢ TIỆN NGHI CHO USER ===
 router.get("/user", amenityCon.getAllAmenitiesForUser);
-// Get amenity by ID
+
+// === LẤY TIỆN NGHI THEO ID ===
 router.get("/:id", amenityCon.getAmenityById);
-// Create a new amenity
+
+// === THÊM TIỆN NGHI ===
 router.post("/", middlewareCon.authorizeRoles("admin"), amenityCon.addAmenity);
-// Update an amenity by ID
+
+// === CẬP NHẬT TIỆN NGHI ===
 router.put(
   "/:id",
   middlewareCon.authorizeRoles("admin"),
   amenityCon.updateAmenity
 );
-// Delete an amenity by ID
+
+// === XÓA TIỆN NGHI ===
 router.delete(
   "/:id",
   middlewareCon.authorizeRoles("admin"),

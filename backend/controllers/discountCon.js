@@ -1,6 +1,7 @@
 const discount = require("../models/discountModel");
 
 const discountCon = {
+  // === KIỂM TRA CÁC ĐIỀU KIỆN KHUYẾN MÃI ===
   validateDiscount: async (discountData, discountId) => {
     const { TenKM, MoTa, LoaiKM, GiaTriKM, NgayBD, NgayKT } = discountData;
     // Kiểm tra các trường bắt buộc
@@ -52,7 +53,49 @@ const discountCon = {
 
     return { valid: true };
   },
-  // thêm khuyến mãi
+
+  // === LẤY TẤT CẢ KHUYẾN MÃI ===
+  getAllDiscounts: async (req, res) => {
+    try {
+      const discounts = await discount.find();
+      if (discounts.length === 0) {
+        return res.status(404).json({ message: "Không có khuyến mãi nào." });
+      }
+      res.status(200).json(discounts);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === LẤY TẤT CẢ KHUYẾN MÃI CHO USER ===
+  getAllDiscountsForUser: async (req, res) => {
+    try {
+      const discounts = await discount
+        .find({ TrangThai: true })
+        .select("-TrangThai"); // Không trả về trường TrangThai;
+      if (discounts.length === 0) {
+        return res.status(404).json({ message: "Không có khuyến mãi nào." });
+      }
+      res.status(200).json(discounts);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === LẤY KHUYẾN MÃI THEO ID ===
+  getDiscountById: async (req, res) => {
+    try {
+      const discountData = await discount.findById(req.params.id);
+      if (!discountData) {
+        return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
+      }
+      res.status(200).json(discountData);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === THÊM KHUYẾN MÃI MỚI ===
   addDiscount: async (req, res) => {
     try {
       const newDiscount = new discount(req.body);
@@ -70,33 +113,7 @@ const discountCon = {
     }
   },
 
-  // lấy tất cả khuyến mãi
-  getAllDiscounts: async (req, res) => {
-    try {
-      const discounts = await discount.find();
-      if (discounts.length === 0) {
-        return res.status(404).json({ message: "Không có khuyến mãi nào." });
-      }
-      res.status(200).json(discounts);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-
-  // lấy khuyến mãi theo ID
-  getOneDiscount: async (req, res) => {
-    try {
-      const discountData = await discount.findById(req.params.id);
-      if (!discountData) {
-        return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
-      }
-      res.status(200).json(discountData);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-
-  // cập nhật khuyến mãi
+  // === CẬP NHẬT KHUYẾN MÃI ===
   updateDiscount: async (req, res) => {
     try {
       const discountToUpdate = await discount.findById(req.params.id);
@@ -126,7 +143,7 @@ const discountCon = {
     }
   },
 
-  // xóa trạng thái
+  // === XÓA KHUYẾN MÃI ===
   deleteDiscount: async (req, res) => {
     try {
       const discountToDelete = await discount.findById(req.params.id);

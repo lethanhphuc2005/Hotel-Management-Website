@@ -3,27 +3,34 @@ const router = require("express").Router();
 const websiteContentCon = require("../controllers/websiteContentCon");
 const middlewareCon = require("../controllers/middlewareCon");
 
-// Thêm nội dung website
+// === LẤY TẤT CẢ NỘI DUNG WEBSITE ===
+router.get(
+  "/",
+  middlewareCon.authorizeRoles("admin"),
+  websiteContentCon.getAllWebsiteContents
+);
+
+// === LẤY TẤT CẢ NỘI DUNG WEBSITE CHO USER ===
+router.get("/user", websiteContentCon.getAllWebsiteContentsForUser);
+
+// === LẤY NỘI DUNG WEBSITE THEO ID ===
+router.get("/:id", websiteContentCon.getWebsiteContentById);
+
+// === THÊM NỘI DUNG WEBSITE ===
 router.post(
   "/",
   middlewareCon.authorizeRoles("admin"),
   websiteContentCon.addWebsiteContent
 );
 
-// Lấy tất cả nội dung website
-router.get("/", websiteContentCon.getAllWebsiteContents);
-
-// Lấy nội dung website theo ID
-router.get("/:id", websiteContentCon.getOneWebsiteContent);
-
-// Cập nhật nội dung website
+// === CẬP NHẬT NỘI DUNG WEBSITE ===
 router.put(
   "/:id",
   middlewareCon.authorizeRoles("admin"),
   websiteContentCon.updateWebsiteContent
 );
 
-// Xóa nội dung website
+// === XÓA NỘI DUNG WEBSITE ===
 router.delete(
   "/:id",
   middlewareCon.authorizeRoles("admin"),

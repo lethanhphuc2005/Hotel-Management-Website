@@ -3,19 +3,19 @@ const router = require("express").Router();
 const statusCon = require("../controllers/statusCon");
 const middlewareCon = require("../controllers/middlewareCon");
 
-// Thêm trạng thái
-router.post("/", middlewareCon.authorizeRoles("admin"), statusCon.addStatus);
-
-// Lấy tất cả trạng thái
+// === LẤY TẤT CẢ TRẠNG THÁI ===
 router.get("/", statusCon.getAllStatus);
 
-// Lấy trạng thái theo ID
-router.get("/:id", statusCon.getOneStatus);
+// === LẤY TRẠNG THÁI THEO ID ===
+router.get("/:id", statusCon.getStatusById);
 
-// Cập nhật trạng thái
+// === THÊM TRẠNG THÁI MỚI ===
+router.post("/", middlewareCon.authorizeRoles("admin"), statusCon.addStatus);
+
+// === CẬP NHẬT TRẠNG THÁI ===
 router.put("/:id", middlewareCon.authorizeRoles("admin"), statusCon.updateStatus);
 
-// Xóa trạng thái
+// === XÓA TRẠNG THÁI ===
 router.delete("/:id", middlewareCon.authorizeRoles("admin"), statusCon.deleteStatus);
 
 module.exports = router;

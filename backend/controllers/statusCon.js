@@ -28,21 +28,6 @@ const statusCon = {
     return { valid: true };
   },
 
-  // === THÊM TRẠNG THÁI MỚI ===
-  addStatus: async (req, res) => {
-    try {
-      const newStatus = new statusModel(req.body);
-      const validation = await statusCon.validateStatus(newStatus);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-      const saveStatus = await newStatus.save();
-      res.status(200).json(saveStatus);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
-
   // === LẤY TẤT CẢ TRẠNG THÁI ===
   getAllStatus: async (req, res) => {
     try {
@@ -57,13 +42,28 @@ const statusCon = {
   },
 
   // === LẤY TRẠNG THÁI THEO ID ===
-  getOneStatus: async (req, res) => {
+  getStatusById: async (req, res) => {
     try {
       const statusData = await statusModel.findById(req.params.id);
       if (!statusData) {
         return res.status(404).json({ message: "Trạng thái không tồn tại" });
       }
       res.status(200).json(statusData);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === THÊM TRẠNG THÁI MỚI ===
+  addStatus: async (req, res) => {
+    try {
+      const newStatus = new statusModel(req.body);
+      const validation = await statusCon.validateStatus(newStatus);
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+      const saveStatus = await newStatus.save();
+      res.status(200).json(saveStatus);
     } catch (error) {
       res.status(500).json(error);
     }
@@ -83,7 +83,10 @@ const statusCon = {
           ? statusToUpdate.toObject()
           : { ...statusToUpdate.toObject(), ...req.body };
 
-      const validation = await statusCon.validateStatus(updatedData, req.params.id);
+      const validation = await statusCon.validateStatus(
+        updatedData,
+        req.params.id
+      );
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }

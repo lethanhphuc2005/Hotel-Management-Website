@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const middlewareCon = {
+  // === XÁC THỰC TOKEN ===
   verifyToken: (req, res, next) => {
     try {
       const token =
@@ -28,6 +29,7 @@ const middlewareCon = {
     }
   },
 
+  // === XÁC THỰC TOKEN CHO ADMIN ===
   authorizeRoles: (...roles) => {
     return (req, res, next) => {
       middlewareCon.verifyToken(req, res, () => {
@@ -40,6 +42,7 @@ const middlewareCon = {
     };
   },
 
+  // === XÁC THỰC TOKEN CHO USER ===
   authorizeSelfOnly: () => {
     return (req, res, next) => {
       middlewareCon.verifyToken(req, res, () => {
@@ -52,6 +55,7 @@ const middlewareCon = {
     };
   },
 
+  // === XÁC THỰC TOKEN CHO USER VÀ CÁC QUYỀN NHẤT ĐỊNH ===
   authorizeSelfOrRoles: (...roles) => {
     return (req, res, next) => {
       middlewareCon.verifyToken(req, res, () => {

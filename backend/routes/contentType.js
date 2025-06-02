@@ -3,23 +3,34 @@ const router = require("express").Router();
 const contentTypeCon = require("../controllers/contentTypeCon");
 const middlewareCon = require("../controllers/middlewareCon");
 
-// Thêm loại nội dung
+// === LẤY TẤT CẢ LOẠI NỘI DUNG ===
+router.get(
+  "/",
+  middlewareCon.authorizeRoles("admin"),
+  contentTypeCon.getAllContentTypes
+);
+
+// === LẤY TẤT CẢ LOẠI NỘI DUNG CHO USER ===
+router.get("/user", contentTypeCon.getAllContentTypesForUser);
+
+// === LẤY LOẠI NỘI DUNG THEO ID ===
+router.get("/:id", contentTypeCon.getContentTypeByid);
+
+// === THÊM LOẠI NỘI DUNG ===
 router.post(
   "/",
   middlewareCon.authorizeRoles("admin"),
   contentTypeCon.addContentType
 );
-// Lấy tất cả loại nội dung
-router.get("/", contentTypeCon.getAllContentTypes);
-// Lấy loại nội dung theo ID
-router.get("/:id", contentTypeCon.getOneContentType);
-// Cập nhật loại nội dung
+
+// === CẬP NHẬT LOẠI NỘI DUNG ===
 router.put(
   "/:id",
   middlewareCon.authorizeRoles("admin"),
   contentTypeCon.updateContentType
 );
-// Xoá loại nội dung
+
+// === XÓA LOẠI NỘI DUNG ===
 router.delete(
   "/:id",
   middlewareCon.authorizeRoles("admin"),

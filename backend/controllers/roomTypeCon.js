@@ -4,7 +4,7 @@ const ImageModel = require("../models/imageModel");
 const { RoomType_AmenityModel } = require("../models/amenityModel");
 
 const roomTypeCon = {
-  // Validate room type data
+  // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
   validateRoomType: async (roomTypeData, roomTypeId) => {
     const {
       MaLP,
@@ -96,74 +96,7 @@ const roomTypeCon = {
     return { valid: true };
   },
 
-  // add a new room type
-  addRoomType: async (req, res) => {
-    try {
-      const { TenLPCT, MoTa, MaLP, HinhAnh = [], TienNghi = [] } = req.body;
-      const newRoomType = new RoomTypeModel({
-        TenLPCT: TenLPCT,
-        MoTa: MoTa,
-        SoGiuong: req.body.SoGiuong || 1, // Mặc định 1 giường nếu không có
-        GiaPhong: req.body.GiaPhong || 0, // Mặc định 0 nếu không có
-        View: req.body.View || "city", // Mặc định view là city nếu không có
-        TrangThai: req.body.TrangThai || false, // Mặc định trạng thái là false nếu không có
-        MaLP: MaLP, // Mã loại phòng chính
-      });
-      console.log("New Room Type Data:", newRoomType);
-      const validation = await roomTypeCon.validateRoomType(newRoomType);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Nếu có hình ảnh: lưu vào bảng hình ảnh & gán vào HinhAnh của loại phòng
-      if (Array.isArray(HinhAnh) && HinhAnh.length > 0) {
-        const imageDocs = [];
-        for (const imagePath of HinhAnh) {
-          try {
-            const newImage = new ImageModel({
-              MaLP: newRoomType._id,
-              HinhAnh: imagePath,
-              Loai: "roomType",
-              TrangThai: true,
-            });
-            const savedImage = await newImage.save();
-            imageDocs.push(savedImage._id);
-          } catch (error) {
-            newRoomType.HinhAnh = imageDocs.filter((id) => id);
-          }
-        }
-        newRoomType.HinhAnh = imageDocs;
-      }
-
-      // Nếu có tiện nghi: lưu vào bảng tiện nghi & gán vào TienNghi của loại phòng chính
-      if (Array.isArray(TienNghi) && TienNghi.length > 0) {
-        const amenities = [];
-        for (const amenity of TienNghi) {
-          try {
-            const newAmenity = new RoomType_AmenityModel({
-              MaLP: newRoomType._id,
-              MaTN: amenity.MaTN,
-            });
-            const savedAmenity = await newAmenity.save();
-            amenities.push(savedAmenity._id);
-          } catch (error) {
-            return res.status(500).json({ message: error.message });
-          }
-        }
-        newRoomType.TienNghi = amenities;
-      }
-
-      await newRoomType.save();
-      res.status(201).json({
-        message: "Thêm loại phòng thành công",
-        data: newRoomType,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  // Get all room types
+  // === LẤY TẤT CẢ LOẠI PHÒNG ===
   getAllRoomTypes: async (req, res) => {
     try {
       const {
@@ -249,7 +182,7 @@ const roomTypeCon = {
     }
   },
 
-  // Get all room types for user
+  // === LẤY TẤT CẢ LOẠI PHÒNG CHO USER ===
   getAllRoomTypesForUser: async (req, res) => {
     try {
       const {
@@ -285,18 +218,20 @@ const roomTypeCon = {
       // Lấy dữ liệu thô theo điều kiện cơ bản
       let roomTypes = await RoomTypeModel.find(searchCondition)
         .sort({ _id: -1 })
+        .select("-TrangThai") // Không trả về trường TrangThai
         .skip(skip)
         .limit(limitNumber)
         .populate([
-          { path: "LoaiPhong" },
+          { path: "LoaiPhong", select: "-TrangThai" }, // Không trả về trường TrangThai
           {
             path: "TienNghi",
             populate: {
               path: "MaTN",
               model: "amenity",
+              select: "-TrangThai", // Không trả về trường TrangThai
             },
           },
-          { path: "HinhAnh" },
+          { path: "HinhAnh", select: "HinhAnh" },
         ]);
 
       if (!roomTypes || roomTypes.length === 0) {
@@ -335,7 +270,7 @@ const roomTypeCon = {
     }
   },
 
-  // Get room type by ID
+  // === LẤY LOẠI PHÒNG THEO ID ===
   getRoomTypeById: async (req, res) => {
     try {
       const roomTypeData = await RoomTypeModel.find({
@@ -351,12 +286,11 @@ const roomTypeCon = {
         },
         { path: "HinhAnh", select: "HinhAnh" },
       ]);
-      if (!roomTypeData) {
+      if (!roomTypeData || roomTypeData.length === 0) {
         return res
           .status(404)
           .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
       }
-
       res.status(200).json({
         message: "Lấy loại phòng thành công",
         data: roomTypeData,
@@ -366,7 +300,74 @@ const roomTypeCon = {
     }
   },
 
-  // Update a room type by ID
+    // === THÊM LOẠI PHÒNG MỚI ===
+  addRoomType: async (req, res) => {
+    try {
+      const { TenLPCT, MoTa, MaLP, HinhAnh = [], TienNghi = [] } = req.body;
+      const newRoomType = new RoomTypeModel({
+        TenLPCT: TenLPCT,
+        MoTa: MoTa,
+        SoGiuong: req.body.SoGiuong || 1, // Mặc định 1 giường nếu không có
+        GiaPhong: req.body.GiaPhong || 0, // Mặc định 0 nếu không có
+        View: req.body.View || "city", // Mặc định view là city nếu không có
+        TrangThai: req.body.TrangThai || false, // Mặc định trạng thái là false nếu không có
+        MaLP: MaLP, // Mã loại phòng chính
+      });
+      console.log("New Room Type Data:", newRoomType);
+      const validation = await roomTypeCon.validateRoomType(newRoomType);
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      // Nếu có hình ảnh: lưu vào bảng hình ảnh & gán vào HinhAnh của loại phòng
+      if (Array.isArray(HinhAnh) && HinhAnh.length > 0) {
+        const imageDocs = [];
+        for (const imagePath of HinhAnh) {
+          try {
+            const newImage = new ImageModel({
+              MaLP: newRoomType._id,
+              HinhAnh: imagePath,
+              Loai: "roomType",
+              TrangThai: true,
+            });
+            const savedImage = await newImage.save();
+            imageDocs.push(savedImage._id);
+          } catch (error) {
+            newRoomType.HinhAnh = imageDocs.filter((id) => id);
+          }
+        }
+        newRoomType.HinhAnh = imageDocs;
+      }
+
+      // Nếu có tiện nghi: lưu vào bảng tiện nghi & gán vào TienNghi của loại phòng chính
+      if (Array.isArray(TienNghi) && TienNghi.length > 0) {
+        const amenities = [];
+        for (const amenity of TienNghi) {
+          try {
+            const newAmenity = new RoomType_AmenityModel({
+              MaLP: newRoomType._id,
+              MaTN: amenity.MaTN,
+            });
+            const savedAmenity = await newAmenity.save();
+            amenities.push(savedAmenity._id);
+          } catch (error) {
+            return res.status(500).json({ message: error.message });
+          }
+        }
+        newRoomType.TienNghi = amenities;
+      }
+
+      await newRoomType.save();
+      res.status(201).json({
+        message: "Thêm loại phòng thành công",
+        data: newRoomType,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // === CẬP NHẬT LOẠI PHÒNG ===
   updateRoomType: async (req, res) => {
     try {
       const { HinhAnh = [], TienNghi = [] } = req.body;
@@ -458,7 +459,7 @@ const roomTypeCon = {
     }
   },
 
-  // Delete a room type by ID
+  // === XÓA LOẠI PHÒNG ===
   deleteRoomType: async (req, res) => {
     try {
       const deletedRoomType = await RoomTypeModel.findById(req.params.id);

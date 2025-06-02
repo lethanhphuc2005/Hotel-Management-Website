@@ -4,7 +4,7 @@ const {
 } = require("../models/amenityModel");
 
 const amenityCon = {
-  // Validate amenity data
+  // === KIỂM TRA CÁC ĐIỀU KIỆN TIỆN NGHI ===
   validateAmenity: async (amenityData, amenityId) => {
     const { TenTN, MoTa, HinhAnh } = amenityData;
 
@@ -33,28 +33,7 @@ const amenityCon = {
     return { valid: true };
   },
 
-  // Add new amenity
-  addAmenity: async (req, res) => {
-    try {
-      const newAmenity = new AmenityModel(req.body);
-
-      // Validate amenity data
-      const validation = await amenityCon.validateAmenity(newAmenity);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      await newAmenity.save();
-      res.status(201).json({
-        message: "Thêm tiện nghi thành công",
-        amenity: newAmenity,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  // Get all amenities
+  // === LẤY TẤT CẢ TIỆN NGHI ===
   getAllAmenities: async (req, res) => {
     try {
       const amenities = await AmenityModel.find().populate({
@@ -76,15 +55,20 @@ const amenityCon = {
     }
   },
 
+  // === LẤY TẤT CẢ TIỆN NGHI CHO USER ===
   getAllAmenitiesForUser: async (req, res) => {
     try {
-      const amenities = await AmenityModel.find({ TrangThai: true }).populate({
-        path: "LoaiPhongSuDung", // Virtual field từ Amenity -> RoomType_Amenity
-        populate: {
-          path: "MaLP", // Trong bảng trung gian -> roomType
-          model: "roomType",
-        },
-      });
+      const amenities = await AmenityModel.find({ TrangThai: true })
+        .select("-TrangThai")
+        .populate({
+          path: "LoaiPhongSuDung", // Virtual field từ Amenity -> RoomType_Amenity
+          match: { TrangThai: true }, // Chỉ lấy những loại phòng đang hoạt động
+          populate: {
+            path: "MaLP", // Trong bảng trung gian -> roomType
+            select: "-TrangThai", // Chỉ lấy tên và mã loại phòng
+            model: "roomType",
+          },
+        });
       if (amenities.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
       }
@@ -97,7 +81,7 @@ const amenityCon = {
     }
   },
 
-  // Get amenity by ID
+  // === LẤY TIỆN NGHI THEO ID ===
   getAmenityById: async (req, res) => {
     try {
       const { id } = req.params;
@@ -120,7 +104,28 @@ const amenityCon = {
     }
   },
 
-  // Update existing amenity
+  // === THÊM TIỆN NGHI MỚI ===
+  addAmenity: async (req, res) => {
+    try {
+      const newAmenity = new AmenityModel(req.body);
+
+      // Validate amenity data
+      const validation = await amenityCon.validateAmenity(newAmenity);
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      await newAmenity.save();
+      res.status(201).json({
+        message: "Thêm tiện nghi thành công",
+        amenity: newAmenity,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // === CẬP NHẬT TIỆN NGHI ===
   updateAmenity: async (req, res) => {
     try {
       const amenityToUpdate = await AmenityModel.findById(req.params.id);
@@ -171,7 +176,7 @@ const amenityCon = {
     }
   },
 
-  // Delete amenity
+  // === XÓA TIỆN NGHI ===
   deleteAmenity: async (req, res) => {
     try {
       const amenityToDelete = await AmenityModel.findById(req.params.id);
