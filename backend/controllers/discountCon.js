@@ -101,10 +101,10 @@ const discountCon = {
         message: "Lấy tất cả khuyến mãi thành công",
         data: discounts,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {
@@ -152,10 +152,10 @@ const discountCon = {
         message: "Lấy tất cả khuyến mãi thành công",
         data: discounts,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {

@@ -69,11 +69,11 @@ const employerCon = {
       res.status(200).json({
         message: "Lấy tất cả nhân viên thành công",
         data: users,
-        total,
         pagination: {
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {

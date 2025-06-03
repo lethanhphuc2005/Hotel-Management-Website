@@ -22,7 +22,7 @@ dotenv.config();
 
 const app = express();
 const path = require("path");
-require('./swagger')(app);
+require("./swagger")(app);
 
 // Middleware
 app.use(express.json());
@@ -55,6 +55,4 @@ app.use("/v1/discount", discountRouter);
 app.use("/v1/content-type", contentTypeRouter);
 app.use("/v1/amenity", amenityRouter);
 
-app.listen(8000, () => {
-  console.log("server đang chạy");
-});
+app.listen(8000, () => {});

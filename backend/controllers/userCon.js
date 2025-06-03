@@ -21,21 +21,68 @@ const bcrypt = require("bcryptjs");
 const account = require("./accountCon"); // Assuming you have an account controller for validation
 
 const userCon = {
-  // add
+  // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
   getAllUsers: async (req, res) => {
     try {
-      const checkUsers = await userModel.find();
-      if (!checkUsers || checkUsers.length === 0) {
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "createdAt",
+        order = "desc",
+        status,
+      } = req.query;
+
+      const query = {};
+      // Tạo bộ lọc tìm kiếm
+      if (search) {
+        query.$or = [
+          { TenKH: { $regex: search, $options: "i" } },
+          { Email: { $regex: search, $options: "i" } },
+          { SDT: { $regex: search, $options: "i" } },
+          { DiaChi: { $regex: search, $options: "i" } },
+          { YeuCau_DB: { $regex: search, $options: "i" } },
+        ];
+      }
+      if (typeof status !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (status === "true" || status === true) {
+          query.TrangThai = true;
+        } else if (status === "false" || status === false) {
+          query.TrangThai = false;
+        }
+      }
+
+      const sortOption = {};
+      sortOption[sort] = order === "asc" ? 1 : -1;
+
+      const users = await userModel
+        .find(query)
+        .sort(sortOption)
+        .skip((page - 1) * limit)
+        .limit(limit);
+
+      const total = await userModel.countDocuments(query);
+
+      if (!users || users.length === 0) {
         return res.status(404).json("Không tìm thấy user nào");
       }
       res.status(200).json({
         message: "Lấy tất cả user thành công",
-        data: checkUsers,
+        data: users,
+        pagination: {
+          total: total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       res.status(500).json(error);
     }
   },
+
+  // ==== LẤY USER THEO ID ====
   getUserById: async (req, res) => {
     try {
       const user = await userModel.findById(req.params.id);
@@ -50,6 +97,8 @@ const userCon = {
       res.status(500).json(error);
     }
   },
+
+  // === ĐỔI MẬT KHẨU ===
   changePassword: async (req, res) => {
     try {
       const userId = req.params.id;
@@ -87,6 +136,7 @@ const userCon = {
     }
   },
 
+  // === CẬP NHẬT USER ===
   updateUser: [
     upload.single("img"),
     async (req, res) => {
@@ -122,6 +172,7 @@ const userCon = {
     },
   ],
 
+  // === XOÁ USER ===
   // deleteUser: async (req, res) => {
   //   try {
   //     const userToDelete = await userModel.findById(req.params.id);

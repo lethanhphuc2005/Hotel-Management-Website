@@ -92,7 +92,7 @@ const amenityCon = {
         message: "Lấy tất cả tiện nghi thành công",
         data: amenities,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),
@@ -157,7 +157,7 @@ const amenityCon = {
         message: "Lấy tất cả tiện nghi thành công",
         data: amenities,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),

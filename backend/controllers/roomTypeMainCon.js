@@ -112,10 +112,10 @@ const roomTypeMainCon = {
         message: "Lấy tất cả loại phòng thành công",
         data: roomTypeMains,
         pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
+          total: total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {
@@ -178,10 +178,10 @@ const roomTypeMainCon = {
         message: "Lấy tất cả loại phòng thành công",
         data: roomTypeMains,
         pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
+          total: total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {

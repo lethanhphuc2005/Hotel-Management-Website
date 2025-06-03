@@ -87,10 +87,10 @@ const contentTypeCon = {
         message: "Lấy tất cả loại nội dung thành công",
         data: contentTypes,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {
@@ -150,10 +150,10 @@ const contentTypeCon = {
         message: "Lấy tất cả loại nội dung thành công",
         data: contentTypes,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {
