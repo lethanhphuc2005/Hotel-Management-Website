@@ -1,40 +1,43 @@
 const mongoose = require("mongoose");
 
-const RoomTypeSchema = new mongoose.Schema({
-  TenLPCT: {
-    type: String,
-    required: true,
-    maxlength: 100, // Giới hạn độ dài tên loại phòng
+const RoomTypeSchema = new mongoose.Schema(
+  {
+    TenLPCT: {
+      type: String,
+      required: true,
+      maxlength: 100, // Giới hạn độ dài tên loại phòng
+    },
+    MaLP: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "roomTypeMain",
+      required: true,
+    },
+    SoGiuong: {
+      type: Number,
+      required: true,
+    },
+    GiaPhong: {
+      type: Number,
+      required: true,
+    },
+    MoTa: {
+      type: String,
+      required: true,
+      maxlength: 500, // Giới hạn độ dài mô tả loại phòng
+    },
+    View: {
+      type: String,
+      enum: ["sea", "mountain", "city", "garden", "pool"], // Giới hạn các giá trị hợp lệ cho View
+      required: true,
+    },
+    TrangThai: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
-  MaLP: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "roomTypeMain",
-    required: true,
-  },
-  SoGiuong: {
-    type: Number,
-    required: true,
-  },
-  GiaPhong: {
-    type: Number,
-    required: true,
-  },
-  MoTa: {
-    type: String,
-    required: true,
-    maxlength: 500, // Giới hạn độ dài mô tả loại phòng
-  },
-  View: {
-    type: String,
-    enum: ["sea", "mountain", "city", "garden", "pool"], // Giới hạn các giá trị hợp lệ cho View
-    required: true,
-  },
-  TrangThai: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 RoomTypeSchema.virtual("LoaiPhong", {
   ref: "roomTypeMain", // Model loại phòng chính

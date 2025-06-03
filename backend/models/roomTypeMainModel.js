@@ -1,22 +1,25 @@
 const mongoose = require("mongoose");
 
-const RoomTypeMainSchema = new mongoose.Schema({
-  TenLP: {
-    type: String,
-    required: true,
-    maxlength: 100, // Giới hạn độ dài tên loại phòng
+const RoomTypeMainSchema = new mongoose.Schema(
+  {
+    TenLP: {
+      type: String,
+      required: true,
+      maxlength: 100, // Giới hạn độ dài tên loại phòng
+    },
+    MoTa: {
+      type: String,
+      required: true,
+      maxlength: 500, // Giới hạn độ dài mô tả loại phòng
+    },
+    TrangThai: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
-  MoTa: {
-    type: String,
-    required: true,
-    maxlength: 500, // Giới hạn độ dài mô tả loại phòng
-  },
-  TrangThai: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 RoomTypeMainSchema.virtual("DanhSachLoaiPhong", {
   ref: "roomType",

@@ -1,23 +1,26 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const ServiceSchema = new mongoose.Schema({
+const ServiceSchema = new mongoose.Schema(
+  {
     TenDV: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     GiaDV: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     MoTa: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     HinhAnh: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-});
+  },
+  { timestamps: true }
+);
 
 ServiceSchema.set("toJSON", { versionKey: false });
 ServiceSchema.set("toObject", { versionKey: false });

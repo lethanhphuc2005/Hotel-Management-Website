@@ -1,4 +1,4 @@
-const statusModel = require("../models/statusModel");
+const StatusModel = require("../models/statusModel");
 
 const statusCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TRẠNG THÁI ===
@@ -16,7 +16,7 @@ const statusCon = {
       return { valid: false, message: "Tên trạng thái quá dài." };
     }
     // Kiểm tra trùng tên
-    const existing = await statusModel.findOne({
+    const existing = await StatusModel.findOne({
       TenTT,
     });
     if (
@@ -31,7 +31,7 @@ const statusCon = {
   // === LẤY TẤT CẢ TRẠNG THÁI ===
   getAllStatus: async (req, res) => {
     try {
-      const status = await statusModel.find();
+      const status = await StatusModel.find();
       if (!status || status.length === 0) {
         return res.status(404).json({ message: "Không có trạng thái nào" });
       }
@@ -44,7 +44,7 @@ const statusCon = {
   // === LẤY TRẠNG THÁI THEO ID ===
   getStatusById: async (req, res) => {
     try {
-      const statusData = await statusModel.findById(req.params.id);
+      const statusData = await StatusModel.findById(req.params.id);
       if (!statusData) {
         return res.status(404).json({ message: "Trạng thái không tồn tại" });
       }
@@ -60,7 +60,7 @@ const statusCon = {
   // === THÊM TRẠNG THÁI MỚI ===
   addStatus: async (req, res) => {
     try {
-      const newStatus = new statusModel(req.body);
+      const newStatus = new StatusModel(req.body);
       const validation = await statusCon.validateStatus(newStatus);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
@@ -78,7 +78,7 @@ const statusCon = {
   // === CẬP NHẬT TRẠNG THÁI ===
   updateStatus: async (req, res) => {
     try {
-      const statusToUpdate = await statusModel.findById(req.params.id);
+      const statusToUpdate = await StatusModel.findById(req.params.id);
       if (!statusToUpdate) {
         return res.status(404).json({ message: "Trạng thái không tồn tại" });
       }
@@ -110,7 +110,7 @@ const statusCon = {
   // === XÓA TRẠNG THÁI ===
   deleteStatus: async (req, res) => {
     try {
-      const statusToDelete = await statusModel.findById(req.params.id);
+      const statusToDelete = await StatusModel.findById(req.params.id);
       if (!statusToDelete) {
         return res.status(404).json({ message: "Trạng thái không tồn tại" });
       }
@@ -126,7 +126,7 @@ const statusCon = {
       // Xóa trạng thái
       // await Order.deleteMany({ statusId: req.params.id });
 
-      await statusModel.findByIdAndDelete(req.params.id);
+      await StatusModel.findByIdAndDelete(req.params.id);
 
       res.status(200).json({
         message: "Xóa trạng thái thành công",

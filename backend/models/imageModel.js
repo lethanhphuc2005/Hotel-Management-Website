@@ -1,25 +1,28 @@
 const mongoose = require("mongoose");
 
-const ImageSchema = new mongoose.Schema({
-  HinhAnh: {
-    type: String,
-    required: true,
+const ImageSchema = new mongoose.Schema(
+  {
+    HinhAnh: {
+      type: String,
+      required: true,
+    },
+    MaLP: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "Loai", // Tên model bạn dùng để lưu loại phòng
+    },
+    Loai: {
+      type: String,
+      enum: ["roomTypeMain", "roomType"], // Chỉ cho phép các giá trị này
+      required: true,
+    },
+    TrangThai: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
-  MaLP: {
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: "Loai", // Tên model bạn dùng để lưu loại phòng
-  },
-  Loai: {
-    type: String,
-    enum: ["roomTypeMain", "roomType"], // Chỉ cho phép các giá trị này
-    required: true,
-  },
-  TrangThai: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 ImageSchema.virtual("LoaiPhong", {
   ref: (doc) => doc.Loai, // ref động

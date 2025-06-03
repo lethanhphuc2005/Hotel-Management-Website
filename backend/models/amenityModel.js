@@ -1,24 +1,27 @@
 const mongoose = require("mongoose");
 
-const AmenitySchema = new mongoose.Schema({
-  TenTN: {
-    type: String,
-    required: true,
+const AmenitySchema = new mongoose.Schema(
+  {
+    TenTN: {
+      type: String,
+      required: true,
+    },
+    MoTa: {
+      type: String,
+      required: true,
+    },
+    HinhAnh: {
+      type: String,
+      required: true,
+    },
+    TrangThai: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
-  MoTa: {
-    type: String,
-    required: true,
-  },
-  HinhAnh: {
-    type: String,
-    required: true,
-  },
-  TrangThai: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 AmenitySchema.virtual("LoaiPhongSuDung", {
   ref: "roomType_Amenity", // Model loại phòng

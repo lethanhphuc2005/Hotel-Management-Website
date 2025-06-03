@@ -108,6 +108,8 @@ const roomTypeCon = {
         maxPrice,
         amenity,
         status,
+        sort = "_id", // default sort by _id
+        order = "desc", // default order desc
       } = req.query;
 
       const pageNumber = parseInt(page, 10);
@@ -137,9 +139,14 @@ const roomTypeCon = {
       // Đếm tổng số bản ghi phù hợp
       const total = await RoomTypeModel.countDocuments(query);
 
+      // Xác định sort object
+      const sortOrder = order === "asc" ? 1 : -1;
+      const sortObj = {};
+      sortObj[sort] = sortOrder;
+
       // Lấy dữ liệu loại phòng
       let roomTypes = await RoomTypeModel.find(query)
-        .sort({ _id: -1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(limitNumber)
         .populate([
@@ -200,6 +207,8 @@ const roomTypeCon = {
         minPrice,
         maxPrice,
         amenity,
+        sort = "_id", // default sort by _id
+        order = "desc", // default order desc
       } = req.query;
 
       const pageNumber = parseInt(page, 10);
@@ -228,9 +237,14 @@ const roomTypeCon = {
       // Đếm tổng số bản ghi phù hợp
       const total = await RoomTypeModel.countDocuments(query);
 
+      // Xác định sort object
+      const sortOrder = order === "asc" ? 1 : -1;
+      const sortObj = {};
+      sortObj[sort] = sortOrder;
+
       // Lấy dữ liệu loại phòng
       let roomTypes = await RoomTypeModel.find(query)
-        .sort({ _id: -1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(limitNumber)
         .populate([

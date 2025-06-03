@@ -72,7 +72,7 @@ const roomTypeMainCon = {
       const query = {};
       if (search && search.trim() !== "") {
         query.$or = [
-          { TenND: { $regex: search, $options: "i" } },
+          { TenLP: { $regex: search, $options: "i" } },
           { MoTa: { $regex: search, $options: "i" } },
         ];
       }

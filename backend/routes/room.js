@@ -1,20 +1,36 @@
-// const router = require("express").Router();
+const router = require("express").Router();
+const roomCon = require("../controllers/roomCon");
+const middlewareCon = require("../controllers/middlewareCon");
 
-// const roomCon = require("../controllers/roomCon");
+// === LẤY DANH SÁCH PHÒNG ===
+router.get(
+  "/",
+  middlewareCon.authorizeRoles("admin", "receptionist"),
+  roomCon.getAllRooms
+);
 
-// // Thêm phòng mới
-// router.post("/", roomCon.addRoom);
+// === LẤY PHÒNG THEO ID ===
+router.get(
+  "/:id",
+  middlewareCon.authorizeRoles("admin", "receptionist"),
+  roomCon.getRoomById
+);
 
-// // Lấy tất cả phòng
-// router.get("/", roomCon.getAllRoom);
+// === THÊM PHÒNG ===
+router.post("/", middlewareCon.authorizeRoles("admin"), roomCon.addRoom);
 
-// // Lấy phòng theo ID
-// router.get("/:id", roomCon.getRoomById);
+// === CẬP NHẬT THÔNG TIN PHÒNG ===
+router.put(
+  "/:id",
+  middlewareCon.authorizeRoles("admin", "receptionist"),
+  roomCon.updateRoom
+);
 
-// // Cập nhật phòng
-// router.put("/:id", roomCon.updateRoom);
+// === XÓA PHÒNG ===
+router.delete(
+  "/:id",
+  middlewareCon.authorizeRoles("admin"),
+  roomCon.deleteRoom
+);
 
-// // Xóa phòng
-// router.delete("/:id", roomCon.deleteRoom);
-
-// module.exports = router;
+module.exports = router;
