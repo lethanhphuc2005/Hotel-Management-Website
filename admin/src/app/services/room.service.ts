@@ -9,9 +9,15 @@ import { Observable } from 'rxjs';
 })
 export class RoomService {
   url = `http://127.0.0.1:8000/v1`
-constructor(private httpClient: HttpClient) { }
-getAllRooms(): Observable<Room[]> {
-  return this.httpClient.get<Room[]>(`${this.url}/room`);
-}
-
+  apiUrl: any;
+  http: any;
+  constructor(private httpClient: HttpClient) { }
+  getAllRooms(): Observable<Room[]> {
+    return this.httpClient.get<Room[]>(`${this.url}/room`);
   }
+
+  addRoom(roomData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/rooms`, roomData);
+  }
+
+}

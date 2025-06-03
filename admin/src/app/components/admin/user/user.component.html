@@ -1,0 +1,30 @@
+<div class="user-management-card">
+  <h2>Quản lí khách hàng</h2>
+
+  <!-- Header bảng -->
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên</div>
+    <div>Email</div>
+    <div>Điện thoại</div>
+    <div>Địa chỉ</div>
+    <div>Ghi chú</div>
+    <div>Trạng thái</div>
+  </div>
+
+  <!-- Dòng dữ liệu -->
+  <div *ngFor="let user of users; let i = index" class="table-row">
+    <div>{{ i + 1 }}</div> <!-- STT -->
+    <div>{{ user.TenKH }}</div>
+    <div>{{ user.Email }}</div>
+    <div>{{ user.SoDT }}</div>
+    <div>{{ user.DiaChi }}</div>
+    <div>{{ user.YeuCau_DB || '—' }}</div>
+    <div class="status-toggle">
+      <label class="switch">
+        <input type="checkbox" [checked]="user.isActive" (change)="toggleUserStatus(user)" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+</div>

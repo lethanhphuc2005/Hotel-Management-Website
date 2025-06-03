@@ -1,0 +1,146 @@
+<body>
+  <div class="container" [ngClass]="{ 'show-register': isRegister }" id="mainContainer">
+    <!-- Login form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <div class="form-container login">
+        <h2>Đăng nhập</h2>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+                 type="text"
+                 name="Email"
+                 id="Email"
+                 formControlName="Email"
+                 class="form-control"
+                 placeholder="Nhập email"
+                 aria-describedby="namehelpId"
+                 />
+
+              <div *ngIf="!loginForm.get('Email')?.valid && loginForm.get('Email')?.touched">
+                <div class="text-danger alert-dismissible fade show" role="alert">
+                  <strong>Email </strong> không hợp lệ
+                </div>
+              </div>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input
+                 type="password"
+                 name="MatKhau"
+                 id="password"
+                 formControlName="MatKhau"
+                 class="form-control"
+                 placeholder="Nhập mật khẩu"
+                 aria-describedby="namehelpId"
+                 />
+
+                <div *ngIf="!loginForm.get('MatKhau')?.valid && loginForm.get('MatKhau')?.touched">
+                  <div class="text-danger">Mật khẩu tối thiểu 6 ký tự.</div>
+                </div>
+        </div>
+        <button type="submit" class="btn">Đăng nhập</button>
+      </div>
+    </form>
+
+    <!-- Register form -->
+    <form [formGroup]="registerF" (ngSubmit)="onRegister()">
+      <div class="form-container register">
+        <h2>Tạo tài khoản</h2>
+        <div class="form-group">
+          <label>Tên đăng nhập</label>
+          <input
+                 type="text"
+                 name="name"
+                 id="name"
+                 formControlName="name"
+                 class="form-control"
+                 placeholder=""
+                 aria-describedby="namehelpId"
+                 />
+                <div *ngIf="!registerF.get('name')?.valid && registerF.get('name')?.touched">
+                  <div class="text-danger">Tên đăng nhâp tối thiểu 6 ký tự.</div>
+                </div>
+        </div>
+        <div class="form-group">
+          <label>Họ và Tên</label>
+          <input
+                 type="text"
+                 name="fullname"
+                 id="fullname"
+                 formControlName="fullname"
+                 class="form-control"
+                 placeholder=""
+                 aria-describedby="namehelpId"
+                 />
+
+                <div *ngIf="!registerF.get('fullname')?.valid && registerF.get('fullname')?.touched">
+                  <div class="text-danger">Họ Và Tên không được rỗng.</div>
+                </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+                 type="text"
+                 name="email"
+                 id="email"
+                 formControlName="email"
+                 class="form-control"
+                 placeholder=""
+                 aria-describedby="namehelpId"
+                 />
+
+              <div *ngIf="!registerF.get('email')?.valid && registerF.get('email')?.touched">
+                <div class="text-danger alert-dismissible fade show" role="alert">
+                  <strong>Email </strong> không hợp lệ
+                </div>
+              </div>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input
+                 type="password"
+                 name="password"
+                 id="password"
+                 formControlName="password"
+                 class="form-control"
+                 placeholder=""
+                 aria-describedby="namehelpId"
+                 />
+
+                <div *ngIf="!registerF.get('password')?.valid && registerF.get('password')?.touched">
+                  <div class="text-danger">Mật khẩu tối thiểu 6 ký tự.</div>
+                </div>
+        </div>
+        <div class="form-group">
+          <label>Nhập lại mật khẩu</label>
+          <input
+          type="password"
+          name="rePassword"
+          id="rePassword"
+          formControlName="rePassword"
+          class="form-control"
+          placeholder=""
+          aria-describedby="namehelpId"
+          />
+        </div>
+        <div *ngIf="registerF.hasError('mismatch') && registerF.get('rePassword')?.touched">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Mật khẩu không khớp.
+          </div>
+        </div>
+        <button type="submit" class="btn">Tạo tài khoản</button>
+      </div>
+    </form>
+
+    <!-- Panel chuyển đổi -->
+    <div class="panel-container" id="panelContainer">
+      <h2>Chào bạn 👋</h2>
+      <p *ngIf="!isActive">Bạn chưa có tài khoản?</p>
+      <p *ngIf="isActive">Bạn đã có tài khoản?</p>
+      <button class="toggle-btn" (click)="toggleForm()">
+        {{ isActive ? 'Đăng nhập' : 'Tạo tài khoản' }}
+      </button>
+    </div>
+  </div>
+
+</body>

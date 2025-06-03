@@ -1,0 +1,161 @@
+.user-management-card {
+  background: white;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-width: 100%;
+  margin: auto;
+  margin-left: 45px;
+  margin-right: 24px;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .table-header,
+  .table-row {
+    display: grid;
+    grid-template-columns: 70px repeat(6, 1fr);
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+  }
+
+  .table-header > div,
+  .table-row > div {
+    padding: 8px 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
+
+  /* Nếu cột ĐIỆN THOẠI muốn căn trái */
+  .table-header > div:nth-child(3),
+  .table-row > div:nth-child(3) {
+    text-align: left;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+
+    button {
+      padding: 4px 8px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:first-child {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      &:last-child {
+        background-color: #2a2f5b;
+        color: white;
+      }
+    }
+  }
+
+  // Phần form chỉnh sửa user (commented out)
+  .edit-form {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 12px;
+    max-width: 1000px;
+    margin: 20px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+    h4 {
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px 12px;
+
+      label {
+        display: flex;
+        flex-direction: column;
+        font-size: 13px;
+        color: #333;
+
+        input {
+          margin-top: 2px;
+          padding: 3px 6px;
+          font-size: 13px;
+          height: 26px;
+          border: 1px solid #ccc;
+          border-radius: 3px;
+          outline: none;
+
+          &:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 3px rgba(76,175,80,0.5);
+          }
+        }
+      }
+    }
+  }
+
+  // CSS cho toggle switch nút trạng thái
+  .status-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: red;
+      transition: 0.4s;
+      border-radius: 34px;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+    }
+
+    input:checked + .slider {
+      background-color: #4caf50;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+  }
+}
