@@ -1,20 +1,35 @@
 const router = require("express").Router();
-
 const serviceCon = require("../controllers/serviceCon");
+const middlewareCon = require("../controllers/middlewareCon");
 
-// Thêm dịch vụ
-router.post("/", serviceCon.addService);
+// === LẤY DANH SÁCH DỊCH VỤ ===
+router.get(
+  "/",
+  middlewareCon.authorizeRoles("admin", "receptionist"),
+  serviceCon.getAllServices
+);
 
-// Lấy tất cả dịch vụ
-router.get("/", serviceCon.getAllService);
+// === LẤY DANH SÁCH DỊCH VỤ CHO USER ===
+router.get("/user", serviceCon.getAllServicesForUser);
 
-// Lấy dịch vụ theo ID
-router.get("/:id", serviceCon.getAnService);
+// === LẤY DỊCH VỤ THEO ID ===
+router.get("/:id", serviceCon.getServiceById);
 
-// Cập nhật dịch vụ
-router.put("/:id", serviceCon.updateService);
+// === THÊM DỊCH VỤ ===
+router.post("/", middlewareCon.authorizeRoles("admin"), serviceCon.addService);
 
-// Xóa dịch vụ
-router.delete("/:id", serviceCon.deleteService);
+// === CẬP NHẬT DỊCH VỤ ===
+router.put(
+  "/:id",
+  middlewareCon.authorizeRoles("admin"),
+  serviceCon.updateService
+);
+
+// === XÓA DỊCH VỤ ===
+router.delete(
+  "/:id",
+  middlewareCon.authorizeRoles("admin"),
+  serviceCon.deleteService
+);
 
 module.exports = router;

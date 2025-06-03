@@ -87,7 +87,7 @@ const roomCon = {
         message: "Lấy danh sách phòng thành công",
         data: rooms,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),

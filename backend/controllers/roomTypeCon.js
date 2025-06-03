@@ -112,8 +112,6 @@ const roomTypeCon = {
         order = "desc", // default order desc
       } = req.query;
 
-      const pageNumber = parseInt(page, 10);
-      const limitNumber = parseInt(limit, 10);
       const skip = (pageNumber - 1) * limitNumber;
 
       // Điều kiện tìm kiếm
@@ -183,10 +181,10 @@ const roomTypeCon = {
         message: "Lấy tất cả loại phòng thành công",
         data: filteredRoomTypes,
         pagination: {
-          total,
-          page: pageNumber,
-          limit: limitNumber,
-          totalPages: Math.ceil(total / limitNumber),
+          total: total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {
@@ -287,10 +285,10 @@ const roomTypeCon = {
         message: "Lấy tất cả loại phòng thành công",
         data: filteredRoomTypes,
         pagination: {
-          total,
-          page: pageNumber,
-          limit: limitNumber,
-          totalPages: Math.ceil(total / limitNumber),
+          total: total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {

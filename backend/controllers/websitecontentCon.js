@@ -95,7 +95,7 @@ const websiteContentCon = {
         message: "Lấy tất cả nội dung website thành công",
         data: websiteContents,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),
@@ -160,7 +160,7 @@ const websiteContentCon = {
         message: "Lấy tất cả nội dung website thành công",
         data: websiteContents,
         pagination: {
-          total,
+          total: total,
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),
