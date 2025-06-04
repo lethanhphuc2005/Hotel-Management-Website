@@ -112,8 +112,6 @@ const roomTypeCon = {
         order = "desc", // default order desc
       } = req.query;
 
-      const skip = (pageNumber - 1) * limitNumber;
-
       // Điều kiện tìm kiếm
       const query = {};
       if (search && search.trim() !== "") {
@@ -145,8 +143,8 @@ const roomTypeCon = {
       // Lấy dữ liệu loại phòng
       let roomTypes = await RoomTypeModel.find(query)
         .sort(sortObj)
-        .skip(skip)
-        .limit(limitNumber)
+        .skip((page - 1) * limit)
+        .limit(limit)
         .populate([
           { path: "LoaiPhong" },
           {
@@ -209,10 +207,6 @@ const roomTypeCon = {
         order = "desc", // default order desc
       } = req.query;
 
-      const pageNumber = parseInt(page, 10);
-      const limitNumber = parseInt(limit, 10);
-      const skip = (pageNumber - 1) * limitNumber;
-
       // Điều kiện tìm kiếm
       const query = { TrangThai: true }; // Chỉ lấy loại phòng đang hoạt động
       if (search && search.trim() !== "") {
@@ -243,8 +237,8 @@ const roomTypeCon = {
       // Lấy dữ liệu loại phòng
       let roomTypes = await RoomTypeModel.find(query)
         .sort(sortObj)
-        .skip(skip)
-        .limit(limitNumber)
+        .skip((page - 1) * limit)
+        .limit(limit)
         .populate([
           {
             path: "LoaiPhong",
