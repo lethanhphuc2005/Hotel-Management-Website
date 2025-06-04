@@ -1,0 +1,46 @@
+<div class="roomtype-management-card">
+  <h2>Quản lý loại phòng</h2>
+  <div class="room-controls">
+    <input type="text" placeholder="Tìm kiếm loại phòng..." />
+    <button class="add-room" (click)="onAdd()">+ Thêm loại phòng</button>
+  </div>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên loại</div>
+    <div>Số giường</div>
+    <div>Giá phòng</div>
+    <div>Mô tả</div>
+    <div>Views</div>
+    <div>Tiện nghi</div>
+    <div>Hình ảnh</div>
+    <div>Hành động</div>
+  </div>
+
+  <div *ngFor="let rt of roomTypes; let i = index" class="table-row">
+    <div>{{ i + 1 }}</div>
+    <div>{{ rt.TenLPCT }}</div>
+    <div>{{ rt.SoGiuong }}</div>
+    <div>{{ rt.GiaPhong | number }} đ</div>
+    <div>{{ rt.MoTa }}</div>
+    <div>{{ rt.View }}</div>
+    <div>{{ getTienNghiNames(rt.TienNghi) }}</div>
+    <div class="image-list">
+      <img
+        *ngFor="let img of rt.HinhAnh"
+        [src]="'/assets/img/' + img"
+        alt="{{ rt.TenLPCT }}"
+      />
+    </div>
+    <div class="actions">
+      <label class="switch">
+        <input type="checkbox" [checked]="rt.HoatDong" (change)="onToggleStatus(rt)" />
+        <span class="slider round"></span>
+      </label>
+      <button class="icon-button" (click)="onEdit(rt)">
+        <i class="fas fa-pen"></i>
+      </button>
+
+    </div>
+  </div>
+</div>

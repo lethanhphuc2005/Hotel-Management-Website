@@ -1,0 +1,34 @@
+<div class="modal-backdrop" (click)="close()"></div>
+
+<!-- NGĂN sự kiện từ modal lan ra backdrop -->
+<div class="modal" (click)="$event.stopPropagation()">
+  <h3>Thêm phòng mới</h3>
+  <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
+    <label>
+      Tên phòng:
+      <input formControlName="TenPhong" />
+    </label>
+    <label>
+      Tầng:
+      <input type="number" formControlName="Tang" />
+    </label>
+    <label>
+      Mã loại phòng:
+      <select formControlName="MaLP">
+        <option *ngFor="let lp of roomTypes" [value]="lp._id">{{ lp.TenLP }}</option>
+      </select>
+    </label>
+    <label>
+      Trạng thái:
+      <select formControlName="TrangThai">
+        <option *ngFor="let s of statuses" [value]="s._id">{{ s.TenTT }}</option>
+      </select>
+    </label>
+
+    <div class="actions">
+      <button type="submit" [disabled]="roomForm.invalid">Lưu</button>
+      <button type="button" (click)="close()">Huỷ</button>
+    </div>
+  </form>
+</div>
+

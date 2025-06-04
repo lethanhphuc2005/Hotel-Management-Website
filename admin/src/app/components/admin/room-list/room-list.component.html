@@ -1,52 +1,50 @@
-<body>
-  <!-- Main content -->
-  <div class="main">
-    <!-- Content -->
-    <div class="content">
-      <!-- Danh sách phòng -->
-      <div class="room-list">
-        <div class="room-controls">
-          <input type="text" placeholder="Tìm kiếm phòng..." />
-          <select>
-            <option>Popular</option>
-            <option>Giá rẻ nhất</option>
-            <option>Tất cả</option>
-          </select>
-          <button class="add-room">+ Thêm Phòng</button>
-        </div>
+<div class="room-management user-management-card">
+  <h2>Quản lý phòng</h2>
 
-        <div class="rooms">
-          <!-- Duyệt danh sách phòng -->
-          <div
-            class="room-item"
-            *ngFor="let room of rooms"
-            (click)="onSelectRoom(room)"
-          >
-            <img [src]="room.image || 'img/phong1.jpg'" />
-            <div class="info">
-              <h5>{{ room.name }}</h5>
-              <p>{{ room.description }}</p>
-              <div class="price">VND {{ room.price | number : "1.0-0" }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- Controls -->
+  <div class="room-controls">
+    <input type="text" placeholder="Tìm kiếm phòng..." />
+    <button class="add-room" (click)="openAddPopup()">+ Thêm Phòng</button>
+    <app-room-add *ngIf="showAddPopup" (added)="onAdded()" (closed)="onClosed()">
+    </app-room-add>
+  </div>
 
-      <!-- Chi tiết phòng -->
-      <!-- Chi tiết phòng -->
+  <!-- Table Header -->
+  <div class="table-header">
+    <div>STT</div>
+    <div>TÊN PHÒNG</div>
+    <div>TẦNG</div>
+    <div>TRẠNG THÁI</div>
+    <div>SỐ GIƯỜNG</div>
+    <div>GIÁ</div>
+    <div>MÔ TẢ</div>
+    <div>TIỆN NGHI</div>
+    <div>HÀNH ĐỘNG</div>
+  </div>
 
-      <!-- Chi tiết phòng -->
-      <div class="room-detail" *ngIf="selectedRoom">
-        <h5>{{ selectedRoom.name }}</h5>
-        <img [src]="selectedRoom.image || 'img/phong1.jpg'" />
-        <p>{{ selectedRoom.description }}</p>
+  <!-- Table Row -->
+  <!-- Table Row -->
+  <div class="table-row" *ngFor="let room of rooms; let i = index">
+    <div>{{ i + 1 }}</div>
+    <div>{{ room.TenPhong }}</div>
+    <div>{{ room.Tang }}</div>
+    <div>{{ room.TrangThai.TenTT || 'Không rõ' }}</div>
+    <div>{{ room.MaLP.SoGiuong }}</div>
+    <div>{{ room.MaLP.GiaPhong | currency:'VND' }}</div>
+    <div>{{ room.MaLP.MoTa }}</div>
+    <div>{{ getTienNghiNames(room.MaLP.TienNghi) }}</div>
+    <div class="actions">
+      <!-- Switch Toggle -->
+      <label class="switch">
+        <input type="checkbox" [checked]="room.TrangThai.TenTT === 'Hoạt động'" (change)="toggleRoomStatus(room)">
+        <span class="slider"></span>
+      </label>
 
-        <!-- Nút chức năng -->
-        <div class="detail-actions">
-          <button class="edit-btn">✏️ Sửa</button>
-          <button class="delete-btn">🗑️ Xóa</button>
-        </div>
-      </div>
+      <!-- Edit icon -->
+      <button (click)="editRoom(room)" title="Sửa phòng">
+        <i class="fas fa-edit"></i>
+      </button>
     </div>
   </div>
-</body>
+
+</div>
