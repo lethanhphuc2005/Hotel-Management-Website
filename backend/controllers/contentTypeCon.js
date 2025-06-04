@@ -1,29 +1,30 @@
-const contentTypeModel = require("../models/contentTypeModel");
-const websiteContentModel = require("../models/websiteContentModel");
+const ContentType = require("../models/contentTypeModel");
+const WebsiteContent = require("../models/websiteContentModel");
 
 const contentTypeCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI NỘI DUNG ===
   validateContentType: async (contentTypeData, contentTypeId) => {
-    const { TenND, MoTa } = contentTypeData;
+    const { name, description } = contentTypeData;
     // Kiểm tra các trường bắt buộc
-    if (!TenND || !MoTa) {
+    if (!name || !description) {
       return {
         valid: false,
         message: "Vui lòng điền đầy đủ thông tin loại nội dung.",
       };
     }
     // Kiểm tra độ dài chuỗi
-    if (TenND.length > 100 || MoTa.length > 255) {
+    if (name.length > 100 || description.length > 255) {
       return { valid: false, message: "Tên hoặc mô tả loại nội dung quá dài." };
     }
     // Kiểm tra trùng tên
-    const existing = await contentTypeModel.findOne({ TenND });
+    const existing = await ContentType.findOne({ name });
     if (
       existing &&
       (!contentTypeId || existing._id.toString() !== contentTypeId.toString())
     ) {
       return { valid: false, message: "Tên loại nội dung đã tồn tại." };
     }
+
     return { valid: true };
   },
 
@@ -34,7 +35,7 @@ const contentTypeCon = {
         search = "",
         page = 1,
         limit = 10,
-        sort = "_id",
+        sort = "createdAt",
         order = "desc",
         status, // Thêm tham số lọc trạng thái
       } = req.query;
@@ -43,23 +44,22 @@ const contentTypeCon = {
       const query = {};
       if (search) {
         query.$or = [
-          { TenND: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
       // Lọc theo trạng thái nếu có
       if (typeof status !== "undefined") {
         // Chấp nhận cả true/false dạng string
-        if (status === "true" || status === true) query.TrangThai = true;
-        else if (status === "false" || status === false)
-          query.TrangThai = false;
+        if (status === "true" || status === true) query.status = true;
+        else if (status === "false" || status === false) query.status = false;
       }
 
       // Sắp xếp
       const sortOption = {};
-      // Nếu sort là 'TrangThai', sắp xếp theo trạng thái
-      if (sort === "TrangThai") {
-        sortOption.TrangThai = order === "asc" ? 1 : -1;
+      // Nếu sort là 'status', sắp xếp theo trạng thái
+      if (sort === "status") {
+        sortOption.status = order === "asc" ? 1 : -1;
       } else {
         sortOption[sort] = order === "asc" ? 1 : -1;
       }
@@ -68,14 +68,13 @@ const contentTypeCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [contentTypes, total] = await Promise.all([
-        contentTypeModel
-          .find(query)
-          .populate("DanhSachNoiDungWebsite")
+        ContentType.find(query)
+          .populate("website_content_list")
           .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
           .exec(),
-        contentTypeModel.countDocuments(query),
+        ContentType.countDocuments(query),
       ]);
 
       if (!contentTypes || contentTypes.length === 0) {
@@ -105,16 +104,16 @@ const contentTypeCon = {
         search = "",
         page = 1,
         limit = 10,
-        sort = "_id",
+        sort = "createdAt",
         order = "desc",
       } = req.query;
 
       // Tạo bộ lọc tìm kiếm
-      const query = { TrangThai: true };
+      const query = { status: true };
       if (search) {
         query.$or = [
-          { TenND: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
@@ -126,19 +125,18 @@ const contentTypeCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [contentTypes, total] = await Promise.all([
-        contentTypeModel
-          .find(query)
-          .select("-TrangThai") // Không trả về trường TrangThai cho người dùng
+        ContentType.find(query)
+          .select("-status -createdAt -updatedAt") // Loại bỏ các trường không cần thiết
           .populate({
-            path: "DanhSachNoiDungWebsite",
-            match: { TrangThai: true }, // Chỉ lấy nội dung đang hoạt động
-            select: "-TrangThai", // Không trả về trường TrangThai của nội dung
+            path: "website_content_list",
+            match: { status: true },
+            select: "-status -createdAt -updatedAt",
           })
           .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
           .exec(),
-        contentTypeModel.countDocuments(query),
+        ContentType.countDocuments(query),
       ]);
 
       if (!contentTypes || contentTypes.length === 0) {
@@ -164,9 +162,8 @@ const contentTypeCon = {
   // === LẤY LOẠI NỘI DUNG THEO ID ===
   getContentTypeById: async (req, res) => {
     try {
-      const contentType = await contentTypeModel
-        .findById(req.params.id)
-        .populate("DanhSachNoiDungWebsite")
+      const contentType = await ContentType.findById(req.params.id)
+        .populate("website_content_list")
         .exec();
       if (!contentType) {
         return res
@@ -185,7 +182,7 @@ const contentTypeCon = {
   // === THÊM LOẠI NỘI DUNG MỚI ===
   addContentType: async (req, res) => {
     try {
-      const newContentType = new contentTypeModel(req.body);
+      const newContentType = new ContentType(req.body);
       // Validate content type data
       const validation = await contentTypeCon.validateContentType(
         newContentType
@@ -207,9 +204,7 @@ const contentTypeCon = {
   // === CẬP NHẬT LOẠI NỘI DUNG ===
   updateContentType: async (req, res) => {
     try {
-      const contentTypeToUpdate = await contentTypeModel.findById(
-        req.params.id
-      );
+      const contentTypeToUpdate = await ContentType.findById(req.params.id);
       if (!contentTypeToUpdate) {
         return res
           .status(404)
@@ -246,9 +241,7 @@ const contentTypeCon = {
   // === XÓA LOẠI NỘI DUNG ===
   deleteContentType: async (req, res) => {
     try {
-      const contentTypeToDelete = await contentTypeModel.findById(
-        req.params.id
-      );
+      const contentTypeToDelete = await ContentType.findById(req.params.id);
       if (!contentTypeToDelete) {
         return res
           .status(404)
@@ -256,8 +249,8 @@ const contentTypeCon = {
       }
 
       // Kiểm tra xem loại nội dung có nội dung liên quan không
-      const relatedContents = await websiteContentModel.find({
-        MaND: req.params.id,
+      const relatedContents = await WebsiteContent.find({
+        content_type_id: req.params.id,
       });
       if (relatedContents.length > 0) {
         return res.status(400).json({

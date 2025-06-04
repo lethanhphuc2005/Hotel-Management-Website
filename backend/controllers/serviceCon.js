@@ -1,32 +1,32 @@
-const ServiceModel = require("../models/serviceModel");
+const Service = require("../models/serviceModel");
 
 const serviceCon = {
   // === KIỂM TRA ĐIỀU KIỆN DỊCH VỤ ===
   validateService: async (serviceData, serviceId) => {
-    const { TenDV, GiaDV, MoTa, HinhAnh } = serviceData;
+    const { name, price, description, image } = serviceData;
 
-    if (!TenDV || !GiaDV || !MoTa || !HinhAnh) {
+    if (!name || !price || !description || !image) {
       return {
         valid: false,
         message: "Thiếu thông tin dịch vụ",
       };
     }
 
-    if (typeof TenDV !== "string" || typeof MoTa !== "string") {
+    if (typeof name !== "string" || typeof description !== "string") {
       return {
         valid: false,
         message: "Tên dịch vụ và mô tả phải là chuỗi",
       };
     }
 
-    if (GiaDV < 0) {
+    if (price < 0) {
       return {
         valid: false,
         message: "Giá dịch vụ không được nhỏ hơn 0",
       };
     }
 
-    if (TenDV.length > 100 || MoTa.length > 500) {
+    if (name.length > 100 || description.length > 500) {
       return {
         valid: false,
         message: "Tên hoặc mô tả dịch vụ quá dài",
@@ -34,7 +34,7 @@ const serviceCon = {
     }
 
     // Kiểm tra tên dịch vụ có bị trùng không
-    const existingService = await ServiceModel.findOne({ TenDV });
+    const existingService = await Service.findOne({ name });
     if (
       existingService &&
       (!serviceId || existingService._id.toString() !== serviceId.toString())
@@ -52,7 +52,7 @@ const serviceCon = {
         page = 1,
         limit = 10,
         search = "",
-        sort = "GiaDV",
+        sort = "price",
         order = "desc",
         status,
       } = req.query;
@@ -60,26 +60,31 @@ const serviceCon = {
       const query = {};
       if (search) {
         query.$or = [
-          { TenDV: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
       // Lọc theo trạng thái nếu có
       if (typeof status !== "undefined") {
         // Chấp nhận cả true/false dạng string
-        if (status === "true" || status === true) query.TrangThai = true;
-        else if (status === "false" || status === false)
-          query.TrangThai = false;
+        if (status === "true" || status === true) query.status = true;
+        else if (status === "false" || status === false) query.status = false;
       }
 
-      const sortObj = {};
-      sortObj[sort] = order === "asc" ? 1 : -1;
+      const sortOption = {};
+      // Nếu sort là 'status', sắp xếp theo trạng thái
+      if (sort === "status") {
+        sortOption.status = order === "asc" ? 1 : -1;
+      } else {
+        sortOption[sort] = order === "asc" ? 1 : -1;
+      }
 
-      const total = await ServiceModel.countDocuments(query);
-      const services = await ServiceModel.find(query)
-        .sort(sortObj)
-        .skip((page - 1) * limit)
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const total = await Service.countDocuments(query);
+      const services = await Service.find(query)
+        .sort(sortOption)
+        .skip(skip)
         .limit(limit);
 
       if (!services || services.length === 0) {
@@ -108,26 +113,27 @@ const serviceCon = {
         page = 1,
         limit = 10,
         search = "",
-        sort = "GiaDV",
+        sort = "price",
         order = "desc",
       } = req.query;
 
-      const query = { TrangThai: true }; // Chỉ lấy dịch vụ đang hoạt động
+      const query = { status: true }; // Chỉ lấy dịch vụ đang hoạt động
       if (search) {
         query.$or = [
-          { TenDV: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
       const sortObj = {};
       sortObj[sort] = order === "asc" ? 1 : -1;
 
-      const total = await ServiceModel.countDocuments(query);
-      const services = await ServiceModel.find(query)
-        .select("-TrangThai") // Không trả về trường TrangThai cho người dùng
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const total = await Service.countDocuments(query);
+      const services = await Service.find(query)
+        .select("-status -createdAt -updatedAt") 
         .sort(sortObj)
-        .skip((page - 1) * limit)
+        .skip(skip)
         .limit(limit);
 
       if (!services || services.length === 0) {
@@ -152,7 +158,7 @@ const serviceCon = {
   // === LẤY DỊCH VỤ THEO ID ===
   getServiceById: async (req, res) => {
     try {
-      const service = await ServiceModel.findById(req.params.id);
+      const service = await Service.findById(req.params.id);
       if (!service) {
         return res.status(404).json({ message: "Dịch vụ không tồn tại" });
       }
@@ -169,15 +175,18 @@ const serviceCon = {
   // === THÊM DỊCH VỤ MỚI ===
   addService: async (req, res) => {
     try {
-      const newService = new ServiceModel(req.body);
+      const newService = new Service(req.body);
       const validation = await serviceCon.validateService(newService);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
 
+      // Lưu dịch vụ mới
+      await newService.save();
+
       res.status(201).json({
         message: "Cập nhật phòng thành công",
-        data: updatedRoom,
+        data: newService,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -187,7 +196,7 @@ const serviceCon = {
   // === CẬP NHẬT DỊCH VỤ ===
   updateService: async (req, res) => {
     try {
-      const serviceToUpdate = await ServiceModel.findById(req.params.id);
+      const serviceToUpdate = await Service.findById(req.params.id);
       if (!serviceToUpdate) {
         return res.status(404).json({ message: "Dịch vụ không tồn tại" });
       }
@@ -205,7 +214,7 @@ const serviceCon = {
         return res.status(400).json({ message: validation.message });
       }
 
-      const updatedService = await ServiceModel.findByIdAndUpdate(
+      const updatedService = await Service.findByIdAndUpdate(
         req.params.id,
         updatedData,
         { new: true }
@@ -222,19 +231,19 @@ const serviceCon = {
   // === XÓA DỊCH VỤ ===
   deleteService: async (req, res) => {
     try {
-      const serviceToDelete = await ServiceModel.findById(req.params.id);
+      const serviceToDelete = await Service.findById(req.params.id);
       if (!serviceToDelete) {
         return res.status(404).json({ message: "Dịch vụ không tồn tại" });
       }
 
       // Kiểm tra xem dịch vụ có đang được sử dụng không
-      if (serviceToDelete.TrangThai) {
+      if (serviceToDelete.status) {
         return res.status(400).json({
           message: "Không thể xóa dịch vụ đang hoạt động",
         });
       }
 
-      await ServiceModel.findByIdAndDelete(req.params.id);
+      await Service.findByIdAndDelete(req.params.id);
       res.status(200).json({
         message: "Xóa dịch vụ thành công",
         data: serviceToDelete,

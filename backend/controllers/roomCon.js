@@ -1,22 +1,26 @@
-const RoomModel = require("../models/roomModel");
-const RoomTypeModel = require("../models/roomTypeModel");
-const StatusModel = require("../models/statusModel");
+const Room = require("../models/roomModel");
+const RoomClass = require("../models/roomClassModel");
+const { RoomStatus } = require("../models/statusModel");
 
 const roomCon = {
   // === KIỂM TRA ĐIỀU KIỆN PHÒNG ===
   validateRoom: async (roomData, roomId) => {
-    const { Tang, TenPhong, MaLP, MaTT } = roomData;
+    const { floor, name, room_class_id, room_status_id } = roomData;
 
-    if (!Tang || !TenPhong || !MaLP || !MaTT) {
+    if (!floor || !name || !room_class_id || !room_status_id) {
       return { valid: false, message: "Vui lòng điền đầy đủ thông tin phòng" };
     }
 
-    if (typeof Tang !== "string" || typeof TenPhong !== "string") {
+    if (typeof name !== "string") {
       return { valid: false, message: "Tầng và tên phòng phải là chuỗi" };
     }
 
+    if (typeof floor !== "number" || floor < 1) {
+      return { valid: false, message: "Tầng phải là số nguyên dương" };
+    }
+
     // Kiểm tra xem tên phòng đã tồn tại hay chưa
-    const existing = await RoomModel.findOne({ TenPhong });
+    const existing = await Room.findOne({ name });
     if (
       existing &&
       (!roomId || existing._id.toString() !== roomId.toString())
@@ -25,12 +29,12 @@ const roomCon = {
     }
 
     // Kiểm tra xem loại phòng và trạng thái có tồn tại trong cơ sở dữ liệu không
-    const roomTypeExists = await RoomTypeModel.findById(MaLP);
+    const roomTypeExists = await RoomClass.findById(room_class_id);
     if (!roomTypeExists) {
       return { valid: false, message: "Loại phòng không tồn tại." };
     }
 
-    const statusExists = await StatusModel.findById(MaTT);
+    const statusExists = await RoomStatus.findById(room_status_id);
     if (!statusExists) {
       return { valid: false, message: "Trạng thái không tồn tại." };
     }
@@ -45,7 +49,7 @@ const roomCon = {
         search = "",
         limit = 10,
         page = 1,
-        sort = "TenPhong",
+        sort = "createdAt",
         order = "asc",
         status,
         type,
@@ -56,32 +60,39 @@ const roomCon = {
       // Tìm kiếm theo tên phòng (không phân biệt hoa thường)
       if (search) {
         query.$or = [
-          { TenPhong: { $regex: search, $options: "i" } },
-          { Tang: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { floor: { $regex: search, $options: "i" } },
         ];
       }
 
       // Lọc theo trạng thái
       if (status) {
-        query.MaTT = status;
+        query.room_status_id = status;
       }
 
       // Lọc theo loại phòng
       if (type) {
-        query.MaLP = type;
+        query.room_class_id = type;
       }
 
-      // Sắp xếp
       const sortOption = {};
-      sortOption[sort] = order === "desc" ? -1 : 1;
+      // Nếu sort là 'status', sắp xếp theo trạng thái
+      if (sort === "status") {
+        sortOption.status = order === "asc" ? 1 : -1;
+      } else {
+        sortOption[sort] = order === "asc" ? 1 : -1;
+      }
 
-      const rooms = await RoomModel.find(query)
-        .populate([{ path: "LoaiPhong" }, { path: "TrangThai" }])
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const rooms = await Room.find(query)
+        .populate([{ path: "room_class" }, { path: "status" }])
         .sort(sortOption)
-        .skip((parseInt(page) - 1) * parseInt(limit))
-        .limit(parseInt(limit));
+        .skip(skip)
+        .limit(parseInt(limit))
+        .exec();
 
-      const total = await RoomModel.countDocuments(query);
+      const total = await Room.countDocuments(query);
 
       res.status(200).json({
         message: "Lấy danh sách phòng thành công",
@@ -102,9 +113,9 @@ const roomCon = {
   getRoomById: async (req, res) => {
     const roomId = req.params.id;
     try {
-      const room = await RoomModel.findById(roomId).populate([
-        { path: "LoaiPhong" },
-        { path: "TrangThai" },
+      const room = await Room.findById(roomId).populate([
+        { path: "room_class" },
+        { path: "status" },
       ]);
       if (!room) {
         return res.status(404).json({ message: "Không tìm thấy phòng" });
@@ -121,7 +132,7 @@ const roomCon = {
   // === THÊM MỚI PHÒNG ===
   addRoom: async (req, res) => {
     try {
-      const newRoom = new RoomModel(req.body);
+      const newRoom = new Room(req.body);
       const validation = await roomCon.validateRoom(newRoom);
 
       if (!validation.valid) {
@@ -141,7 +152,7 @@ const roomCon = {
   // === CẬP NHẬT THÔNG TIN PHÒNG ===
   updateRoom: async (req, res) => {
     try {
-      const roomToUpdate = await RoomModel.findById(req.params.id);
+      const roomToUpdate = await Room.findById(req.params.id);
       if (!roomToUpdate) {
         return res.status(404).json({ message: "Không tìm thấy phòng" });
       }
@@ -150,15 +161,16 @@ const roomCon = {
         Object.keys(req.body).length === 0
           ? roomToUpdate.toObject()
           : { ...roomToUpdate.toObject(), ...req.body };
+
       const validation = await roomCon.validateRoom(updatedData, req.params.id);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
 
       await roomToUpdate.updateOne(updatedData);
-      const updatedRoom = await RoomModel.findById(req.params.id).populate([
-        { path: "LoaiPhong" },
-        { path: "TrangThai" },
+      const updatedRoom = await Room.findById(req.params.id).populate([
+        { path: "room_class" },
+        { path: "status" },
       ]);
       res.status(200).json({
         message: "Cập nhật phòng thành công",
@@ -172,7 +184,7 @@ const roomCon = {
   // === XÓA PHÒNG ===
   deleteRoom: async (req, res) => {
     try {
-      const roomToDelete = await RoomModel.findById(req.params.id);
+      const roomToDelete = await Room.findById(req.params.id);
       if (!roomToDelete) {
         return res.status(404).json({ message: "Không tìm thấy phòng" });
       }

@@ -5,18 +5,19 @@ const dotenv = require("dotenv");
 
 const roomRouter = require("./routes/room");
 const authRouter = require("./routes/auth");
-const roomTypeMainRouter = require("./routes/roomTypeMain");
-const roomTypeRouter = require("./routes/roomType");
+const mainRoomClassRouter = require("./routes/mainRoomClass");
+const roomClassRouter = require("./routes/roomClass");
 const accountRouter = require("./routes/account");
 const userRouter = require("./routes/user");
 const websiteContentRouter = require("./routes/websiteContent");
 const serviceRouter = require("./routes/service");
 const imgroomtypeRouter = require("./routes/image");
-const statusRouter = require("./routes/status");
-const employerRouter = require("./routes/employer");
+const roomStatusRouter = require("./routes/roomStatus");
+const bookingStatusRouter = require("./routes/bookingStatus");
+const employeeRouter = require("./routes/employee");
 const discountRouter = require("./routes/discount");
 const contentTypeRouter = require("./routes/contentType");
-const amenityRouter = require("./routes/amenity");
+const featureRouter = require("./routes/feature");
 
 dotenv.config();
 
@@ -42,17 +43,18 @@ mongoose
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/v1/auth", authRouter);
 app.use("/v1/room", roomRouter);
-app.use("/v1/room-type-main", roomTypeMainRouter);
-app.use("/v1/room-type", roomTypeRouter);
+app.use("/v1/main-room-class", mainRoomClassRouter);
+app.use("/v1/room-class", roomClassRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/account", accountRouter);
 app.use("/v1/website-content", websiteContentRouter);
 app.use("/v1/service", serviceRouter);
 app.use("/v1/image", imgroomtypeRouter);
-app.use("/v1/status", statusRouter);
-app.use("/v1/employer", employerRouter);
+app.use("/v1/room-status", roomStatusRouter);
+app.use("/v1/booking-status", bookingStatusRouter);
+app.use("/v1/employee", employeeRouter);
 app.use("/v1/discount", discountRouter);
 app.use("/v1/content-type", contentTypeRouter);
-app.use("/v1/amenity", amenityRouter);
+app.use("/v1/feature", featureRouter);
 
 app.listen(8000, () => {});

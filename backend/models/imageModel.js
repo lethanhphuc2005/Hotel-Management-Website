@@ -2,20 +2,25 @@ const mongoose = require("mongoose");
 
 const ImageSchema = new mongoose.Schema(
   {
-    HinhAnh: {
-      type: String,
-      required: true,
-    },
-    MaLP: {
+    room_class_id: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "Loai", // Tên model bạn dùng để lưu loại phòng
-    },
-    Loai: {
-      type: String,
-      enum: ["roomTypeMain", "roomType"], // Chỉ cho phép các giá trị này
+      refPath: "room_class",
       required: true,
     },
-    TrangThai: {
+    url: {
+      type: String,
+      required: true,
+      default: "",
+      trim: true,
+    },
+    target: {
+      type: String,
+      enum: ["main_room_class", "room_class"],
+      required: true,
+      default: "",
+      trim: true,
+    },
+    status: {
       type: Boolean,
       default: false,
       required: true,
@@ -24,22 +29,21 @@ const ImageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-ImageSchema.virtual("LoaiPhong", {
-  ref: (doc) => doc.Loai, // ref động
-  localField: "MaLP",
+ImageSchema.virtual("room_class", {
+  ref: (doc) => doc.target,
+  localField: "room_class_id",
   foreignField: "_id",
-  justOne: true,
 });
 
 ImageSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    delete ret.id; // Xóa _id trước khi trả về kết quả
+    delete ret.id;
     return ret;
   },
 });
 
-const ImageModel = mongoose.model("image", ImageSchema, "hinhanh");
+const Image = mongoose.model("image", ImageSchema, "image");
 
-module.exports = ImageModel;
+module.exports = Image;

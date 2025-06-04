@@ -1,20 +1,69 @@
 const mongoose = require("mongoose");
 
-const StatusSchema = new mongoose.Schema(
+const RoomStatusSchema = new mongoose.Schema(
   {
-    TenTT: {
+    name: {
       type: String,
       required: true,
       maxlength: 100,
+      default: "",
+      trim: true,
     },
-    LoaiTT: {
-      type: String,
+    status: {
+      type: Boolean,
       required: true,
+      default: false,
     },
   },
   { timestamps: true }
 );
 
-const StatusModel = mongoose.model("status", StatusSchema, "trangthai");
+RoomStatusSchema.set("toJSON", {
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret.id;
+    return ret;
+  },
+});
 
-module.exports = StatusModel;
+const BookingStatusSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      maxlength: 100,
+      default: "",
+      trim: true,
+    },
+    status: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
+BookingStatusSchema.set("toJSON", {
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret.id;
+    return ret;
+  },
+});
+
+const RoomStatus = mongoose.model(
+  "room_status",
+  RoomStatusSchema,
+  "room_status"
+);
+const BookingStatus = mongoose.model(
+  "booking_status",
+  BookingStatusSchema,
+  "booking_status"
+);
+
+module.exports = {
+  RoomStatus,
+  BookingStatus,
+};

@@ -1,35 +1,35 @@
 const router = require("express").Router();
-const roomTypeCon = require("../controllers/roomTypeCon");
+const roomTypeCon = require("../controllers/roomClassCon");
 const middleware = require("../controllers/middlewareCon");
 
 // === LẤY TẤT CẢ LOẠI PHÒNG ===
 router.get(
   "/",
   middleware.authorizeRoles("admin", "receptionist"),
-  roomTypeCon.getAllRoomTypes
+  roomTypeCon.getAllRoomClasses
 );
 
 // === LẤY TẤT CẢ LOẠI PHÒNG CHO USER ===
-router.get("/user", roomTypeCon.getAllRoomTypesForUser);
+router.get("/user", roomTypeCon.getAllRoomClassesForUser);
 
 // === LẤY LOẠI PHÒNG THEO ID ===
-router.get("/:id", roomTypeCon.getRoomTypeById);
+router.get("/:id", roomTypeCon.getRoomClassById);
 
 // === THÊM LOẠI PHÒNG ===
-router.post("/", middleware.authorizeRoles("admin"), roomTypeCon.addRoomType);
+router.post("/", middleware.authorizeRoles("admin"), roomTypeCon.addRoomClass);
 
 // === CẬP NHẬT LOẠI PHÒNG ===
 router.put(
   "/:id",
   middleware.authorizeRoles("admin", "receptionist"),
-  roomTypeCon.updateRoomType
+  roomTypeCon.updateRoomClass
 );
 
 // === XÓA LOẠI PHÒNG ===
 router.delete(
   "/:id",
   middleware.authorizeRoles("admin"),
-  roomTypeCon.deleteRoomType
+  roomTypeCon.deleteRoomClass
 );
 
 module.exports = router;

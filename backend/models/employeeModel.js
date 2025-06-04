@@ -1,24 +1,36 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
+const EmployeeSchema = new mongoose.Schema(
   {
     first_name: {
       type: String,
       default: "",
+      maxlength: 50,
       trim: true,
-      maxlength: 100,
     },
     last_name: {
       type: String,
       default: "",
+      maxlength: 50,
       trim: true,
-      maxlength: 100,
+    },
+    position: {
+      type: String,
+      default: "",
+      maxlength: 50,
+      trim: true,
+    },
+    department: {
+      type: String,
+      default: "",
+      maxlength: 50,
+      trim: true,
     },
     address: {
       type: String,
       default: "",
+      maxlength: 100,
       trim: true,
-      maxlength: 255,
     },
     email: {
       type: String,
@@ -31,10 +43,6 @@ const UserSchema = new mongoose.Schema(
       },
       maxlength: 100,
       trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
     },
     phone_number: {
       type: String,
@@ -49,10 +57,13 @@ const UserSchema = new mongoose.Schema(
       maxlength: 15,
       trim: true,
     },
-    request: {
+    password: {
+      type: String,
+      required: true,
+    },
+    role: {
       type: String,
       default: "",
-      maxlength: 500,
       trim: true,
     },
     status: {
@@ -64,13 +75,14 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-UserSchema.set("toJSON", {
+EmployeeSchema.set("toJSON", {
   versionKey: false,
-  transform: (doc, ret) => {
-    delete ret.id;
-    return ret;
+  transform: function (doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.password;
   },
 });
 
-const User = mongoose.model("user", UserSchema, "user");
-module.exports = User;
+const Employee = mongoose.model("employee", EmployeeSchema, "employee");
+module.exports = Employee;

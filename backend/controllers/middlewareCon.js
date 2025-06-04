@@ -46,7 +46,8 @@ const middlewareCon = {
   authorizeSelfOnly: () => {
     return (req, res, next) => {
       middlewareCon.verifyToken(req, res, () => {
-        if (req.user.id === req.params.id) {
+        const user = req.user;
+        if (user.id && user.id === req.params.id) {
           next();
         } else {
           res.status(403).json("Chỉ chủ tài khoản mới được thao tác.");

@@ -2,30 +2,32 @@ const mongoose = require("mongoose");
 
 const ServiceSchema = new mongoose.Schema(
   {
-    TenDV: {
+    name: {
       type: String,
       required: true,
+      default: "",
+      trim: true,
       maxlength: 100,
     },
-    GiaDV: {
+    price: {
       type: Number,
       required: true,
       min: 0,
       default: 0,
     },
-    MoTa: {
+    description: {
       type: String,
-      required: true,
       maxlength: 500,
       default: "",
+      trim: true,
     },
-    HinhAnh: {
+    image: {
       type: String,
-      required: true,
       maxlength: 255,
       default: "",
+      trim: true,
     },
-    TrangThai: {
+    status: {
       type: Boolean,
       default: false,
       required: true,
@@ -34,9 +36,14 @@ const ServiceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-ServiceSchema.set("toJSON", { versionKey: false });
-ServiceSchema.set("toObject", { versionKey: false });
+ServiceSchema.set("toJSON", {
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret.id;
+    return ret;
+  },
+});
 
-const ServiceModel = mongoose.model("service", ServiceSchema, "dichvu");
+const Service = mongoose.model("service", ServiceSchema, "service");
 
-module.exports = ServiceModel;
+module.exports = Service;

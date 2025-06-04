@@ -27,7 +27,7 @@ router.put(
 // === ĐỔI MẬT KHẨU USER ===
 router.put(
   "/changepassword/:id",
-  middlewareCon.authorizeSelfOnly,
+  middlewareCon.authorizeSelfOnly(),
   userCon.changePassword
 );
 

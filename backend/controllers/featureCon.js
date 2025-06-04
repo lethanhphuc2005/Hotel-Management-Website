@@ -1,15 +1,12 @@
-const {
-  AmenityModel,
-  RoomType_AmenityModel,
-} = require("../models/amenityModel");
+const { Feature, Room_Class_Feature } = require("../models/featureModel");
 
-const amenityCon = {
+const featureCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TIỆN NGHI ===
-  validateAmenity: async (amenityData, amenityId) => {
-    const { TenTN, MoTa, HinhAnh } = amenityData;
+  validateFeature: async (featureData, featureId) => {
+    const { name, description, image } = featureData;
 
     // Check required fields
-    if (!TenTN || !MoTa || !HinhAnh) {
+    if (!name || !description || !image) {
       return {
         valid: false,
         message: "Vui lòng điền đầy đủ thông tin tiện nghi.",
@@ -17,15 +14,15 @@ const amenityCon = {
     }
 
     // Check string length
-    if (TenTN.length > 100 || MoTa.length > 500) {
+    if (name.length > 100 || description.length > 500) {
       return { valid: false, message: "Tên hoặc mô tả tiện nghi quá dài." };
     }
 
     // Check for duplicate name
-    const existing = await AmenityModel.findOne({ TenTN });
+    const existing = await Feature.findOne({ name });
     if (
       existing &&
-      (!amenityId || existing._id.toString() !== amenityId.toString())
+      (!featureId || existing._id.toString() !== featureId.toString())
     ) {
       return { valid: false, message: "Tên tiện nghi đã tồn tại." };
     }
@@ -34,13 +31,13 @@ const amenityCon = {
   },
 
   // === LẤY TẤT CẢ TIỆN NGHI (CÓ TÌM KIẾM, PHÂN TRANG, SẮP XẾP, SẮP XẾP THEO TRẠNG THÁI) ===
-  getAllAmenities: async (req, res) => {
+  getAllFeatures: async (req, res) => {
     try {
       const {
         search = "",
         page = 1,
         limit = 10,
-        sort = "TenTN",
+        sort = "createdAt",
         order = "asc",
         status, // Thêm tham số lọc theo trạng thái
       } = req.query;
@@ -49,48 +46,51 @@ const amenityCon = {
       const query = {};
       if (search) {
         query.$or = [
-          { TenTN: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
       if (typeof status !== "undefined") {
         // Chấp nhận cả true/false dạng string
-        if (status === "true" || status === true) query.TrangThai = true;
-        else if (status === "false" || status === false)
-          query.TrangThai = false;
+        if (status === "true" || status === true) query.status = true;
+        else if (status === "false" || status === false) query.status = false;
       }
 
-      // Sắp xếp
       const sortOption = {};
-      // Nếu sort là "TrangThai", cho phép sắp xếp theo trạng thái
-      sortOption[sort] = order === "desc" ? -1 : 1;
+      // Nếu sort là 'status', sắp xếp theo trạng thái
+      if (sort === "status") {
+        sortOption.status = order === "asc" ? 1 : -1;
+      } else {
+        sortOption[sort] = order === "asc" ? 1 : -1;
+      }
 
       // Phân trang
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       // Lấy tổng số tiện nghi (phục vụ phân trang)
-      const total = await AmenityModel.countDocuments(query);
+      const total = await Feature.countDocuments(query);
 
       // Lấy dữ liệu tiện nghi
-      const amenities = await AmenityModel.find(query)
+      const features = await Feature.find(query)
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
         .populate({
-          path: "LoaiPhongSuDung",
+          path: "room_class_used_list",
           populate: {
-            path: "MaLP",
-            model: "roomType",
+            path: "room_class_id", // Trong bảng trung gian -> roomType_Feature
+            model: "room_class",
           },
-        });
+        })
+        .exec();
 
-      if (!amenities || amenities.length === 0) {
+      if (!features || features.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
       }
 
       res.status(200).json({
         message: "Lấy tất cả tiện nghi thành công",
-        data: amenities,
+        data: features,
         pagination: {
           total: total,
           page: parseInt(page),
@@ -104,22 +104,22 @@ const amenityCon = {
   },
 
   // === LẤY TẤT CẢ TIỆN NGHI CHO USER ===
-  getAllAmenitiesForUser: async (req, res) => {
+  getAllFeaturesForUser: async (req, res) => {
     try {
       const {
         search = "",
         page = 1,
         limit = 10,
-        sort = "_id",
+        sort = "price",
         order = "asc",
       } = req.query;
 
       // Tạo bộ lọc tìm kiếm
-      const query = { TrangThai: true };
+      const query = { status: true };
       if (search) {
         query.$or = [
-          { TenTN: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
@@ -131,31 +131,32 @@ const amenityCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       // Lấy tổng số tiện nghi (phục vụ phân trang)
-      const total = await AmenityModel.countDocuments(query);
+      const total = await Feature.countDocuments(query);
 
       // Lấy dữ liệu tiện nghi
-      const amenities = await AmenityModel.find(query)
+      const features = await Feature.find(query)
         .sort(sortOption)
         .skip(skip)
-        .select("-TrangThai") // Không trả về trường TrangThai cho người dùng
+        .select("-status -createdAt -updatedAt")
         .limit(parseInt(limit))
         .populate({
-          path: "LoaiPhongSuDung",
+          path: "room_class_used_list",
           populate: {
-            path: "MaLP",
-            model: "roomType",
-            match: { TrangThai: true }, // Chỉ lấy loại phòng đang hoạt động
-            select: "-TrangThai", // Không trả về trường TrangThai của loại phòng
+            path: "room_class_id", //
+            model: "room_class",
+            match: { status: true }, // Chỉ lấy loại phòng đang hoạt động
+            select: "-status -createdAt -updatedAt", // Loại bỏ các trường không cần thiết
           },
-        });
+        })
+        .exec();
 
-      if (!amenities || amenities.length === 0) {
+      if (!features || features.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
       }
 
       res.status(200).json({
         message: "Lấy tất cả tiện nghi thành công",
-        data: amenities,
+        data: features,
         pagination: {
           total: total,
           page: parseInt(page),
@@ -169,22 +170,22 @@ const amenityCon = {
   },
 
   // === LẤY TIỆN NGHI THEO ID ===
-  getAmenityById: async (req, res) => {
+  getFeatureById: async (req, res) => {
     try {
       const { id } = req.params;
-      const amenity = await AmenityModel.findById(id).populate({
-        path: "LoaiPhongSuDung", // Virtual field từ Amenity -> RoomType_Amenity
+      const feature = await Feature.findById(id).populate({
+        path: "room_class_used_list", // Virtual field từ Feature -> RoomType_Feature
         populate: {
-          path: "MaLP", // Trong bảng trung gian -> roomType
-          model: "roomType",
+          path: "room_class_id", // Trong bảng trung gian -> roomType
+          model: "room_class",
         },
       });
-      if (!amenity) {
+      if (!feature) {
         return res.status(404).json({ message: "Tiện nghi không tồn tại." });
       }
       res.status(200).json({
         message: "Lấy tiện nghi thành công",
-        data: amenity,
+        data: feature,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -192,20 +193,20 @@ const amenityCon = {
   },
 
   // === THÊM TIỆN NGHI MỚI ===
-  addAmenity: async (req, res) => {
+  addFeature: async (req, res) => {
     try {
-      const newAmenity = new AmenityModel(req.body);
+      const newFeature = new Feature(req.body);
 
-      // Validate amenity data
-      const validation = await amenityCon.validateAmenity(newAmenity);
+      // Validate feature data
+      const validation = await featureCon.validateFeature(newFeature);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
 
-      await newAmenity.save();
+      await newFeature.save();
       res.status(201).json({
         message: "Thêm tiện nghi thành công",
-        data: newAmenity,
+        data: newFeature,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -213,21 +214,21 @@ const amenityCon = {
   },
 
   // === CẬP NHẬT TIỆN NGHI ===
-  updateAmenity: async (req, res) => {
+  updateFeature: async (req, res) => {
     try {
-      const amenityToUpdate = await AmenityModel.findById(req.params.id);
-      if (!amenityToUpdate) {
+      const featureToUpdate = await Feature.findById(req.params.id);
+      if (!featureToUpdate) {
         return res.status(404).json({ message: "Tiện nghi không tồn tại." });
       }
 
       // Nếu không có dữ liệu nào trong req.body, giữ nguyên tiện nghi hiện tại
       const updatedData =
         Object.keys(req.body).length === 0
-          ? amenityToUpdate.toObject()
-          : { ...amenityToUpdate.toObject(), ...req.body };
+          ? featureToUpdate.toObject()
+          : { ...featureToUpdate.toObject(), ...req.body };
 
       // Kiểm tra dữ liệu trong req.body
-      const validation = await amenityCon.validateAmenity(
+      const validation = await featureCon.validateFeature(
         updatedData,
         req.params.id
       );
@@ -236,19 +237,19 @@ const amenityCon = {
       }
 
       // Cập nhật tiện nghi
-      const updatedAmenity = await AmenityModel.findByIdAndUpdate(
+      const updatedFeature = await Feature.findByIdAndUpdate(
         req.params.id,
         updatedData,
         { new: true }
       ).populate({
-        path: "LoaiPhongSuDung", // Virtual field từ Amenity -> RoomType_Amenity
+        path: "room_class_used_list", // Virtual field từ Feature -> RoomType_Feature
         populate: {
-          path: "MaLP", // Trong bảng trung gian -> roomType
-          model: "roomType",
+          path: "room_class_id", // Trong bảng trung gian -> roomType
+          model: "room_class",
         },
       });
 
-      if (!updatedAmenity) {
+      if (!updatedFeature) {
         return res
           .status(404)
           .json({ message: "Cập nhật tiện nghi thất bại." });
@@ -256,7 +257,7 @@ const amenityCon = {
 
       res.status(200).json({
         message: "Cập nhật tiện nghi thành công",
-        data: updatedAmenity,
+        data: updatedFeature,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -264,32 +265,36 @@ const amenityCon = {
   },
 
   // === XÓA TIỆN NGHI ===
-  deleteAmenity: async (req, res) => {
+  deleteFeature: async (req, res) => {
     try {
-      const amenityToDelete = await AmenityModel.findById(req.params.id);
-      if (!amenityToDelete) {
+      const featureToDelete = await Feature.findById(req.params.id);
+      if (!featureToDelete) {
         return res.status(404).json({ message: "Tiện nghi không tồn tại." });
       }
 
       // Kiểm tra xem tiện nghi có đang được sử dụng trong loại phòng nào không
-      const isUsedInRoomType = await RoomType_AmenityModel.exists({
-        MaTN: req.params.id,
+      const isUsedInRoomType = await Room_Class_Feature.exists({
+        feature_id: req.params.id,
       });
       if (isUsedInRoomType) {
         return res
           .status(400)
           .json({ message: "Tiện nghi đang được sử dụng trong loại phòng." });
+      } else if (featureToDelete.status) {
+        return res
+          .status(400)
+          .json({ message: "Không thể xoá tiện nghi đang hoạt động." });
       }
 
       // Xoá tiện nghi
-      await AmenityModel.findByIdAndDelete(req.params.id);
+      await Feature.findByIdAndDelete(req.params.id);
 
       // Xoá tiện nghi khỏi bảng trung gian nếu có
-      await RoomType_AmenityModel.deleteMany({ MaTN: req.params.id });
+      await Room_Class_Feature.deleteMany({ MaTN: req.params.id });
 
       res.status(200).json({
         message: "Xoá tiện nghi thành công",
-        data: amenityToDelete,
+        data: featureToDelete,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -297,4 +302,4 @@ const amenityCon = {
   },
 };
 
-module.exports = amenityCon;
+module.exports = featureCon;

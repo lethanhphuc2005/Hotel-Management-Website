@@ -1,11 +1,18 @@
-const discount = require("../models/discountModel");
+const Discount = require("../models/discountModel");
 
 const discountCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN KHUYẾN MÃI ===
   validateDiscount: async (discountData, discountId) => {
-    const { TenKM, MoTa, LoaiKM, GiaTriKM, NgayBD, NgayKT } = discountData;
+    const { name, description, type, value, start_day, end_day } = discountData;
     // Kiểm tra các trường bắt buộc
-    if (!TenKM || !MoTa || !LoaiKM || GiaTriKM == null || !NgayBD || !NgayKT) {
+    if (
+      !name ||
+      !description ||
+      !type ||
+      value == null ||
+      !start_day ||
+      !end_day
+    ) {
       return {
         valid: false,
         message: "Vui lòng điền đầy đủ thông tin khuyến mãi.",
@@ -13,13 +20,13 @@ const discountCon = {
     }
 
     // Kiểm tra độ dài chuỗi
-    if (TenKM.length > 100 || MoTa.length > 500) {
+    if (name.length > 100 || description.length > 500) {
       return { valid: false, message: "Tên hoặc mô tả khuyến mãi quá dài." };
     }
 
     // Kiểm tra trùng tên
     // ✅ Nếu đang update, bỏ qua chính mình trong check trùng tên
-    const existing = await discount.findOne({ TenKM });
+    const existing = await Discount.findOne({ name });
     if (
       existing &&
       (!discountId || existing._id.toString() !== discountId.toString())
@@ -27,19 +34,19 @@ const discountCon = {
       return { valid: false, message: "Tên khuyến mãi đã tồn tại." };
     }
     // Kiểm tra giá trị khuyến mãi
-    if (typeof GiaTriKM !== "number" || GiaTriKM <= 0) {
+    if (typeof value !== "number" || value <= 0) {
       return { valid: false, message: "Giá trị khuyến mãi phải là số dương." };
     }
 
     // Kiểm tra loại khuyến mãi
     const allowedLoaiKM = ["Percentage", "Fixed Amount", "Service Discount"];
-    if (!allowedLoaiKM.includes(LoaiKM)) {
+    if (!allowedLoaiKM.includes(type)) {
       return { valid: false, message: "Loại khuyến mãi không hợp lệ." };
     }
 
     // Kiểm tra ngày bắt đầu và kết thúc
-    const startDate = new Date(NgayBD);
-    const endDate = new Date(NgayKT);
+    const startDate = new Date(start_day);
+    const endDate = new Date(end_day);
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       return {
         valid: false,
@@ -49,6 +56,20 @@ const discountCon = {
 
     if (startDate >= endDate) {
       return { valid: false, message: "Ngày kết thúc phải sau ngày bắt đầu." };
+    }
+
+    // Kiểm tra ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại (chỉ lấy ngày, không lấy giờ)
+    // ✅ Không cần kiểm tra ngày kết thúc vì nó đã được kiểm tra là sau ngày bắt đầu
+    // ✅ Chỉ cần so sánh ngày, không cần giờ
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh chỉ ngày
+    startDate.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh chỉ ngày
+
+    if (startDate < today) {
+      return {
+        valid: false,
+        message: "Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại.",
+      };
     }
 
     return { valid: true };
@@ -61,7 +82,7 @@ const discountCon = {
         search = "",
         page = 1,
         limit = 10,
-        sort = "NgayBD",
+        sort = "createdAt",
         order = "desc",
         status,
         discountType,
@@ -71,30 +92,37 @@ const discountCon = {
       const query = {};
       if (typeof status !== "undefined") {
         // Chấp nhận cả true/false dạng string
-        if (status === "true" || status === true) query.TrangThai = true;
-        else if (status === "false" || status === false)
-          query.TrangThai = false;
+        if (status === "true" || status === true) query.status = true;
+        else if (status === "false" || status === false) query.status = false;
       }
       if (discountType) {
-        query.LoaiKM = discountType;
+        query.type = discountType;
       }
       if (search) {
         query.$or = [
-          { TenKM: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
-      // Sắp xếp
-      const sortObj = {};
-      sortObj[sort] = order === "asc" ? 1 : -1;
+      const sortOption = {};
+      // Nếu sort là 'status', sắp xếp theo trạng thái
+      if (sort === "status") {
+        sortOption.status = order === "asc" ? 1 : -1;
+      } else {
+        sortOption[sort] = order === "asc" ? 1 : -1;
+      }
 
       // Phân trang
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [discounts, total] = await Promise.all([
-        discount.find(query).sort(sortObj).skip(skip).limit(parseInt(limit)),
-        discount.countDocuments(query),
+        Discount.find(query)
+          .sort(sortObj)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        Discount.countDocuments(query),
       ]);
 
       res.status(200).json({
@@ -119,20 +147,20 @@ const discountCon = {
         search = "",
         page = 1,
         limit = 10,
-        sort = "NgayBD",
+        sort = "start_day",
         order = "desc",
         discountType,
       } = req.query;
 
       // Xây dựng bộ lọc
-      const query = { TrangThai: true }; // Chỉ lấy khuyến mãi đang hoạt động
+      const query = { status: true }; // Chỉ lấy khuyến mãi đang hoạt động
       if (discountType) {
-        query.LoaiKM = discountType;
+        query.type = discountType;
       }
       if (search) {
         query.$or = [
-          { TenKM: { $regex: search, $options: "i" } },
-          { MoTa: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
@@ -144,8 +172,13 @@ const discountCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [discounts, total] = await Promise.all([
-        discount.find(query).sort(sortObj).skip(skip).limit(parseInt(limit)).select("-TrangThai"),
-        discount.countDocuments(query),
+        Discount.find(query)
+          .sort(sortObj)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .select("-status -createdAt -updatedAt") // Loại bỏ các trường không cần thiết
+          .exec(),
+        Discount.countDocuments(query),
       ]);
 
       res.status(200).json({
@@ -166,7 +199,7 @@ const discountCon = {
   // === LẤY KHUYẾN MÃI THEO ID ===
   getDiscountById: async (req, res) => {
     try {
-      const discountData = await discount.findById(req.params.id);
+      const discountData = await Discount.findById(req.params.id);
       if (!discountData) {
         return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
       }
@@ -182,9 +215,9 @@ const discountCon = {
   // === THÊM KHUYẾN MÃI MỚI ===
   addDiscount: async (req, res) => {
     try {
-      const newDiscount = new discount(req.body);
+      const newDiscount = new Discount(req.body);
 
-      // Validate discount data
+      // Validate Discount data
       const validation = await discountCon.validateDiscount(newDiscount);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
@@ -203,7 +236,7 @@ const discountCon = {
   // === CẬP NHẬT KHUYẾN MÃI ===
   updateDiscount: async (req, res) => {
     try {
-      const discountToUpdate = await discount.findById(req.params.id);
+      const discountToUpdate = await Discount.findById(req.params.id);
       if (!discountToUpdate) {
         return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
       }
@@ -236,16 +269,16 @@ const discountCon = {
   // === XÓA KHUYẾN MÃI ===
   deleteDiscount: async (req, res) => {
     try {
-      const discountToDelete = await discount.findById(req.params.id);
+      const discountToDelete = await Discount.findById(req.params.id);
       if (!discountToDelete) {
         return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
-      } else if (discountToDelete.TrangThai === true) {
+      } else if (discountToDelete.status === true) {
         return res
           .status(400)
           .json({ message: "Không thể xoá khuyến mãi đang hoạt động" });
       }
 
-      await discount.findByIdAndDelete(req.params.id);
+      await Discount.findByIdAndDelete(req.params.id);
 
       res.status(200).json({
         message: "Xoá khuyến mãi thành công",

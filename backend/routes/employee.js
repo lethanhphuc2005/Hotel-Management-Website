@@ -1,34 +1,34 @@
 const router = require("express").Router();
 
 const middlewareCon = require("../controllers/middlewareCon");
-const employerCon = require("../controllers/employerCon");
+const employeeCon = require("../controllers/employeeCon");
 
 // === LẤY TẤT CẢ NHÂN VIÊN ===
 router.get(
   "/",
   middlewareCon.authorizeRoles("admin", "receptionist"),
-  employerCon.getAllEmployers
+  employeeCon.getAllEmployees
 );
 
 // == LẤY NHÂN VIÊN THEO ID ===
 router.get(
   "/userinfo/:id",
   middlewareCon.authorizeSelfOrRoles("admin"),
-  employerCon.getEmployerById
+  employeeCon.getEmployeeById
 );
 
 // === CẬP NHẬT THÔNG TIN NHÂN VIÊN ===
 router.put(
   "/update/:id",
   middlewareCon.authorizeSelfOrRoles("admin"),
-  employerCon.updateEmployer
+  employeeCon.updateEmployee
 );
 
 // === ĐỔI MẬT KHẨU NHÂN VIÊN ===
 router.put(
-  "/changepassword/:id",
-  middlewareCon.authorizeSelfOnly,
-  employerCon.changePassword
+  "/change-password/:id",
+  middlewareCon.authorizeSelfOnly(),
+  employeeCon.changePassword
 );
 
 module.exports = router;

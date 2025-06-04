@@ -1,54 +1,58 @@
 const mongoose = require("mongoose");
 
-const websiteContentSchema = new mongoose.Schema(
+const WebsiteContentSchema = new mongoose.Schema(
   {
-    TieuDe: {
+    title: {
       type: String,
       required: true,
+      trim: true,
+      default: "",
       maxlength: 100,
     },
-    NoiDung: {
+    content: {
       type: String,
-      required: true,
+      trim: true,
+      default: "",
       maxlength: 5000,
     },
-    MaND: {
+    content_type_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "contentType",
+      ref: "content_type",
       required: true,
     },
-    NgayDang: {
-      type: Date,
-      default: Date.now,
-    },
-    HinhAnh: {
+    image: {
       type: String,
-      required: true,
+      trim: true,
+      default: "",
       maxlength: 255,
     },
     TrangThai: {
       type: Boolean,
       default: false,
+      required: true,
     },
   },
   { timestamps: true }
 );
-
-// Thiết lập virtual populate nếu muốn lấy thông tin loại nội dung kèm theo nội dung
-websiteContentSchema.virtual("LoaiNoiDung", {
-  ref: "contentType",
-  localField: "MaND",
+WebsiteContentSchema.virtual("content_type", {
+  ref: "content_type",
+  localField: "content_type_id",
   foreignField: "_id",
-  justOne: true,
 });
 
-// Bật options để trả về virtuals khi toJSON hoặc toObject
-websiteContentSchema.set("toJSON", { virtuals: true, versionKey: false });
+WebsiteContentSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret.id; 
+    return ret; 
+  },
+});
 
-const websiteContentModel = mongoose.model(
-  "websiteContent",
-  websiteContentSchema,
-  "noidung_website"
+const WebsiteContent = mongoose.model(
+  "website_content",
+  WebsiteContentSchema,
+  "website_content"
 );
 
-module.exports = websiteContentModel;
+module.exports = WebsiteContent;

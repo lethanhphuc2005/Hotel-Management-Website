@@ -2,44 +2,71 @@ const mongoose = require("mongoose");
 
 const DiscountSchema = new mongoose.Schema(
   {
-    TenKM: {
+    name: {
       type: String,
       required: true,
+      default: "",
+      trim: true,
       maxlength: 100,
     },
-    MoTa: {
+    image: {
       type: String,
-      required: true,
+      default: "",
+      trim: true,
+      maxlength: 255,
+    },
+    description: {
+      type: String,
       maxlength: 500,
     },
-    LoaiKM: {
+    type: {
       type: String,
       required: true,
+      trim: true,
       enum: ["Percentage", "Fixed Amount", "Service Discount"],
       default: "Percentage",
     },
-    GiaTriKM: {
+    value: {
       type: Number,
       required: true,
       min: 0,
+      validate: {
+        validator: function (v) {
+          return this.type === "Percentage" ? v <= 100 : v >= 0; // Giá trị phải <= 100 nếu là phần trăm, >= 0 nếu là số tiền cố định
+        },
+        message: "Giá trị không hợp lệ cho loại khuyến mãi này!",
+      },
+      default: 0,
     },
-    NgayBD: {
+    start_day: {
       type: Date,
       required: true,
       default: Date.now,
-    },
-    NgayKT: {
-      type: Date,
-      required: true,
       validate: {
         validator: function (v) {
-          return v > this.NgayBD; // Ngày kết thúc phải sau ngày bắt đầu
+          return v <= this.end_day; // Ngày bắt đầu phải trước hoặc bằng ngày kết thúc
+        },
+        message: "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!",
+      },
+    },
+    end_day: {
+      type: Date,
+      required: true,
+      default: Date.now() + 30 * 24 * 60 * 60 * 1000, // Mặc định là 30 ngày sau ngày bắt đầu
+      validate: {
+        validator: function (v) {
+          return v > this.start_day; // Ngày kết thúc phải sau ngày bắt đầu
         },
         message: "Ngày kết thúc phải sau ngày bắt đầu!",
       },
-      default: Date.now() + 30 * 24 * 60 * 60 * 1000, // Mặc định là 30 ngày sau ngày bắt đầu
     },
-    TrangThai: {
+    quantity: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+    status: {
       type: Boolean,
       required: true,
       default: false,
@@ -48,8 +75,13 @@ const DiscountSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-DiscountSchema.set("toJSON", { versionKey: false });
-DiscountSchema.set("toObject", { versionKey: false });
+DiscountSchema.set("toJSON", {
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret.id;
+    return ret;
+  },
+});
 
-const discountModel = mongoose.model("discount", DiscountSchema, "khuyenmai");
-module.exports = discountModel;
+const Discount = mongoose.model("discount", DiscountSchema, "discount");
+module.exports = Discount;

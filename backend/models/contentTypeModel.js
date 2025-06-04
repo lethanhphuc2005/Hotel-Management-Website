@@ -1,38 +1,48 @@
 const mongoose = require("mongoose");
 
-const contentTypeSchema = new mongoose.Schema(
+const ContentTypeSchema = new mongoose.Schema(
   {
-    TenND: {
+    name: {
       type: String,
       required: true,
+      default: "",
+      trim: true,
       maxlength: 100,
     },
-    MoTa: {
+    description: {
       type: String,
-      required: true,
-      maxlength: 255,
+      default: "",
+      trim: true,
+      maxlength: 500,
     },
-    TrangThai: {
+    status: {
       type: Boolean,
-      default: false, // Mặc định là true
+      default: false,
+      required: true,
     },
   },
   { timestamps: true }
 );
 
-contentTypeSchema.virtual("DanhSachNoiDungWebsite", {
-  ref: "websiteContent",
+ContentTypeSchema.virtual("website_content_list", {
+  ref: "website_content",
   localField: "_id",
-  foreignField: "MaND", //
+  foreignField: "content_type_id",
 });
 
-// Tùy chọn để virtuals hiển thị khi toJSON hoặc toObject
-contentTypeSchema.set("toJSON", { virtuals: true, versionKey: false });
+ContentTypeSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret.id;
+    return ret;
+  },
+});
 
-const contentTypeModel = mongoose.model(
-  "contentType",
-  contentTypeSchema,
-  "loai_noidung"
+const ContentType = mongoose.model(
+  "content_type",
+  ContentTypeSchema,
+  "content_type"
 );
 
-module.exports = contentTypeModel;
+module.exports = ContentType;
