@@ -12,7 +12,7 @@ router.get(
 
 // == LẤY NHÂN VIÊN THEO ID ===
 router.get(
-  "/userinfo/:id",
+  "/user-info/:id",
   middlewareCon.authorizeSelfOrRoles("admin"),
   employeeCon.getEmployeeById
 );
