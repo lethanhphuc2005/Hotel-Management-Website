@@ -1,7 +1,11 @@
-.calendarHover{
-    background-color: transparent;
-    color: white;
+.calendarHover {
+    height: 100%;
+  border-radius: 30px;
+  transition: box-shadow 0.2s, background 0.2s, color 0.2s; 
+  background: transparent;
+  padding: 10px;
 }
-.calendarHover:hover{
-    color: #FAB320;
+
+.calendarHover:hover {
+  background: rgba(250, 179, 32, 0.10);
 }

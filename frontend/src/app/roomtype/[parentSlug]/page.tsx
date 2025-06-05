@@ -16,24 +16,17 @@ export default function Roomclass() {
     const [views, setViews] = useState<string[]>([]);
     const [amenities, setAmenities] = useState<string[]>([]);
     const [roomclass, setRoomClass] = useState<RoomClass[]>([]);
-    const [dateRange, setDateRange] = useState([
-        {
-            startDate: new Date(),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
+    const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: new Date(), key: 'selection' }]);
+    const [guests, setGuests] = useState({ adults: 1, children: 0 });
+    const [beds, setBeds] = useState(1);
     const [showCalendar, setShowCalendar] = useState(false);
     const [showGuestBox, setShowGuestBox] = useState(false);
-    const [guests, setGuests] = useState({
-        adults: 1,
-        children: 0, // Trẻ em 0-17 tuổi
-    });
+    const [showBedBox, setShowBedBox] = useState(false);
+    const guestBoxRef = useRef<HTMLDivElement>(null);
+    const calendarRef = useRef<HTMLDivElement>(null);
+    const bedRef = useRef<HTMLDivElement>(null);
     const params = useParams();
     const parentSlug = params.parentSlug as string;
-
-    // const childRoomTypes = roomtypes[0]?.DanhSachLoaiPhong || [];
-    // const images = roomtypes[0]?.HinhAnh || [];
 
     const filteredRoomClass = roomclass.filter(item =>
         item.price >= price &&
@@ -55,21 +48,7 @@ export default function Roomclass() {
         fetchRoomTypes();
     }, []);
 
-    const handleChange = (e: any) => {
-        setPrice(Number(e.target.value));
-    };
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, state: string[], setState: React.Dispatch<React.SetStateAction<string[]>>) => {
-        const value = e.target.value;
-        if (e.target.checked) {
-            setState([...state, value]);
-        } else {
-            setState(state.filter(item => item !== value));
-        }
-    };
-
     // Đóng popup khi click ra ngoài
-    const guestBoxRef = useRef<HTMLDivElement>(null);
-    const calendarRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (
@@ -85,9 +64,16 @@ export default function Roomclass() {
                 !calendarRef.current.contains(event.target as Node)
             ) {
                 setShowCalendar(false);
+            } 
+            if (
+                showBedBox &&
+                bedRef.current &&
+                !bedRef.current.contains(event.target as Node)
+            ) {
+                setShowBedBox(false);
             }
         }
-        if (showGuestBox || showCalendar) {
+        if (showGuestBox || showCalendar || showBedBox) {
             document.addEventListener("mousedown", handleClickOutside);
         } else {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -95,27 +81,43 @@ export default function Roomclass() {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [showGuestBox, showCalendar]);
+    }, [showGuestBox, showCalendar, showBedBox]);
+
+    const handleChange = (e: any) => {
+        setPrice(Number(e.target.value));
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, state: string[], setState: React.Dispatch<React.SetStateAction<string[]>>) => {
+        const value = e.target.value;
+        if (e.target.checked) {
+            setState([...state, value]);
+        } else {
+            setState(state.filter(item => item !== value));
+        }
+    };
 
     return (
         <>
             <div className={`container text-white`} style={{ height: '1750px', marginTop: '7%', marginBottom: '10%' }}>
                 <div className="row">
                     <div className="col">
-                        <div className="bg-black border w-75 mx-auto rounded-4 d-flex align-items-center justify-content-center p-3 mb-4" style={{ gap: 50, position: 'relative' }}>
-                            <div className="px-3 border-end" style={{ position: 'relative' }}>
-                                <label className="text-secondary small mb-1 text-white">Nhận phòng / Trả phòng</label>
+                        <div className="bg-black border mx-auto rounded-5 d-flex align-items-center justify-content-center mb-4" style={{ position: 'relative', width: '725px' }}>
+                            <div className={`px-5 ${style.calendarHover}`} style={{ position: 'relative' }}>
                                 <div
-                                    className={`form-control border-0 p-0 ${style.calendarHover}`}
-                                    style={{ minWidth: 200, cursor: 'pointer' }}
+                                    style={{ cursor: 'pointer' }}
                                     onClick={() => setShowCalendar(!showCalendar)}
                                 >
-                                    {dateRange[0].startDate.toLocaleDateString('vi-VN')} - {dateRange[0].endDate.toLocaleDateString('vi-VN')}
+                                    <label className="small mb-1 text-white fw-bold" style={{ cursor: 'pointer' }}>
+                                        Nhận phòng - Trả phòng
+                                    </label>
+                                    <div>
+                                        {dateRange[0].startDate.toLocaleDateString('vi-VN')} - {dateRange[0].endDate.toLocaleDateString('vi-VN')}
+                                    </div>
                                 </div>
                                 {showCalendar && (
                                     <div
                                         ref={calendarRef}
-                                        style={{ position: 'absolute', zIndex: 1050, top: '100%', left: 0 }}>
+                                        style={{ position: 'absolute', zIndex: 1050, top: '80px', left: 0 }}>
                                         <DateRange
                                             editableDateInputs={true}
                                             onChange={(item: any) => setDateRange([item.selection])}
@@ -127,16 +129,19 @@ export default function Roomclass() {
                                     </div>
                                 )}
                             </div>
+                            <div style={{ width: 1, height: 48, background: 'white', opacity: 0.7 }} />
                             {/* Khách */}
-                            <div className="px-3" style={{ position: "relative" }}>
-                                <label className="text-secondary small mb-1 text-white">Khách</label>
+                            <div className={`${style.calendarHover}`} style={{ position: "relative" }}>
                                 <div
-                                    className="form-control border-0 p-0 bg-transparent text-white"
-                                    style={{ minWidth: 150, cursor: "pointer" }}
+                                    className="form-control border-0 p-0 bg-transparent text-center text-white"
+                                    style={{ minWidth: 150, cursor: "pointer", background: "transparent" }}
                                     onClick={() => setShowGuestBox(!showGuestBox)}
                                 >
-                                    {guests.adults} khách
-                                    {guests.children > 0 && `, ${guests.children} trẻ em`}
+                                    <label className="small mb-1 fw-bold">Khách</label>
+                                    <div>
+                                        {guests.adults} khách
+                                        {guests.children > 0 && `, ${guests.children} trẻ em`}
+                                    </div>
                                 </div>
                                 {showGuestBox && (
                                     <div
@@ -190,8 +195,46 @@ export default function Roomclass() {
                                     </div>
                                 )}
                             </div>
-                            {/* End Khách */}
-                            <button className="btn rounded-pill px-5 fw-bold ms-auto" style={{ backgroundColor: "#FAB320" }} type="button">
+                            {/* Giường */}
+                            <div style={{ width: 1, height: 48, background: 'white', opacity: 0.7 }} />
+                            <div className={`${style.calendarHover} d-flex flex-column align-items-center justify-content-center`} style={{ position: "relative", minWidth: 120, cursor: "pointer" }}>
+                                <div
+                                    className="w-100 text-center"
+                                    onClick={() => setShowBedBox(!showBedBox)}
+                                >
+                                    <label className="small mb-1 fw-bold">Số giường</label>
+                                    <div>{beds}</div>
+                                </div>
+                                {showBedBox && (
+                                    <div
+                                        ref={bedRef}
+                                        className="bg-white text-dark rounded-4 shadow p-3"
+                                        style={{
+                                            position: "absolute",
+                                            zIndex: 20,
+                                            top: "110%",
+                                            left: 0,
+                                            minWidth: 180,
+                                            minHeight: 50,
+                                        }}
+                                    >
+                                        <div className="d-flex align-items-center justify-content-between">
+                                            <button
+                                                className="btn btn-outline-secondary btn-sm"
+                                                disabled={beds <= 1}
+                                                onClick={() => setBeds(b => Math.max(1, b - 1))}
+                                            >-</button>
+                                            <span className="fw-bold">{beds}</span>
+                                            <button
+                                                className="btn btn-outline-secondary btn-sm"
+                                                onClick={() => setBeds(b => b + 1)}
+                                            >+</button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ width: 1, height: 48, background: 'white', opacity: 0.7 }} />
+                            <button className="rounded-pill px-4 ms-auto me-3 border-0 text-black" style={{ backgroundColor: "#FAB320", height: '40px' }} type="button">
                                 <i className="bi bi-search"></i> Tìm kiếm
                             </button>
                         </div>
