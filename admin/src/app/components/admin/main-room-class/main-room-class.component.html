@@ -1,0 +1,52 @@
+<div class="roomtype-management-card">
+  <h2>Quản lý loại phòng chính</h2>
+  <div class="room-controls">
+    <input type="text" placeholder="Tìm kiếm loại phòng..." />
+    <button class="add-room" (click)="onAdd()">+ Thêm loại phòng</button>
+  </div>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên LPC</div>
+    <div>Mô tả</div>
+    <div>Trạng thái</div>
+    <div>Hình ảnh</div>
+    <div>Loại phòng con</div>
+    <div>Hành động</div>
+  </div>
+
+  <div *ngFor="let rtm of roomTypeMains; let i = index" class="table-row" (click)="onViewDetail(rtm)">
+    <div>{{ rtm.name }}</div>
+    <div>{{ rtm.description }}</div>
+    <div class="status-column">
+      <label class="switch">
+        <input type="checkbox" [checked]="rtm.status" (change)="onToggleStatus(rtm)" />
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="image-list">
+      <img *ngFor="let img of rtm.images" [src]="img.url" alt="Hình ảnh loại phòng" />
+    </div>
+    <div>
+      <button (click)="onViewRoomChildPopup(rtm)">Xem danh sách</button>
+    </div>
+    <div class="popup-overlay" *ngIf="isDetailPopupOpen">
+  <div class="popup-content">
+    <h3>Chi tiết loại phòng chính</h3>
+    <p><strong>Tên:</strong> {{ selectedMainRoom?.name }}</p>
+    <p><strong>Mô tả:</strong> {{ selectedMainRoom?.description }}</p>
+    <p><strong>Trạng thái:</strong> {{ selectedMainRoom?.status ? 'Hoạt động' : 'Ẩn' }}</p>
+    <div class="image-list">
+      <img *ngFor="let img of selectedMainRoom?.images" [src]="img.url" />
+    </div>
+    <button (click)="isDetailPopupOpen = false">Đóng</button>
+  </div>
+</div>
+
+    <div class="actions">
+     <button class="icon-button" (click)="onEdit(rtm); $event.stopPropagation()">
+        <i class="fas fa-pen"></i>
+      </button>
+    </div>
+  </div>
+</div>

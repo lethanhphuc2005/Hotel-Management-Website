@@ -10,8 +10,9 @@ import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './components/auth/admin-guard';
 import { RoomListComponent } from './components/admin/room-list/room-list.component';
 import { RoomAddComponent } from './components/admin/roomlist-add/roomlist-add.component';
-import { RoomTypeListComponent } from './components/admin/roomtype-list/roomtype-list.component';
 import { RoomTypeMainComponent } from './components/admin/roomtype-main/roomtype-main.component';
+import { MainRoomClassComponent } from './components/admin/main-room-class/main-room-class.component';
+import { RoomClassListComponent } from './components/admin/room-class-list/room-class-list.component';
 
 export const routes: Routes = [
   { path: 'header', component: HeaderComponent },
@@ -24,7 +25,9 @@ export const routes: Routes = [
     children: [
           { path: 'room-list', component: RoomListComponent },
           { path: 'roomlist-add', component: RoomAddComponent },
-          { path: 'roomtype-list', component: RoomTypeListComponent },
+          // { path: 'roomtype-list', component: RoomTypeListComponent },
+          { path: 'main-room-class', component: MainRoomClassComponent },
+          { path: 'room-class-list', component: RoomClassListComponent },
           { path: 'roomtype-main', component: RoomTypeMainComponent },
           // { path: '', redirectTo: 'room-list', pathMatch: 'full' },
           { path:'user', component: UserComponent },

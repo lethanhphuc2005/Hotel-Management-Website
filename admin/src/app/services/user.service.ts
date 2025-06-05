@@ -22,8 +22,8 @@ export class UserService {
     return this.http.put<User>(`${this.apiUrl}/update/${user.id}`, body);
   }
 
-  addRoom(roomData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/rooms`, roomData);
-  }
+  // addRoom(roomData: any): Observable<any> {
+  //   return this.http.post(`${this.apiUrl}/rooms`, roomData);
+  // }
 
 }
