@@ -1,43 +1,43 @@
-import { Room } from "../types/room";
-import { RoomTypeMain } from "../types/roomtypemain";
+import { MainRoomClass } from "../types/mainroomclass";
+import { RoomClass } from "../types/roomclass";
 import { Service } from "../types/service";
-import { RoomSale, RoomT, RoomTypeItem, ServiceItem } from "./roomItem";
+import { RoomClassSaleItem, MainRoomClassItem, RoomClassItem, ServiceItem } from "./roomItem";
 
-export function RoomTList({ roomtypes }: { roomtypes: RoomTypeMain[] }) {
+export function MainRoomClassList({ mrcl }: { mrcl: MainRoomClass[] }) {
   return (
     <>
-      {roomtypes.map((roomtype: RoomTypeMain) => (
-        <RoomT key={roomtype._id} roomtype={roomtype} />
+      {mrcl.map((mrc: MainRoomClass) => (
+        <MainRoomClassItem key={mrc._id} mrci={mrc} />
       ))}
     </>
   );
 }
 
-export function RoomSaleList({ rooms }: { rooms: Room[] }) {
+export function RoomClassSaleList({ rcsl }: { rcsl: RoomClass[] }) {
   return (
     <>
-      {rooms.map((room: Room) => (
-        <RoomSale room={room} key={room._id} />
+      {rcsl.map((rcs: RoomClass) => (
+        <RoomClassSaleItem rcsi={rcs} key={rcs._id} />
       ))}
     </>
   );
 }
 
-export function ServiceList({ services }: { services: Service[] }) {
+export function ServiceList({ svl }: { svl: Service[] }) {
   return (
     <>
-      {services.map((service: Service) => (
-        <ServiceItem service={service} key={service._id} />
+      {svl.map((sv: Service) => (
+        <ServiceItem svi={sv} key={sv._id} />
       ))}
     </>
   );
 }
 
-export function RoomTypeList({ roomtypes }: { roomtypes: RoomTypeMain[] }) {
+export function RoomClassList({ rcl }: { rcl: RoomClass[] }) {
   return (
     <>
-      {roomtypes.map((roomtype: RoomTypeMain) => (
-        <RoomTypeItem roomtype={roomtype} key={roomtype._id} />
+      {rcl.map((rc) => (
+        <RoomClassItem rci={rc} key={rc._id} />
       ))}
     </>
   );
