@@ -400,7 +400,7 @@
   flex: 1 1 calc(50% - 0.5rem);
   border-radius: 0.25rem;
   width: 100%;
-
+  padding: 12px 0;
 }
 
 .reviewAuthor {
@@ -450,10 +450,7 @@
   margin: 0;
   opacity: 1;
 }
-.reviewItem {
-  padding: 12px 0;
-  border-bottom: 1px solid #333;
-}
+
 .commentAvatar{
   width: 30px;
   height: 30px;
@@ -531,7 +528,79 @@
   margin: 0;
   line-height: 1.5;
 }
-.reviewItem {
-  padding: 12px 0;
-  border-bottom: 1px solid #333;
+
+.custommodalcontent {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
 }
+.custommodalbody {
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.faqSidebarModal {
+  position: fixed;
+  padding: 15px;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 700px;
+  max-width: 100vw;
+  z-index: 1050;
+  background: #111;
+  color: #fff;
+  box-shadow: -2px 0 16px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.faqSidebarBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1040;
+}
+.faqSidebarModal .modal-header,
+.faqSidebarModal .modal-footer {
+  background: #111;
+  color: #fff;
+  border: none;
+}
+.faqSidebarModal .modal-body {
+  background: #111;
+  color: #fff;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.btnAsk {
+  background-color: black;
+  color: #FAB320;
+  width: 110px;
+  height: 35px;
+  border: 1px solid #FAB320;
+  border-radius: 0.25rem;
+}
+
+.btnAsk:hover {
+  color: #000;
+  background-color: #FAB320;
+}
+
+.customTextarea{
+  background-color: #111 !important;
+}
+.customTextarea::placeholder {
+  color: white;
+} 
