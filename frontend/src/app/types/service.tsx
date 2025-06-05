@@ -1,7 +1,8 @@
 export interface Service {
   _id: string;
-  TenDV: string;
-  GiaDV: number;
-  MoTa: string;
-  HinhAnh: string;
+  name: string;
+  price: number;
+  description: string;
+  image: string;
+  status: boolean;
 }
