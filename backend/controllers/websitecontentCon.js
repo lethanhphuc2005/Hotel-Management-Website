@@ -1,26 +1,26 @@
-const contentTypeModel = require("../models/contentTypeModel");
-const websiteContentModel = require("../models/websiteContentModel");
+const ContentType = require("../models/contentTypeModel");
+const WebsiteContent = require("../models/websiteContentModel");
 
 const websiteContentCon = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===
   validateWebsiteContent: async (websiteContentData, websiteContentId) => {
-    const { TieuDe, NoiDung, MaND, HinhAnh } = websiteContentData;
+    const { title, content, content_type_id, image } = websiteContentData;
     // Kiểm tra các trường bắt buộc
-    if (!TieuDe || !NoiDung || !MaND || !HinhAnh) {
+    if (!title || !content || !content_type_id || !image) {
       return {
         valid: false,
         message: "Vui lòng điền đầy đủ thông tin nội dung website.",
       };
     }
     // Kiểm tra độ dài chuỗi
-    if (TieuDe.length > 100 || NoiDung.length > 5000 || HinhAnh.length > 255) {
+    if (title.length > 100 || content.length > 5000 || image.length > 255) {
       return {
         valid: false,
         message: "Độ dài tiêu đề, nội dung hoặc hình ảnh không hợp lệ.",
       };
     }
     // Kiểm tra trùng tiêu đề
-    const existing = await websiteContentModel.findOne({ TieuDe });
+    const existing = await WebsiteContent.findOne({ title });
     if (
       existing &&
       (!websiteContentId ||
@@ -28,8 +28,10 @@ const websiteContentCon = {
     ) {
       return { valid: false, message: "Tiêu đề nội dung đã tồn tại." };
     }
-    // Kiểm tra MaND có tồn tại trong loại nội dung không
-    const contentTypeExists = await contentTypeModel.findById(MaND).exec();
+    // Kiểm tra content_type_id có tồn tại trong loại nội dung không
+    const contentTypeExists = await ContentType.findById(
+      content_type_id
+    ).exec();
     if (!contentTypeExists) {
       return { valid: false, message: "Mã loại nội dung không hợp lệ." };
     }
@@ -54,17 +56,16 @@ const websiteContentCon = {
       // Tìm kiếm theo tiêu đề (không phân biệt hoa thường)
       if (search) {
         query.$or = [
-          { TieuDe: { $regex: search, $options: "i" } },
-          { NoiDung: { $regex: search, $options: "i" } },
+          { title: { $regex: search, $options: "i" } },
+          { content: { $regex: search, $options: "i" } },
         ];
       }
 
       // Lọc theo trạng thái nếu có
       if (typeof status !== "undefined") {
         // Chấp nhận cả true/false dạng string
-        if (status === "true" || status === true) query.TrangThai = true;
-        else if (status === "false" || status === false)
-          query.TrangThai = false;
+        if (status === "true" || status === true) query.status = true;
+        else if (status === "false" || status === false) query.status = false;
       }
 
       // Sắp xếp
@@ -75,14 +76,13 @@ const websiteContentCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [websiteContents, total] = await Promise.all([
-        websiteContentModel
-          .find(query)
-          .populate("LoaiNoiDung")
+        WebsiteContent.find(query)
+          .populate("content_type")
           .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
           .exec(),
-        websiteContentModel.countDocuments(query),
+        WebsiteContent.countDocuments(query),
       ]);
 
       if (!websiteContents || websiteContents.length === 0) {
@@ -117,13 +117,13 @@ const websiteContentCon = {
         limit = 10,
       } = req.query;
 
-      const query = { TrangThai: true }; // Chỉ lấy nội dung đã được đăng
+      const query = { status: true }; // Chỉ lấy nội dung đã được đăng
 
       // Tìm kiếm theo tiêu đề (không phân biệt hoa thường)
       if (search) {
         query.$or = [
-          { TieuDe: { $regex: search, $options: "i" } },
-          { NoiDung: { $regex: search, $options: "i" } },
+          { title: { $regex: search, $options: "i" } },
+          { content: { $regex: search, $options: "i" } },
         ];
       }
 
@@ -135,19 +135,18 @@ const websiteContentCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [websiteContents, total] = await Promise.all([
-        websiteContentModel
-          .find(query)
+        WebsiteContent.find(query)
           .populate({
-            path: "LoaiNoiDung",
-            match: { TrangThai: true }, // Chỉ lấy loại nội dung đã được đăng
-            select: "-TrangThai",
+            path: "content_type",
+            match: { status: true }, // Chỉ lấy loại nội dung đã được đăng
+            select: "-status",
           })
-          .select("-TrangThai") // Không trả về trường TrangThai của nội dung
+          .select("-status")
           .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
           .exec(),
-        websiteContentModel.countDocuments(query),
+        WebsiteContent.countDocuments(query),
       ]);
 
       if (!websiteContents || websiteContents.length === 0) {
@@ -174,9 +173,8 @@ const websiteContentCon = {
   // === LẤY NỘI DUNG WEBSITE THEO ID ===
   getWebsiteContentById: async (req, res) => {
     try {
-      const websiteContentData = await websiteContentModel
-        .findById(req.params.id)
-        .populate("LoaiNoiDung") // populate theo virtual field
+      const websiteContentData = await WebsiteContent.findById(req.params.id)
+        .populate("content_type") // populate theo virtual field
         .exec();
 
       if (!websiteContentData) {
@@ -197,7 +195,7 @@ const websiteContentCon = {
   // === THÊM NỘI DUNG WEBSITE ===
   addWebsiteContent: async (req, res) => {
     try {
-      const newWebsiteContent = new websiteContentModel(req.body);
+      const newWebsiteContent = new WebsiteContent(req.body);
       // Validate website content data
       const validation = await websiteContentCon.validateWebsiteContent(
         newWebsiteContent
@@ -219,7 +217,7 @@ const websiteContentCon = {
   // === CẬP NHẬT NỘI DUNG WEBSITE ===
   updateWebsiteContent: async (req, res) => {
     try {
-      const websiteContentToUpdate = await websiteContentModel.findById(
+      const websiteContentToUpdate = await WebsiteContent.findById(
         req.params.id
       );
       if (!websiteContentToUpdate) {
@@ -258,14 +256,14 @@ const websiteContentCon = {
   // === XÓA NỘI DUNG WEBSITE ===
   deleteWebsiteContent: async (req, res) => {
     try {
-      const websiteContentToDelete = await websiteContentModel.findById(
+      const websiteContentToDelete = await WebsiteContent.findById(
         req.params.id
       );
       if (!websiteContentToDelete) {
         return res
           .status(404)
           .json({ message: "Nội dung website không tồn tại." });
-      } else if (websiteContentToDelete.TrangThai) {
+      } else if (websiteContentToDelete.status) {
         return res
           .status(400)
           .json({ message: "Không thể xóa nội dung đã được đăng." });

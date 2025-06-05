@@ -33,14 +33,7 @@ const accountCon = {
       userData;
 
     // Kiểm tra các trường bắt buộc
-    if (
-      !email ||
-      !password ||
-      !first_name ||
-      last_name ||
-      !phone_number ||
-      !address
-    ) {
+    if (!email || !password || !phone_number) {
       return {
         valid: false,
         message: "Vui lòng điền đầy đủ thông tin người dùng.",
@@ -84,6 +77,7 @@ const accountCon = {
   addUserAccount: async (req, res) => {
     try {
       const checkAccount = new User(req.body);
+      console.log(req.body);
       const validation = await accountCon.validateUser(checkAccount);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });

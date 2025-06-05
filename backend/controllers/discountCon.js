@@ -118,7 +118,7 @@ const discountCon = {
 
       const [discounts, total] = await Promise.all([
         Discount.find(query)
-          .sort(sortObj)
+          .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
           .exec(),

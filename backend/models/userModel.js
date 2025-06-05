@@ -39,15 +39,17 @@ const UserSchema = new mongoose.Schema(
     phone_number: {
       type: String,
       minlength: 10,
+      default: "0300000000",
       validate: {
         validator: function (v) {
-          return /^(0[3|5|7|8|9])+([0-9]{8})$/.test(v);
+          return /^\d{10}$/.test(v);
         },
         message: (props) =>
           `${props.value} không phải là số điện thoại hợp lệ!`,
       },
       maxlength: 15,
       trim: true,
+      required: true,
     },
     request: {
       type: String,

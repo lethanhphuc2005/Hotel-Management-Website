@@ -177,7 +177,7 @@ const roomClassCon = {
 
       // Lấy dữ liệu loại phòng
       let roomClasses = await RoomClass.find(query)
-        .sort(sortObj)
+        .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
         .populate([
@@ -195,6 +195,7 @@ const roomClassCon = {
 
       // Lọc theo tiện nghi nếu có
       let filteredRoomClasses = roomClasses;
+      let filteredTotal = total;
       if (feature) {
         const featureList = Array.isArray(feature) ? feature : [feature];
         filteredRoomClasses = roomClasses.filter((room) => {
@@ -203,6 +204,7 @@ const roomClassCon = {
             .filter(Boolean);
           return featureList.every((id) => roomFeatureIds.includes(id));
         });
+        filteredTotal = filteredRoomClasses.length;
       }
 
       if (!filteredRoomClasses || filteredRoomClasses.length === 0) {
@@ -215,10 +217,10 @@ const roomClassCon = {
         message: "Lấy tất cả loại phòng thành công",
         data: filteredRoomClasses,
         pagination: {
-          total: total,
+          total: filteredTotal,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / parseInt(limit)),
+          totalPages: Math.ceil(filteredTotal / parseInt(limit)),
         },
       });
     } catch (error) {
@@ -277,6 +279,7 @@ const roomClassCon = {
 
       // Đếm tổng số bản ghi phù hợp
       const total = await RoomClass.countDocuments(query);
+
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       // Xác định sort object
@@ -309,6 +312,7 @@ const roomClassCon = {
         .exec();
 
       let filteredRoomClasses = roomClasses;
+      let filteredTotal = total;
       if (feature) {
         const featureList = Array.isArray(feature) ? feature : [feature];
         filteredRoomClasses = roomClasses.filter((room) => {
@@ -317,6 +321,7 @@ const roomClassCon = {
             .filter(Boolean);
           return featureList.every((id) => roomFeatureIds.includes(id));
         });
+        filteredTotal = filteredRoomClasses.length;
       }
 
       if (!filteredRoomClasses || filteredRoomClasses.length === 0) {
@@ -329,10 +334,10 @@ const roomClassCon = {
         message: "Lấy tất cả loại phòng thành công",
         data: filteredRoomClasses,
         pagination: {
-          total: total,
+          total: filteredTotal,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(total / parseInt(limit)),
+          totalPages: Math.ceil(filteredTotal / parseInt(limit)),
         },
       });
     } catch (error) {

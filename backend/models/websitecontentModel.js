@@ -26,7 +26,7 @@ const WebsiteContentSchema = new mongoose.Schema(
       default: "",
       maxlength: 255,
     },
-    TrangThai: {
+    status: {
       type: Boolean,
       default: false,
       required: true,

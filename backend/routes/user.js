@@ -12,7 +12,7 @@ router.get(
 
 // === LẤY USER THEO ID ===
 router.get(
-  "/userinfo/:id",
+  "/user-info/:id",
   middlewareCon.authorizeSelfOrRoles("admin", "receptionist"),
   userCon.getUserById
 );
@@ -24,9 +24,16 @@ router.put(
   userCon.updateUser
 );
 
+// === CẬP NHẬT TRẠNG THÁI USER ===
+router.put(
+  "/set-status/:id",
+  middlewareCon.authorizeRoles("admin"),
+  userCon.setStatusUser
+);
+
 // === ĐỔI MẬT KHẨU USER ===
 router.put(
-  "/changepassword/:id",
+  "/change-password/:id",
   middlewareCon.authorizeSelfOnly(),
   userCon.changePassword
 );

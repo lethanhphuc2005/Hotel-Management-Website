@@ -59,10 +59,7 @@ const roomCon = {
 
       // Tìm kiếm theo tên phòng (không phân biệt hoa thường)
       if (search) {
-        query.$or = [
-          { name: { $regex: search, $options: "i" } },
-          { floor: { $regex: search, $options: "i" } },
-        ];
+        query.$or = [{ name: { $regex: search, $options: "i" } }];
       }
 
       // Lọc theo trạng thái
@@ -91,6 +88,11 @@ const roomCon = {
         .skip(skip)
         .limit(parseInt(limit))
         .exec();
+
+      // Kiểm tra xem có phòng nào được tìm thấy không
+      if (!rooms || rooms.length === 0) {
+        return res.status(404).json({ message: "Không tìm thấy phòng nào" });
+      }
 
       const total = await Room.countDocuments(query);
 

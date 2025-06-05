@@ -132,6 +132,10 @@ const employeeCon = {
         .limit(parseInt(limit))
         .exec();
 
+      if (!users || users.length === 0) {
+        return res.status(404).json("Không tìm thấy nhân viên nào");
+      }
+
       const total = await Employee.countDocuments(query);
 
       res.status(200).json({

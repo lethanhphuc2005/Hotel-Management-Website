@@ -1,24 +1,6 @@
-//chèn multer để upload file
-const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./public/images");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-const checkfile = (req, file, cb) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-    return cb(new Error("Bạn chỉ được upload file ảnh"));
-  }
-  return cb(null, true);
-};
-const upload = multer({ storage: storage, fileFilter: checkfile });
-
-const userModel = require("../models/userModel");
+const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
-const account = require("./accountCon"); // Assuming you have an account controller for validation
+const accountCon = require("./accountCon"); // Assuming you have an account controller for validation
 
 const userCon = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
@@ -37,32 +19,37 @@ const userCon = {
       // Tạo bộ lọc tìm kiếm
       if (search) {
         query.$or = [
-          { TenKH: { $regex: search, $options: "i" } },
-          { Email: { $regex: search, $options: "i" } },
-          { SDT: { $regex: search, $options: "i" } },
-          { DiaChi: { $regex: search, $options: "i" } },
-          { YeuCau_DB: { $regex: search, $options: "i" } },
+          { first_name: { $regex: search, $options: "i" } },
+          { last_name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { phone_number: { $regex: search, $options: "i" } },
+          { address: { $regex: search, $options: "i" } },
+          { request: { $regex: search, $options: "i" } },
         ];
       }
+
       if (typeof status !== "undefined") {
         // Chấp nhận cả true/false dạng string
         if (status === "true" || status === true) {
-          query.TrangThai = true;
+          query.status = true;
         } else if (status === "false" || status === false) {
-          query.TrangThai = false;
+          query.status = false;
         }
       }
 
       const sortOption = {};
       sortOption[sort] = order === "asc" ? 1 : -1;
 
-      const users = await userModel
-        .find(query)
-        .sort(sortOption)
-        .skip((page - 1) * limit)
-        .limit(limit);
+      const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      const total = await userModel.countDocuments(query);
+      const users = await User.find(query)
+        .sort(sortOption)
+        .select("-password") // Loại bỏ trường password và __v
+        .skip(skip)
+        .limit(parseInt(limit))
+        .exec();
+
+      const total = await User.countDocuments(query);
 
       if (!users || users.length === 0) {
         return res.status(404).json("Không tìm thấy user nào");
@@ -85,10 +72,11 @@ const userCon = {
   // ==== LẤY USER THEO ID ====
   getUserById: async (req, res) => {
     try {
-      const user = await userModel.findById(req.params.id);
+      const user = await User.findById(req.params.id).select("-password");
       if (!user) {
         return res.status(404).json("Không tìm thấy user");
       }
+      // Chỉ trả về các trường cần thiết, tránh lộ thông tin nhạy cảm
       res.status(200).json({
         message: "Lấy user thành công",
         data: user,
@@ -109,13 +97,13 @@ const userCon = {
           .status(400)
           .json({ message: "Mật khẩu không được để trống" });
       }
-      const user = await userModel.findById(userId);
+      const user = await User.findById(userId);
 
       if (!user) {
         return res.status(404).json({ message: "Không tìm thấy user" });
       }
 
-      const isMatch = bcrypt.compare(password, user.MatKhau);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res
           .status(401)
@@ -123,7 +111,7 @@ const userCon = {
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await user.updateOne({ $set: { MatKhau: hashedPassword } });
+      await user.updateOne({ $set: { password: hashedPassword } });
 
       res.status(200).json({
         message: "Đổi mật khẩu thành công",
@@ -137,53 +125,78 @@ const userCon = {
   },
 
   // === CẬP NHẬT USER ===
-  updateUser: [
-    upload.single("img"),
-    async (req, res) => {
-      try {
-        const userToUpdate = await userModel.findById(req.params.id);
-        if (!userToUpdate) {
-          return res.status(404).json({ message: "Không tìm thấy user" });
-        }
-        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? userToUpdate.toObject()
-            : { ...userToUpdate.toObject(), ...req.body };
-
-        // Validate dữ liệu cập nhật (dùng validateDiscount bạn đã tạo)
-        const validation = await account.validateUser(
-          updatedData,
-          req.params.id
-        );
-
-        if (!validation.valid) {
-          return res.status(400).json({ message: validation.message });
-        }
-
-        await userToUpdate.updateOne({ $set: req.body });
-        res.status(200).json({
-          message: "Cập nhật user thành công",
-          data: updatedData,
-        });
-      } catch (error) {
-        res.status(500).json(error);
+  updateUser: async (req, res) => {
+    try {
+      const userToUpdate = await User.findById(req.params.id);
+      if (!userToUpdate) {
+        return res.status(404).json({ message: "Không tìm thấy user" });
       }
-    },
-  ],
+
+      // Không cho phép cập nhật trường status qua API này
+      if ("status" in req.body) {
+        return res
+          .status(400)
+          .json({ message: "Không được cập nhật trường status" });
+      }
+
+      // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? userToUpdate.toObject()
+          : { ...userToUpdate.toObject(), ...req.body };
+
+      // Validate dữ liệu cập nhật (dùng validateUser bạn đã tạo)
+      const validation = await accountCon.validateUser(
+        updatedData,
+        req.params.id
+      );
+
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      await userToUpdate.updateOne({ $set: req.body });
+      res.status(200).json({
+        message: "Cập nhật user thành công",
+        data: updatedData,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === CẬP NHẬT TRẠNG THÁI USER ===
+  setStatusUser: async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "Không tìm thấy user để cập nhật trạng thái" });
+      }
+
+      const updatedStatus = !user.status;
+      await user.updateOne({ $set: { status: updatedStatus } });
+
+      res.status(200).json({
+        message: "Cập nhật trạng thái user thành công",
+        data: { userId: user._id, status: updatedStatus }
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Cập nhật trạng thái thất bại", error });
+    }
+  },
 
   // === XOÁ USER ===
   // deleteUser: async (req, res) => {
   //   try {
-  //     const userToDelete = await userModel.findById(req.params.id);
+  //     const userToDelete = await User.findById(req.params.id);
   //     if (!userToDelete) {
   //       return res.status(404).json("Không tìm thấy user để xóa");
-  //     } else if (userToDelete.TrangThai === true) {
+  //     } else if (userToDelete.status === true) {
   //       return res.status(400).json("Không thể xóa user đang hoạt động");
-  //     } else if (userToDelete.TrangThai === false) {
+  //     } else if (userToDelete.status === false) {
   //       return res.status(400).json("User đã bị xóa trước đó");
   //     }
-  //     await userModel.findByIdAndDelete(req.params.id);
+  //     await User.findByIdAndDelete(req.params.id);
 
   //     res.status(200).json({
   //       message: "Xóa user thành công ",
