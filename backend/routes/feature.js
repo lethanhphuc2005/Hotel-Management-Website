@@ -25,11 +25,18 @@ router.put(
   featureCon.updateFeature
 );
 
-// === XÓA TIỆN NGHI ===
-router.delete(
-  "/:id",
+// === KÍCH HOẠT/VÔ HIỆU HÓA TIỆN NGHI ===
+router.put(
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  featureCon.deleteFeature
+  featureCon.toggleFeatureStatus
 );
+
+// // === XÓA TIỆN NGHI ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   featureCon.deleteFeature
+// );
 
 module.exports = router;

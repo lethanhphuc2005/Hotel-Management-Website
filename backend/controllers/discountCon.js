@@ -3,7 +3,16 @@ const Discount = require("../models/discountModel");
 const discountCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN KHUYẾN MÃI ===
   validateDiscount: async (discountData, discountId) => {
-    const { name, description, type, value, start_day, end_day } = discountData;
+    const {
+      name,
+      description,
+      type,
+      value,
+      start_day,
+      end_day,
+      quantity,
+      limit,
+    } = discountData;
     // Kiểm tra các trường bắt buộc
     if (
       !name ||
@@ -33,15 +42,41 @@ const discountCon = {
     ) {
       return { valid: false, message: "Tên khuyến mãi đã tồn tại." };
     }
-    // Kiểm tra giá trị khuyến mãi
-    if (typeof value !== "number" || value <= 0) {
-      return { valid: false, message: "Giá trị khuyến mãi phải là số dương." };
-    }
 
     // Kiểm tra loại khuyến mãi
     const allowedLoaiKM = ["Percentage", "Fixed Amount", "Service Discount"];
     if (!allowedLoaiKM.includes(type)) {
       return { valid: false, message: "Loại khuyến mãi không hợp lệ." };
+    }
+
+    if (limit && !["unlimited", "limited"].includes(limit)) {
+      return { valid: false, message: "Giới hạn khuyến mãi không hợp lệ." };
+    }
+
+    // Kiểm tra số lượng nếu loại là "Limited"
+    if (limit === "limited" && (quantity == null || quantity < 1)) {
+      return {
+        valid: false,
+        message: "Số lượng giới hạn phải là số dương.",
+      };
+    } else if (limit === "unlimited" && quantity > 0) {
+      return {
+        valid: false,
+        message: "Không thể đặt số lượng cho khuyến mãi không giới hạn.",
+      };
+    }
+
+    // Kiểm tra giá trị theo loại khuyến mãi
+    if (type === "Percentage" && (value < 0 || value > 100)) {
+      return {
+        valid: false,
+        message: "Giá trị khuyến mãi phần trăm phải từ 0 đến 100.",
+      };
+    } else if (type !== "Percentage" && value < 0) {
+      return {
+        valid: false,
+        message: "Giá trị khuyến mãi cố định phải là số dương.",
+      };
     }
 
     // Kiểm tra ngày bắt đầu và kết thúc
@@ -260,6 +295,51 @@ const discountCon = {
       res.status(200).json({
         message: "Cập nhật khuyến mãi thành công",
         data: updatedData,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === KÍCH HOẠT/VÔ HIỆU HOÁ KHUYẾN MÃI ===
+  toggleDiscountStatus: async (req, res) => {
+    try {
+      const discountToToggle = await Discount.findById(req.params.id);
+      if (!discountToToggle) {
+        return res.status(404).json({ message: "Khuyến mãi không tồn tại." });
+      }
+
+      // Chỉ cho phép vô hiệu hoá nếu khuyến mãi chưa bắt đầu hoặc đã kết thúc
+      const today = new Date();
+      const startDate = new Date(discountToToggle.start_day);
+      const endDate = new Date(discountToToggle.end_day);
+
+      if (
+        discountToToggle.status === true &&
+        today >= startDate &&
+        today <= endDate
+      ) {
+        return res.status(400).json({
+          message: "Không thể vô hiệu hoá khuyến mãi đang hoạt động",
+        });
+      } else if (
+        discountToToggle.status === false &&
+        (today < startDate || today > endDate)
+      ) {
+        return res.status(400).json({
+          message: "Không thể kích hoạt khuyến mãi đã kết thúc hoặc chưa bắt đầu",
+        });
+      } 
+
+      // Chuyển đổi trạng thái
+      discountToToggle.status = !discountToToggle.status;
+      await discountToToggle.save();
+
+      res.status(200).json({
+        message: `Khuyến mãi ${
+          discountToToggle.status ? "đã được kích hoạt" : "đã bị vô hiệu hoá"
+        }`,
+        data: discountToToggle,
       });
     } catch (error) {
       res.status(500).json(error);

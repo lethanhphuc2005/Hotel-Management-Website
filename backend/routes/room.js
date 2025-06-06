@@ -26,11 +26,18 @@ router.put(
   roomCon.updateRoom
 );
 
-// === XÓA PHÒNG ===
-router.delete(
-  "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  roomCon.deleteRoom
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ PHÒNG ===
+router.put(
+  "/toggle/:id",
+  middlewareCon.authorizeRoles("admin", "receptionist"),
+  roomCon.toggleRoomStatus
 );
+
+// // === XÓA PHÒNG ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   roomCon.deleteRoom
+// );
 
 module.exports = router;

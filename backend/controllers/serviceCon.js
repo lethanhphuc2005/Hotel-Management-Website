@@ -5,7 +5,7 @@ const serviceCon = {
   validateService: async (serviceData, serviceId) => {
     const { name, price, description, image } = serviceData;
 
-    if (!name || !price || !description || !image) {
+    if (!name || !description) {
       return {
         valid: false,
         message: "Thiếu thông tin dịch vụ",
@@ -131,7 +131,7 @@ const serviceCon = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const total = await Service.countDocuments(query);
       const services = await Service.find(query)
-        .select("-status -createdAt -updatedAt") 
+        .select("-status -createdAt -updatedAt")
         .sort(sortObj)
         .skip(skip)
         .limit(limit);
@@ -185,7 +185,7 @@ const serviceCon = {
       await newService.save();
 
       res.status(201).json({
-        message: "Cập nhật phòng thành công",
+        message: "Thêm dịch vụ thành công",
         data: newService,
       });
     } catch (error) {
@@ -221,6 +221,32 @@ const serviceCon = {
       );
       res.status(200).json({
         message: "Cập nhật dịch vụ thành công",
+        data: updatedService,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ DỊCH VỤ ===
+  toggleServiceStatus: async (req, res) => {
+    try {
+      const serviceToToggle = await Service.findById(req.params.id);
+      if (!serviceToToggle) {
+        return res.status(404).json({ message: "Dịch vụ không tồn tại" });
+      }
+
+      // Lưu trạng thái mới
+      serviceToToggle.status = !serviceToToggle.status;
+      await serviceToToggle.save();
+
+      // Trả về dịch vụ đã được cập nhật
+      const updatedService = await Service.findById(req.params.id);
+
+      res.status(200).json({
+        message: `Dịch vụ đã ${
+          serviceToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
         data: updatedService,
       });
     } catch (error) {

@@ -183,6 +183,39 @@ const roomCon = {
     }
   },
 
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ PHÒNG ===
+  toggleRoomStatus: async (req, res) => {
+    try {
+      const roomToToggle = await Room.findById(req.params.id).populate(
+        "status"
+      );
+      if (!roomToToggle) {
+        return res.status(404).json({ message: "Không tìm thấy phòng" });
+      }
+
+      const statusExists = await RoomStatus.findById(req.body.room_status_id);
+      if (!statusExists) {
+        return res
+          .status(400)
+          .json({ message: "Trạng thái phòng không hợp lệ" });
+      }
+
+      roomToToggle.room_status_id =
+        req.body.room_status_id || roomToToggle.room_status_id;
+      await roomToToggle.save();
+      const newRoomToggle = await Room.findById(roomToToggle._id).populate("status");
+
+      res.status(200).json({
+        message: "Thay đổi trạng thái phòng thành công",
+        data: newRoomToggle,
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Lỗi khi thay đổi trạng thái phòng", error });
+    }
+  },
+
   // === XÓA PHÒNG ===
   deleteRoom: async (req, res) => {
     try {

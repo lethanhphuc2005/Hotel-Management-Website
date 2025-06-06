@@ -238,6 +238,43 @@ const contentTypeCon = {
     }
   },
 
+  // === KÍCH HOẠT/VÔ HIỆU HÓA LOẠI NỘI DUNG ===
+  toggleContentTypeStatus: async (req, res) => {
+    try {
+      const contentTypeToToggle = await ContentType.findById(req.params.id);
+      if (!contentTypeToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Loại nội dung không tồn tại." });
+      }
+
+      // Kiểm tra xem loại nội dung có đang hoạt động không trong nội dung website
+      const isActive = await WebsiteContent.findOne({
+        content_type_id: req.params.id,
+        status: true,
+      });
+      if (isActive && contentTypeToToggle.status) {
+        return res.status(400).json({
+          message:
+            "Không thể vô hiệu hóa loại nội dung vì có nội dung liên quan.",
+        });
+      }
+
+      // Chuyển đổi trạng thái
+      contentTypeToToggle.status = !contentTypeToToggle.status;
+      await contentTypeToToggle.save();
+
+      res.status(200).json({
+        message: `Loại nội dung đã ${
+          contentTypeToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
+        data: contentTypeToToggle,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
   // === XÓA LOẠI NỘI DUNG ===
   deleteContentType: async (req, res) => {
     try {

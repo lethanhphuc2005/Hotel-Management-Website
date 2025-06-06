@@ -63,6 +63,12 @@ RoomClassSchema.virtual("main_room_class", {
   foreignField: "_id",
 });
 
+RoomClassSchema.virtual("rooms", {
+  ref: "room",
+  localField: "_id",
+  foreignField: "room_class_id",
+});
+
 RoomClassSchema.virtual("features", {
   ref: "room_class_feature",
   localField: "_id",

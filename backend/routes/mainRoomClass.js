@@ -30,11 +30,18 @@ router.put(
   mainRoomClassCon.updateMainRoomClass
 );
 
-// === XÓA LOẠI PHÒNG CHÍNH ===
-router.delete(
-  "/:id",
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG CHÍNH ===
+router.put(
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  mainRoomClassCon.deleteMainRoomClass
+  mainRoomClassCon.toggleMainRoomClassStatus
 );
+
+// // === XÓA LOẠI PHÒNG CHÍNH ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   mainRoomClassCon.deleteMainRoomClass
+// );
 
 module.exports = router;

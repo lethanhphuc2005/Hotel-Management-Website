@@ -115,6 +115,31 @@ const bookingStatusCon = {
     }
   },
 
+  // === KÍCH HOẠT/VÔ HIỆU HOÁ TRẠNG THÁI ===
+  toggleBookingStatus: async (req, res) => {
+    try {
+      const statusToToggle = await BookingStatus.findById(req.params.id);
+      if (!statusToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Trạng thái đặt phòng không tồn tại" });
+      }
+
+      // Chuyển đổi trạng thái
+      statusToToggle.status = !statusToToggle.status;
+      await statusToToggle.save();
+
+      res.status(200).json({
+        message: `Trạng thái đặt phòng đã ${
+          statusToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
+        data: statusToToggle,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
   // === XÓA TRẠNG THÁI ===
   deleteBookingStatus: async (req, res) => {
     try {

@@ -57,7 +57,7 @@ const mainRoomClassCon = {
 
     return { valid: true };
   },
-  // === Lấy tất cả loại phòng với tìm kiếm, sắp xếp, phân trang ===
+  // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH ===
   getAllMainRoomClasses: async (req, res) => {
     try {
       const {
@@ -126,7 +126,7 @@ const mainRoomClassCon = {
     }
   },
 
-  // === Lấy loại phòng cho user ===
+  // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH CHO USER ===
   getAllMainRoomClassesForUser: async (req, res) => {
     try {
       const {
@@ -195,7 +195,7 @@ const mainRoomClassCon = {
     }
   },
 
-  // === Lấy loại phòng theo ID ===
+  // === LẤY LOẠI PHÒNG CHÍNH THEO ID ===
   getMainRoomClassById: async (req, res) => {
     try {
       const mainRoomClass = await MainRoomClass.findById(
@@ -218,7 +218,7 @@ const mainRoomClassCon = {
     }
   },
 
-  // === Thêm loại phòng ===
+  // === THÊM LOẠI PHÒNG CHÍNH ===
   addMainRoomClass: async (req, res) => {
     try {
       const { images = [] } = req.body;
@@ -262,7 +262,7 @@ const mainRoomClassCon = {
     }
   },
 
-  // === Cập nhật loại phòng ===
+  // === CẬP NHẬT LOẠI PHÒNG CHÍNH ===
   updateMainRoomClass: async (req, res) => {
     try {
       const { images = [] } = req.body;
@@ -327,7 +327,51 @@ const mainRoomClassCon = {
     }
   },
 
-  // === Xóa loại phòng ===
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG CHÍNH ===
+  toggleMainRoomClassStatus: async (req, res) => {
+    try {
+      const mainRoomClassToToggle = await MainRoomClass.findById(
+        req.params.id
+      ).populate("room_class_list");
+      if (!mainRoomClassToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Loại phòng chính không tồn tại" });
+      }
+
+      // Kiểm tra xem loại phòng có đang được sử dụng không
+      const isUsed = await RoomClass.findOne({
+        main_room_class_id: req.params.id,
+      });
+      if (isUsed) {
+        return res.status(400).json({
+          message:
+            "Không thể thay đổi trạng thái loại phòng chính này vì nó đang được sử dụng.",
+        });
+      }
+
+      // Chỉ cho phép vô hiệu hóa nếu loại phòng không có loại phòng con nào
+      if (mainRoomClassToToggle.room_class_list.length > 0) {
+        return res.status(400).json({
+          message: "Không thể vô hiệu hóa loại phòng chính có loại phòng con.",
+        });
+      }
+
+      mainRoomClassToToggle.status = !mainRoomClassToToggle.status;
+      await mainRoomClassToToggle.save();
+
+      res.status(200).json({
+        message: `Loại phòng chính đã ${
+          mainRoomClassToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
+        data: mainRoomClassToToggle,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === XOÁ LOẠI PHÒNG CHÍNH ===
   deleteMainRoomClass: async (req, res) => {
     try {
       const mainRoomClass = await MainRoomClass.findById(req.params.id);

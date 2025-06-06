@@ -165,47 +165,50 @@ const userCon = {
     }
   },
 
-  // === CẬP NHẬT TRẠNG THÁI USER ===
-  setStatusUser: async (req, res) => {
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ USER ===
+  toggleUserStatus: async (req, res) => {
     try {
-      const user = await User.findById(req.params.id);
-      if (!user) {
-        return res.status(404).json({ message: "Không tìm thấy user để cập nhật trạng thái" });
+      const userToToggle = await User.findById(req.params.id);
+      if (!userToToggle) {
+        return res.status(404).json({ message: "Không tìm thấy user" });
       }
 
-      const updatedStatus = !user.status;
-      await user.updateOne({ $set: { status: updatedStatus } });
+      // Lưu trạng thái mới
+      userToToggle.status = !userToToggle.status;
+      await userToToggle.save();
 
       res.status(200).json({
-        message: "Cập nhật trạng thái user thành công",
-        data: { userId: user._id, status: updatedStatus }
+        message: `User đã ${
+          userToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
+        data: userToToggle,
       });
     } catch (error) {
-      res.status(500).json({ message: "Cập nhật trạng thái thất bại", error });
+      res.status(500).json({ message: error.message });
     }
   },
 
   // === XOÁ USER ===
-  // deleteUser: async (req, res) => {
-  //   try {
-  //     const userToDelete = await User.findById(req.params.id);
-  //     if (!userToDelete) {
-  //       return res.status(404).json("Không tìm thấy user để xóa");
-  //     } else if (userToDelete.status === true) {
-  //       return res.status(400).json("Không thể xóa user đang hoạt động");
-  //     } else if (userToDelete.status === false) {
-  //       return res.status(400).json("User đã bị xóa trước đó");
-  //     }
-  //     await User.findByIdAndDelete(req.params.id);
+  deleteUser: async (req, res) => {
+    try {
+      const userToDelete = await User.findById(req.params.id);
+      if (!userToDelete) {
+        return res.status(404).json("Không tìm thấy user để xóa");
+      } else if (userToDelete.status === true) {
+        return res.status(400).json("Không thể xóa user đang hoạt động");
+      } else if (userToDelete.status === false) {
+        return res.status(400).json("User đã bị xóa trước đó");
+      }
+      await User.findByIdAndDelete(req.params.id);
 
-  //     res.status(200).json({
-  //       message: "Xóa user thành công ",
-  //       data: { userId: user._id },
-  //     });
-  //   } catch (error) {
-  //     res.status(500).json(error);
-  //   }
-  // },
+      res.status(200).json({
+        message: "Xóa user thành công ",
+        data: { userId: user._id },
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 
 module.exports = userCon;

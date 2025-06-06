@@ -78,9 +78,9 @@ const EmployeeSchema = new mongoose.Schema(
 EmployeeSchema.set("toJSON", {
   versionKey: false,
   transform: function (doc, ret) {
-    ret.id = ret._id;
-    delete ret._id;
+    delete ret.id;
     delete ret.password;
+    return ret;
   },
 });
 

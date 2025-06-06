@@ -253,6 +253,36 @@ const websiteContentCon = {
     }
   },
 
+  // === KÍCH HOẠT/VÔ HIỆU HÓA NỘI DUNG WEBSITE ===
+  toggleWebsiteContentStatus: async (req, res) => {
+    try {
+      const websiteContentToToggle = await WebsiteContent.findById(
+        req.params.id
+      );
+      if (!websiteContentToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Nội dung website không tồn tại." });
+      }
+
+      // Lưu trạng thái mới
+      websiteContentToToggle.status = !websiteContentToToggle.status;
+      await websiteContentToToggle.save();
+      const updatedWebsiteContent = await WebsiteContent.findById(
+        req.params.id
+      ).populate("content_type"); // populate theo virtual field
+
+      res.status(200).json({
+        message: `Nội dung website đã ${
+          websiteContentToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
+        data: updatedWebsiteContent,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
   // === XÓA NỘI DUNG WEBSITE ===
   deleteWebsiteContent: async (req, res) => {
     try {

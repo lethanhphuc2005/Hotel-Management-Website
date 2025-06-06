@@ -2,6 +2,7 @@ const RoomClass = require("../models/roomClassModel");
 const MainRoomClass = require("../models/mainRoomClassModel");
 const Image = require("../models/imageModel");
 const { Room_Class_Feature } = require("../models/featureModel");
+const Room = require("../models/roomModel");
 
 const roomClassCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
@@ -182,6 +183,7 @@ const roomClassCon = {
         .limit(parseInt(limit))
         .populate([
           { path: "main_room_class" },
+          { path: "rooms" },
           {
             path: "features",
             populate: {
@@ -527,6 +529,42 @@ const roomClassCon = {
       res.status(200).json({
         message: "Cập nhật loại phòng thành công",
         data: updatedRoomClass,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG ===
+  toggleRoomClassStatus: async (req, res) => {
+    try {
+      const roomClassToToggle = await RoomClass.findById(req.params.id);
+      if (!roomClassToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy loại phòng phù hợp" });
+      }
+
+      // Kiểm tra nếu loại phòng có các phòng đang hoạt động thì không cho phép thay đổi trạng thái
+      const roomsUsingThisClass = await Room.find({
+        room_class_id: roomClassToToggle._id,
+      });
+      if (roomsUsingThisClass.length > 0) {
+        return res.status(400).json({
+          message:
+            "Không thể thay đổi trạng thái loại phòng này vì nó đang được sử dụng.",
+        });
+      }
+
+      // Thay đổi trạng thái
+      roomClassToToggle.status = !roomClassToToggle.status;
+      await roomClassToToggle.save();
+
+      res.status(200).json({
+        message: `Loại phòng ${
+          roomClassToToggle.status ? "đã được kích hoạt" : "đã bị vô hiệu hóa"
+        }`,
+        data: roomClassToToggle,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });

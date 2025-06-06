@@ -237,18 +237,41 @@ const employeeCon = {
     }
   },
 
-  //   // ====== XOÁ NHÂN VIÊN =====
-  // deleteEmployer: async (req, res) => {
-  //   try {
-  //     const checkUser = await Employee.findByIdAndDelete(req.params.id);
-  //     if (!checkUser) {
-  //       return res.status(404).json({ message: "Không tìm thấy nhân viên" });
-  //     }
-  //     res.status(200).json("Xóa thành công !!!");
-  //   } catch (error) {
-  //     res.status(500).json(error);
-  //   }
-  // },
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ NHÂN VIÊN ===
+  toggleEmployeeStatus: async (req, res) => {
+    try {
+      const userToToggle = await Employee.findById(req.params.id);
+      if (!userToToggle) {
+        return res.status(404).json({ message: "Không tìm thấy nhân viên" });
+      }
+
+      // Chuyển đổi trạng thái
+      userToToggle.status = !userToToggle.status;
+      await userToToggle.save();
+
+      res.status(200).json({
+        message: `Nhân viên ${
+          userToToggle.status ? "đã được kích hoạt" : "đã bị vô hiệu hoá"
+        }`,
+        data: userToToggle,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // ====== XOÁ NHÂN VIÊN =====
+  deleteEmployee: async (req, res) => {
+    try {
+      const checkUser = await Employee.findByIdAndDelete(req.params.id);
+      if (!checkUser) {
+        return res.status(404).json({ message: "Không tìm thấy nhân viên" });
+      }
+      res.status(200).json("Xóa thành công !!!");
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 
 module.exports = employeeCon;

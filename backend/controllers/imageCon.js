@@ -1,4 +1,6 @@
 const Image = require("../models/imageModel");
+const MainRoomClass = require("../models/mainRoomClassModel");
+const RoomClass = require("../models/roomClassModel");
 
 const imageCon = {
   // === KIỂM TRA ĐIỀU KIỆN HÌNH ẢNH ===
@@ -122,8 +124,8 @@ const imageCon = {
             match: { status: true }, // Chỉ lấy loại phòng có trạng thái true
             select: "-status -createdAt -updatedAt", // Loại bỏ các trường không cần thiết
           },
-        ]).
-        select("-status -createdAt -updatedAt") // Loại bỏ các trường không cần thiết
+        ])
+        .select("-status -createdAt -updatedAt") // Loại bỏ các trường không cần thiết
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
@@ -219,6 +221,49 @@ const imageCon = {
       res.status(200).json({
         message: "Cập nhật hình ảnh thành công",
         data: updatedData,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ HÌNH ẢNH ===
+  toggleImageStatus: async (req, res) => {
+    try {
+      const imageToToggle = await Image.findById(req.params.id);
+      if (!imageToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy hình ảnh loại phòng" });
+      }
+
+      // Kiểm tra xem hình ảnh có đang được sử dụng hay không
+      if (imageToToggle.target === "main_room_class") {
+        const mainRoomClass = await MainRoomClass.findOne(
+          imageToToggle.room_class_id
+        );
+        if (mainRoomClass) {
+          return res.status(400).json({
+            message: "Không thể vô hiệu hóa hình ảnh đang được sử dụng",
+          });
+        }
+      } else if (imageToToggle.target === "room_class") {
+        const roomClass = await RoomClass.findOne(imageToToggle.room_class_id);
+        if (roomClass) {
+          return res.status(400).json({
+            message: "Không thể vô hiệu hóa hình ảnh đang được sử dụng",
+          });
+        }
+      }
+
+      imageToToggle.status = !imageToToggle.status;
+      await imageToToggle.save();
+
+      res.status(200).json({
+        message: `Hình ảnh đã ${
+          imageToToggle.status ? "kích hoạt" : "vô hiệu hóa"
+        } thành công`,
+        data: imageToToggle,
       });
     } catch (error) {
       res.status(500).json(error);

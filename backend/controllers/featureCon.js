@@ -264,6 +264,39 @@ const featureCon = {
     }
   },
 
+  // === KÍCH HOẠT/VÔ HIỆU HÓA TIỆN NGHI ===
+  toggleFeatureStatus: async (req, res) => {
+    try {
+      const featureToToggle = await Feature.findById(req.params.id);
+      if (!featureToToggle) {
+        return res.status(404).json({ message: "Tiện nghi không tồn tại." });
+      }
+
+      // Kiểm tra xem tiện nghi có đang được sử dụng trong loại phòng nào không
+      const isUsedInRoomType = await Room_Class_Feature.exists({
+        feature_id: req.params.id,
+      });
+      if (isUsedInRoomType && featureToToggle.status === true) {
+        return res
+          .status(400)
+          .json({ message: "Tiện nghi đang được sử dụng trong loại phòng." });
+      }
+
+      // Cập nhật trạng thái tiện nghi
+      featureToToggle.status = !featureToToggle.status;
+      const updatedFeature = await featureToToggle.save();
+
+      res.status(200).json({
+        message: `Tiện nghi đã ${
+          featureToToggle.status ? "kích hoạt" : "vô hiệu hoá"
+        } thành công`,
+        data: updatedFeature,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
   // === XÓA TIỆN NGHI ===
   deleteFeature: async (req, res) => {
     try {

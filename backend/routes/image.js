@@ -17,24 +17,23 @@ router.get("/user", imageCon.getAllImagesForUser);
 router.get("/:id", imageCon.getImageById);
 
 // === THÊM HÌNH ẢNH ===
-router.post(
-  "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  imageCon.addImage
-);
+router.post("/", middlewareCon.authorizeRoles("admin"), imageCon.addImage);
 
 // === CẬP NHẬT HÌNH ẢNH ===
+router.put("/:id", middlewareCon.authorizeRoles("admin"), imageCon.updateImage);
+
+// === KÍCH HOẠT/VÔ HIỆU HÓA HÌNH ẢNH ===
 router.put(
-  "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  imageCon.updateImage
+  "/toggle/:id",
+  middlewareCon.authorizeRoles("admin"),
+  imageCon.toggleImageStatus
 );
 
-// === XÓA HÌNH ẢNH ===
-router.delete(
-  "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  imageCon.deleteImage
-);
+// // === XÓA HÌNH ẢNH ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin", "receptionist"),
+//   imageCon.deleteImage
+// );
 
 module.exports = router;

@@ -30,11 +30,18 @@ router.put(
   contentTypeCon.updateContentType
 );
 
-// === XÓA LOẠI NỘI DUNG ===
-router.delete(
-  "/:id",
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI NỘI DUNG ===
+router.put(
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  contentTypeCon.deleteContentType
+  contentTypeCon.toggleContentTypeStatus
 );
+
+// // === XÓA LOẠI NỘI DUNG ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   contentTypeCon.deleteContentType
+// );
 
 module.exports = router;

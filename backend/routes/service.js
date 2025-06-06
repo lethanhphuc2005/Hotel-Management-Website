@@ -25,11 +25,18 @@ router.put(
   serviceCon.updateService
 );
 
-// === XÓA DỊCH VỤ ===
-router.delete(
-  "/:id",
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ DỊCH VỤ ===
+router.put(
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  serviceCon.deleteService
+  serviceCon.toggleServiceStatus
 );
+
+// // === XÓA DỊCH VỤ ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   serviceCon.deleteService
+// );
 
 module.exports = router;

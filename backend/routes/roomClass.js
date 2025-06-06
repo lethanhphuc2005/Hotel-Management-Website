@@ -25,6 +25,13 @@ router.put(
   roomTypeCon.updateRoomClass
 );
 
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG ===
+router.put(
+  "/toggle/:id",
+  middleware.authorizeRoles("admin"),
+  roomTypeCon.toggleRoomClassStatus
+);
+
 // === XÓA LOẠI PHÒNG ===
 router.delete(
   "/:id",

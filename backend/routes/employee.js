@@ -31,4 +31,18 @@ router.put(
   employeeCon.changePassword
 );
 
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ NHÂN VIÊN ===
+router.put(
+  "/toggle/:id",
+  middlewareCon.authorizeRoles("admin"),
+  employeeCon.toggleEmployeeStatus
+);
+
+// // === XÓA NHÂN VIÊN ===
+// router.delete(
+//   "/delete/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   employeeCon.deleteEmployee
+// );
+
 module.exports = router;

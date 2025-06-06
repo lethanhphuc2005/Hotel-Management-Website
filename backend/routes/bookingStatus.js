@@ -31,11 +31,18 @@ router.put(
   bookingStatusCon.updateBookingStatus
 );
 
-// === XÓA TRẠNG THÁI ĐẶT PHÒNG ===
-router.delete(
-  "/:id",
+// === KÍCH HOẠT / VÔ HIỆU HÓA TRẠNG THÁI ĐẶT PHÒNG ===
+router.put(
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  bookingStatusCon.deleteBookingStatus
+  bookingStatusCon.toggleBookingStatus
 );
+
+// // === XÓA TRẠNG THÁI ĐẶT PHÒNG ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   bookingStatusCon.deleteBookingStatus
+// );
 
 module.exports = router;

@@ -114,6 +114,42 @@ const roomStatusCon = {
     }
   },
 
+  // === KÍCH HOẠT/ VÔ HIỆU HOÁ TRẠNG THÁI ===
+  toggleRoomStatus: async (req, res) => {
+    try {
+      const statusToToggle = await RoomStatus.findById(req.params.id);
+      if (!statusToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Trạng thái phòng không tồn tại" });
+      }
+
+      const roomsUsingStatus = await Room.find({
+        room_status_id: req.params.id,
+      });
+
+      // Kiểm tra xem trạng thái có đang được sử dụng trong phòng không
+      if (roomsUsingStatus.length > 0 && statusToToggle.status) {
+        return res
+          .status(400)
+          .json({ message: "Trạng thái đang được sử dụng trong phòng" });
+      }
+
+      statusToToggle.status = !statusToToggle.status;
+      await statusToToggle.save();
+      // Trả về trạng thái đã được cập nhật
+      const updatedStatus = await RoomStatus.findById(req.params.id);
+      res.status(200).json({
+        message: `Trạng thái phòng ${
+          statusToToggle.status ? "đã được kích hoạt" : "đã bị vô hiệu hóa"
+        }`,
+        data: updatedStatus,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
   // === XÓA TRẠNG THÁI ===
   deleteRoomStatus: async (req, res) => {
     try {

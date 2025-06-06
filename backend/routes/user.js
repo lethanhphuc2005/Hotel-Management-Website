@@ -24,11 +24,11 @@ router.put(
   userCon.updateUser
 );
 
-// === CẬP NHẬT TRẠNG THÁI USER ===
+// === KÍCH HOẠT/VÔ HIỆU HÓA USER ===
 router.put(
-  "/set-status/:id",
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  userCon.setStatusUser
+  userCon.toggleUserStatus
 );
 
 // === ĐỔI MẬT KHẨU USER ===

@@ -31,11 +31,18 @@ router.put(
   roomStatusCon.updateRoomStatus
 );
 
-// === XÓA TRẠNG THÁI PHÒNG ===
-router.delete(
-  "/:id",
+// === KÍCH HOẠT/ VÔ HIỆU HOÁ TRẠNG THÁI PHÒNG ===
+router.put(
+  "/toggle/:id",
   middlewareCon.authorizeRoles("admin"),
-  roomStatusCon.deleteRoomStatus
+  roomStatusCon.toggleRoomStatus
 );
+
+// // === XÓA TRẠNG THÁI PHÒNG ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeRoles("admin"),
+//   roomStatusCon.deleteRoomStatus
+// );
 
 module.exports = router;
