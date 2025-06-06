@@ -25,7 +25,7 @@ const middlewareCon = {
         next();
       });
     } catch (error) {
-      res.status(500).json("Lỗi xác thực.");
+      res.status(500).json("Đã xảy ra lỗi khi xác thực token: " + error);
     }
   },
 
@@ -50,7 +50,31 @@ const middlewareCon = {
         if (user.id && user.id === req.params.id) {
           next();
         } else {
+          console.log("User ID:", user.id, "Request ID:", req.params.id);
           res.status(403).json("Chỉ chủ tài khoản mới được thao tác.");
+        }
+      });
+    };
+  },
+
+  // === XÁC THỰC BÌNH LUẬN CHO USER HOẶC NHÂN VIÊN ===
+  authorizeComment: () => {
+    return (req, res, next) => {
+      middlewareCon.verifyToken(req, res, () => {
+        const user = req.user;
+        // Kiểm tra xem người dùng có phải là người tạo bình luận hoặc nhân viên liên quan không
+
+        if (!req.body.user_id && !req.body.employee_id) {
+          return res
+            .status(400)
+            .json("Thiếu thông tin người dùng hoặc nhân viên.");
+        }
+
+        // Kiểm tra xem người dùng có phải là người tạo bình luận hoặc nhân viên liên quan không
+        if (user.id === req.body.user_id || user.id === req.body.employee_id) {
+          next();
+        } else {
+          res.status(403).json("Bạn không có quyền thực hiện hành động này.");
         }
       });
     };

@@ -234,7 +234,10 @@ const imageCon = {
             ? imageToUpdate.toObject()
             : { ...imageToUpdate.toObject(), ...req.body };
 
-        const validation = await imageCon.validateImage(updatedData, req.params.id);
+        const validation = await imageCon.validateImage(
+          updatedData,
+          req.params.id
+        );
 
         if (!validation.valid) {
           if (req.file) {
