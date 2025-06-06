@@ -40,6 +40,7 @@ const RoomClassSchema = new mongoose.Schema(
     view: {
       type: String,
       enum: ["sea", "mountain", "city", "garden", "pool"],
+      default: "city",
       trim: true,
     },
     description: {

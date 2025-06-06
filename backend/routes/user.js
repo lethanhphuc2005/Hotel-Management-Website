@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 const userCon = require("../controllers/userCon");
 
 // === LẤY TẤT CẢ USER ===

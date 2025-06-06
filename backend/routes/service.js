@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const serviceCon = require("../controllers/serviceCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 // === LẤY DANH SÁCH DỊCH VỤ ===
 router.get(

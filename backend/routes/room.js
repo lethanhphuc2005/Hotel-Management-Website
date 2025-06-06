@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const roomCon = require("../controllers/roomCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 // === LẤY DANH SÁCH PHÒNG ===
 router.get(

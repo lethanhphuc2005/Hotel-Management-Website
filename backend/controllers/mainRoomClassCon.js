@@ -2,6 +2,11 @@ const MainRoomClass = require("../models/mainRoomClassModel");
 const Image = require("../models/imageModel");
 const { Room_Class_Feature } = require("../models/featureModel");
 const RoomClass = require("../models/roomClassModel");
+const {
+  upload,
+  deleteImagesOnError,
+  deleteOldImages,
+} = require("../middlewares/upload");
 
 const mainRoomClassCon = {
   validateMainRoomClass: async (MainRoomClassData, MainRoomClassId) => {
@@ -219,113 +224,138 @@ const mainRoomClassCon = {
   },
 
   // === THÊM LOẠI PHÒNG CHÍNH ===
-  addMainRoomClass: async (req, res) => {
-    try {
-      const { images = [] } = req.body;
-      const newMainRoomClass = new MainRoomClass(req.body);
+  addMainRoomClass: [
+    upload.array("image", 5),
+    async (req, res) => {
+      try {
+        const newMainRoomClass = new MainRoomClass(req.body);
 
-      // Validate dữ liệu loại phòng chính
-      const validation = await mainRoomClassCon.validateMainRoomClass(
-        newMainRoomClass
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Nếu có hình ảnh: lưu vào bảng hình ảnh & gán vào HinhAnh của loại phòng chính
-      if (Array.isArray(images) && images.length > 0) {
-        const imageDocs = [];
-        for (const imagePath of images) {
-          try {
-            const newImage = new Image({
-              room_class_id: newMainRoomClass._id,
-              url: imagePath,
-              target: "mainRoomClass",
-            });
-            const savedImage = await newImage.save();
-            imageDocs.push(savedImage._id);
-          } catch (error) {
-            newMainRoomClass.images = imageDocs.filter((id) => id);
+        // Validate dữ liệu loại phòng chính
+        const validation = await mainRoomClassCon.validateMainRoomClass(
+          newMainRoomClass
+        );
+        if (!validation.valid) {
+          // Nếu có hình ảnh, xóa ảnh đã upload để tránh lưu trữ không cần thiết
+          if (req.files && req.files.length > 0) {
+            deleteImagesOnError(req.files);
           }
+          return res.status(400).json({ message: validation.message });
         }
-        newMainRoomClass.image = imageDocs;
-      }
 
-      const savedMainRoomClass = await newMainRoomClass.save();
-      return res.status(200).json({
-        message: "Thêm loại phòng chính thành công",
-        data: savedMainRoomClass,
-      });
-    } catch (error) {
-      console.error("Lỗi khi thêm loại phòng chính:", error);
-      return res.status(500).json({ message: "Lỗi server", error });
-    }
-  },
+        // Nếu có hình ảnh: lưu vào bảng hình ảnh & gán vào HinhAnh của loại phòng chính
+        if (Array.isArray(req.files) && req.files.length > 0) {
+          const imageDocs = [];
+
+          for (const file of req.files) {
+            try {
+              const newImage = new Image({
+                room_class_id: newMainRoomClass._id,
+                url: `/images/${file.filename}`, // hoặc `/images/${file.filename}` nếu dùng Multer cấu hình thư mục public
+                target: "main_room_class",
+              });
+
+              const savedImage = await newImage.save();
+              imageDocs.push(savedImage._id);
+            } catch (error) {
+              console.error("Lỗi khi lưu ảnh:", error);
+              // Có thể log hoặc push ảnh lỗi ra một mảng khác để xử lý nếu cần
+            }
+          }
+          newMainRoomClass.images = imageDocs;
+        }
+
+        const savedMainRoomClass = await newMainRoomClass.save();
+        return res.status(200).json({
+          message: "Thêm loại phòng chính thành công",
+          data: savedMainRoomClass,
+        });
+      } catch (error) {
+        if (req.files && req.files.length > 0) {
+          deleteImagesOnError(req.files);
+        }
+        return res.status(500).json({ message: "Lỗi server", error });
+      }
+    },
+  ],
 
   // === CẬP NHẬT LOẠI PHÒNG CHÍNH ===
-  updateMainRoomClass: async (req, res) => {
-    try {
-      const { images = [] } = req.body;
-
-      const mainRoomClassToUpdate = await MainRoomClass.findById(req.params.id);
-      if (!mainRoomClassToUpdate) {
-        return res
-          .status(404)
-          .json({ message: "Loại phòng chính không tồn tại" });
-      }
-
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? mainRoomClassToUpdate.toObject()
-          : { ...mainRoomClassToUpdate.toObject(), ...req.body };
-
-      // Validate updated data
-      const validation = await mainRoomClassCon.validateMainRoomClass(
-        updatedData,
-        req.params.id
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Cập nhật MainRoomClass
-      await mainRoomClassToUpdate.updateOne({ $set: req.body });
-
-      // Xử lý cập nhật hình ảnh nếu có trong req.body.images
-      if (images && Array.isArray(images) && images.length > 0) {
-        try {
-          // Xóa các hình ảnh cũ liên kết với mainRoomClass
-          await Image.deleteMany({
-            room_class_id: req.params.id,
-          });
-
-          // Thêm các hình ảnh mới
-          const imageData = images.map((image) => ({
-            room_class_id: req.params.id,
-            url: image,
-            target: "main_room_class",
-          }));
-
-          await Image.insertMany(imageData);
-        } catch (imageError) {
-          return res.status(400).json({
-            message: "Lỗi khi cập nhật hình ảnh",
-            error: imageError.message,
-          });
+  updateMainRoomClass: [
+    upload.array("image", 5),
+    async (req, res) => {
+      try {
+        const mainRoomClassToUpdate = await MainRoomClass.findById(
+          req.params.id
+        );
+        if (!mainRoomClassToUpdate) {
+          return res
+            .status(404)
+            .json({ message: "Loại phòng chính không tồn tại" });
         }
+
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? mainRoomClassToUpdate.toObject()
+            : { ...mainRoomClassToUpdate.toObject(), ...req.body };
+
+        // Validate updated data
+        const validation = await mainRoomClassCon.validateMainRoomClass(
+          updatedData,
+          req.params.id
+        );
+        if (!validation.valid) {
+          if (req.files && req.files.length > 0) {
+            deleteImagesOnError(req.files);
+          }
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Cập nhật MainRoomClass
+        await mainRoomClassToUpdate.updateOne({ $set: updatedData });
+
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+          try {
+            // Lấy danh sách ảnh cũ để xóa file vật lý
+            const oldImages = await Image.find({
+              room_class_id: req.params.id,
+            });
+            const oldImagePaths = oldImages.map((img) => img.url); // ví dụ: "/images/abc.jpg"
+            deleteOldImages(oldImagePaths); // dùng hàm hỗ trợ bạn đã viết
+
+            // Xóa ảnh cũ khỏi DB
+            await Image.deleteMany({ room_class_id: req.params.id });
+
+            // Thêm ảnh mới vào DB
+            const imageData = req.files.map((file) => ({
+              room_class_id: req.params.id,
+              url: `/images/${file.filename}`,
+              target: "main_room_class",
+            }));
+
+            await Image.insertMany(imageData);
+          } catch (imageError) {
+            return res.status(400).json({
+              message: "Lỗi khi cập nhật hình ảnh",
+              error: imageError.message,
+            });
+          }
+        }
+
+        // Lấy lại dữ liệu loại phòng chính đã cập nhật
+        const updatedMainRoomClass = await MainRoomClass.findById(
+          req.params.id
+        ).populate([{ path: "images", select: "url" }]);
+        res.status(200).json({
+          message: "Cập nhật loại phòng chính thành công",
+          data: updatedMainRoomClass,
+        });
+      } catch (error) {
+        if (req.files && req.files.length > 0) {
+          deleteImagesOnError(req.files);
+        }
+        res.status(500).json(error);
       }
-      // Lấy lại dữ liệu loại phòng chính đã cập nhật
-      const updatedMainRoomClass = await MainRoomClass.findById(
-        req.params.id
-      ).populate([{ path: "images", select: "url" }]);
-      res.status(200).json({
-        message: "Cập nhật loại phòng chính thành công",
-        data: updatedMainRoomClass,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG CHÍNH ===
   toggleMainRoomClassStatus: async (req, res) => {

@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const bookingStatusCon = require("../controllers/bookingStatusCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 // === LẤY TẤT CẢ TRẠNG THÁI ĐẶT PHÒNG ===
 router.get(

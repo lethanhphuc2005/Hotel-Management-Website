@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const accountCon = require("../controllers/accountCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 // === ĐĂNG KÝ TÀI KHOẢN QUẢN TRỊ VIÊN ===
 router.post(

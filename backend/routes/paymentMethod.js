@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const paymentMethodCon = require("../controllers/paymentMethodCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 // === LẤY TẤT CẢ PHƯƠNG THỨC THANH TOÁN ===
 router.get(

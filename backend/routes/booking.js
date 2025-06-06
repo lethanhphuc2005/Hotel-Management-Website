@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const bookingCon = require("../controllers/bookingCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 /// === THÊM MỚI ĐẶT PHÒNG ===
 router.post(

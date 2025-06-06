@@ -2,8 +2,8 @@ const Service = require("../models/serviceModel");
 const {
   upload,
   deleteImagesOnError,
-  deleteOldImage,
-} = require("../middleware/upload");
+  deleteOldImages,
+} = require("../middlewares/upload");
 
 const serviceCon = {
   // === KIỂM TRA ĐIỀU KIỆN DỊCH VỤ ===
@@ -243,7 +243,7 @@ const serviceCon = {
           updatedData.image = `/images/${req.file.filename}`;
           // Xoá ảnh cũ nếu có
           if (serviceToUpdate.image) {
-            deleteOldImage(serviceToUpdate.image);
+            deleteOldImages(serviceToUpdate.image);
           }
         } else {
           updatedData.image = serviceToUpdate.image;

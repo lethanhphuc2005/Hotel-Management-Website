@@ -1,24 +1,31 @@
 const ContentType = require("../models/contentTypeModel");
 const WebsiteContent = require("../models/websiteContentModel");
+const {
+  upload,
+  deleteImagesOnError,
+  deleteOldImages,
+} = require("../middlewares/upload");
 
 const websiteContentCon = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===
   validateWebsiteContent: async (websiteContentData, websiteContentId) => {
-    const { title, content, content_type_id, image } = websiteContentData;
+    const { title, content, content_type_id } = websiteContentData;
     // Kiểm tra các trường bắt buộc
-    if (!title || !content || !content_type_id || !image) {
+
+    if (!title || !content || !content_type_id) {
       return {
         valid: false,
         message: "Vui lòng điền đầy đủ thông tin nội dung website.",
       };
     }
     // Kiểm tra độ dài chuỗi
-    if (title.length > 100 || content.length > 5000 || image.length > 255) {
+    if (title.length > 100 || content.length > 5000) {
       return {
         valid: false,
         message: "Độ dài tiêu đề, nội dung hoặc hình ảnh không hợp lệ.",
       };
     }
+
     // Kiểm tra trùng tiêu đề
     const existing = await WebsiteContent.findOne({ title });
     if (
@@ -29,9 +36,7 @@ const websiteContentCon = {
       return { valid: false, message: "Tiêu đề nội dung đã tồn tại." };
     }
     // Kiểm tra content_type_id có tồn tại trong loại nội dung không
-    const contentTypeExists = await ContentType.findById(
-      content_type_id
-    ).exec();
+    const contentTypeExists = await ContentType.findById(content_type_id);
     if (!contentTypeExists) {
       return { valid: false, message: "Mã loại nội dung không hợp lệ." };
     }
@@ -193,65 +198,99 @@ const websiteContentCon = {
   },
 
   // === THÊM NỘI DUNG WEBSITE ===
-  addWebsiteContent: async (req, res) => {
-    try {
-      const newWebsiteContent = new WebsiteContent(req.body);
-      // Validate website content data
-      const validation = await websiteContentCon.validateWebsiteContent(
-        newWebsiteContent
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
+  addWebsiteContent: [
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const newWebsiteContent = new WebsiteContent(req.body);
+        // Validate website content data
+        const validation = await websiteContentCon.validateWebsiteContent(
+          newWebsiteContent
+        );
 
-      const saveWebsiteContent = await newWebsiteContent.save();
-      res.status(200).json({
-        message: "Thêm nội dung website thành công",
-        data: saveWebsiteContent,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+        if (!validation.valid) {
+          if (req.file) {
+            deleteImagesOnError(req.file);
+          }
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Nếu có file ảnh, lưu đường dẫn vào trường image
+        if (req.file) {
+          newWebsiteContent.image = `/images/${req.file.filename}`;
+        }
+
+        const saveWebsiteContent = await newWebsiteContent.save();
+        res.status(200).json({
+          message: "Thêm nội dung website thành công",
+          data: saveWebsiteContent,
+        });
+      } catch (error) {
+        if (req.file) {
+          deleteImageOnError(req.file);
+        }
+        res.status(500).json(error);
+      }
+    },
+  ],
 
   // === CẬP NHẬT NỘI DUNG WEBSITE ===
-  updateWebsiteContent: async (req, res) => {
-    try {
-      const websiteContentToUpdate = await WebsiteContent.findById(
-        req.params.id
-      );
-      if (!websiteContentToUpdate) {
-        return res
-          .status(404)
-          .json({ message: "Nội dung website không tồn tại." });
+  updateWebsiteContent: [
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const websiteContentToUpdate = await WebsiteContent.findById(
+          req.params.id
+        );
+        if (!websiteContentToUpdate) {
+          if (req.file) {
+            deleteImageOnError(req.file);
+          }
+          return res
+            .status(404)
+            .json({ message: "Nội dung website không tồn tại." });
+        }
+
+        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? websiteContentToUpdate.toObject()
+            : { ...websiteContentToUpdate.toObject(), ...req.body };
+
+        // Nếu có file ảnh mới, xóa ảnh cũ và cập nhật đường dẫn mới
+        if (req.file) {
+          updatedData.image = `/images/${req.file.filename}`;
+          if (websiteContentToUpdate.image) {
+            deleteOldImages(websiteContentToUpdate.image);
+          }
+        } else {
+          updatedData.image = websiteContentToUpdate.image;
+        }
+
+        // Validate dữ liệu cập nhật
+        const validation = await websiteContentCon.validateWebsiteContent(
+          updatedData,
+          req.params.id
+        );
+
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Cập nhật nội dung website
+        await websiteContentToUpdate.updateOne({ $set: updatedData });
+        res.status(200).json({
+          message: "Cập nhật nội dung website thành công",
+          data: updatedData,
+        });
+      } catch (error) {
+        if (req.file) {
+          deleteImageOnError(req.file);
+        }
+        res.status(500).json(error);
       }
-
-      // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? websiteContentToUpdate.toObject()
-          : { ...websiteContentToUpdate.toObject(), ...req.body };
-
-      // Validate dữ liệu cập nhật
-      const validation = await websiteContentCon.validateWebsiteContent(
-        updatedData,
-        req.params.id
-      );
-
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Cập nhật nội dung website
-      await websiteContentToUpdate.updateOne({ $set: req.body });
-      res.status(200).json({
-        message: "Cập nhật nội dung website thành công",
-        data: updatedData,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === KÍCH HOẠT/VÔ HIỆU HÓA NỘI DUNG WEBSITE ===
   toggleWebsiteContentStatus: async (req, res) => {

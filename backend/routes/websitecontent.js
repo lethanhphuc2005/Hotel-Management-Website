@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const websiteContentCon = require("../controllers/websiteContentCon");
-const middlewareCon = require("../middleware/middlewareCon");
+const middlewareCon = require("../middlewares/middlewareCon");
 
 // === LẤY TẤT CẢ NỘI DUNG WEBSITE ===
 router.get(

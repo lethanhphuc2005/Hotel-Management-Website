@@ -3,6 +3,11 @@ const MainRoomClass = require("../models/mainRoomClassModel");
 const Image = require("../models/imageModel");
 const { Room_Class_Feature } = require("../models/featureModel");
 const Room = require("../models/roomModel");
+const {
+  upload,
+  deleteImagesOnError,
+  deleteOldImages,
+} = require("../middlewares/upload");
 
 const roomClassCon = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
@@ -23,7 +28,6 @@ const roomClassCon = {
     if (
       !name ||
       !description ||
-      !view ||
       !main_room_class_id ||
       !bed_amount ||
       !capacity
@@ -384,156 +388,182 @@ const roomClassCon = {
   },
 
   // === THÊM LOẠI PHÒNG MỚI ===
-  addRoomClass: async (req, res) => {
-    try {
-      const { images = [], features = [] } = req.body;
-      const newRoomClass = new RoomClass(req.body);
-      const validation = await roomClassCon.validateRoomClass(newRoomClass);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Nếu có hình ảnh: lưu vào bảng hình ảnh & gán vào HinhAnh của loại phòng
-      if (Array.isArray(images) && images.length > 0) {
-        const imageDocs = [];
-        for (const imagePath of images) {
-          try {
-            const newImage = new Image({
-              room_class_id: newRoomClass._id,
-              url: imagePath,
-              target: "room_class",
-            });
-            const savedImage = await newImage.save();
-            imageDocs.push(savedImage._id);
-          } catch (error) {
-            newRoomClass.images = imageDocs.filter((id) => id);
+  addRoomClass: [
+    upload.array("images", 5),
+    async (req, res) => {
+      try {
+        const { features = [] } = req.body;
+        const newRoomClass = new RoomClass(req.body);
+        const validation = await roomClassCon.validateRoomClass(newRoomClass);
+        if (!validation.valid) {
+          if (req.files && req.files.length > 0) {
+            deleteImagesOnError(req.files);
           }
+          return res.status(400).json({ message: validation.message });
         }
-        newRoomClass.images = imageDocs;
-      }
 
-      // Nếu có tiện nghi: lưu vào bảng tiện nghi & gán vào features của loại phòng chính
-      if (Array.isArray(features) && features.length > 0) {
-        const featureDocs = [];
-        for (const feature of features) {
-          try {
-            const newFeature = new Room_Class_Feature({
-              room_class_id: newRoomClass._id,
-              feature_id: feature.feature_id,
-            });
-            const savedFeature = await newFeature.save();
-            featureDocs.push(savedFeature._id);
-          } catch (error) {
-            return res.status(500).json({ message: error.message });
+        // Nếu có hình ảnh: lưu vào bảng hình ảnh & gán vào HinhAnh của loại phòng
+        if (Array.isArray(req.files) && req.files.length > 0) {
+          const imageDocs = [];
+
+          for (const file of req.files) {
+            try {
+              const newImage = new Image({
+                room_class_id: newRoomClass._id,
+                url: `/images/${file.filename}`,
+                target: "room_class",
+              });
+              const savedImage = await newImage.save();
+              imageDocs.push(savedImage._id);
+            } catch (error) {
+              newRoomClass.images = imageDocs.filter((id) => id);
+            }
           }
+          newRoomClass.images = imageDocs;
         }
-        newRoomClass.features = featureDocs;
-      }
 
-      await newRoomClass.save();
-      res.status(201).json({
-        message: "Thêm loại phòng thành công",
-        data: newRoomClass,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+        // Nếu có tiện nghi: lưu vào bảng tiện nghi & gán vào features của loại phòng chính
+        if (Array.isArray(features) && features.length > 0) {
+          const featureDocs = [];
+          for (const feature of features) {
+            try {
+              const newFeature = new Room_Class_Feature({
+                room_class_id: newRoomClass._id,
+                feature_id: feature.feature_id,
+              });
+              const savedFeature = await newFeature.save();
+              featureDocs.push(savedFeature._id);
+            } catch (error) {
+              return res.status(500).json({ message: error.message });
+            }
+          }
+          newRoomClass.features = featureDocs;
+        }
+
+        await newRoomClass.save();
+        res.status(201).json({
+          message: "Thêm loại phòng thành công",
+          data: newRoomClass,
+        });
+      } catch (error) {
+        if (req.files && req.files.length > 0) {
+          deleteImagesOnError(req.files);
+        }
+        res.status(500).json({ message: error.message });
+      }
+    },
+  ],
 
   // === CẬP NHẬT LOẠI PHÒNG ===
-  updateRoomClass: async (req, res) => {
-    try {
-      const { images = [], features = [] } = req.body;
-      const roomClassToUpdate = await RoomClass.findById(req.params.id);
-      if (!roomClassToUpdate) {
-        return res
-          .status(404)
-          .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
-      }
-
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? roomClassToUpdate.toObject()
-          : { ...roomClassToUpdate.toObject(), ...req.body };
-
-      const validation = await roomClassCon.validateRoomClass(
-        updatedData,
-        req.params.id
-      );
-
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Cập nhật hình ảnh
-      if (images && Array.isArray(images) && images.length > 0) {
-        try {
-          // Xóa các hình ảnh cũ liên kết với roomClassMain
-          await Image.deleteMany({
-            room_class_id: req.params.id,
-          });
-
-          // Thêm các hình ảnh mới
-          const imageData = images.map((image) => ({
-            room_class_id: req.params.id,
-            url: image,
-            target: "room_class",
-          }));
-
-          await Image.insertMany(imageData);
-        } catch (imageError) {
-          return res.status(400).json({
-            message: "Lỗi khi cập nhật hình ảnh",
-            error: imageError.message,
-          });
+  updateRoomClass: [
+    upload.array("images", 5),
+    async (req, res) => {
+      try {
+        const { features = [] } = req.body;
+        const roomClassToUpdate = await RoomClass.findById(req.params.id);
+        if (!roomClassToUpdate) {
+          return res
+            .status(404)
+            .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
         }
-      }
 
-      // Cập nhật tiện nghi
-      if (features && Array.isArray(features) && features.length > 0) {
-        try {
-          // Xóa các tiện nghi cũ liên kết với roomClass
-          await Room_Class_Feature.deleteMany({
-            room_class_id: req.params.id,
-          });
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? roomClassToUpdate.toObject()
+            : { ...roomClassToUpdate.toObject(), ...req.body };
 
-          // Thêm các tiện nghi mới
-          const featuresData = features.map((feature) => ({
-            room_class_id: req.params.id,
-            feature_id: feature.feature_id,
-          }));
+        const validation = await roomClassCon.validateRoomClass(
+          updatedData,
+          req.params.id
+        );
 
-          await Room_Class_Feature.insertMany(featuresData);
-        } catch (featureError) {
-          return res.status(400).json({
-            message: "Lỗi khi cập nhật tiện nghi",
-            error: featureError.message,
-          });
+        if (!validation.valid) {
+          if (req.files && req.files.length > 0) {
+            deleteImagesOnError(req.files);
+          }
+          return res.status(400).json({ message: validation.message });
         }
-      }
 
-      // Cập nhật các trường khác
-      await roomClassToUpdate.updateOne({ $set: req.body });
-      // Lấy lại dữ liệu đã cập nhật
-      const updatedRoomClass = await RoomClass.findById(req.params.id).populate(
-        [
+        // Cập nhật hình ảnh
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+          try {
+            // Lấy danh sách ảnh cũ để xóa file vật lý
+            const oldImages = await Image.find({
+              room_class_id: req.params.id,
+            });
+            const oldImagePaths = oldImages.map((img) => img.url); // ví dụ: "/images/abc.jpg"
+            deleteOldImages(oldImagePaths); // dùng hàm hỗ trợ bạn đã viết
+
+            // Xóa các hình ảnh cũ liên kết với roomClassMain
+            await Image.deleteMany({
+              room_class_id: req.params.id,
+            });
+
+            // Thêm các hình ảnh mới
+            const imageData = req.files.map((file) => ({
+              room_class_id: req.params.id,
+              url: `/images/${file.filename}`,
+              target: "room_class",
+            }));
+
+            await Image.insertMany(imageData);
+          } catch (imageError) {
+            return res.status(400).json({
+              message: "Lỗi khi cập nhật hình ảnh",
+              error: imageError.message,
+            });
+          }
+        }
+
+        // Cập nhật tiện nghi
+        if (features && Array.isArray(features) && features.length > 0) {
+          try {
+            // Xóa các tiện nghi cũ liên kết với roomClass
+            await Room_Class_Feature.deleteMany({
+              room_class_id: req.params.id,
+            });
+
+            // Thêm các tiện nghi mới
+            const featuresData = features.map((feature) => ({
+              room_class_id: req.params.id,
+              feature_id: feature.feature_id,
+            }));
+
+            await Room_Class_Feature.insertMany(featuresData);
+          } catch (featureError) {
+            return res.status(400).json({
+              message: "Lỗi khi cập nhật tiện nghi",
+              error: featureError.message,
+            });
+          }
+        }
+
+        // Cập nhật các trường khác
+        await roomClassToUpdate.updateOne({ $set: req.body });
+        // Lấy lại dữ liệu đã cập nhật
+        const updatedRoomClass = await RoomClass.findById(
+          req.params.id
+        ).populate([
           { path: "main_room_class" },
           {
             path: "features",
             populate: { path: "feature_id", model: "feature" },
           },
           { path: "images" },
-        ]
-      );
+        ]);
 
-      res.status(200).json({
-        message: "Cập nhật loại phòng thành công",
-        data: updatedRoomClass,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+        res.status(200).json({
+          message: "Cập nhật loại phòng thành công",
+          data: updatedRoomClass,
+        });
+      } catch (error) {
+        if (req.files && req.files.length > 0) {
+          deleteImagesOnError(req.files);
+        }
+        res.status(500).json({ message: error.message });
+      }
+    },
+  ],
 
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG ===
   toggleRoomClassStatus: async (req, res) => {
