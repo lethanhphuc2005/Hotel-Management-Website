@@ -1,52 +1,125 @@
 <div class="roomtype-management-card">
   <h2>Quản lý loại phòng chính</h2>
+
   <div class="room-controls">
     <input type="text" placeholder="Tìm kiếm loại phòng..." />
-    <button class="add-room" (click)="onAdd()">+ Thêm loại phòng</button>
+    <button class="add-room" (click)="onAdd()">+ Thêm loại phòng chính</button>
   </div>
+
+  <!-- Popup Thêm loại phòng chính -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm loại phòng chính</h2>
+
+      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
+        <div class="popup-section">
+          <label for="name">Tên loại phòng chính:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="newMainRoom.name" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea id="description" name="description" [(ngModel)]="newMainRoom.description"></textarea>
+        </div>
+
+        <div class="popup-section">
+          <label for="status">Trạng thái:</label>
+          <select id="status" name="status" [(ngModel)]="newMainRoom.status">
+            <option [value]="true">Đang hoạt động</option>
+            <option [value]="false">Tạm dừng hoạt động</option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label for="images">Ảnh (URL):</label>
+          <input type="text" id="images" name="images" [(ngModel)]="imageUrl" placeholder="Nhập URL ảnh" />
+        </div>
+
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!addForm.form.valid">Lưu</button>
+          <button type="button" (click)="closeAddPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <div class="table-header">
     <div>STT</div>
     <div>Tên LPC</div>
     <div>Mô tả</div>
-    <div>Trạng thái</div>
     <div>Hình ảnh</div>
     <div>Loại phòng con</div>
+    <div>Trạng thái</div>
     <div>Hành động</div>
   </div>
 
-  <div *ngFor="let rtm of roomTypeMains; let i = index" class="table-row" (click)="onViewDetail(rtm)">
-    <div>{{ rtm.name }}</div>
+  <div *ngFor="let rtm of mainRoomClasses; let i = index" class="table-row">
+    <div>{{ i + 1 }}</div>
+    <div (click)="onViewDetail(rtm)" style="cursor: pointer">{{ rtm.name }}</div>
     <div>{{ rtm.description }}</div>
-    <div class="status-column">
-      <label class="switch">
-        <input type="checkbox" [checked]="rtm.status" (change)="onToggleStatus(rtm)" />
-        <span class="slider round"></span>
-      </label>
-    </div>
     <div class="image-list">
-      <img *ngFor="let img of rtm.images" [src]="img.url" alt="Hình ảnh loại phòng" />
+      <img *ngFor="let img of rtm.images ?? []" [src]="'assets/img/' + img.url" alt="Hình ảnh loại phòng" />
     </div>
     <div>
-      <button (click)="onViewRoomChildPopup(rtm)">Xem danh sách</button>
+      <ul class="room-children-list">
+        <li *ngFor="let rc of rtm.room_class_list">
+          {{ rc.name }}
+        </li>
+      </ul>
     </div>
-    <div class="popup-overlay" *ngIf="isDetailPopupOpen">
-  <div class="popup-content">
-    <h3>Chi tiết loại phòng chính</h3>
-    <p><strong>Tên:</strong> {{ selectedMainRoom?.name }}</p>
-    <p><strong>Mô tả:</strong> {{ selectedMainRoom?.description }}</p>
-    <p><strong>Trạng thái:</strong> {{ selectedMainRoom?.status ? 'Hoạt động' : 'Ẩn' }}</p>
-    <div class="image-list">
-      <img *ngFor="let img of selectedMainRoom?.images" [src]="img.url" />
+    <div class="status-column">
+      <label class="switch">
+        <input type="checkbox" [checked]="rtm.status" (change)="toggleMainRoomClass(rtm); $event.stopPropagation()" />
+        <span class="slider"></span>
+      </label>
     </div>
-    <button (click)="isDetailPopupOpen = false">Đóng</button>
-  </div>
-</div>
-
     <div class="actions">
-     <button class="icon-button" (click)="onEdit(rtm); $event.stopPropagation()">
+      <button class="icon-button" (click)="onEdit(rtm); $event.stopPropagation()">
         <i class="fas fa-pen"></i>
       </button>
     </div>
   </div>
+
+  <!-- Popup chi tiết -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedMainRoom">
+    <div class="popup-content">
+      <h2>Chi tiết loại phòng chính</h2>
+
+      <div class="popup-section">
+        <label>Tên:</label>
+        <span>{{ selectedMainRoom.name }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Mô tả:</label>
+        <span>{{ selectedMainRoom.description }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Trạng thái:</label>
+        <span [ngClass]="selectedMainRoom.status ? 'active' : 'inactive'">
+          {{ selectedMainRoom.status ? 'Đang hoạt động' : 'Tạm dừng hoạt động' }}
+        </span>
+      </div>
+
+      <div class="popup-section">
+        <label>Loại phòng con:</label>
+        <ul>
+          <li *ngFor="let rc of selectedMainRoom.room_class_list">{{ rc.name }}</li>
+        </ul>
+      </div>
+
+      <div class="popup-section">
+        <label>Hình ảnh:</label>
+        <div class="image-list">
+          <img *ngFor="let img of selectedMainRoom.images" [src]="'assets/img/' + img.url" alt="Hình ảnh" />
+        </div>
+      </div>
+
+      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+    </div>
+  </div>
+
 </div>

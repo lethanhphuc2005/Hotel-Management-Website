@@ -1,5 +1,3 @@
-import { HinhAnh } from "./roomtype";
-
 export interface ILoaiNoiDung {
   _id: string;
   TenND: string;

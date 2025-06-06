@@ -8,7 +8,7 @@ import { Status } from '../models/status';
 })
 export class StatusService {
 
-  private apiUrl = 'http://localhost:8000/v1/status';
+  private apiUrl = 'http://localhost:8000/v1/room-status';
 
   constructor(private http: HttpClient) {}
 

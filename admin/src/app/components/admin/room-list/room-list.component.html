@@ -5,45 +5,150 @@
   <div class="room-controls">
     <input type="text" placeholder="Tìm kiếm phòng..." />
     <button class="add-room" (click)="openAddPopup()">+ Thêm Phòng</button>
-    <app-room-add *ngIf="showAddPopup" (added)="onAdded()" (closed)="onClosed()">
-    </app-room-add>
   </div>
+
+  <!-- popup thêm phòng -->
+  <div class="popup-add-popup" *ngIf="isAddRoomPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm phòng</h2>
+
+      <form (ngSubmit)="onAddRoomSubmit()" #addRoomForm="ngForm">
+        <!-- Tên phòng -->
+        <div class="popup-section">
+          <label for="name">Tên phòng:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="newRoom.name" required />
+        </div>
+
+        <!-- Tầng -->
+        <div class="popup-section">
+          <label for="floor">Tầng:</label>
+          <input type="text" id="floor" name="floor" [(ngModel)]="newRoom.floor" required />
+        </div>
+
+        <!-- Chọn loại phòng -->
+        <div class="popup-section">
+          <label for="roomClass">Loại phòng:</label>
+          <select id="roomClass" name="roomClass" [(ngModel)]="newRoom.room_class_id"
+            (change)="onRoomClassChange(newRoom.room_class_id)" required>
+            <option *ngFor="let rc of roomClasses" [value]="rc._id">{{ rc.name }}</option>
+          </select>
+        </div>
+
+        <!-- Tự hiển thị thông tin loại phòng -->
+        <div *ngIf="selectedRoomClassInfo">
+          <div class="popup-section">
+            <label for="bed_amount">Số giường:</label>
+            <input type="text" id="bed_amount" [value]="selectedRoomClassInfo.bed_amount" readonly />
+          </div>
+
+          <div class="popup-section">
+            <label for="price">Giá:</label>
+            <input type="text" id="price" [value]="selectedRoomClassInfo.price | currency:'VND'" readonly />
+          </div>
+
+          <div class="popup-section">
+            <label for="description">Mô tả:</label>
+            <textarea id="description" [value]="selectedRoomClassInfo.description" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!addRoomForm.form.valid">Lưu</button>
+          <button type="button" (click)="closeAddRoomPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <!-- Table Header -->
   <div class="table-header">
     <div>STT</div>
-    <div>TÊN PHÒNG</div>
-    <div>TẦNG</div>
-    <div>TRẠNG THÁI</div>
-    <div>SỐ GIƯỜNG</div>
-    <div>GIÁ</div>
-    <div>MÔ TẢ</div>
-    <div>TIỆN NGHI</div>
-    <div>HÀNH ĐỘNG</div>
+    <div>Tên phòng</div>
+    <div>Tầng</div>
+    <div>Tên loại phòng</div>
+    <div>Trạng thái</div>
+    <div>Số giường</div>
+    <div>Giá</div>
+    <div>Mô tả</div>
+    <!-- <div>Tiện nghi</div> -->
+    <div>Hành động</div>
   </div>
 
-  <!-- Table Row -->
-  <!-- Table Row -->
+  <!-- Table Rows -->
   <div class="table-row" *ngFor="let room of rooms; let i = index">
     <div>{{ i + 1 }}</div>
-    <div>{{ room.TenPhong }}</div>
-    <div>{{ room.Tang }}</div>
-    <div>{{ room.TrangThai.TenTT || 'Không rõ' }}</div>
-    <div>{{ room.MaLP.SoGiuong }}</div>
-    <div>{{ room.MaLP.GiaPhong | currency:'VND' }}</div>
-    <div>{{ room.MaLP.MoTa }}</div>
-    <div>{{ getTienNghiNames(room.MaLP.TienNghi) }}</div>
+    <div (click)="viewRoomDetail(room)" style="cursor: pointer">{{ room.name }}</div>
+    <div>{{ room.floor }}</div>
+    <div>{{ room.room_class[0].name || 'Không rõ' }}</div>
+    <div>{{ room.status[0].name || 'Không rõ' }}</div>
+    <div>{{ room.room_class[0].bed_amount }}</div>
+    <div>{{ room.room_class[0].price | currency: 'VND' }}</div>
+    <div>{{ room.room_class[0].description }}</div>
+    <!-- <div>{{ getFeatureNames(room) }}</div> -->
     <div class="actions">
       <!-- Switch Toggle -->
-      <label class="switch">
-        <input type="checkbox" [checked]="room.TrangThai.TenTT === 'Hoạt động'" (change)="toggleRoomStatus(room)">
+      <!-- <label class="switch">
+        <input type="checkbox" [checked]="room.status" (change)="toggleRoomStatus(room)" />
         <span class="slider"></span>
-      </label>
+      </label> -->
 
       <!-- Edit icon -->
-      <button (click)="editRoom(room)" title="Sửa phòng">
-        <i class="fas fa-edit"></i>
+      <button class="icon-button" (click)="editRoom(rt); $event.stopPropagation()">
+        <i class="fas fa-pen"></i>
       </button>
+    </div>
+  </div>
+  <div class="popup-overlay" *ngIf="isRoomDetailOpen && selectedRoom">
+    <div class="popup-content">
+      <h2>Chi tiết phòng: {{ selectedRoom.name }}</h2>
+
+      <div class="popup-section">
+        <label>Tên phòng:</label>
+        <span>{{ selectedRoom.name || 'Không rõ' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Tầng:</label>
+        <span>{{ selectedRoom.floor }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Trạng thái:</label>
+        <span>{{ selectedRoom.status[0]?.name }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Mô tả:</label>
+        <span>{{ selectedRoom.room_class[0]?.description }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Số giường:</label>
+        <span>{{ selectedRoom.room_class[0]?.bed_amount }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Tên loại phòng:</label>
+        <span>{{ selectedRoom.room_class[0]?.name }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Giá:</label>
+        <span>{{ selectedRoom.room_class[0]?.price | currency: 'VND':'symbol' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Giá giảm:</label>
+        <span>{{ selectedRoom.room_class[0]?.price_discount | currency: 'VND':'symbol' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Sức chứa:</label>
+        <span>{{ selectedRoom.room_class[0]?.capacity }} người</span>
+      </div>
+
+      <button class="close-btn" (click)="isRoomDetailOpen = false">Đóng</button>
     </div>
   </div>
 

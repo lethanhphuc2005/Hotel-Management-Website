@@ -1,29 +1,12 @@
+import { RoomClass } from "./room-class";
 import { Status } from "./status";
-
-export interface TienNghi {
-  _id: string;
-  TenTN: string;
-  MoTa: string;
-  MaLP: string;
-}
-
-export interface LoaiPhong {
-  _id: string;
-  TenLP: string;
-  SoGiuong: number;
-  GiaPhong: number;
-  MoTa: string;
-  TienNghi: TienNghi[];
-}
 
 export interface Room {
   _id: string;
-  Tang: number;
-  TrangThai: Status;  // sửa thành Status (object)
-  MaLP: LoaiPhong;
-  TenPhong: string;
-  isActive?: any;
-  TenLP?: any;
+  name: string;
+  floor: number;
+  room_class_id: string;
+  room_status_id: string;
+  room_class: RoomClass[]; // API trả về mảng
+  status: Status[];        // API trả về mảng
 }
-
-

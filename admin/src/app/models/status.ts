@@ -1,6 +1,5 @@
-// status.model.ts
 export interface Status {
   _id: string;
-  TenTT: string;
-  LoaiTT: string;
+  name: string;
+  status: boolean;
 }

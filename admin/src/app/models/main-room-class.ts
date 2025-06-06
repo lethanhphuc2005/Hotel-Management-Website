@@ -1,10 +1,12 @@
 export interface MainRoomClass {
+room_classes: any;
   _id: string;
   name: string;
   description: string;
   status: boolean;
   room_class_list: RoomClass[];
   images: RoomClassImage[];
+  [key: string]: any;
 }
 
 export interface RoomClass {
@@ -18,6 +20,7 @@ export interface RoomClass {
   price_discount: number;
   status: boolean;
   main_room_class_id: string;
+  [key: string]: any;
 }
 
 export interface RoomClassImage {

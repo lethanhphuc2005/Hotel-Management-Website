@@ -1,3 +1,196 @@
-<p>
-  room-class-list works!
-</p>
+<div class="room-management user-management-card">
+  <h2>Quản lý loại phòng</h2>
+
+  <!-- Controls -->
+  <div class="room-controls">
+    <input type="text" placeholder="Tìm kiếm loại phòng..." />
+    <button class="add-room" (click)="onAdd()">+ Thêm loại phòng</button>
+  </div>
+
+  <!-- Popup Thêm loại phòng -->
+<div class="popup-add-popup" *ngIf="isAddRoomPopupOpen">
+  <div class="popup-content">
+    <h2>Thêm loại phòng</h2>
+
+    <form (ngSubmit)="onAddRoomClassSubmit()" #addRoomForm="ngForm">
+      <div class="popup-section">
+        <label for="name">Tên loại phòng:</label>
+        <input type="text" id="name" name="name" [(ngModel)]="newRoomClass.name" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="description">Mô tả:</label>
+        <textarea id="description" name="description" [(ngModel)]="newRoomClass.description"></textarea>
+      </div>
+
+      <div class="popup-section">
+        <label for="bed">Số giường:</label>
+        <input type="number" id="bed" name="bed" [(ngModel)]="newRoomClass.bed_amount" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="view">View:</label>
+        <input type="text" id="view" name="view" [(ngModel)]="newRoomClass.view" />
+      </div>
+
+      <div class="popup-section">
+        <label for="capacity">Sức chứa:</label>
+        <input type="number" id="capacity" name="capacity" [(ngModel)]="newRoomClass.capacity" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="price">Giá:</label>
+        <input type="number" id="price" name="price" [(ngModel)]="newRoomClass.price" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="mainRoomClass">Loại phòng chính:</label>
+        <select id="mainRoomClass" name="mainRoomClass" [(ngModel)]="newRoomClass.main_room_class_id" required>
+          <option *ngFor="let mrc of mainRoomClasses" [value]="mrc._id">{{ mrc.name }}</option>
+        </select>
+      </div>
+
+      <div class="popup-section">
+        <label>Chọn tiện nghi:</label>
+        <div *ngFor="let f of features">
+          <label>
+            <input type="checkbox" [(ngModel)]="f.selected" name="feature-{{f._id}}" />
+            {{ f.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="popup-actions">
+        <button type="submit" [disabled]="!addRoomForm.form.valid">Lưu</button>
+        <button type="button" (click)="closeAddRoomPopup()">Hủy</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- Table Header -->
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên</div>
+    <div>Số giường</div>
+    <div>Mô tả</div>
+    <div>View</div>
+    <div>Sức chứa (người)</div>
+    <div>Giá</div>
+    <!-- <div>Giá giảm</div> -->
+    <div>Tên LPC</div>
+    <div>Tiện nghi</div>
+    <div>Hành động</div>
+  </div>
+
+  <!-- Table Rows -->
+  <div class="table-row" *ngFor="let rc of roomClasses; let i = index">
+    <div>{{ i + 1 }}</div>
+    <!-- <div>{{ rc.name }}</div> -->
+    <div (click)="onViewDetail(rc)" style="cursor: pointer">{{ rc.name }}</div>
+    <div>{{ rc.bed_amount }}</div>
+    <div>{{ rc.description }}</div>
+    <div>{{ rc.view }}</div>
+    <div>{{ rc.capacity }}</div>
+    <div>{{ rc.price | currency: 'VND':'symbol' }}</div>
+    <!-- <div>{{ rc.price_discount | currency: 'VND':'symbol' }}</div> -->
+    <div>{{ rc.main_room_class[0]?.name }}</div>
+
+    <!-- Tiện nghi -->
+    <div>
+      <button (click)="toggleFeatureDropdown(rc)">Xem</button>
+      <div *ngIf="rc.showFeatures" class="feature-dropdown">
+        <div *ngFor="let f of rc.features">
+          <label>
+            <!-- <input type="checkbox" [(ngModel)]="f.selected" /> -->
+            {{ f.feature_id.name }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hành động -->
+    <div class="actions">
+      <label class="switch">
+        <input
+        type="checkbox"
+          [checked]="rc.status"
+          (change)="toggleStatus(rc)"
+        />
+        <span class="slider"></span>
+      </label>
+
+      <button class="icon-button" (click)="onEdit(rc)">
+        <i class="fas fa-pen"></i>
+      </button>
+    </div>
+  </div>
+<!-- Popup chi tiết loại phòng -->
+<div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedRoomClass">
+  <div class="popup-content">
+    <h2>Chi tiết loại phòng</h2>
+
+    <div class="popup-section">
+      <label>Tên loại phòng:</label>
+      <span>{{ selectedRoomClass.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Mô tả:</label>
+      <span>{{ selectedRoomClass.description }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span [ngClass]="selectedRoomClass.status ? 'active' : 'inactive'">
+        {{ selectedRoomClass.status ? 'Đang hoạt động' : 'Ngưng hoạt động' }}
+      </span>
+    </div>
+
+    <div class="popup-section">
+      <label>Số giường:</label>
+      <span>{{ selectedRoomClass.bed_amount }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>View:</label>
+      <span>{{ selectedRoomClass.view }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Loại phòng chính:</label>
+      <span>{{ selectedRoomClass.main_room_class[0]?.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Sức chứa:</label>
+      <span>{{ selectedRoomClass.capacity }} người</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Giá:</label>
+      <span>{{ selectedRoomClass.price | currency: 'VND':'symbol' }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="selectedRoomClass.rooms?.length">
+      <label>Danh sách phòng:</label>
+      <ul>
+        <li *ngFor="let room of selectedRoomClass.rooms">{{ room.name }}</li>
+      </ul>
+    </div>
+
+    <div class="popup-section" *ngIf="selectedRoomClass.features?.length">
+      <label>Danh sách tiện nghi:</label>
+      <ul>
+        <li *ngFor="let f of selectedRoomClass.features">
+          {{ f.feature_id.name }}
+        </li>
+      </ul>
+    </div>
+
+    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+  </div>
+</div>
+
+</div>
