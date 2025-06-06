@@ -1,9 +1,14 @@
 const Service = require("../models/serviceModel");
+const {
+  upload,
+  deleteImagesOnError,
+  deleteOldImage,
+} = require("../middleware/upload");
 
 const serviceCon = {
   // === KIỂM TRA ĐIỀU KIỆN DỊCH VỤ ===
   validateService: async (serviceData, serviceId) => {
-    const { name, price, description, image } = serviceData;
+    const { name, price, description } = serviceData;
 
     if (!name || !description) {
       return {
@@ -41,7 +46,6 @@ const serviceCon = {
     ) {
       return { valid: false, message: "Tên dịch vụ đã tồn tại" };
     }
-
     return { valid: true };
   },
 
@@ -173,60 +177,95 @@ const serviceCon = {
   },
 
   // === THÊM DỊCH VỤ MỚI ===
-  addService: async (req, res) => {
-    try {
-      const newService = new Service(req.body);
-      const validation = await serviceCon.validateService(newService);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
+  addService: [
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const newService = new Service(req.body);
+        const validation = await serviceCon.validateService(newService);
+        if (!validation.valid) {
+          if (req.file) {
+            deleteImagesOnError(req.file);
+          }
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Gắn ảnh nếu có
+        if (req.file) {
+          newService.image = `/images/${req.file.filename}`;
+        }
+
+        // Lưu dịch vụ mới
+        await newService.save();
+
+        res.status(201).json({
+          message: "Thêm dịch vụ thành công",
+          data: newService,
+        });
+      } catch (error) {
+        if (req.file) {
+          deleteImagesOnError(req.file);
+        }
+        res.status(500).json({ message: error.message });
       }
-
-      // Lưu dịch vụ mới
-      await newService.save();
-
-      res.status(201).json({
-        message: "Thêm dịch vụ thành công",
-        data: newService,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+    },
+  ],
 
   // === CẬP NHẬT DỊCH VỤ ===
-  updateService: async (req, res) => {
-    try {
-      const serviceToUpdate = await Service.findById(req.params.id);
-      if (!serviceToUpdate) {
-        return res.status(404).json({ message: "Dịch vụ không tồn tại" });
+  updateService: [
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const serviceToUpdate = await Service.findById(req.params.id);
+        if (!serviceToUpdate) {
+          return res.status(404).json({ message: "Dịch vụ không tồn tại" });
+        }
+
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? serviceToUpdate.toObject()
+            : { ...serviceToUpdate.toObject(), ...req.body };
+
+        const validation = await serviceCon.validateService(
+          updatedData,
+          req.params.id,
+          req.file
+        );
+        if (!validation.valid) {
+          if (req.file) {
+            deleteImagesOnError(req.file);
+          }
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Gắn ảnh mới nếu có
+        if (req.file) {
+          updatedData.image = `/images/${req.file.filename}`;
+          // Xoá ảnh cũ nếu có
+          if (serviceToUpdate.image) {
+            deleteOldImage(serviceToUpdate.image);
+          }
+        } else {
+          updatedData.image = serviceToUpdate.image;
+        }
+
+        const updatedService = await Service.findByIdAndUpdate(
+          req.params.id,
+          updatedData,
+          { new: true }
+        );
+        res.status(200).json({
+          message: "Cập nhật dịch vụ thành công",
+          data: updatedService,
+        });
+      } catch (error) {
+        if (req.file) {
+          deleteImagesOnError(req.file);
+        }
+        res.status(500).json({ message: error.message });
       }
-
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? serviceToUpdate.toObject()
-          : { ...serviceToUpdate.toObject(), ...req.body };
-
-      const validation = await serviceCon.validateService(
-        updatedData,
-        req.params.id
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      const updatedService = await Service.findByIdAndUpdate(
-        req.params.id,
-        updatedData,
-        { new: true }
-      );
-      res.status(200).json({
-        message: "Cập nhật dịch vụ thành công",
-        data: updatedService,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+    },
+  ],
 
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ DỊCH VỤ ===
   toggleServiceStatus: async (req, res) => {
@@ -255,29 +294,29 @@ const serviceCon = {
   },
 
   // === XÓA DỊCH VỤ ===
-  deleteService: async (req, res) => {
-    try {
-      const serviceToDelete = await Service.findById(req.params.id);
-      if (!serviceToDelete) {
-        return res.status(404).json({ message: "Dịch vụ không tồn tại" });
-      }
+  // deleteService: async (req, res) => {
+  //   try {
+  //     const serviceToDelete = await Service.findById(req.params.id);
+  //     if (!serviceToDelete) {
+  //       return res.status(404).json({ message: "Dịch vụ không tồn tại" });
+  //     }
 
-      // Kiểm tra xem dịch vụ có đang được sử dụng không
-      if (serviceToDelete.status) {
-        return res.status(400).json({
-          message: "Không thể xóa dịch vụ đang hoạt động",
-        });
-      }
+  //     // Kiểm tra xem dịch vụ có đang được sử dụng không
+  //     if (serviceToDelete.status) {
+  //       return res.status(400).json({
+  //         message: "Không thể xóa dịch vụ đang hoạt động",
+  //       });
+  //     }
 
-      await Service.findByIdAndDelete(req.params.id);
-      res.status(200).json({
-        message: "Xóa dịch vụ thành công",
-        data: serviceToDelete,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+  //     await Service.findByIdAndDelete(req.params.id);
+  //     res.status(200).json({
+  //       message: "Xóa dịch vụ thành công",
+  //       data: serviceToDelete,
+  //     });
+  //   } catch (error) {
+  //     res.status(500).json({ message: error.message });
+  //   }
+  // },
 };
 
 module.exports = serviceCon;

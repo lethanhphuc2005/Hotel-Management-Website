@@ -18,7 +18,14 @@ const RoomStatusSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+RoomStatusSchema.virtual("rooms", {
+  ref: "room",
+  localField: "_id",
+  foreignField: "room_status_id",
+});
+
 RoomStatusSchema.set("toJSON", {
+  virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
     delete ret.id;
@@ -44,7 +51,14 @@ const BookingStatusSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+BookingStatusSchema.virtual("bookings", {
+  ref: "booking",
+  localField: "_id",
+  foreignField: "booking_status_id",
+});
+
 BookingStatusSchema.set("toJSON", {
+  virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
     delete ret.id;

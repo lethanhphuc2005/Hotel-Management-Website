@@ -32,7 +32,7 @@ const roomStatusCon = {
   // === LẤY TẤT CẢ TRẠNG THÁI ===
   getAllRoomStatus: async (req, res) => {
     try {
-      const status = await RoomStatus.find();
+      const status = await RoomStatus.find().populate("rooms");
       if (!status || status.length === 0) {
         return res
           .status(404)

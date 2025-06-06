@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const accountCon = require("../controllers/accountCon");
-const middlewareCon = require("../controllers/middlewareCon");
+const middlewareCon = require("../middleware/middlewareCon");
 
 // === ĐĂNG KÝ TÀI KHOẢN ===
 router.post("/register/", accountCon.addUserAccount);
@@ -13,6 +13,10 @@ router.post("/login/", accountCon.loginUser);
 router.post("/logout", middlewareCon.verifyToken, accountCon.logout);
 
 /// === LẤY REFRESH TOKEN ===
-router.post("/refresh", middlewareCon.verifyToken, accountCon.requestRefreshToken);
+router.post(
+  "/refresh",
+  middlewareCon.verifyToken,
+  accountCon.requestRefreshToken
+);
 
 module.exports = router;

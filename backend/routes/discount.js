@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const discountCon = require("../controllers/discountCon");
-const middlewareCon = require("../controllers/middlewareCon");
+const middlewareCon = require("../middleware/middlewareCon");
 
 // === LẤY TẤT CẢ KHUYẾN MÃI ===
 router.get(

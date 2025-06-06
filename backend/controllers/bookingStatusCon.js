@@ -31,7 +31,7 @@ const bookingStatusCon = {
   // === LẤY TẤT CẢ TRẠNG THÁI ===
   getAllBookingStatus: async (req, res) => {
     try {
-      const status = await BookingStatus.find();
+      const status = await BookingStatus.find().populate("bookings");
       if (!status || status.length === 0) {
         return res
           .status(404)
