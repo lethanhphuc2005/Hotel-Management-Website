@@ -4,17 +4,17 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import React, { useEffect, useState } from 'react';
 import style from './header.module.css';
 import Link from 'next/link';
-import { getRoomTypeMain } from '../../services/roomtypemainService';
-import { RoomTypeMain } from '../../types/roomtypemain';
+import { getMainRoomClass } from '../../services/mainroomclassService';
+import { MainRoomClass } from '../../types/mainroomclass';
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
-  const [roomtypes, setRoomtypes] = useState<RoomTypeMain[]>([]);
+  const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getRoomTypeMain("http://localhost:8000/v1/roomtypemain/user");
-      setRoomtypes(data);
+      const data = await getMainRoomClass("http://localhost:8000/v1/main-room-class/user");
+      setMainroomclass(data);
     };
     fetchData();
   }, []);
@@ -59,11 +59,8 @@ export default function Header() {
               <li className={`nav-item ${style.dropdown}`}>
                 <a className={`nav-link active text-white fw-bold ${style.item}`} href="/roomtype">Phòng</a>
                 <ul className={style.dropdownMenu}>
-                  {/* <li><a href="#" className={style.dropdownItem}>Deluxe</a></li>
-                  <li><a href="#" className={style.dropdownItem}>Suite</a></li>
-                  <li><a href="#" className={style.dropdownItem}>Standard</a></li> */}
-                  {roomtypes.map(type => (
-                    <li><Link href={`/roomtype/${type._id}`} className={style.dropdownItem}>{type.TenLP}</Link></li>
+                  {mainroomclass.map((mainroom, index) => (
+                    <li key={index}><Link href={`/roomtype/${mainroom._id}`} className={style.dropdownItem}>{mainroom.name}</Link></li>
                   ))}
                 </ul>
               </li>

@@ -2,11 +2,11 @@ import Image from "next/image";
 import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import style from "./page.module.css";
-import { RoomSaleList, RoomTList, ServiceList } from "./components/roomList";
-import { RoomTypeMain } from "./types/roomtypemain";
-import { Room } from "./types/room";
-import { getRooms } from "./services/roomService";
-import { getRoomTypeMain } from "./services/roomtypemainService"
+import { RoomClassSaleList, MainRoomClassList, ServiceList } from "./components/roomList";
+import { MainRoomClass } from "./types/mainroomclass";
+import { RoomClass } from "./types/roomclass";
+import { getRoomClass } from "./services/roomclassService";
+import { getMainRoomClass } from "./services/mainroomclassService"
 import { Banner } from "./components/bannerItem";
 import { WebsiteContent } from "./types/websitecontent";
 import { getWebsiteContents } from "./services/websitecontentService";
@@ -16,22 +16,22 @@ import { getServices } from "./services/serviceService";
 
 export default async function Home() {
   let banners: WebsiteContent[] = await getWebsiteContents(
-    "http://localhost:8000/v1/websitecontent"
+    "http://localhost:8000/v1/website-content/user"
   );
-  let roomtypes: RoomTypeMain[] = await getRoomTypeMain(
-    "http://localhost:8000/v1/roomtypemain/user"
+  let mainroomclass: MainRoomClass[] = await getMainRoomClass(
+    "http://localhost:8000/v1/main-room-class/user"
   );
 
   let services: Service[] = await getServices(
-    "http://localhost:8000/v1/service"
+    "http://localhost:8000/v1/service/user"
   );
-  let roomsales: Room[] = await getRooms(
-    "http://localhost:8000/v1/room"
+  let roomsales: RoomClass[] = await getRoomClass(
+    "http://localhost:8000/v1/room-class/user?limit=4"
   );
 
   return (
     <>
-      <Banner banner={banners[1]} />
+      <Banner banner={banners[2]} />
       <Container fluid className={`${style.customContainer} container`}>
         {/* LOẠI PHÒNG Section */}
         <div className={style.headerContainer}>
@@ -39,7 +39,7 @@ export default async function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <RoomTList roomtypes={roomtypes} />
+          <MainRoomClassList mrcl={mainroomclass} />
         </Row>
         <br />
 
@@ -49,7 +49,7 @@ export default async function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <ServiceList services={services} />
+          <ServiceList svl={services} />
         </Row>
         <br />
         <br />
@@ -60,7 +60,7 @@ export default async function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <RoomSaleList rooms={roomsales} />
+          <RoomClassSaleList rcsl={roomsales} />
         </Row>
         <br />
         <br />

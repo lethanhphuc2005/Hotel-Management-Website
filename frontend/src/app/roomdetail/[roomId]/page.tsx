@@ -1,7 +1,27 @@
-import React from "react";
+"use client";
 import styles from "./roomDetail.module.css";
+import React, { useState, useEffect } from "react";
 
-const roomDetail = () => {
+const RoomDetail = () => {
+  const [showFAQModal, setShowFAQModal] = useState(false);
+  const [showAskModal, setShowAskModal] = useState(false);
+  const [question, setQuestion] = useState("");
+
+  // Khóa cuộn body khi mở modal
+  useEffect(() => {
+    if (showFAQModal || showAskModal) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    // Cleanup khi component unmount
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [showFAQModal, showAskModal]);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) setShowFAQModal(false);
+  };
+
   return (
     <div className={styles.pageContainer}>
       {/* Header */}
@@ -44,7 +64,7 @@ const roomDetail = () => {
             <p className={styles.roomNumber}>Phòng số 01</p>
             <p className={styles.roomInfo}>
               2 phòng ngủ - 2 giường - 1 phòng tắm | Vị trí: Tầng 1 | Diện tích:
-              25m² | Trạng thái: Còn phòng{" "}
+              25m² | Trạng thái: Còn phòng
               <span className={styles.availableIcon}>
                 <i className="bi bi-check-circle"></i>
               </span>
@@ -62,8 +82,8 @@ const roomDetail = () => {
                 <span className={styles.stars}>★★★★★</span>
               </div>
               <div className={styles.ratingCountWrapper}>
-              <span className={styles.ratingCount}>111</span>
-              <span className={styles.feadback}>Đánh giá</span>
+                <span className={styles.ratingCount}>111</span>
+                <span className={styles.feadback}>Đánh giá</span>
               </div>
             </div>
             <br />
@@ -77,37 +97,37 @@ const roomDetail = () => {
             </p>
           </div>
 
-        <div className={styles.rightSection}>
-  <div className={styles.price}></div>
-  <div className={styles.infoSection}>
-    <p className={styles.priceText}>400.000 VNĐ / Đêm</p>
-    <div className={styles.bookingDetails}>
-      <div className={styles.checkInOutRow}>
-        <div className={styles.bookingItem}>
-          <label>NHẬN PHÒNG</label>
-          <input type="date" className={styles.dateInput} />
-        </div>
-        <div className={styles.bookingItem}>
-          <label>TRẢ PHÒNG</label>
-          <input type="date" className={styles.dateInput} />
-        </div>
-      </div>
-      <div className={styles.guestRow}>
-        <div className={styles.bookingItem}>
-          <label className={styles.note}>KHÁCH</label>
-          <select className={styles.guestSelect}>
-            <option value="1">1 khách</option>
-            <option value="2">2 khách</option>
-            <option value="3">3 khách</option>
-            <option value="4">4 khách</option>
-            
-          </select>
-        </div>
-      </div>
-    </div>
-    <button className={styles.bookButton}>ĐẶT</button>
-  </div>
-</div>
+          <div className={styles.rightSection}>
+            <div className={styles.price}></div>
+            <div className={styles.infoSection}>
+              <p className={styles.priceText}>400.000 VNĐ / Đêm</p>
+              <div className={styles.bookingDetails}>
+                <div className={styles.checkInOutRow}>
+                  <div className={styles.bookingItem}>
+                    <label>NHẬN PHÒNG</label>
+                    <input type="date" className={styles.dateInput} />
+                  </div>
+                  <div className={styles.bookingItem}>
+                    <label>TRẢ PHÒNG</label>
+                    <input type="date" className={styles.dateInput} />
+                  </div>
+                </div>
+                <div className={styles.guestRow}>
+                  <div className={styles.bookingItem}>
+                    <label className={styles.note}>KHÁCH</label>
+                    <select className={styles.guestSelect}>
+                      <option value="1">1 khách</option>
+                      <option value="2">2 khách</option>
+                      <option value="3">3 khách</option>
+                      <option value="4">4 khách</option>
+
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <button className={styles.bookButton}>ĐẶT</button>
+            </div>
+          </div>
         </div>
         <hr className={styles.line} />
 
@@ -119,13 +139,13 @@ const roomDetail = () => {
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-lock-fill"></i>
-                  </span>{" "}
+                  </span>
                   Khóa ở cửa phòng ngủ
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-basket-fill"></i>
-                  </span>{" "}
+                  </span>
                   Bếp
                 </div>
                 <div className={styles.iconItem}>
@@ -137,13 +157,13 @@ const roomDetail = () => {
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-fan"></i>
-                  </span>{" "}
+                  </span>
                   Máy điều hòa
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-wrench-adjustable-circle"></i>
-                  </span>{" "}
+                  </span>
                   Máy sấy tóc
                 </div>
               </div>
@@ -151,31 +171,31 @@ const roomDetail = () => {
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-image"></i>
-                  </span>{" "}
+                  </span>
                   Hướng nhìn ra biển
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-wifi"></i>
-                  </span>{" "}
+                  </span>
                   Wifi
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-box2-heart-fill"></i>
-                  </span>{" "}
+                  </span>
                   Máy giặt
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-fire"></i>
-                  </span>{" "}
+                  </span>
                   Bình chữa cháy
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-mailbox"></i>
-                  </span>{" "}
+                  </span>
                   Lò vi sóng
                 </div>
               </div>
@@ -183,31 +203,31 @@ const roomDetail = () => {
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-align-top"></i>
-                  </span>{" "}
+                  </span>
                   Màn chắng sáng cho phòng
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-droplet-fill"></i>
-                  </span>{" "}
+                  </span>
                   Nước nóng
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-inbox"></i>
-                  </span>{" "}
+                  </span>
                   Bồn tắm
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-hourglass-split"></i>
-                  </span>{" "}
+                  </span>
                   Ấm đun nước
                 </div>
                 <div className={styles.iconItem}>
                   <span className={styles.icon}>
                     <i className="bi bi-diagram-3-fill"></i>
-                  </span>{" "}
+                  </span>
                   Móc và phơi đồ
                 </div>
               </div>
@@ -225,7 +245,7 @@ const roomDetail = () => {
                     className={styles.reviewAvatar}
                   />
                   <div>
-                    {" "}
+
                     <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
                     <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
                   </div>
@@ -244,7 +264,7 @@ const roomDetail = () => {
                     className={styles.reviewAvatar}
                   />
                   <div>
-                    {" "}
+
                     <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
                     <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
                   </div>
@@ -263,7 +283,7 @@ const roomDetail = () => {
                     className={styles.reviewAvatar}
                   />
                   <div>
-                    {" "}
+
                     <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
                     <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
                   </div>
@@ -282,7 +302,7 @@ const roomDetail = () => {
                     className={styles.reviewAvatar}
                   />
                   <div>
-                    {" "}
+
                     <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
                     <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
                   </div>
@@ -295,44 +315,215 @@ const roomDetail = () => {
               </div>
             </div>
           </div>
-          <section className={styles.commentSection}>
-            <h3>BÌNH LUẬN CỦA KHÁCH HÀNG</h3>
-
-            <div className={styles.commentItem}>
-              <img src="/img/about.jpg" alt="avatar" className={styles.commentAvatar} />
-              <div className={styles.commentContent}>
-                <p><strong>Trần Minh</strong>: Phòng đẹp, sạch sẽ và rất thoáng mát. Sẽ quay lại!</p>
+          {/* Thắc mắc của du khách - Bootstrap */}
+          <section className="my-4">
+            <h3 className="fw-bold mb-4" style={{ fontSize: '20px' }}>THẮC MẮC CỦA DU KHÁCH</h3>
+            <div className="row h-100">
+              <div className="col-md-4">
+                <div className="border rounded-3 p-4 d-flex flex-column align-items-center justify-content-center shadow-sm bg-black"
+                style={{ height: '316px' }}>
+                  <div className="fw-bold fs-5 text-center mb-3">Bạn vẫn đang tìm kiếm?</div>
+                  <button className={`mb-3 ${styles.btnAsk}`} onClick={() => setShowAskModal(true)}>
+                    Đặt câu hỏi
+                  </button>
+                  <div className="text-white text-center" style={{ fontSize: '15px' }}>Chúng tôi có thể giải đáp tức thì hầu hết các thắc mắc</div>
+                  <button type="button" className="btn btn-link mt-2 text-decoration-none" style={{ color: '#FAB320' }} onClick={() => setShowFAQModal(true)}>Xem các câu hỏi khác (20)</button>
+                </div>
+              </div>
+              {/* Thêm 2 box FAQ như hình */}
+              <div className="col-md-8">
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <div className="border rounded-3 p-3 bg-black">
+                      <ul className="list-unstyled mb-0">
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Họ có phục vụ bữa sáng không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Chỗ nghỉ có dịch vụ đưa đón sân bay không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Chỗ nghỉ có spa không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Chỗ nghỉ có nhà hàng không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3">
+                          <i className="bi bi-chat-dots me-2"></i> Chỗ nghỉ có chính sách Wi-Fi ra sao?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <div className="border rounded-3 p-3 bg-black">
+                      <ul className="list-unstyled mb-0">
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Hồ bơi có hoạt động không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Tôi có thể đặt phòng gia đình ở đây không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Phòng gym có hoạt động không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3 border-bottom">
+                          <i className="bi bi-chat-dots me-2"></i> Chỗ nghỉ có chỗ đỗ xe không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li className="d-flex align-items-center py-3">
+                          <i className="bi bi-chat-dots me-2"></i> Có tiện nghi BBQ không?
+                          <span className="ms-auto"><i className="bi bi-chevron-right"></i></span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+            {/* FAQ Modal */}
+            {showFAQModal && (
+              <>
+                <div
+                  className={styles.faqSidebarBackdrop}
+                  onClick={handleBackdropClick}
+                ></div>
+                <div
+                  className={styles.faqSidebarModal}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h5 className="modal-title fw-bold">Thắc mắc của khách hàng</h5>
+                    <button
+                      type="button"
+                      className="btn-close btn-close-white"
+                      onClick={() => setShowFAQModal(false)}
+                    ></button>
+                  </div>
+                  <div className={`modal-body ${styles.custommodalbody}`}>
+                    {/* Danh sách các câu hỏi và trả lời */}
+                    <div className="mb-4 mt-4">
+                      <div className="fw-semibold mb-1">
+                        <i className="bi bi-chat-dots me-2"></i>
+                        Căn này có mấy toilet v ạ
+                      </div>
+                      <div className="text-secondary" style={{ fontSize: 13 }}>ngày 18 tháng 4 năm 2023</div>
+                      <div className="rounded p-2 mt-1 mb-1">
+                        Dạ loại căn hộ Superior có 2 wc ạ
+                      </div>
+                      <div className="d-flex gap-3 ps-2">
+                        <span style={{ cursor: "pointer", color: "#FAB320" }}>Hữu ích</span>
+                        <span style={{ cursor: "pointer", color: "#FAB320" }}>Không hữu ích</span>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <div className="fw-semibold mb-1">
+                        <i className="bi bi-chat-dots me-2"></i>
+                        Mình hỗ trợ check in sớm k ạ
+                      </div>
+                      <div className="text-secondary" style={{ fontSize: 13 }}>ngày 28 tháng 2 năm 2023</div>
+                      <div className="rounded p-2 mt-1 mb-1">
+                        Dạ, thời gian nhận phòng của mình là 14h, nếu có sớm thì bên mình sẽ liên hệ bạn nhé
+                      </div>
+                      <div className="d-flex gap-3 ps-2">
+                        <span style={{ cursor: "pointer", color: "#FAB320" }}>Hữu ích</span>
+                        <span style={{ cursor: "pointer", color: "#FAB320" }}>Không hữu ích</span>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <div className="fw-semibold mb-1">
+                        <i className="bi bi-chat-dots me-2"></i>
+                        Cho mình hỏi. phòng này còn ko ạ
+                      </div>
+                      <div className="text-secondary" style={{ fontSize: 13 }}>ngày 8 tháng 2 năm 2023</div>
+                      <div className="rounded p-2 mt-1 mb-1">
+                        Dạ mình còn nhé ạ
+                      </div>
+                      <div className="d-flex gap-3 ps-2">
+                        <span style={{ cursor: "pointer", color: "#FAB320" }}>Hữu ích</span>
+                        <span style={{ cursor: "pointer", color: "#FAB320" }}>Không hữu ích</span>
+                      </div>
+                    </div>
 
-            <div className={styles.commentItem}>
-              <img src="/img/about.jpg" alt="avatar" className={styles.commentAvatar} />
-              <div className={styles.commentContent}>
-                <p><strong>Ngọc Anh</strong>: Vị trí tiện lợi, gần biển, nhân viên thân thiện.</p>
-              </div>
-            </div>
-
-            <div className={styles.commentItem}>
-              <img src="/img/about.jpg" alt="avatar" className={styles.commentAvatar} />
-              <div className={styles.commentContent}>
-                <p><strong>Lê Văn Tùng</strong>: Giá cả hợp lý, rất hài lòng với dịch vụ.</p>
-              </div>
-            </div>
-
-            <div className={styles.commentInputSection}>
-              <img
-                className={styles.avatar}
-                src="https://th.bing.com/th/id/R.6b0022312d41080436c52da571d5c697?rik=4kYwQ1H0Af8lGw&riu=http%3a%2f%2fassets.stickpng.com%2fimages%2f585e4bcdcb11b227491c3396.png&ehk=qIyBqqHtuGh6Q4AT6rdJLjmcvimJ9e8r05TLahpkS0o%3d&risl=&pid=ImgRaw&r=0"
-                alt="User avatar"
-              />
-              <input
-                className={styles.commentInput}
-                placeholder="Viết bình luận của bạn…"
-              />
-              <button className={styles.commentButton}>Gửi</button>
-              <div className={styles.kc}></div>
-               
-            </div>
+                    {/* ...Thêm các câu hỏi khác nếu muốn... */}
+                  </div>
+                  <div className="modal-footer p-3 border-top" style={{ height: '80px' }}>
+                    <button
+                      className="w-100 border-0 text-black rounded"
+                      style={{ backgroundColor: '#FAB320', height: '45px' }}
+                      onClick={() => setShowAskModal(true)}
+                    >
+                      Đặt câu hỏi
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* Đặt câu hỏi Modal */}
+            {showAskModal && (
+              <>
+                <div
+                  className={styles.faqSidebarBackdrop}
+                  onClick={e => {
+                    if (e.target === e.currentTarget)
+                      setShowAskModal(false);
+                    setShowFAQModal(false);
+                  }}
+                ></div>
+                <div
+                  className={styles.faqSidebarModal}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="modal-header border-0 pb-0">
+                    <h5 className="modal-title fw-bold mb-4">Đặt câu hỏi</h5>
+                    <button
+                      type="button"
+                      className="btn-close btn-close-white"
+                      onClick={() => setShowAskModal(false)}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="mb-2 fw-semibold">Câu hỏi của bạn <span style={{ color: "red" }}>*</span></div>
+                    <textarea
+                      className={`form-control mb-2 text-white ${styles.customTextarea}`}
+                      rows={3}
+                      maxLength={300}
+                      placeholder="ví dụ: có dịch vụ dọn phòng không?"
+                      value={question}
+                      onChange={e => setQuestion(e.target.value)}
+                    />
+                    <div className="mb-2 text-end" style={{ fontSize: 13, color: "#888" }}>
+                      {300 - question.length} ký tự
+                    </div>
+                    <div className="mb-3" style={{ fontSize: 15 }}>
+                      <i className="bi bi-info-circle me-2"></i>
+                      Nếu chúng tôi không thể trả lời câu hỏi của bạn ngay, bạn có thể chuyển câu hỏi đến chỗ nghỉ. Vui lòng <a href="#" style={{ color: "#FAB320" }}>tuân thủ hướng dẫn của chúng tôi</a> và không đề cập đến bất kỳ thông tin cá nhân nào.
+                    </div>
+                  </div>
+                  <div className="modal-footer p-3 border-top" style={{ height: '80px' }}>
+                    <button
+                      className="w-100 border-0 text-black rounded"
+                      style={{ backgroundColor: '#FAB320', height: '45px' }}
+                      disabled={!question.trim()}
+                      onClick={() => {
+                        // Xử lý gửi câu hỏi ở đây
+                        setShowAskModal(false);
+                        setQuestion("");
+                      }}
+                    >
+                      Đặt câu hỏi
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </section>
           <br />
           <hr className={styles.line1} />
@@ -371,8 +562,9 @@ const roomDetail = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
 
-export default roomDetail;
+export default RoomDetail;
