@@ -1,3 +1,4 @@
+'use client';
 import Image from "next/image";
 import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -12,26 +13,68 @@ import { WebsiteContent } from "./types/websitecontent";
 import { getWebsiteContents } from "./services/websitecontentService";
 import { Service } from "./types/service";
 import { getServices } from "./services/serviceService";
+import RoomSearchBar from "./components/roomSearchBar";
+import { useRoomSearch } from './hooks/useRoomSearch';
+import { useEffect, useState } from "react";
 
 
-export default async function Home() {
-  let banners: WebsiteContent[] = await getWebsiteContents(
-    "http://localhost:8000/v1/website-content/user"
-  );
-  let mainroomclass: MainRoomClass[] = await getMainRoomClass(
-    "http://localhost:8000/v1/main-room-class/user"
-  );
+export default function Home() {
+  const {
+    dateRange, setDateRange,
+    guests, setGuests,
+    beds, setBeds,
+    showCalendar, setShowCalendar,
+    showGuestBox, setShowGuestBox,
+    showBedBox, setShowBedBox,
+    guestBoxRef, calendarRef, bedRef
+  } = useRoomSearch();
 
-  let services: Service[] = await getServices(
-    "http://localhost:8000/v1/service/user"
-  );
-  let roomsales: RoomClass[] = await getRoomClass(
-    "http://localhost:8000/v1/room-class/user?limit=4"
-  );
+  // Khai báo kiểu cho state
+  const [banners, setBanners] = useState<WebsiteContent[]>([]);
+  const [mainroomclass, setMainRoomClass] = useState<MainRoomClass[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [roomsales, setRoomSales] = useState<RoomClass[]>([]);
+
+  useEffect(() => {
+    // Fetch dữ liệu ở client
+    const fetchData = async () => {
+      const banners = await getWebsiteContents("http://localhost:8000/v1/website-content/user");
+      setBanners(banners);
+
+      const mainroomclass = await getMainRoomClass("http://localhost:8000/v1/main-room-class/user");
+      setMainRoomClass(mainroomclass);
+
+      const services = await getServices("http://localhost:8000/v1/service/user");
+      setServices(services);
+
+      const roomsales = await getRoomClass("http://localhost:8000/v1/room-class/user?limit=4");
+      setRoomSales(roomsales);
+    };
+    fetchData();
+  }, []);
 
   return (
     <>
       <Banner banner={banners[2]} />
+      <div className="mt-2">
+        <RoomSearchBar
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          guests={guests}
+          setGuests={setGuests}
+          beds={beds}
+          setBeds={setBeds}
+          showCalendar={showCalendar}
+          setShowCalendar={setShowCalendar}
+          showGuestBox={showGuestBox}
+          setShowGuestBox={setShowGuestBox}
+          showBedBox={showBedBox}
+          setShowBedBox={setShowBedBox}
+          guestBoxRef={guestBoxRef}
+          calendarRef={calendarRef}
+          bedRef={bedRef}
+        />
+      </div>
       <Container fluid className={`${style.customContainer} container`}>
         {/* LOẠI PHÒNG Section */}
         <div className={style.headerContainer}>
