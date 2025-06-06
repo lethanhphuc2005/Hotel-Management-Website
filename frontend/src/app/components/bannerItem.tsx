@@ -1,6 +1,7 @@
 import style from "../page.module.css";
 import { WebsiteContent } from "../types/websitecontent";
-export function Banner({ banner }: { banner: WebsiteContent }) {
+export function Banner({ banner }: { banner?: WebsiteContent }) {
+    if (!banner) return null; // hoặc render fallback UI
     return (
         <>
             <section className={style.banner}>
