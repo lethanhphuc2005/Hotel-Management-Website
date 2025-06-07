@@ -12,10 +12,46 @@
     <div>Trạng thái</div>
   </div>
 
-  <!-- Dòng dữ liệu -->
+  <!-- Popup chi tiết user -->
+<div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedUser">
+  <div class="popup-content">
+    <h2>Chi tiết khách hàng</h2>
+
+    <div class="popup-section">
+      <label>Tên khách hàng:</label>
+      <span>{{ selectedUser.TenKH }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Email:</label>
+      <span>{{ selectedUser.Email }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Số điện thoại:</label>
+      <span>{{ selectedUser.SoDT }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Địa chỉ:</label>
+      <span>{{ selectedUser.DiaChi }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Ghi chú:</label>
+      <span>{{ selectedUser.YeuCau_DB || '—' }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span [class.active]="selectedUser.isActive" [class.inactive]="!selectedUser.isActive">
+        {{ selectedUser.isActive ? 'Đang hoạt động' : 'Vô hiệu hóa' }}
+      </span>
+    </div>
+
+    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+  </div>
+</div>
+
+
   <div *ngFor="let user of users; let i = index" class="table-row">
-    <div>{{ i + 1 }}</div> <!-- STT -->
-    <div>{{ user.TenKH }}</div>
+    <div>{{ i + 1 }}</div>
+    <div (click)="onViewUserDetail(user)" class="clickable-name">{{ user.TenKH }}</div>
     <div>{{ user.Email }}</div>
     <div>{{ user.SoDT }}</div>
     <div>{{ user.DiaChi }}</div>

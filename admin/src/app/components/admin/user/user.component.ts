@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { User } from '../../../models/user';
 import { Subscription } from 'rxjs';
-
 @Component({
   selector: 'app-user',
   standalone: true,
@@ -47,27 +46,31 @@ export class UserComponent implements OnInit, OnDestroy {
     });
   }
 
-
   ngOnDestroy() {
     this.subscription?.unsubscribe();
   }
 
-
   toggleUserStatus(user: User) {
-  const action = user.isActive ? 'vô hiệu hoá' : 'kích hoạt lại';
-  const confirmed = window.confirm(`Bạn có muốn ${action} tài khoản này không?`);
-  if (!confirmed) return;
+    const action = user.isActive ? 'vô hiệu hoá' : 'kích hoạt lại';
+    const confirmed = window.confirm(`Bạn có muốn ${action} tài khoản này không?`);
+    if (!confirmed) return;
 
-  this.userService.toggleUserStatus(user.id).subscribe({
-    next: (res) => {
-      user.isActive = !user.isActive;
-      console.log(`✅ ${res.message}`);
-    },
-    error: (err) => {
-      console.error('Lỗi khi cập nhật trạng thái:', err);
-    }
-  });
-}
+    this.userService.toggleUserStatus(user.id).subscribe({
+      next: (res) => {
+        user.isActive = !user.isActive;
+        console.log(`✅ ${res.message}`);
+      },
+      error: (err) => {
+        console.error('Lỗi khi cập nhật trạng thái:', err);
+      }
+    });
+  }
+  // popup xem
+  selectedUser: User | null = null;
+  isDetailPopupOpen = false;
 
-
+  onViewUserDetail(user: User) {
+    this.selectedUser = user;
+    this.isDetailPopupOpen = true;
+  }
 }

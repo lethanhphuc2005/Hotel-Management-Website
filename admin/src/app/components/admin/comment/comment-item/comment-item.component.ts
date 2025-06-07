@@ -12,10 +12,12 @@ export class CommentItemComponent {
   @Input() comment: any;
   @Input() index: number = 0;
   @Input() level: number = 0;
+  @Input() onViewComment!: (comment: any, isReply: boolean) => void;
 
   viewComment(comment: any) {
-    console.log('Xem:', comment);
+    this.onViewComment(comment, this.level > 0); 
   }
+
   deleteComment(id: string) {
     console.log('Xóa:', id);
   }

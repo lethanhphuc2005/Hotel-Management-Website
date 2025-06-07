@@ -2,7 +2,7 @@
   <div>
     <ng-container *ngIf="level === 0">{{ index + 1 }}</ng-container>
   </div>
-  <div>
+  <div (click)="viewComment(comment)">
     {{ comment.user_id?.last_name || comment.employee_id?.last_name }}
     {{ comment.user_id?.first_name || comment.employee_id?.first_name }}
   </div>
@@ -17,5 +17,11 @@
 </div>
 
 <div *ngFor="let reply of comment.replies; let j = index">
-  <app-comment-item [comment]="reply" [index]="j" [level]="level + 1"></app-comment-item>
+  <app-comment-item
+    [comment]="reply"
+    [index]="j"
+    [level]="level + 1"
+    [onViewComment]="onViewComment"> <!-- ✅ THÊM -->
+  </app-comment-item>
 </div>
+

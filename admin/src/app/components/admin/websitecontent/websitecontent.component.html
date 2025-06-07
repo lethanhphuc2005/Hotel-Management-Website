@@ -14,24 +14,57 @@
     <div>Hình ảnh</div>
     <div>Hành động</div>
   </div>
+  <!-- Popup chi tiết bài viết -->
+<div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedContent">
+  <div class="popup-content">
+    <h2>Chi tiết bài viết</h2>
+
+    <div class="popup-section">
+      <label>Tiêu đề:</label>
+      <span>{{ selectedContent.title }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Loại nội dung:</label>
+      <span>{{ selectedContent.content_type[0].name || 'Không rõ' }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Ngày cập nhật:</label>
+      <span>{{ selectedContent.updatedAt | date:'dd/MM/yyyy' }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="selectedContent.image">
+      <label>Hình ảnh:</label>
+      <img [src]="'/assets/img/' + selectedContent.image" alt="Ảnh nội dung" />
+    </div>
+
+    <div class="popup-section" *ngIf="selectedContent.content">
+      <label>Nội dung:</label>
+      <div style="white-space: pre-line">{{ selectedContent.content }}</div>
+    </div>
+
+    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+  </div>
+</div>
+
 
   <div class="table-row" *ngFor="let content of websiteContents; let i = index">
-  <div>{{ i + 1 }}</div>
-  <div>{{ content.title }}</div>
-  <div>{{ content.content_type[0].name || 'Không rõ' }}</div>
-  <div>{{ content.updatedAt | date:'dd/MM/yyyy' }}</div>
-  <div *ngIf="content?.image">
-    <img [src]="'/assets/img/' + content.image" />
+    <div>{{ i + 1 }}</div>
+     <div (click)="onViewDetail(content)"> {{ content.title }}</div>
+    <div>{{ content.content_type[0].name || 'Không rõ' }}</div>
+    <div>{{ content.updatedAt | date:'dd/MM/yyyy' }}</div>
+    <div *ngIf="content?.image">
+      <img [src]="'/assets/img/' + content.image" />
+    </div>
+    <div class="status-column">
+      <button class="delete-button" (click)="onDelete(content)" title="Xóa">
+        <i class="fas fa-trash"></i>
+      </button>
+
+      <button class="edit-button" (click)="onEdit(content)" title="Sửa">
+        <i class="fas fa-pen"></i>
+      </button>
+    </div>
   </div>
-  <div class="status-column">
-  <button class="delete-button" (click)="onDelete(content)" title="Xóa">
-    <i class="fas fa-trash"></i>
-  </button>
-
-  <button class="edit-button" (click)="onEdit(content)" title="Sửa">
-    <i class="fas fa-pen"></i>
-  </button>
-</div>
-</div>
-
 </div>

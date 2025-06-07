@@ -13,33 +13,38 @@ export class CommentComponent implements OnInit {
   constructor(private commentService: CommentService) { }
   comments: any[] = [];
 
-ngOnInit() {
-  this.getAll();
-}
+  ngOnInit() {
+    this.getAll();
+  }
 
-getAll() {
-  this.commentService.getAllComments().subscribe((res: any) => {
-    console.log('API trả về:', res);
-    this.comments = res.data || res;
-  });
-}
-
-
-viewComment(comment: any) {
-  console.log('Xem:', comment);
-}
-
-editComment(comment: any) {
-  console.log('Sửa:', comment);
-}
-
-deleteComment(id: string) {
-  if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
-    this.commentService.deleteComment(id).subscribe(() => {
-      this.getAll(); // Cập nhật lại danh sách
+  getAll() {
+    this.commentService.getAllComments().subscribe((res: any) => {
+      console.log('API trả về:', res);
+      this.comments = res.data || res;
     });
   }
-}
 
+  editComment(comment: any) {
+    console.log('Sửa:', comment);
+  }
+
+  deleteComment(id: string) {
+    if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+      this.commentService.deleteComment(id).subscribe(() => {
+        this.getAll();
+      });
+    }
+  }
+  // popup xem
+  selectedComment: any = null;
+  isDetailPopupOpen = false;
+
+  viewComment(comment: any, isReply = false) {
+    this.selectedComment = {
+      ...comment,
+      isReplyOnly: isReply
+    };
+    this.isDetailPopupOpen = true;
+  }
 
 }

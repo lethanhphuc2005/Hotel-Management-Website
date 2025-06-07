@@ -50,6 +50,16 @@ export class WebsitecontentComponent implements OnInit {
     });
   }
 
+  // popup xem
+  isDetailPopupOpen: boolean = false;
+selectedContent!: IContent;
+
+onViewDetail(content: IContent) {
+  this.selectedContent = content;
+  this.isDetailPopupOpen = true;
+}
+
+
 }
 
 
