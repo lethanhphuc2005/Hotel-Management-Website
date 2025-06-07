@@ -21,9 +21,15 @@ export class RoomService {
     return this.http.post(`${this.apiUrl}/room`, roomData);
   }
 
-  // Cập nhật trạng thái phòng
-  // updateRoomStatus(id: string, body: { status: boolean }): Observable<any> {
-  //   return this.http.put(`${this.apiUrl}/room/toggle/${id}`, body);
+  // cập nhật khi book phòng
+  // updateRoomStatus(roomId: string, newStatusId: string): Observable<any> {
+  //   return this.http.put(`${this.apiUrl}/room/${roomId}`, {
+  //     room_status_id: newStatusId
+  //   });
   // }
+
+  updateRoom(id: string, roomData: any): Observable<any> {
+  return this.http.put(`${this.apiUrl}/room/${id}`, roomData);
+}
 
 }

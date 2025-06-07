@@ -33,6 +33,23 @@ export class WebsitecontentComponent implements OnInit {
 
   }
 
+  onDelete(content: IContent) {
+    const confirmed = window.confirm(`Bạn có chắc muốn xoá bài viết "${content.title}" không?`);
+    if (!confirmed) return;
+
+    this.websitecontentService.onDelete(content._id).subscribe({
+      next: () => {
+        // Xóa thành công, cập nhật lại danh sách local
+        this.websiteContents = this.websiteContents.filter(c => c._id !== content._id);
+        alert('Xóa bài viết thành công!');
+      },
+      error: (err) => {
+        console.error('Lỗi khi xóa bài viết', err);
+        alert('Xóa bài viết thất bại. Vui lòng thử lại.');
+      }
+    });
+  }
+
 }
 
 

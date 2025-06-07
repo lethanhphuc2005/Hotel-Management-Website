@@ -24,7 +24,7 @@ export class RoomClassService {
   addRoomClass(roomClassData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/room-class`, roomClassData);
   }
-  
+
   // Lấy loại phòng theo ID
   getRoomClassById(id: string): Observable<{ message: string, data: RoomClass }> {
     return this.http.get<{ message: string, data: RoomClass }>(
@@ -36,6 +36,9 @@ export class RoomClassService {
   updateRoomClass(id: string, body: { status: boolean }): Observable<any> {
     return this.http.put(`${this.apiUrl}/room-class/toggle/${id}`, body);
   }
-
+  // sửa phòng
+  updateFullRoomClass(id: string, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/room-class/${id}`, data);
+  }
 
 }

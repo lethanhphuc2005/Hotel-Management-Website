@@ -94,9 +94,10 @@
       </label> -->
 
       <!-- Edit icon -->
-      <button class="icon-button" (click)="editRoom(rt); $event.stopPropagation()">
+      <button class="icon-button" (click)="editRoom(room); $event.stopPropagation()">
         <i class="fas fa-pen"></i>
       </button>
+
     </div>
   </div>
   <div class="popup-overlay" *ngIf="isRoomDetailOpen && selectedRoom">
@@ -151,5 +152,59 @@
       <button class="close-btn" (click)="isRoomDetailOpen = false">Đóng</button>
     </div>
   </div>
+
+  <!-- popup sửa phòng -->
+  <div class="popup-add-popup" *ngIf="isEditRoomPopupOpen">
+    <div class="popup-content">
+      <h2>Sửa phòng</h2>
+
+      <form (ngSubmit)="onEditRoomSubmit()" #editRoomForm="ngForm">
+        <!-- Tên phòng -->
+        <div class="popup-section">
+          <label for="editName">Tên phòng:</label>
+          <input type="text" id="editName" name="editName" [(ngModel)]="editRoomData.name" required />
+        </div>
+
+        <!-- Tầng -->
+        <div class="popup-section">
+          <label for="editFloor">Tầng:</label>
+          <input type="number" id="editFloor" name="editFloor" [(ngModel)]="editRoomData.floor" required min="1" />
+        </div>
+
+        <!-- Chọn loại phòng -->
+        <div class="popup-section">
+          <label for="editRoomClass">Loại phòng:</label>
+          <select id="editRoomClass" name="editRoomClass" [(ngModel)]="editRoomData.room_class_id"
+            (change)="onEditRoomClassChange(editRoomData.room_class_id)" required>
+            <option *ngFor="let rc of roomClasses" [value]="rc._id">{{ rc.name }}</option>
+          </select>
+        </div>
+
+        <!-- Tự hiển thị thông tin loại phòng -->
+        <div *ngIf="selectedEditRoomClassInfo">
+          <div class="popup-section">
+            <label for="bed_amount">Số giường:</label>
+            <input type="text" id="bed_amount" [value]="selectedEditRoomClassInfo.bed_amount" readonly />
+          </div>
+
+          <div class="popup-section">
+            <label for="price">Giá:</label>
+            <input type="text" id="price" [value]="selectedEditRoomClassInfo.price | currency:'VND'" readonly />
+          </div>
+
+          <div class="popup-section">
+            <label for="description">Mô tả:</label>
+            <textarea id="description" [value]="selectedEditRoomClassInfo.description" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!editRoomForm.form.valid">Lưu</button>
+          <button type="button" (click)="closeEditRoomPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
 </div>

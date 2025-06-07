@@ -1,7 +1,7 @@
 // src/app/services/content.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { IContent } from '../models/websitecontent';
 
 
@@ -11,10 +11,12 @@ import { IContent } from '../models/websitecontent';
 export class WebsiteContentService {
   private apiUrl = 'http://localhost:8000/v1/website-content';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllContents(): Observable<IContent[]> {
-    return this.http.get<IContent[]>(this.apiUrl);
+    return this.http.get<{ data: IContent[] }>(this.apiUrl).pipe(
+      map(res => res.data)
+    );
   }
 
   getContentById(id: string): Observable<IContent> {
@@ -29,7 +31,7 @@ export class WebsiteContentService {
     return this.http.put<IContent>(`${this.apiUrl}/${id}`, content);
   }
 
-  deleteContent(id: string): Observable<any> {
+  onDelete(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

@@ -121,5 +121,41 @@
       <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
     </div>
   </div>
+  <!-- Popup Sửa loại phòng chính -->
+  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
+    <div class="popup-content">
+      <h2>Sửa loại phòng chính</h2>
+
+      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
+        <div class="popup-section">
+          <label for="name">Tên loại phòng chính:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="editMainRoom.name" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea id="description" name="description" [(ngModel)]="editMainRoom.description"></textarea>
+        </div>
+
+        <div class="popup-section">
+          <label for="status">Trạng thái:</label>
+          <select id="status" name="status" [(ngModel)]="editMainRoom.status">
+            <option [ngValue]="true">Đang hoạt động</option>
+            <option [ngValue]="false">Tạm dừng hoạt động</option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label for="images">Ảnh (URL):</label>
+          <input type="text" id="images" name="images" [(ngModel)]="editImageUrl" placeholder="Nhập URL ảnh" />
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!editForm.form.valid">Lưu</button>
+          <button type="button" (click)="isEditPopupOpen = false">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </div>
