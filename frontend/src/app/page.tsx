@@ -4,18 +4,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import style from "./page.module.css";
 import { RoomClassSaleList, MainRoomClassList, ServiceList } from "./components/roomList";
-import { MainRoomClass } from "./types/mainroomclass";
-import { RoomClass } from "./types/roomclass";
-import { getRoomClass } from "./services/roomclassService";
-import { getMainRoomClass } from "./services/mainroomclassService"
 import { Banner } from "./components/bannerItem";
-import { WebsiteContent } from "./types/websitecontent";
-import { getWebsiteContents } from "./services/websitecontentService";
-import { Service } from "./types/service";
-import { getServices } from "./services/serviceService";
 import RoomSearchBar from "./components/roomSearchBar";
 import { useRoomSearch } from './hooks/useRoomSearch';
-import { useEffect, useState } from "react";
+import { useData } from "./hooks/useData";
 
 
 export default function Home() {
@@ -28,34 +20,10 @@ export default function Home() {
     showBedBox, setShowBedBox,
     guestBoxRef, calendarRef, bedRef
   } = useRoomSearch();
-
-  // Khai báo kiểu cho state
-  const [banners, setBanners] = useState<WebsiteContent[]>([]);
-  const [mainroomclass, setMainRoomClass] = useState<MainRoomClass[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [roomsales, setRoomSales] = useState<RoomClass[]>([]);
-
-  useEffect(() => {
-    // Fetch dữ liệu ở client
-    const fetchData = async () => {
-      const banners = await getWebsiteContents("http://localhost:8000/v1/website-content/user");
-      setBanners(banners);
-
-      const mainroomclass = await getMainRoomClass("http://localhost:8000/v1/main-room-class/user");
-      setMainRoomClass(mainroomclass);
-
-      const services = await getServices("http://localhost:8000/v1/service/user");
-      setServices(services);
-
-      const roomsales = await getRoomClass("http://localhost:8000/v1/room-class/user?limit=4");
-      setRoomSales(roomsales);
-    };
-    fetchData();
-  }, []);
-
+  const { websitecontent, mainroomclass, services, roomclass } = useData();
   return (
     <>
-      <Banner banner={banners[2]} />
+      <Banner banner={websitecontent[2]} />
       <div className="mt-2">
         <RoomSearchBar
           dateRange={dateRange}
@@ -87,23 +55,20 @@ export default function Home() {
         <br />
 
         {/* DỊCH VỤ KHÁCH SẠN Section */}
-        <div className={style.headerContainer}>
+        <div className={`mt-5 ${style.headerContainer}`}>
           <h2 className={style.sectionTitle}>DỊCH VỤ KHÁCH SẠN</h2>
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
           <ServiceList svl={services} />
         </Row>
-        <br />
-        <br />
-        <br />
         {/* ƯU ĐÃI ĐẶC BIỆT Section */}
-        <div className={style.headerContainer}>
+        <div className={`mt-5 ${style.headerContainer}`}>
           <h2 className={style.sectionTitle}>ƯU ĐÃI ĐẶC BIỆT (giảm 30% khi đặt trước 7 ngày)</h2>
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <RoomClassSaleList rcsl={roomsales} />
+          <RoomClassSaleList rcsl={roomclass} />
         </Row>
         <br />
         <br />

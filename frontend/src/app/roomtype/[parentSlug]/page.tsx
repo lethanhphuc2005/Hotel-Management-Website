@@ -1,13 +1,10 @@
 "use client"
-import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { RoomClassList } from '../../components/roomList';
-import { RoomClass } from '../../types/roomclass';
-import { getRoomClass } from '../../services/roomclassService';
-import React, { useRef } from "react";
-// import style from './rcChild.module.css';
+import React from "react";
 import { useRoomSearch } from '../../hooks/useRoomSearch';
 import RoomSearchBar from '@/app/components/roomSearchBar';
+import { useData } from '@/app/hooks/useData';
 
 export default function Roomclass() {
     const {
@@ -22,29 +19,22 @@ export default function Roomclass() {
         showBedBox, setShowBedBox,
         guestBoxRef, calendarRef, bedRef
     } = useRoomSearch();
-    const [roomclass, setRoomClass] = useState<RoomClass[]>([]);
+    const { 
+        roomclass 
+    } = useData();
+
+    // Sử dụng useParams để lấy parentSlug từ URL
     const params = useParams();
     const parentSlug = params.parentSlug as string;
 
-    const filteredRoomClass = roomclass.filter(item =>
-        item.price >= price &&
-        (views.length === 0 || views.includes(item.view)) &&
-        (amenities.length === 0 || amenities.every(am => item.features[0]?.feature_id.name.includes(am)))
-    );
-
-    useEffect(() => {
-        const fetchRoomTypes = async () => {
-            try {
-                const res: RoomClass[] = await getRoomClass(`http://localhost:8000/v1/room-class/user`);
-                const roomclass = res.filter(roomclass => roomclass.main_room_class_id === parentSlug);
-
-                setRoomClass(roomclass);
-            } catch (err) {
-                console.error('Lỗi khi lấy danh sách phòng:', err);
-            }
-        };
-        fetchRoomTypes();
-    }, []);
+    // Lọc roomclass theo parentSlug
+    const filteredRoomClass = roomclass
+        .filter(item => item.main_room_class_id === parentSlug)
+        .filter(item =>
+            item.price >= price &&
+            (views.length === 0 || views.includes(item.view)) &&
+            (amenities.length === 0 || amenities.every(am => item.features[0]?.feature_id.name.includes(am)))
+        );
 
     const handleChange = (e: any) => {
         setPrice(Number(e.target.value));
@@ -86,7 +76,7 @@ export default function Roomclass() {
                         <div className='sticky-top' style={{ top: '13%' }}>
                             <div className=" mt-3 mb-4" style={{ color: '#FAB320' }}>
                                 <p className='fs-5' style={{ letterSpacing: '3px' }}>
-                                    Loại phòng {roomclass[0]?.main_room_class?.[0]?.name || "Đang tải..."}
+                                    Loại phòng {filteredRoomClass[0]?.main_room_class?.[0]?.name || "Đang tải..."}
                                 </p>
                             </div>
                             <p className='mt-3'>LỌC THEO GIÁ</p>
@@ -108,9 +98,9 @@ export default function Roomclass() {
                                     <input
                                         className="form-check-input"
                                         type="checkbox"
-                                        value="Sea"
+                                        value="sea"
                                         id="viewSea"
-                                        checked={views.includes("Sea")}
+                                        checked={views.includes("sea")}
                                         onChange={e => handleCheckboxChange(e, views, setViews)}
                                     />
                                     <label className="form-check-label" htmlFor="viewSea">
@@ -121,9 +111,9 @@ export default function Roomclass() {
                                     <input
                                         className="form-check-input"
                                         type="checkbox"
-                                        value="City"
+                                        value="city"
                                         id="viewCity"
-                                        checked={views.includes("City")}
+                                        checked={views.includes("city")}
                                         onChange={e => handleCheckboxChange(e, views, setViews)}
                                     />
                                     <label className="form-check-label" htmlFor="viewCity">
