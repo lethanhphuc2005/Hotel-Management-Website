@@ -193,4 +193,66 @@
   </div>
 </div>
 
+<!-- Popup Sửa loại phòng -->
+<div class="popup-add-popup" *ngIf="isEditRoomPopupOpen">
+  <div class="popup-content">
+    <h2>Sửa loại phòng</h2>
+    <form (ngSubmit)="onEditRoomClassSubmit()" #editRoomForm="ngForm">
+      <!-- Các trường giống như popup thêm nhưng binding với editRoomClass -->
+      <div class="popup-section">
+        <label for="editName">Tên loại phòng:</label>
+        <input type="text" id="editName" name="editName" [(ngModel)]="editRoomClass.name" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="editDescription">Mô tả:</label>
+        <textarea id="editDescription" name="editDescription" [(ngModel)]="editRoomClass.description"></textarea>
+      </div>
+
+      <div class="popup-section">
+        <label for="editBed">Số giường:</label>
+        <input type="number" id="editBed" name="editBed" [(ngModel)]="editRoomClass.bed_amount" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="editView">View:</label>
+        <input type="text" id="editView" name="editView" [(ngModel)]="editRoomClass.view" />
+      </div>
+
+      <div class="popup-section">
+        <label for="editCapacity">Sức chứa:</label>
+        <input type="number" id="editCapacity" name="editCapacity" [(ngModel)]="editRoomClass.capacity" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="editPrice">Giá:</label>
+        <input type="number" id="editPrice" name="editPrice" [(ngModel)]="editRoomClass.price" required />
+      </div>
+
+      <div class="popup-section">
+        <label for="editMainRoomClass">Loại phòng chính:</label>
+        <select id="editMainRoomClass" name="editMainRoomClass" [(ngModel)]="editRoomClass.main_room_class_id" required>
+          <option *ngFor="let mrc of mainRoomClasses" [value]="mrc._id">{{ mrc.name }}</option>
+        </select>
+      </div>
+
+      <div class="popup-section">
+        <label>Chọn tiện nghi:</label>
+        <div *ngFor="let f of features">
+          <label>
+            <input type="checkbox" [(ngModel)]="f.selected" name="edit-feature-{{f._id}}" />
+            {{ f.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="popup-actions">
+        <button type="submit" [disabled]="!editRoomForm.form.valid">Lưu</button>
+        <button type="button" (click)="isEditRoomPopupOpen = false">Hủy</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 </div>

@@ -56,19 +56,19 @@ export class RoomClassListComponent implements OnInit {
   }
 
 
- toggleStatus(rc: any) {
-  const updatedStatus = !rc.status; // Đảo trạng thái
+  toggleStatus(rc: any) {
+    const updatedStatus = !rc.status; // Đảo trạng thái
 
-  this.roomClassService.updateRoomClass(rc._id, { status: updatedStatus }).subscribe({
-    next: (res) => {
-      console.log('Cập nhật trạng thái thành công:', res);
-      rc.status = updatedStatus; // Cập nhật UI sau khi API thành công
-    },
-    error: (err) => {
-      console.error('Lỗi khi cập nhật trạng thái:', err);
-    }
-  });
-}
+    this.roomClassService.updateRoomClass(rc._id, { status: updatedStatus }).subscribe({
+      next: (res) => {
+        console.log('Cập nhật trạng thái thành công:', res);
+        rc.status = updatedStatus; // Cập nhật UI sau khi API thành công
+      },
+      error: (err) => {
+        console.error('Lỗi khi cập nhật trạng thái:', err);
+      }
+    });
+  }
 
 
   toggleDropdown(id: string) {
@@ -81,15 +81,13 @@ export class RoomClassListComponent implements OnInit {
   toggleFeatureDropdown(rc: any): void {
     rc.showFeatures = !rc.showFeatures;
   }
-  onEdit(rc: any) {
 
-  }
   onAdd() {
     this.isAddRoomPopupOpen = true;
     this.newRoomClass = {};
   }
 
-    onAddRoomClassSubmit() {
+  onAddRoomClassSubmit() {
     const selectedFeatures = this.features
       .filter(f => f.selected)
       .map(f => ({ feature_id: f._id })); // ✅ Map thành object
@@ -97,7 +95,7 @@ export class RoomClassListComponent implements OnInit {
     const data = {
       ...this.newRoomClass,
       features: selectedFeatures,
-      status: true // trạng thái hđ 
+      status: true // trạng thái hđ
     };
 
     this.roomClassService.addRoomClass(data).subscribe({
@@ -120,4 +118,44 @@ export class RoomClassListComponent implements OnInit {
     this.selectedRoomClass = rc;
     this.isDetailPopupOpen = true;
   }
+
+  // sửa
+
+  isEditRoomPopupOpen = false;
+  editRoomClass: any = {};
+
+  onEdit(rc: any) {
+    // Copy data vào biến edit
+    this.editRoomClass = { ...rc, main_room_class_id: rc.main_room_class?.[0]?._id };
+
+    // Gán lại selected tiện nghi
+    this.features.forEach(f => {
+      f.selected = rc.features?.some((rf: any) => rf.feature_id?._id === f._id);
+    });
+
+    this.isEditRoomPopupOpen = true;
+  }
+
+
+  onEditRoomClassSubmit() {
+    const selectedFeatures = this.features
+      .filter(f => f.selected)
+      .map(f => ({ feature_id: f._id }));
+
+    const updatedData = {
+      ...this.editRoomClass,
+      features: selectedFeatures,
+    };
+
+    this.roomClassService.updateFullRoomClass(this.editRoomClass._id, updatedData).subscribe({
+      next: () => {
+        this.loadRoomClasses();
+        this.isEditRoomPopupOpen = false;
+      },
+      error: (err) => {
+        console.error('Lỗi khi cập nhật loại phòng:', err);
+      }
+    });
+  }
+
 }

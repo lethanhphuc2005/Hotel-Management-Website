@@ -2,6 +2,10 @@ import { MainRoomClass } from "../types/mainroomclass";
 import { RoomClass } from "../types/roomclass";
 import { Service } from "../types/service";
 import { RoomClassSaleItem, MainRoomClassItem, RoomClassItem, ServiceItem } from "./roomItem";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
 
 export function MainRoomClassList({ mrcl }: { mrcl: MainRoomClass[] }) {
   return (
@@ -25,11 +29,26 @@ export function RoomClassSaleList({ rcsl }: { rcsl: RoomClass[] }) {
 
 export function ServiceList({ svl }: { svl: Service[] }) {
   return (
-    <>
-      {svl.map((sv: Service) => (
-        <ServiceItem svi={sv} key={sv._id} />
+    <div className="container mt-2">
+    <Swiper
+      modules={[Navigation]}
+      spaceBetween={24}
+      slidesPerView={1}
+      breakpoints={{
+        576: { slidesPerView: 2 },
+        992: { slidesPerView: 3 },
+        1200: { slidesPerView: 4 }
+      }}
+      navigation
+      style={{ padding: "16px 0" }}
+    >
+      {svl.slice(0, 6).map((svi, idx) => (
+        <SwiperSlide key={svi._id || idx}>
+          <ServiceItem svi={svi} />
+        </SwiperSlide>
       ))}
-    </>
+    </Swiper>
+    </div>
   );
 }
 

@@ -11,6 +11,8 @@ import { AuthGuard } from './components/auth/admin-guard';
 import { RoomListComponent } from './components/admin/room-list/room-list.component';
 import { RoomClassListComponent } from './components/admin/room-class-list/room-class-list.component';
 import { MainRoomClassComponent } from './components/admin/main-room-class/main-room-class.component';
+import { CommentComponent } from './components/admin/comment/comment.component';
+import { CommentItemComponent } from './components/admin/comment/comment-item/comment-item.component';
 
 export const routes: Routes = [
   { path: 'header', component: HeaderComponent },
@@ -26,6 +28,11 @@ export const routes: Routes = [
           { path: 'room-class-list', component: RoomClassListComponent },
           { path:'user', component: UserComponent },
           { path:'websitecontent', component: WebsitecontentComponent },
+          { path:'comment', component: CommentComponent,
+             children: [
+                 { path:'comment-item', component: CommentItemComponent}
+             ]
+          },
         ]
       },
     { path: '**', redirectTo : '/home' },

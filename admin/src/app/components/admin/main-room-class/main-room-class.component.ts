@@ -6,6 +6,7 @@ import { MainRoomClassService } from '../../../services/main-room-class.service'
 import { MainRoomClass, RoomClassImage } from '../../../models/main-room-class';
 import { FormsModule } from '@angular/forms';
 import { ImageService } from '../../../services/image.service';
+import { RoomClass } from '../../../models/room-class';
 
 @Component({
   selector: 'app-main-room-class',
@@ -44,10 +45,10 @@ export class MainRoomClassComponent implements OnInit {
     });
   }
 
-  onEdit(item: MainRoomClass) {
-    // Mở popup edit
-    console.log('Edit:', item);
-  }
+  // onEdit(item: MainRoomClass) {
+  //   // Mở popup edit
+  //   console.log('Edit:', item);
+  // }
 
 toggleMainRoomClass(mainRoomClass: any): void {
   const newStatus = !mainRoomClass.status; // Đảo trạng thái boolean
@@ -139,7 +140,7 @@ toggleMainRoomClass(mainRoomClass: any): void {
           // Gọi service upload ảnh riêng
           this.imageService.uploadImage(mainRoomClassId, this.imageUrl.trim()).subscribe({
             next: () => {
-              this.mainRoomClasses.push(createdMainRoom);
+              this.mainRoomClasses.unshift(createdMainRoom);
               this.isAddPopupOpen = false;
               this.imageUrl = '';
             },
@@ -157,6 +158,78 @@ toggleMainRoomClass(mainRoomClass: any): void {
       }
     });
   }
+
+  // popup sửa
+isEditPopupOpen = false;
+
+editMainRoom: {
+  _id: string;
+  name: string;
+  description: string;
+  status: boolean;
+  images: RoomClassImage[];
+  room_class_list: RoomClass[]; // ✅ Đúng cú pháp kiểu
+} = {
+  _id: '',
+  name: '',
+  description: '',
+  status: true,
+  images: [],
+  room_class_list: []
+};
+
+editImageUrl = '';
+
+onEdit(item: MainRoomClass) {
+  this.editMainRoom = {
+    _id: item._id,
+    name: item.name,
+    description: item.description,
+    status: item.status,
+    images: item.images || [],
+    room_class_list: item.room_class_list || [] // ✅ Gán giá trị, không phải kiểu
+  };
+  this.editImageUrl = item.images?.[0]?.url || '';
+  this.isEditPopupOpen = true;
+}
+
+onEditSubmit() {
+  const updatedRoom: MainRoomClass = {
+    _id: this.editMainRoom._id,
+    name: this.editMainRoom.name,
+    description: this.editMainRoom.description,
+    status: this.editMainRoom.status,
+    images: this.editMainRoom.images || [],
+    room_class_list: this.editMainRoom.room_class_list || [],
+    room_classes: undefined
+  };
+
+  console.log('🧾 Updating main room:', updatedRoom);
+
+  this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedRoom).subscribe({
+    next: () => {
+      if (this.editImageUrl.trim()) {
+        this.imageService.uploadImage(this.editMainRoom._id, this.editImageUrl.trim()).subscribe({
+          next: () => {
+            this.getAllMainRoomClasses();
+            this.isEditPopupOpen = false;
+          },
+          error: (err) => {
+            alert('Cập nhật ảnh thất bại: ' + (err.message || err.statusText));
+          }
+        });
+      } else {
+        this.getAllMainRoomClasses();
+        this.isEditPopupOpen = false;
+      }
+    },
+    error: (err) => {
+      console.error('❌ Update failed:', err);
+      alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
+    }
+  });
+}
+
 
 
 }

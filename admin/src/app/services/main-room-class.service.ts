@@ -33,5 +33,9 @@ export class MainRoomClassService {
   toggleMainRoomClassStatus(id: string, body: { status: boolean }): Observable<any> {
     return this.httpClient.put(`${this.url}/main-room-class/toggle/${id}`, body);
   }
+  // sửa
+  updateMainRoomClass(id: string, data: Partial<MainRoomClass>): Observable<any> {
+  return this.httpClient.put(`${this.url}/main-room-class/${id}`, data);
+}
 
 }

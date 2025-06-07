@@ -1,0 +1,55 @@
+.comment-management-card {
+  background: white;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin: auto 24px auto 45px;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .table-header,
+  .table-row {
+    display: grid;
+    grid-template-columns: 70px repeat(6, 1fr);
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+  }
+
+  .table-header > div,
+  .table-row > div {
+    padding: 8px 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #333;
+
+      &:hover {
+        color: #4caf50;
+      }
+
+      i.fa-trash:hover {
+        color: red;
+      }
+
+      i.fa-pencil:hover {
+        color: #2a2f5b;
+      }
+    }
+  }
+}

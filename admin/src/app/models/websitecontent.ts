@@ -1,19 +1,17 @@
-export interface ILoaiNoiDung {
-  _id: string;
-  TenND: string;
-  MoTa: string;
-  id: string;
-}
-
 export interface IContent {
-Active: any;
   _id: string;
-  TieuDe: string;
-  NoiDung: string;
-  MaND: string;
-  NgayDang: string; // hoặc Date nếu bạn convert
-  HinhAnh: string;
-  TrangThai: boolean;
-  LoaiNoiDung: ILoaiNoiDung;
-  id: string;
+  title: string;
+  content: string;
+  content_type_id: string;
+  image: string;
+  status: boolean;
+  updatedAt: string;
+  content_type: {
+    _id: string;
+    name: string;
+    description: string;
+    status: boolean;
+    updatedAt: string;
+  }[];
+  
 }

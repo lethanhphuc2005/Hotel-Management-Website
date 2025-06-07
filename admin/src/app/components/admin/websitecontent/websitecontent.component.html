@@ -7,28 +7,31 @@
   </div>
 
   <div class="table-header">
-    <div>STT</div> <!-- Thêm dòng này -->
+    <div>STT</div>
     <div>Tiêu đề</div>
     <div>Loại</div>
-    <div>Ngày đăng</div>
+    <div>Ngày cập nhật</div>
     <div>Hình ảnh</div>
-    <div>Trạng thái</div>
+    <div>Hành động</div>
   </div>
 
   <div class="table-row" *ngFor="let content of websiteContents; let i = index">
-    <div>{{ i + 1 }}</div> <!-- Thêm dòng này -->
-    <div>{{ content.TieuDe }}</div>
-    <div>{{ content.LoaiNoiDung.TenND }}</div>
-    <div>{{ content.NgayDang | date:'dd/MM/yyyy' }}</div>
-    <div *ngIf="content?.HinhAnh">
-      <img *ngIf="content.HinhAnh" [src]="'/assets/img/' + content.HinhAnh" />
-    </div>
-    <div class="status-column">
-      <label class="switch">
-        <input type="checkbox" [(ngModel)]="content.Active" />
-        <span class="slider"></span>
-      </label>
-      <button class="edit-button" (click)="onEdit(content)">Sửa</button>
-    </div>
+  <div>{{ i + 1 }}</div>
+  <div>{{ content.title }}</div>
+  <div>{{ content.content_type[0].name || 'Không rõ' }}</div>
+  <div>{{ content.updatedAt | date:'dd/MM/yyyy' }}</div>
+  <div *ngIf="content?.image">
+    <img [src]="'/assets/img/' + content.image" />
   </div>
+  <div class="status-column">
+  <button class="delete-button" (click)="onDelete(content)" title="Xóa">
+    <i class="fas fa-trash"></i>
+  </button>
+
+  <button class="edit-button" (click)="onEdit(content)" title="Sửa">
+    <i class="fas fa-pen"></i>
+  </button>
+</div>
+</div>
+
 </div>

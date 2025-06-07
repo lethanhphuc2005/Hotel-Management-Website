@@ -30,14 +30,14 @@ export class RoomListComponent implements OnInit {
   isAddRoomPopupOpen = false;
   newRoom: any = {};
   roomStatuses: any[] = [];
-selectedRoomClassInfo: any;
-roomClasses: any;
+  selectedRoomClassInfo: any;
+  roomClasses: any;
 
   constructor(
     private roomService: RoomService,
     private statusService: StatusService,
     private roomStatusService: RoomStatusService,
-      private roomClassService: RoomClassService // 🆕 inject status service
+    private roomClassService: RoomClassService // 🆕 inject status service
   ) { }
 
 
@@ -58,18 +58,16 @@ roomClasses: any;
     });
   }
 
-getAllRoomClasses() {
-  this.roomClassService.getAllRoomClass().subscribe({
-    next: (res) => {
-      this.roomClasses = res.data;
-    },
-    error: (err: any) => {
-      console.error('Lỗi khi lấy loại phòng:', err);
-    }
-  });
-}
-
-
+  getAllRoomClasses() {
+    this.roomClassService.getAllRoomClass().subscribe({
+      next: (res) => {
+        this.roomClasses = res.data;
+      },
+      error: (err: any) => {
+        console.error('Lỗi khi lấy loại phòng:', err);
+      }
+    });
+  }
 
   getAllStatus(): void {
     this.statusService.getAllStatus().subscribe({
@@ -83,19 +81,16 @@ getAllRoomClasses() {
     return this.statuses.find(s => s._id === id)?.name || 'Không rõ';
   }
 
-  editRoom(rt: any) {
-    // Mở form sửa, truyền rt vào để chỉnh sửa
+
+  openAddPopup() {
+    this.isAddRoomPopupOpen = true;
   }
 
- openAddPopup() {
-  this.isAddRoomPopupOpen = true;
-}
-
-closeAddRoomPopup() {
-  this.isAddRoomPopupOpen = false;
-  this.newRoom = {};
-  this.selectedRoomClassInfo = null;  // Nếu bạn dùng selectedRoomClassInfo
-}
+  closeAddRoomPopup() {
+    this.isAddRoomPopupOpen = false;
+    this.newRoom = {};
+    this.selectedRoomClassInfo = null;  // Nếu bạn dùng selectedRoomClassInfo
+  }
   getTienNghiNames(tienNghi: any[] | null | undefined): string {
     if (!tienNghi || tienNghi.length === 0) return 'Chưa có tiện nghi';
     return tienNghi.map(tn => tn.TenTN).join(', ');
@@ -108,11 +103,6 @@ closeAddRoomPopup() {
   }
 
 
-  onAdded() {
-    this.showAddPopup = false;
-    this.loadRooms(); // hoặc gọi lại API load danh sách phòng
-  }
-
   loadRooms() {
     this.getAllRooms();
   }
@@ -122,19 +112,19 @@ closeAddRoomPopup() {
     this.isRoomDetailOpen = true;
   }
 
-//   toggleRoomStatus(room: any) {
-//   const newStatus = !room.status;
+  //   toggleRoomStatus(room: any) {
+  //   const newStatus = !room.status;
 
-//   this.roomService.updateRoomStatus(room._id, { status: newStatus }).subscribe({
-//     next: () => {
-//       room.status = newStatus;
-//       console.log('Cập nhật trạng thái hiển thị phòng thành công');
-//     },
-//     error: (err) => {
-//       console.error('Lỗi khi cập nhật trạng thái phòng:', err);
-//     }
-//   });
-// }
+  //   this.roomService.updateRoomStatus(room._id, { status: newStatus }).subscribe({
+  //     next: () => {
+  //       room.status = newStatus;
+  //       console.log('Cập nhật trạng thái hiển thị phòng thành công');
+  //     },
+  //     error: (err) => {
+  //       console.error('Lỗi khi cập nhật trạng thái phòng:', err);
+  //     }
+  //   });
+  // }
 
 
   loadRoomStatuses() {
@@ -149,16 +139,16 @@ closeAddRoomPopup() {
   }
 
   onRoomClassChange(selectedId: string) {
-  const selected = this.roomClasses.find((rc: { _id: string; }) => rc._id === selectedId);
-  if (selected) {
-    this.selectedRoomClassInfo = selected;
+    const selected = this.roomClasses.find((rc: { _id: string; }) => rc._id === selectedId);
+    if (selected) {
+      this.selectedRoomClassInfo = selected;
 
-    // Gán các ô thông tin (tự điền khi chọn loại phòng)
-    this.newRoom.bed_amount = selected.bed_amount;
-    this.newRoom.price = selected.price;
-    this.newRoom.description = selected.description;
+      // Gán các ô thông tin (tự điền khi chọn loại phòng)
+      this.newRoom.bed_amount = selected.bed_amount;
+      this.newRoom.price = selected.price;
+      this.newRoom.description = selected.description;
+    }
   }
-}
 
 
   onAddRoomSubmit() {
@@ -182,6 +172,54 @@ closeAddRoomPopup() {
       },
       error: (err) => console.error('Lỗi khi thêm phòng:', err)
     });
+  }
+
+  // sửa
+  isEditRoomPopupOpen = false;
+  editRoomData: any = {};
+  editingRoomId: string = '';
+  selectedEditRoomClassInfo: any = null;
+
+  editRoom(room: any) {
+    this.editRoomData = { ...room };
+    this.editingRoomId = room._id;
+    this.isEditRoomPopupOpen = true;
+    this.onEditRoomClassChange(room.room_class_id);
+  }
+
+
+  onEditRoomClassChange(selectedId: string) {
+    const selected = this.roomClasses.find((rc: { _id: string; }) => rc._id === selectedId);
+    if (selected) {
+      this.selectedEditRoomClassInfo = selected;
+      this.editRoomData.bed_amount = selected.bed_amount;
+      this.editRoomData.price = selected.price;
+      this.editRoomData.description = selected.description;
+    }
+  }
+  onEditRoomSubmit() {
+    if (!this.editingRoomId) return;
+
+    const data = {
+      name: this.editRoomData.name,
+      floor: Number(this.editRoomData.floor),  // Ép kiểu number tại đây
+      room_class_id: this.editRoomData.room_class_id,
+      room_status_id: this.editRoomData.room_status_id || this.editRoomData.status?.[0]?._id
+    };
+
+    this.roomService.updateRoom(this.editingRoomId, data).subscribe({
+      next: () => {
+        this.loadRooms();
+        this.closeEditRoomPopup();
+      },
+      error: (err) => console.error('Lỗi khi cập nhật phòng:', err)
+    });
+  }
+
+  closeEditRoomPopup() {
+    this.isEditRoomPopupOpen = false;
+    this.editRoomData = {};
+    this.selectedEditRoomClassInfo = null;
   }
 
 }
