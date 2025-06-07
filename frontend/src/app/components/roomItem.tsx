@@ -6,6 +6,7 @@ import { Service } from "../types/service";
 import { useState } from "react";
 import { MainRoomClass } from "../types/mainroomclass";
 import { RoomClass } from "../types/roomclass";
+import ServiceDetailModal from "./ServiceDetailModal";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   return (
@@ -58,26 +59,41 @@ export function RoomClassSaleItem({ rcsi }: { rcsi: RoomClass }) {
 }
 
 export function ServiceItem({ svi }: { svi: Service }) {
+  const [showModal, setShowModal] = useState(false);
+
   return (
-    <Col lg={2} md={4} sm={6}>
-      <div className={style.serviceCard}>
-        <Image
-          src={`/img/${svi.image}`}
-          alt="Hồ bơi"
-          layout="fill"
-          objectFit="cover"
-          className={style.serviceImage}
-        />
-        <div className={style.serviceOverlay}></div>
-        <div className={style.serviceContent}>
-          <p className={style.serviceLabel}>{svi.name}</p>
+    <>
+      <div className={`${style.serviceCard}`}>
+        <div style={{ position: "relative", width: "100%", height: 180 }}>
+          <Image
+            src={`/img/${svi.image}`}
+            alt={svi.name}
+            layout="fill"
+            objectFit="cover"
+            className={style.serviceImage}
+          />
+        </div>
+        <div className="p-3">
+          <h5 style={{ fontWeight: 600 }}>{svi.name}</h5>
+          <div className="mb-2 d-flex align-items-center gap-2">
+            <span role="img" aria-label="capacity"><i className="bi bi-geo-alt-fill"></i></span>
+            <span>Vị trí:</span>
+            <span style={{ marginLeft: 8, color: "white" }}>Tầng 1</span>
+          </div>
+          <div className="mb-4 d-flex align-items-center gap-2">
+            <span role="img" aria-label="clock"><i className="bi bi-alarm-fill"></i></span>
+            <span>Giờ mở cửa:</span>
+            <span style={{ marginLeft: 8, color: "white" }}>6h30 đến 22h00</span>
+          </div>
+          <button className={`w-100`} onClick={() => setShowModal(true)}>Xem chi tiết</button>
         </div>
       </div>
-    </Col>
+      <ServiceDetailModal show={showModal} onHide={() => setShowModal(false)} service={svi} />
+    </>
   );
 }
 
-export function RoomClassItem({ rci }: { rci: RoomClass}) {
+export function RoomClassItem({ rci }: { rci: RoomClass }) {
   const [liked, setLiked] = useState(false);
 
   const handleLikeClick = () => {
@@ -88,11 +104,11 @@ export function RoomClassItem({ rci }: { rci: RoomClass}) {
       <div className='col border rounded-4 d-flex p-3 gap-3' style={{ height: '280px' }}>
         <div className="position-relative">
           {/* {img.map((img, index) => { */}
-            {/* return ( */}
-              <a href={`/roomdetail/${rci._id}`}>
-                <img src='/img/r1.jpg' alt="" className="rounded-4 h-100" />
-              </a>
-            {/* ) */}
+          {/* return ( */}
+          <a href={`/roomdetail/${rci._id}`}>
+            <img src='/img/r1.jpg' alt="" className="rounded-4 h-100" />
+          </a>
+          {/* ) */}
           {/* })} */}
           <button type="button"
             className="btn btn-light position-absolute top-0 end-0 m-1 rounded-circle shadow"
