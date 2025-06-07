@@ -32,7 +32,7 @@
 
         <div class="popup-section">
           <label for="images">Ảnh (URL):</label>
-          <input type="text" id="images" name="images" [(ngModel)]="imageUrl" placeholder="Nhập URL ảnh" />
+          <input type="file" id="images" name="images" (change)="onFileSelected($event)" />
         </div>
 
 
@@ -60,7 +60,8 @@
     <div (click)="onViewDetail(rtm)" style="cursor: pointer">{{ rtm.name }}</div>
     <div>{{ rtm.description }}</div>
     <div class="image-list">
-      <img *ngFor="let img of rtm.images ?? []" [src]="'assets/img/' + img.url" alt="Hình ảnh loại phòng" />
+      <img *ngFor="let img of rtm.images ?? []" [src]="'http://localhost:8000/' + img.url" alt="Hình ảnh"
+        width="200" />
     </div>
     <div>
       <ul class="room-children-list">
@@ -114,7 +115,8 @@
       <div class="popup-section">
         <label>Hình ảnh:</label>
         <div class="image-list">
-          <img *ngFor="let img of selectedMainRoom.images" [src]="'assets/img/' + img.url" alt="Hình ảnh" />
+          <img *ngFor="let img of selectedMainRoom.images" [src]="'http://localhost:8000/images/' + img.url"
+            alt="Hình ảnh" width="200" />
         </div>
       </div>
 
@@ -147,7 +149,7 @@
 
         <div class="popup-section">
           <label for="images">Ảnh (URL):</label>
-          <input type="text" id="images" name="images" [(ngModel)]="editImageUrl" placeholder="Nhập URL ảnh" />
+          <input type="file" id="images" name="images" [(ngModel)]="editImageUrl" placeholder="Nhập URL ảnh" />
         </div>
 
         <div class="popup-actions">

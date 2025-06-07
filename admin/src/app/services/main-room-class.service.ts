@@ -7,9 +7,6 @@ import { MainRoomClass } from '../models/main-room-class';
   providedIn: 'root'
 })
 export class MainRoomClassService {
-  uploadImage(mainRoomClassId: any, arg1: string) {
-    throw new Error('Method not implemented.');
-  }
   private url = 'http://127.0.0.1:8000/v1';
 
   constructor(private httpClient: HttpClient) { }
@@ -24,8 +21,8 @@ export class MainRoomClassService {
       `${this.url}/main-room-class/${id}`
     );
   }
-  addMainRoomClass(data: Partial<MainRoomClass>): Observable<{ message: string, data: MainRoomClass }> {
-    return this.httpClient.post<{ message: string, data: MainRoomClass }>(
+  addMainRoomClass(data: any): Observable<any> {
+    return this.httpClient.post(
       `${this.url}/main-room-class`,
       data
     );
@@ -35,7 +32,15 @@ export class MainRoomClassService {
   }
   // sửa
   updateMainRoomClass(id: string, data: Partial<MainRoomClass>): Observable<any> {
-  return this.httpClient.put(`${this.url}/main-room-class/${id}`, data);
-}
+    return this.httpClient.put(`${this.url}/main-room-class/${id}`, data);
+  }
+  uploadImage(mainRoomClassId: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.httpClient.post(
+      `${this.url}/main-room-class/${mainRoomClassId}/image`,
+      formData
+    );
+  }
 
 }
