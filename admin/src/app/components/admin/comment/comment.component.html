@@ -1,0 +1,20 @@
+<div class="comment-management-card">
+  <h2>Quản lí bình luận</h2>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên người dùng</div>
+    <div>Email</div>
+    <div>Nội dung</div>
+    <div>Phòng</div>
+    <div>Ngày tạo</div>
+    <div>Hành động</div>
+  </div>
+
+  <app-comment-item
+    *ngFor="let comment of comments; let i = index"
+    [comment]="comment"
+    [index]="i"
+    [level]="0">
+  </app-comment-item>
+</div>

@@ -1,0 +1,21 @@
+<div class="table-row" [ngStyle]="{ 'margin-left.px': (level > 0 && index === 0) ? 24 : 0 }">
+  <div>
+    <ng-container *ngIf="level === 0">{{ index + 1 }}</ng-container>
+  </div>
+  <div>
+    {{ comment.user_id?.last_name || comment.employee_id?.last_name }}
+    {{ comment.user_id?.first_name || comment.employee_id?.first_name }}
+  </div>
+  <div>{{ comment.user_id?.email || comment.employee_id?.email }}</div>
+  <div>{{ comment.content }}</div>
+  <div>{{ comment.room_class_id?.name }}</div>
+  <div>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+  <div class="actions">
+    <button (click)="viewComment(comment)"><i class="fa fa-eye"></i></button>
+    <button (click)="deleteComment(comment._id)"><i class="fa fa-trash"></i></button>
+  </div>
+</div>
+
+<div *ngFor="let reply of comment.replies; let j = index">
+  <app-comment-item [comment]="reply" [index]="j" [level]="level + 1"></app-comment-item>
+</div>
