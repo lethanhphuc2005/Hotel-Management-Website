@@ -1,29 +1,29 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { User } from '../models/user';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private apiUrl = 'http://localhost:8000/v1/user';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    return this.http.get<{ data: any[] }>(this.apiUrl).pipe(
+      map(res => res.data)
+    );
   }
 
-  getUserById(id: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/userinfo/${id}`);
+  getUserById(id: string) {
+    return this.http.get(`${this.apiUrl}/${id}`);
   }
 
-  updateUserStatus(user: User): Observable<User> {
-    const body = { TrangThai: user.isActive }; // backend vẫn nhận trường TrangThai
-    return this.http.put<User>(`${this.apiUrl}/update/${user.id}`, body);
-  }
 
-  // addRoom(roomData: any): Observable<any> {
-  //   return this.http.post(`${this.apiUrl}/rooms`, roomData);
-  // }
+ toggleUserStatus(id: string): Observable<any> {
+  return this.http.put(`${this.apiUrl}/toggle/${id}`, {});
+}
+
+
 
 }

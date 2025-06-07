@@ -18,7 +18,7 @@ export class UserComponent implements OnInit, OnDestroy {
   editingUser: User | null = null;
 
   private subscription?: Subscription;
-i: any;
+  i: any;
 
   constructor(private userService: UserService) { }
 
@@ -29,52 +29,45 @@ i: any;
   getAllUser() {
     this.subscription = this.userService.getAllUsers().subscribe({
       next: (data) => {
+        console.log('DATA TRẢ VỀ:', data);
         this.users = data.map((item: any) => ({
-          id: item._id,                 // ánh xạ _id → id
-          TenKH: item.TenKH,
-          Email: item.Email,
-          SoDT: item.SoDT,
-          DiaChi: item.DiaChi,
-          YeuCau_DB: item.YeuCau_DB,
-          isActive: item.TrangThai      // ánh xạ TrangThai → isActive
+          id: item._id,
+          TenKH: `${item.last_name} ${item.first_name}`,
+          Email: item.email,
+          SoDT: item.phone_number,
+          DiaChi: item.address,
+          YeuCau_DB: item.request,
+          isActive: item.status
         }));
+
       },
       error: (err) => {
-        console.error('Lấy dữ liệu user lỗi:', err);
+        console.error('Lỗi khi lấy user:', err);
       }
     });
   }
+
 
   ngOnDestroy() {
     this.subscription?.unsubscribe();
   }
 
-  toggleUserStatus(user: User) {
-    // Lấy user chi tiết theo id trước
-    this.userService.getUserById(user.id).subscribe({
-      next: (userDetail) => {
-        // Tạo bản sao user và đổi trạng thái
-        const updatedUser = { ...userDetail, isActive: !userDetail['TrangThai'] };
 
-        // Gọi update trạng thái
-        this.userService.updateUserStatus({
-          ...updatedUser,
-          id: user.id,
-          isActive: updatedUser.isActive
-        }).subscribe({
-          next: () => {
-            user.isActive = updatedUser.isActive;
-            console.log(`Đã cập nhật trạng thái user ${user.Email} thành ${user.isActive}`);
-          },
-          error: (err) => {
-            console.error('Lỗi cập nhật trạng thái user:', err);
-          }
-        });
-      },
-      error: (err) => {
-        console.error('Lỗi lấy chi tiết user:', err);
-      }
-    });
-  }
+  toggleUserStatus(user: User) {
+  const action = user.isActive ? 'vô hiệu hoá' : 'kích hoạt lại';
+  const confirmed = window.confirm(`Bạn có muốn ${action} tài khoản này không?`);
+  if (!confirmed) return;
+
+  this.userService.toggleUserStatus(user.id).subscribe({
+    next: (res) => {
+      user.isActive = !user.isActive;
+      console.log(`✅ ${res.message}`);
+    },
+    error: (err) => {
+      console.error('Lỗi khi cập nhật trạng thái:', err);
+    }
+  });
+}
+
 
 }
