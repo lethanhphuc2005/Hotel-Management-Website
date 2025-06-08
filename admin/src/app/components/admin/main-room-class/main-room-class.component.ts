@@ -100,7 +100,6 @@ export class MainRoomClassComponent implements OnInit {
 
 
   imageUrl = '';
-
   onAdd() {
     this.resetAddForm();
     this.isAddPopupOpen = true;
@@ -177,43 +176,88 @@ export class MainRoomClassComponent implements OnInit {
     this.editImageUrl = item.images?.[0]?.url || '';
     this.isEditPopupOpen = true;
   }
-
   onEditSubmit() {
-    const updatedRoom: MainRoomClass = {
-      _id: this.editMainRoom._id,
+    // Chỉ tạo payload với các trường được phép update
+    const updatedPayload = {
       name: this.editMainRoom.name,
       description: this.editMainRoom.description,
-      status: this.editMainRoom.status,
-      images: this.editMainRoom.images || [],
-      room_class_list: this.editMainRoom.room_class_list || [],
-      room_classes: undefined
+      status: this.editMainRoom.status
+      // Không gửi _id, images, room_class_list, room_classes
     };
 
-    console.log('🧾 Updating main room:', updatedRoom);
+    if (this.editSelectedFile) {
+      const formData = new FormData();
+      formData.append('name', updatedPayload.name);
+      formData.append('description', updatedPayload.description);
+      formData.append('status', updatedPayload.status ? 'true' : 'false');
+      formData.append('image', this.editSelectedFile);
 
-    this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedRoom).subscribe({
-      next: () => {
-        if (this.editImageUrl.trim()) {
-          this.imageService.uploadImage(this.editMainRoom._id, this.editImageUrl.trim()).subscribe({
-            next: () => {
-              this.getAllMainRoomClasses();
-              this.isEditPopupOpen = false;
-            },
-            error: (err) => {
-              alert('Cập nhật ảnh thất bại: ' + (err.message || err.statusText));
-            }
-          });
-        } else {
+      this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, formData).subscribe({
+        next: () => {
           this.getAllMainRoomClasses();
           this.isEditPopupOpen = false;
+          this.editSelectedFile = null;
+        },
+        error: (err) => {
+          alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
         }
-      },
-      error: (err) => {
-        console.error('❌ Update failed:', err);
-        alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
-      }
-    });
+      });
+    } else {
+      this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedPayload).subscribe({
+        next: () => {
+          this.getAllMainRoomClasses();
+          this.isEditPopupOpen = false;
+        },
+        error: (err) => {
+          alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
+        }
+      });
+    }
   }
+
+
+  // onEditSubmit() {
+  //   const updatedRoom: MainRoomClass = {
+  //     _id: this.editMainRoom._id,
+  //     name: this.editMainRoom.name,
+  //     description: this.editMainRoom.description,
+  //     status: this.editMainRoom.status,
+  //     images: this.editMainRoom.images || [],
+  //     room_class_list: this.editMainRoom.room_class_list || [],
+  //     room_classes: undefined
+  //   };
+
+  //   // Nếu có file mới, gửi FormData để update kèm ảnh
+  //   if (this.editSelectedFile) {
+  //     const formData = new FormData();
+  //     formData.append('name', updatedRoom.name);
+  //     formData.append('description', updatedRoom.description);
+  //     formData.append('status', updatedRoom.status ? 'true' : 'false');
+  //     formData.append('image', this.editSelectedFile);
+
+  //     this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, formData).subscribe({
+  //       next: () => {
+  //         this.getAllMainRoomClasses();
+  //         this.isEditPopupOpen = false;
+  //         this.editSelectedFile = null;
+  //       },
+  //       error: (err) => {
+  //         alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
+  //       }
+  //     });
+  //   } else {
+  //     // Không đổi ảnh, chỉ update thông tin
+  //     this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedRoom).subscribe({
+  //       next: () => {
+  //         this.getAllMainRoomClasses();
+  //         this.isEditPopupOpen = false;
+  //       },
+  //       error: (err) => {
+  //         alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
+  //       }
+  //     });
+  //   }
+  // }
 
   selectedFile: File | null = null;
 
@@ -221,6 +265,15 @@ export class MainRoomClassComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
+    }
+  }
+
+  editSelectedFile: File | null = null;
+
+  onEditFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.editSelectedFile = file;
     }
   }
 }

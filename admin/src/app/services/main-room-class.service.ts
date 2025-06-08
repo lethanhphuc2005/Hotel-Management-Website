@@ -31,7 +31,7 @@ export class MainRoomClassService {
     return this.httpClient.put(`${this.url}/main-room-class/toggle/${id}`, body);
   }
   // sửa
-  updateMainRoomClass(id: string, data: Partial<MainRoomClass>): Observable<any> {
+  updateMainRoomClass(id: string, data: any): Observable<any> {
     return this.httpClient.put(`${this.url}/main-room-class/${id}`, data);
   }
   uploadImage(mainRoomClassId: string, file: File): Observable<any> {
