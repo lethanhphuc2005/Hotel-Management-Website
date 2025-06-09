@@ -5,29 +5,29 @@ const User = require("../models/userModel");
 
 const commentCon = {
   // === XÂY CÂY DỰNG CÂU TRÚC BÌNH LUẬN ===
-  buildCommentTree: (comments) => {
-    const commentMap = new Map();
-    const commentTree = [];
-    comments.forEach((comment) => {
-      commentMap.set(comment._id.toString(), {
-        ...comment.toObject(),
-        replies: [],
-      });
-    });
-    comments.forEach((comment) => {
-      const commentId = comment._id.toString();
-      const parentId = comment.parent_id ? comment.parent_id.toString() : null;
-      if (parentId) {
-        const parentComment = commentMap.get(parentId);
-        if (parentComment) {
-          parentComment.replies.push(commentMap.get(commentId));
-        }
-      } else {
-        commentTree.push(commentMap.get(commentId));
-      }
-    });
-    return commentTree;
-  },
+  // buildCommentTree: (comments) => {
+  //   const commentMap = new Map();
+  //   const commentTree = [];
+  //   comments.forEach((comment) => {
+  //     commentMap.set(comment._id.toString(), {
+  //       ...comment.toObject(),
+  //       replies: [],
+  //     });
+  //   });
+  //   comments.forEach((comment) => {
+  //     const commentId = comment._id.toString();
+  //     const parentId = comment.parent_id ? comment.parent_id.toString() : null;
+  //     if (parentId) {
+  //       const parentComment = commentMap.get(parentId);
+  //       if (parentComment) {
+  //         parentComment.replies.push(commentMap.get(commentId));
+  //       }
+  //     } else {
+  //       commentTree.push(commentMap.get(commentId));
+  //     }
+  //   });
+  //   return commentTree;
+  // },
 
   // === KIỂM TRA ĐIỀU KIỆN BÌNH LUẬN ===
   validateComment: async (commentData, commentId) => {
@@ -116,8 +116,6 @@ const commentCon = {
         order,
         status,
         room_class,
-        employee,
-        user,
       } = req.query;
 
       const query = {};
@@ -131,14 +129,6 @@ const commentCon = {
 
       if (room_class) {
         query.room_class_id = room_class;
-      }
-
-      if (employee) {
-        query.employee_id = employee;
-      }
-
-      if (user) {
-        query.user_id = user;
       }
 
       const sortOptions = {};
@@ -163,18 +153,13 @@ const commentCon = {
         Comment.countDocuments(query),
       ]);
 
-      // XÂY CÂY DỰNG CÂU TRÚC BÌNH LUẬN
-      const commentTree = commentCon.buildCommentTree(comments);
-
-      // Nếu không có bình luận nào, trả về thông báo
-
-      if (!commentTree || commentTree.length === 0) {
+      if (!comments || comments.length === 0) {
         return res.status(404).json({ message: "Không có bình luận nào." });
       }
       // Trả về danh sách bình luận
       return res.status(200).json({
         message: "Lấy danh sách bình luận thành công.",
-        data: commentTree,
+        data: comments,
         pagination: {
           total: total,
           page: parseInt(page),
@@ -217,10 +202,11 @@ const commentCon = {
 
       const [comments, total] = await Promise.all([
         Comment.find(query)
+          .select("-status")
           .populate("room_class_id", "-image -description -status")
           .populate("employee_id", "first_name last_name")
           .populate("user_id", "first_name last_name")
-          .populate("parent_comment")
+          .populate("parent_comment", "-status")
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit))
@@ -228,18 +214,13 @@ const commentCon = {
         Comment.countDocuments(query),
       ]);
 
-      // XÂY CÂY DỰNG CÂU TRÚC BÌNH LUẬN
-      const commentTree = commentCon.buildCommentTree(comments);
-
-      // Nếu không có bình luận nào, trả về thông báo
-
-      if (!commentTree || commentTree.length === 0) {
+      if (!comments || comments.length === 0) {
         return res.status(404).json({ message: "Không có bình luận nào." });
       }
       // Trả về danh sách bình luận
       return res.status(200).json({
         message: "Lấy danh sách bình luận thành công.",
-        data: commentTree,
+        data: comments,
         pagination: {
           total: total,
           page: parseInt(page),
@@ -296,7 +277,7 @@ const commentCon = {
     }
   },
 
-  // === CẬP NHẬT BÌNH LUẬN ===
+  // === CẬP NHẬT BÌNH LUẬN (CHỈ ĐƯỢC CẬP NHẬT NỘI DUNG) ===
   updateComment: async (req, res) => {
     try {
       const { id } = req.params;
@@ -305,20 +286,25 @@ const commentCon = {
         return res.status(404).json({ message: "Bình luận không tồn tại." });
       }
 
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? commentToUpdate.toObject()
-          : { ...commentToUpdate.toObject(), ...req.body };
+      // Chỉ cho phép cập nhật trường content
+      const { content } = req.body;
+      if (typeof content !== "string" || content.trim() === "") {
+        return res
+          .status(400)
+          .json({ message: "Nội dung bình luận không được để trống." });
+      }
+
+      // Tạo dữ liệu mới chỉ với content
+      const updatedData = { ...commentToUpdate.toObject(), content };
 
       const validation = await commentCon.validateComment(updatedData, id);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
 
-      // Cập nhật bình luận
-      const updatedComment = await Comment.findByIdAndUpdate(id, updatedData, {
-        new: true,
-      });
+      // Cập nhật chỉ trường content
+      commentToUpdate.content = content;
+      const updatedComment = await commentToUpdate.save();
 
       res.status(200).json({
         message: "Cập nhật bình luận thành công.",

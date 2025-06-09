@@ -27,14 +27,14 @@ router.post(
 );
 
 // === CẬP NHẬT BÌNH LUẬN ===
-router.put("/:id", middlewareCon.authorizeComment(), commentCon.updateComment);
+router.put("/:id", middlewareCon.authorizeCommentAndReview(), commentCon.updateComment);
 
-// === XÓA BÌNH LUẬN ===
-router.delete(
-  "/:id",
-  middlewareCon.authorizeComment(),
-  commentCon.deleteComment
-);
+// // === XÓA BÌNH LUẬN ===
+// router.delete(
+//   "/:id",
+//   middlewareCon.authorizeCommentAndReview(),
+//   commentCon.deleteComment
+// );
 
 // === KÍCH HOẠT/ VÔ HIỆU HÓA BÌNH LUẬN ===
 router.put(

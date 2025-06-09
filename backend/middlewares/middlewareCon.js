@@ -58,7 +58,7 @@ const middlewareCon = {
   },
 
   // === XÁC THỰC BÌNH LUẬN CHO USER HOẶC NHÂN VIÊN ===
-  authorizeComment: () => {
+  authorizeCommentAndReview: () => {
     return (req, res, next) => {
       middlewareCon.verifyToken(req, res, () => {
         const user = req.user;

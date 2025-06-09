@@ -37,11 +37,11 @@ router.put(
   websiteContentCon.toggleWebsiteContentStatus
 );
 
-// // === XÓA NỘI DUNG WEBSITE ===
-// router.delete(
-//   "/:id",
-//   middlewareCon.authorizeRoles("admin"),
-//   websiteContentCon.deleteWebsiteContent
-// );
+// === XÓA NỘI DUNG WEBSITE ===
+router.delete(
+  "/:id",
+  middlewareCon.authorizeRoles("admin"),
+  websiteContentCon.deleteWebsiteContent
+);
 
 module.exports = router;
