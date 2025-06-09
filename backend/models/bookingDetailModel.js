@@ -50,27 +50,30 @@ BookingDetailSchema.set("toJSON", {
   },
 });
 
-const Booking_Detail_ServiceSchema = new mongoose.Schema({
-  booking_detail_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "booking_detail",
-    required: true,
+const Booking_Detail_ServiceSchema = new mongoose.Schema(
+  {
+    booking_detail_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "booking_detail",
+      required: true,
+    },
+    service_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "service",
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    used_at: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  service_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "service",
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
-  used_at: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
 Booking_Detail_ServiceSchema.virtual("booking_detail", {
   ref: "booking_detail",

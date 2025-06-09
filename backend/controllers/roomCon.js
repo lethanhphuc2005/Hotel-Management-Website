@@ -1,6 +1,8 @@
 const Room = require("../models/roomModel");
 const RoomClass = require("../models/roomClassModel");
-const { RoomStatus } = require("../models/statusModel");
+const { RoomStatus, BookingStatus } = require("../models/statusModel");
+const Booking = require("../models/bookingModel");
+const { BookingDetail } = require("../models/bookingDetailModel");
 
 const roomCon = {
   // === KIỂM TRA ĐIỀU KIỆN PHÒNG ===
@@ -53,32 +55,59 @@ const roomCon = {
         order = "asc",
         status,
         type,
+        check_in_date,
+        check_out_date,
       } = req.query;
 
       const query = {};
 
-      // Tìm kiếm theo tên phòng (không phân biệt hoa thường)
       if (search) {
-        query.$or = [{ name: { $regex: search, $options: "i" } }];
+        query.name = { $regex: search, $options: "i" };
       }
 
-      // Lọc theo trạng thái
       if (status) {
         query.room_status_id = status;
       }
 
-      // Lọc theo loại phòng
       if (type) {
         query.room_class_id = type;
       }
 
-      const sortOption = {};
-      // Nếu sort là 'status', sắp xếp theo trạng thái
-      if (sort === "status") {
-        sortOption.status = order === "asc" ? 1 : -1;
-      } else {
-        sortOption[sort] = order === "asc" ? 1 : -1;
+      // === Xử lý lọc phòng trống ===
+      if (check_in_date && check_out_date) {
+        const checkIn = new Date(check_in_date);
+        const checkOut = new Date(check_out_date);
+
+        const excludedStatuses = await BookingStatus.find({
+          code: { $in: ["CANCELLED", "CHECKED_OUT"] },
+        }).select("_id");
+
+        const excludedStatusIds = excludedStatuses.map((s) => s._id);
+
+        const bookings = await Booking.find({
+          $or: [
+            {
+              check_in_date: { $lt: checkOut },
+              check_out_date: { $gt: checkIn },
+            },
+          ],
+          booking_status_id: { $nin: excludedStatusIds }, // Trạng thái huỷ
+        }).select("_id");
+        console.log("Bookings found:", bookings.length);
+
+        const bookingIds = bookings.map((b) => b._id);
+
+        const bookedRoomIds = await BookingDetail.find({
+          booking_id: { $in: bookingIds },
+        }).distinct("room_id");
+
+        if (bookedRoomIds.length > 0) {
+          query._id = { $nin: bookedRoomIds }; // Loại các phòng đã được đặt
+        }
       }
+
+      const sortOption = {};
+      sortOption[sort] = order === "asc" ? 1 : -1;
 
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -89,7 +118,6 @@ const roomCon = {
         .limit(parseInt(limit))
         .exec();
 
-      // Kiểm tra xem có phòng nào được tìm thấy không
       if (!rooms || rooms.length === 0) {
         return res.status(404).json({ message: "Không tìm thấy phòng nào" });
       }
@@ -108,6 +136,53 @@ const roomCon = {
       });
     } catch (error) {
       res.status(500).json({ message: "Lỗi khi lấy danh sách phòng", error });
+    }
+  },
+
+  // API lấy booking của phòng theo tháng
+  getRoomBookingCalendar: async (req, res) => {
+    try {
+      const { room_id, year, month } = req.query;
+      if (!room_id || !year || !month) {
+        return res.status(400).json({ message: "Thiếu tham số" });
+      }
+
+      // Khoảng thời gian đầu tháng đến cuối tháng
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0, 23, 59, 59);
+
+      // 1. Tìm booking_id có room_id này
+      const bookingDetails = await BookingDetail.find({ room_id }).select(
+        "booking_id"
+      );
+      const bookingIds = bookingDetails.map((bd) => bd.booking_id);
+
+      // 2. Tìm booking thỏa điều kiện thời gian và booking_id ở trên
+      const bookings = await Booking.find({
+        _id: { $in: bookingIds },
+        booking_status_id: { $ne: "683fba8d351a96315d457679" }, // trạng thái hủy hoặc trạng thái không tính
+        $or: [
+          { check_in_date: { $lte: endDate, $gte: startDate } },
+          { check_out_date: { $lte: endDate, $gte: startDate } },
+          {
+            check_in_date: { $lte: startDate },
+            check_out_date: { $gte: endDate },
+          },
+        ],
+      }).populate("booking_status_id");
+
+      // Format dữ liệu cho calendar
+      const events = bookings.map((b) => ({
+        id: b._id,
+        title: `Booking #${b._id}`,
+        start: b.check_in_date,
+        end: b.check_out_date,
+        status: b.booking_status_id,
+      }));
+
+      res.status(200).json({ events });
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi lấy lịch đặt phòng", error });
     }
   },
 
@@ -203,7 +278,9 @@ const roomCon = {
       roomToToggle.room_status_id =
         req.body.room_status_id || roomToToggle.room_status_id;
       await roomToToggle.save();
-      const newRoomToggle = await Room.findById(roomToToggle._id).populate("status");
+      const newRoomToggle = await Room.findById(roomToToggle._id).populate(
+        "status"
+      );
 
       res.status(200).json({
         message: "Thay đổi trạng thái phòng thành công",

@@ -9,6 +9,13 @@ router.get(
   roomCon.getAllRooms
 );
 
+// === LẤY DANH SÁCH PHÒNG THEO THÁNG ===
+router.get(
+  "/booking-calendar/",
+  middlewareCon.authorizeRoles("admin", "receptionist"),
+  roomCon.getRoomBookingCalendar
+);
+
 // === LẤY PHÒNG THEO ID ===
 router.get(
   "/:id",

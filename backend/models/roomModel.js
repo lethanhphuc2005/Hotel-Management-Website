@@ -23,7 +23,7 @@ const RoomSchema = new mongoose.Schema(
     room_status_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "room_status",
-      required: true,
+      default: null,
     },
   },
   { timestamps: true }
