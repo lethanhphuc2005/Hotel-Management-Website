@@ -78,7 +78,7 @@ const accountController = {
     try {
       const checkAccount = new User(req.body);
       console.log(req.body);
-      const validation = await accountCon.validateUser(checkAccount);
+      const validation = await accountController.validateUser(checkAccount);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -146,8 +146,8 @@ const accountController = {
       const isMatch = bcrypt.compare(req.body.password, checkUser.password);
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
       if (checkUser && isMatch) {
-        const accessToken = accountCon.creareToken(checkUser);
-        const refreshToken = accountCon.creareRefreshToken(checkUser);
+        const accessToken = accountController.creareToken(checkUser);
+        const refreshToken = accountController.creareRefreshToken(checkUser);
 
         const { password, ...others } = checkUser._doc;
         res.status(200).json({
@@ -175,8 +175,8 @@ const accountController = {
       const isMatch = bcrypt.compare(req.body.password, admin.password);
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
 
-      const accessToken = accountCon.creareToken(admin);
-      const refreshToken = accountCon.creareRefreshToken(admin);
+      const accessToken = accountController.creareToken(admin);
+      const refreshToken = accountController.creareRefreshToken(admin);
       const { password, ...others } = admin._doc;
 
       res.status(200).json({
@@ -200,8 +200,8 @@ const accountController = {
       }
 
       // Tạo accessToken và refreshToken mới
-      const newAccessToken = accountCon.creareToken(user);
-      const newRefreshToken = accountCon.creareRefreshToken(user);
+      const newAccessToken = accountController.creareToken(user);
+      const newRefreshToken = accountController.creareRefreshToken(user);
 
       res.status(200).json({
         message: "Cấp token mới thành công",

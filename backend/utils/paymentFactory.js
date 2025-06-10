@@ -1,7 +1,7 @@
 const MomoService = require("../services/payments/momo.service");
 
 const PaymentFactory = {
-  createPaymentService: (method) => {
+  handlePaymentMethodService: (method) => {
     switch (method) {
       case "momo":
         return MomoService;
