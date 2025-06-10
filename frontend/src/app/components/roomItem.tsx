@@ -13,17 +13,18 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
     <Col lg={4} md={6}>
       <div className={style.roomCard}>
         {mrci.images?.map((img, index) => {
+          console.log('Hình',img);
           return (
             <Image
               key={index}
-              src={`/img/${img.url}`}
+              src={`http://localhost:8000${img.url}`}
               alt="Phòng Standard"
               layout="fill"
               objectFit="cover"
               className={style.roomImage}
             />
           );
-        })}
+         })}
         <div className={style.roomOverlay}></div>
         <div className={style.roomContent}>
           <p className={style.roomLabel}>Phòng {mrci.name}</p>
