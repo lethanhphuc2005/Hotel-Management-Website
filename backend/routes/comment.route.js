@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const commentCon = require("../controllers/comment.controller");
-const middlewareCon = require("../middlewares/middleware.controller");
+const middlewareCon = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH BÌNH LUẬN ===
 router.get(

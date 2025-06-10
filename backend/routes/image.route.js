@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const imageCon = require("../controllers/image.controller");
-const middlewareCon = require("../middlewares/middleware.controller");
+const middlewareCon = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ HÌNH ẢNH ===
 router.get(

@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const contentTypeCon = require("../controllers/contentType.controller");
-const middlewareCon = require("../middlewares/middleware.controller");
+const middlewareCon = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ LOẠI NỘI DUNG ===
 router.get(

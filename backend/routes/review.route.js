@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const reviewCon = require("../controllers/review.controller");
-const middlewareCon = require("../middlewares/middleware.controller");
+const middlewareCon = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ ===
 router.get("/", middlewareCon.authorizeRoles("admin"), reviewCon.getAllReviews);

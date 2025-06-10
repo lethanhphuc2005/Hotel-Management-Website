@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const mainRoomClassCon = require("../controllers/mainRoomClass.controller");
-const middlewareCon = require("../middlewares/middleware.controller");
+const middlewareCon = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH ===
 router.get(

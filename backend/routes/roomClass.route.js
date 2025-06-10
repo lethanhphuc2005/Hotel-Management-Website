@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const roomTypeCon = require("../controllers/roomClass.controller");
-const middleware = require("../middlewares/middleware.controller");
+const middlewareCon = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ LOẠI PHÒNG ===
 router.get(
   "/",
-  middleware.authorizeRoles("admin", "receptionist"),
+  middlewareCon.authorizeRoles("admin", "receptionist"),
   roomTypeCon.getAllRoomClasses
 );
 
@@ -16,26 +16,26 @@ router.get("/user", roomTypeCon.getAllRoomClassesForUser);
 router.get("/:id", roomTypeCon.getRoomClassById);
 
 // === THÊM LOẠI PHÒNG ===
-router.post("/", middleware.authorizeRoles("admin"), roomTypeCon.addRoomClass);
+router.post("/", middlewareCon.authorizeRoles("admin"), roomTypeCon.addRoomClass);
 
 // === CẬP NHẬT LOẠI PHÒNG ===
 router.put(
   "/:id",
-  middleware.authorizeRoles("admin", "receptionist"),
+  middlewareCon.authorizeRoles("admin", "receptionist"),
   roomTypeCon.updateRoomClass
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG ===
 router.put(
   "/toggle/:id",
-  middleware.authorizeRoles("admin"),
+  middlewareCon.authorizeRoles("admin"),
   roomTypeCon.toggleRoomClassStatus
 );
 
 // === XÓA LOẠI PHÒNG ===
 router.delete(
   "/:id",
-  middleware.authorizeRoles("admin"),
+  middlewareCon.authorizeRoles("admin"),
   roomTypeCon.deleteRoomClass
 );
 
