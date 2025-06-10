@@ -23,24 +23,19 @@ export default function Home() {
   const { websitecontent, mainroomclass, services, roomclass } = useData();
   return (
     <>
-      <Banner banner={websitecontent[2]} />
+      <Banner banners={websitecontent} />
       <div className="mt-2">
         <RoomSearchBar
           dateRange={dateRange}
           setDateRange={setDateRange}
           guests={guests}
           setGuests={setGuests}
-          beds={beds}
-          setBeds={setBeds}
           showCalendar={showCalendar}
           setShowCalendar={setShowCalendar}
           showGuestBox={showGuestBox}
           setShowGuestBox={setShowGuestBox}
-          showBedBox={showBedBox}
-          setShowBedBox={setShowBedBox}
           guestBoxRef={guestBoxRef}
           calendarRef={calendarRef}
-          bedRef={bedRef}
         />
       </div>
       <Container fluid className={`${style.customContainer} container`}>
