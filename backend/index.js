@@ -2,28 +2,29 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const multer = require("multer");
 
-const roomRouter = require("./routes/room");
-const authRouter = require("./routes/auth");
-const mainRoomClassRouter = require("./routes/mainRoomClass");
-const roomClassRouter = require("./routes/roomClass");
-const accountRouter = require("./routes/account");
-const userRouter = require("./routes/user");
-const websiteContentRouter = require("./routes/websiteContent");
-const serviceRouter = require("./routes/service");
-const imgroomtypeRouter = require("./routes/image");
-const roomStatusRouter = require("./routes/roomStatus");
-const bookingStatusRouter = require("./routes/bookingStatus");
-const employeeRouter = require("./routes/employee");
-const discountRouter = require("./routes/discount");
-const contentTypeRouter = require("./routes/contentType");
-const featureRouter = require("./routes/feature");
-const bookingMethodRouter = require("./routes/bookingMethod");
-const paymentMethodRouter = require("./routes/paymentMethod");
-const bookingRouter = require("./routes/booking");
-const commentRouter = require("./routes/comment");
-const reviewRouter = require("./routes/review");
+
+const roomRouter = require("./routes/room.route");
+const authRouter = require("./routes/auth.route");
+const mainRoomClassRouter = require("./routes/mainRoomClass.route");
+const roomClassRouter = require("./routes/roomClass.route");
+const accountRouter = require("./routes/account.route");
+const userRouter = require("./routes/user.route");
+const websiteContentRouter = require("./routes/websiteContent.route");
+const serviceRouter = require("./routes/service.route");
+const imgroomtypeRouter = require("./routes/image.route");
+const roomStatusRouter = require("./routes/roomStatus.route");
+const bookingStatusRouter = require("./routes/bookingStatus.route");
+const employeeRouter = require("./routes/employee.route");
+const discountRouter = require("./routes/discount.route");
+const contentTypeRouter = require("./routes/contentType.route");
+const featureRouter = require("./routes/feature.route");
+const bookingMethodRouter = require("./routes/bookingMethod.route");
+const paymentMethodRouter = require("./routes/paymentMethod.route");
+const bookingRouter = require("./routes/booking.route");
+const commentRouter = require("./routes/comment.route");
+const reviewRouter = require("./routes/review.route");
+const paymentRouter = require("./routes/payment.route");
 
 dotenv.config();
 
@@ -68,5 +69,6 @@ app.use("/v1/payment-method", paymentMethodRouter);
 app.use("/v1/booking", bookingRouter);
 app.use("/v1/comment", commentRouter);
 app.use("/v1/review", reviewRouter);
+app.use("/v1/payment", paymentRouter);
 
 app.listen(8000, () => {});
