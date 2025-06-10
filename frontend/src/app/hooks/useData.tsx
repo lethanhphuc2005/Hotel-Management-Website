@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from "react";
 import { WebsiteContent } from "../types/websitecontent";
 import { MainRoomClass } from "../types/mainroomclass";
@@ -19,7 +20,7 @@ export function useData() {
             setWebsiteContent(await getWebsiteContents("http://localhost:8000/v1/website-content/user"));
             setMainRoomClass(await getMainRoomClass("http://localhost:8000/v1/main-room-class/user"));
             setServices(await getServices("http://localhost:8000/v1/service/user"));
-            setRoomClass(await getRoomClass("http://localhost:8000/v1/room-class/user?limit=4"));
+            setRoomClass(await getRoomClass("http://localhost:8000/v1/room-class/user"));
         };
         fetchData();
     }, []);

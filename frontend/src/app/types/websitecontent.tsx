@@ -2,6 +2,8 @@ export interface ContentType {
   _id: string;
   name: string;
   description: string;
+  status: boolean;
+  updatedAt: Date;
 }
 
 export interface WebsiteContent {
@@ -9,6 +11,8 @@ export interface WebsiteContent {
   title: string;
   content: string;
   content_type_id: string;
-  image: string;
+  image: string | string[];
   content_type: ContentType[];
+  status: boolean;
+  updatedAt: Date;
 }
