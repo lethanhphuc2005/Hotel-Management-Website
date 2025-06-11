@@ -7,15 +7,10 @@ import Image from "next/image";
 import { Thumbs } from "swiper/modules";
 import { Service } from "../types/service";
 
-export default function ServiceDetailModal({
-    show,
-    onHide,
-    service,
-}: {
-    show: boolean;
-    onHide: () => void;
-    service: Service | null;
-}) {
+export default function ServiceDetailModal({ show, onHide, service, }: { show: boolean; onHide: () => void; service: Service | null; }) {
+    if (!service) return null;
+    const imageName = service.image;
+
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
     // Reset thumbsSwiper về null khi modal đóng để tránh lỗi Swiper
@@ -23,12 +18,9 @@ export default function ServiceDetailModal({
         if (!show) setThumbsSwiper(null);
     }, [show]);
 
+    const defaultImages = ['banner2.jpg', 'banner4.jpg'];
     const images = [
-        "r1.jpg",
-        "r2.jpg",
-        "r3.jpg",
-        "r4.jpg",
-        "r5.jpg",
+        imageName, ...defaultImages
     ];
 
     if (!service || images.length === 0) return null;
@@ -114,20 +106,6 @@ export default function ServiceDetailModal({
                     <div style={{ borderTop: "1px solid #eee", margin: "12px 0" }} />
                     <div style={{ fontSize: 15, marginBottom: 16 }}>
                         {service.description}
-                    </div>
-                    <div className="mb-2 d-flex align-items-center gap-2">
-                        <span>
-                            <i className="bi bi-geo-alt-fill"></i>
-                        </span>
-                        <span>Vị trí:</span>
-                        <span style={{ marginLeft: 8 }}>Tầng 1</span>
-                    </div>
-                    <div className="mb-2 d-flex align-items-center gap-2">
-                        <span>
-                            <i className="bi bi-alarm-fill"></i>
-                        </span>
-                        <span>Giờ mở cửa:</span>
-                        <span style={{ marginLeft: 8 }}>06:00 – 22:00</span>
                     </div>
                 </div>
             </Modal.Body>

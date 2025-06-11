@@ -4,19 +4,40 @@ import { vi } from 'date-fns/locale';
 import style from '../../app/roomtype/[parentSlug]/rcChild.module.css';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
-import { useEffect } from 'react';
+import { use, useEffect, useState } from 'react';
+import { useData } from '../hooks/useData';
 
 interface RoomSearchBarProps {
     dateRange: any;
     setDateRange: (range: any) => void;
-    guests: { adults: number; children: number };
-    setGuests: React.Dispatch<React.SetStateAction<{ adults: number; children: number }>>;
+    guests: {
+        adults: number; children: {
+            age0to6: number;
+            age7to17: number;
+        };
+    };
+    setGuests: React.Dispatch<React.SetStateAction<{
+        adults: number; children: {
+            age0to6: number;
+            age7to17: number;
+        };
+    }>>;
     showCalendar: boolean;
     setShowCalendar: (show: boolean) => void;
     showGuestBox: boolean;
     setShowGuestBox: (show: boolean) => void;
     guestBoxRef: React.RefObject<HTMLDivElement | null>;
     calendarRef: React.RefObject<HTMLDivElement | null>;
+    maxGuests: number;
+    setMaxGuests: React.Dispatch<React.SetStateAction<number>>;
+    totalGuests: number;
+    roomType: '6844c07eff4e54bdd5ee84a9' | '6844c09fff4e54bdd5ee84b3' | '6844c0c2ff4e54bdd5ee84bd';
+    numberOfNights: number;
+    setNumberOfNights: React.Dispatch<React.SetStateAction<number>>;
+    totalPrice: number;
+    setTotalPrice: React.Dispatch<React.SetStateAction<number>>;
+    hasSearched: boolean;
+    setHasSearched: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function RoomSearchBar(props: RoomSearchBarProps) {
@@ -25,8 +46,17 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
         guests, setGuests,
         showCalendar, setShowCalendar,
         showGuestBox, setShowGuestBox,
-        guestBoxRef, calendarRef
+        guestBoxRef, calendarRef,
+        maxGuests,
+        totalGuests,
+        numberOfNights, setNumberOfNights,
+        totalPrice, setTotalPrice,
+        hasSearched, setHasSearched
     } = props;
+    const {
+        roomclass
+    } = useData();
+    console.log("RoomClass Data:", roomclass);
 
     // Đóng popup khi click ra ngoài
     useEffect(() => {
@@ -55,6 +85,7 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [showGuestBox, showCalendar]);
+
     return (
         <>
 
@@ -98,7 +129,8 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                             <label className="small mb-1 fw-bold">Khách</label>
                             <div>
                                 {guests.adults} khách
-                                {guests.children > 0 && `, ${guests.children} trẻ em`}
+                                {guests.children.age0to6 + guests.children.age7to17 > 0 &&
+                                    `, ${guests.children.age0to6 + guests.children.age7to17} trẻ em`}
                             </div>
                         </div>
                         {showGuestBox && (
@@ -127,6 +159,7 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                                         >-</button>
                                         <span>{guests.adults}</span>
                                         <button
+                                            disabled={totalGuests >= maxGuests}
                                             className="btn btn-outline-secondary btn-sm"
                                             onClick={() => setGuests(g => ({ ...g, adults: g.adults + 1 }))}
                                         >+</button>
@@ -135,18 +168,71 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <div>
                                         <div className="fw-bold">Trẻ em</div>
-                                        <div className="small text-secondary">0 – 17 tuổi</div>
+                                        <div className="small text-secondary">7 – 17 tuổi</div>
                                     </div>
                                     <div className="d-flex align-items-center gap-2">
                                         <button
                                             className="btn btn-outline-secondary btn-sm"
-                                            disabled={guests.children <= 0}
-                                            onClick={() => setGuests(g => ({ ...g, children: Math.max(0, g.children - 1) }))}
+                                            disabled={guests.children.age7to17 <= 0}
+                                            onClick={() =>
+                                                setGuests(g => ({
+                                                    ...g,
+                                                    children: {
+                                                        ...g.children,
+                                                        age7to17: Math.max(0, g.children.age7to17 - 1)
+                                                    }
+                                                }))
+                                            }
                                         >-</button>
-                                        <span>{guests.children}</span>
+                                        <span>{guests.children.age7to17}</span>
+                                        <button
+                                            disabled={totalGuests >= maxGuests}
+                                            className="btn btn-outline-secondary btn-sm"
+                                            onClick={() =>
+                                                setGuests(g => ({
+                                                    ...g,
+                                                    children: {
+                                                        ...g.children,
+                                                        age7to17: g.children.age7to17 + 1
+                                                    }
+                                                }))
+                                            }
+                                        >+</button>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <div className="fw-bold">Trẻ em</div>
+                                        <div className="small text-secondary">0 – 6 tuổi</div>
+                                    </div>
+                                    <div className="d-flex align-items-center gap-2">
                                         <button
                                             className="btn btn-outline-secondary btn-sm"
-                                            onClick={() => setGuests(g => ({ ...g, children: g.children + 1 }))}
+                                            disabled={guests.children.age0to6 <= 0}
+                                            onClick={() =>
+                                                setGuests(g => ({
+                                                    ...g,
+                                                    children: {
+                                                        ...g.children,
+                                                        age0to6: Math.max(0, g.children.age0to6 - 1)
+                                                    }
+                                                }))
+                                            }
+                                        >-</button>
+                                        <span>{guests.children.age0to6}</span>
+                                        <button
+                                            disabled={totalGuests >= maxGuests}
+                                            className="btn btn-outline-secondary btn-sm"
+                                            onClick={() =>
+                                                setGuests(g => ({
+                                                    ...g,
+                                                    children: {
+                                                        ...g.children,
+                                                        age0to6: g.children.age0to6 + 1
+                                                    }
+                                                }))
+                                            }
                                         >+</button>
                                     </div>
                                 </div>
@@ -154,9 +240,36 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                         )}
                     </div>
                     <div style={{ width: 1, height: 48, background: 'white', opacity: 0.7 }} />
-                    <button className="rounded-pill px-4 ms-auto me-4 border-0 text-black" style={{ backgroundColor: "#FAB320", height: '40px' }} type="button">
+                    <button
+                        className="rounded-pill px-4 ms-auto me-4 border-0 text-black"
+                        style={{ backgroundColor: "#FAB320", height: '40px' }}
+                        type="button"
+                        onClick={() => {
+                            const startDate = dateRange[0]?.startDate;
+                            const endDate = dateRange[0]?.endDate;
+
+                            if (!startDate || !endDate) {
+                                alert("Vui lòng chọn ngày đến và ngày đi.");
+                                return;
+                            }
+
+                            if (new Date(endDate).getTime() <= new Date(startDate).getTime()) {
+                                alert("Ngày đi phải sau ngày đến ít nhất 1 ngày.");
+                                return;
+                            }
+
+                            const nights = Math.ceil(
+                                (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
+                            );
+
+                            setNumberOfNights(nights);
+                            setHasSearched(true); // ✅ set sau khi hợp lệ
+                        }}
+
+                    >
                         <i className="bi bi-search"></i> Tìm kiếm
                     </button>
+
                 </div>
             </div>
         </>

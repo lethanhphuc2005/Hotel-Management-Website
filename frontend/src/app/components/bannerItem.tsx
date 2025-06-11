@@ -10,7 +10,7 @@ import 'swiper/css/autoplay';
 export function Banner({ banners }: { banners: WebsiteContent[] }) {
     if (!banners || banners.length === 0) return <p>No banner</p>;
 
-    const banner = banners[2];
+    const banner = banners[1];
     const mongoImage = banner.image;
     const titles = [
         banner.title,

@@ -14,11 +14,9 @@ export default function Home() {
   const {
     dateRange, setDateRange,
     guests, setGuests,
-    beds, setBeds,
     showCalendar, setShowCalendar,
     showGuestBox, setShowGuestBox,
-    showBedBox, setShowBedBox,
-    guestBoxRef, calendarRef, bedRef
+    guestBoxRef, calendarRef
   } = useRoomSearch();
   const { websitecontent, mainroomclass, services, roomclass } = useData();
   return (
@@ -63,7 +61,7 @@ export default function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <RoomClassSaleList rcsl={roomclass} />
+          <RoomClassSaleList rcsl={roomclass.slice(0,4)} />
         </Row>
         <br />
         <br />

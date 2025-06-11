@@ -31,6 +31,11 @@ export async function getRoomClass(url: string): Promise<RoomClass[]> {
         image: f.feature_id.image,
       },
     })),
+    images: p.images.map((img: any) => ({
+      _id: img._id,
+      room_class_id: img.room_class_id,
+      url: img.url,
+    })),
   }));
 
   return roomclass;
