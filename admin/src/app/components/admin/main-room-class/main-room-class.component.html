@@ -35,7 +35,6 @@
           <input type="file" id="images" name="images" (change)="onFileSelected($event)" />
         </div>
 
-
         <div class="popup-actions">
           <button type="submit" [disabled]="!addForm.form.valid">Lưu</button>
           <button type="button" (click)="closeAddPopup()">Hủy</button>
@@ -48,7 +47,7 @@
   <div class="table-header">
     <div>STT</div>
     <div>Tên LPC</div>
-    <div>Mô tả</div>
+    <!-- <div>Mô tả</div> -->
     <div>Hình ảnh</div>
     <div>Loại phòng con</div>
     <div>Trạng thái</div>
@@ -58,7 +57,7 @@
   <div *ngFor="let rtm of mainRoomClasses; let i = index" class="table-row">
     <div>{{ i + 1 }}</div>
     <div (click)="onViewDetail(rtm)" style="cursor: pointer">{{ rtm.name }}</div>
-    <div>{{ rtm.description }}</div>
+    <!-- <div>{{ rtm.description }}</div> -->
     <div class="image-list">
       <img *ngFor="let img of rtm.images ?? []" [src]="'http://localhost:8000/' + img.url" alt="Hình ảnh" width="200" />
     </div>
@@ -114,7 +113,7 @@
       <div class="popup-section">
         <label>Hình ảnh:</label>
         <div class="image-list">
-          <img *ngFor="let img of selectedMainRoom.images" [src]="'http://localhost:8000/images/' + img.url"
+          <img *ngFor="let img of selectedMainRoom.images" [src]="'http://localhost:8000/' + img.url"
             alt="Hình ảnh" width="200" />
         </div>
       </div>

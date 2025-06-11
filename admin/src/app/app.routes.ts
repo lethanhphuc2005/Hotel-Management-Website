@@ -13,6 +13,7 @@ import { RoomClassListComponent } from './components/admin/room-class-list/room-
 import { MainRoomClassComponent } from './components/admin/main-room-class/main-room-class.component';
 import { CommentComponent } from './components/admin/comment/comment.component';
 import { CommentItemComponent } from './components/admin/comment/comment-item/comment-item.component';
+import { ContentTypeComponent } from './components/admin/content-type/content-type.component';
 
 export const routes: Routes = [
   { path: 'header', component: HeaderComponent },
@@ -28,6 +29,7 @@ export const routes: Routes = [
           { path: 'room-class-list', component: RoomClassListComponent },
           { path:'user', component: UserComponent },
           { path:'websitecontent', component: WebsitecontentComponent },
+          { path:'content-type', component: ContentTypeComponent },
           { path:'comment', component: CommentComponent,
              children: [
                  { path:'comment-item', component: CommentItemComponent}

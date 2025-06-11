@@ -6,6 +6,7 @@ export interface IContent {
   image: string;
   status: boolean;
   updatedAt: string;
+  images?: { url: string }[];
   content_type: {
     _id: string;
     name: string;
@@ -13,5 +14,5 @@ export interface IContent {
     status: boolean;
     updatedAt: string;
   }[];
-  
+
 }
