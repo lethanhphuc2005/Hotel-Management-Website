@@ -1,40 +1,40 @@
 const router = require("express").Router();
-const bookingMethodCon = require("../controllers/bookingMethod.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const bookingMethodController = require("../controllers/bookingMethod.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ PHƯƠNG THỨC ĐẶT PHÒNG ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  bookingMethodCon.getAllBookingMethods
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  bookingMethodController.getAllBookingMethods
 );
 
 // === LẤY PHƯƠNG THỨC ĐẶT PHÒNG THEO ID ===
 router.get(
   "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  bookingMethodCon.getBookingMethodById
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  bookingMethodController.getBookingMethodById
 );
 
 // === THÊM PHƯƠNG THỨC ĐẶT PHÒNG ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  bookingMethodCon.addBookingMethod
+  authMiddleware.authorizeRoles("admin"),
+  bookingMethodController.addBookingMethod
 );
 
 // === CẬP NHẬT PHƯƠNG THỨC ĐẶT PHÒNG ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  bookingMethodCon.updateBookingMethod
+  authMiddleware.authorizeRoles("admin"),
+  bookingMethodController.updateBookingMethod
 );
 
 // === XÓA PHƯƠNG THỨC ĐẶT PHÒNG ===
 router.delete(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  bookingMethodCon.deleteBookingMethod
+  authMiddleware.authorizeRoles("admin"),
+  bookingMethodController.deleteBookingMethod
 );
 
 module.exports = router;

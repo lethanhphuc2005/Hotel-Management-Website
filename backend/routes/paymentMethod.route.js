@@ -1,41 +1,41 @@
 const router = require("express").Router();
 
-const paymentMethodCon = require("../controllers/paymentMethod.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const paymentMethodController = require("../controllers/paymentMethod.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ PHƯƠNG THỨC THANH TOÁN ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  paymentMethodCon.getAllPaymentMethods
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  paymentMethodController.getAllPaymentMethods
 );
 
 // === LẤY PHƯƠNG THỨC THANH TOÁN THEO ID ===
 router.get(
   "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  paymentMethodCon.getPaymentMethodById
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  paymentMethodController.getPaymentMethodById
 );
 
 // === THÊM PHƯƠNG THỨC THANH TOÁN ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  paymentMethodCon.addPaymentMethod
+  authMiddleware.authorizeRoles("admin"),
+  paymentMethodController.addPaymentMethod
 );
 
 // === CẬP NHẬT PHƯƠNG THỨC THANH TOÁN ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  paymentMethodCon.updatePaymentMethod
+  authMiddleware.authorizeRoles("admin"),
+  paymentMethodController.updatePaymentMethod
 );
 
 // === XÓA PHƯƠNG THỨC THANH TOÁN ===
 router.delete(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  paymentMethodCon.deletePaymentMethod
+  authMiddleware.authorizeRoles("admin"),
+  paymentMethodController.deletePaymentMethod
 );
 
 module.exports = router;

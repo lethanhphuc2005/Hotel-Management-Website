@@ -1,42 +1,42 @@
 const router = require("express").Router();
-const serviceCon = require("../controllers/service.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const serviceController = require("../controllers/service.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH DỊCH VỤ ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  serviceCon.getAllServices
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  serviceController.getAllServices
 );
 
 // === LẤY DANH SÁCH DỊCH VỤ CHO USER ===
-router.get("/user", serviceCon.getAllServicesForUser);
+router.get("/user", serviceController.getAllServicesForUser);
 
 // === LẤY DỊCH VỤ THEO ID ===
-router.get("/:id", serviceCon.getServiceById);
+router.get("/:id", serviceController.getServiceById);
 
 // === THÊM DỊCH VỤ ===
-router.post("/", middlewareCon.authorizeRoles("admin"), serviceCon.addService);
+router.post("/", authMiddleware.authorizeRoles("admin"), serviceController.addService);
 
 // === CẬP NHẬT DỊCH VỤ ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  serviceCon.updateService
+  authMiddleware.authorizeRoles("admin"),
+  serviceController.updateService
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ DỊCH VỤ ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  serviceCon.toggleServiceStatus
+  authMiddleware.authorizeRoles("admin"),
+  serviceController.toggleServiceStatus
 );
 
 // // === XÓA DỊCH VỤ ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeRoles("admin"),
-//   serviceCon.deleteService
+//   authMiddleware.authorizeRoles("admin"),
+//   serviceController.deleteService
 // );
 
 module.exports = router;

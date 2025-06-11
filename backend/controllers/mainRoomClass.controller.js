@@ -8,7 +8,7 @@ const {
   deleteOldImages,
 } = require("../middlewares/upload");
 
-const mainRoomClassCon = {
+const mainRoomClassController = {
   validateMainRoomClass: async (MainRoomClassData, MainRoomClassId) => {
     const { name, description, status, images } = MainRoomClassData;
     // Kiểm tra các trường bắt buộc
@@ -231,7 +231,7 @@ const mainRoomClassCon = {
         const newMainRoomClass = new MainRoomClass(req.body);
 
         // Validate dữ liệu loại phòng chính
-        const validation = await mainRoomClassCon.validateMainRoomClass(
+        const validation = await mainRoomClassController.validateMainRoomClass(
           newMainRoomClass
         );
         if (!validation.valid) {
@@ -298,7 +298,7 @@ const mainRoomClassCon = {
             : { ...mainRoomClassToUpdate.toObject(), ...req.body };
 
         // Validate updated data
-        const validation = await mainRoomClassCon.validateMainRoomClass(
+        const validation = await mainRoomClassController.validateMainRoomClass(
           updatedData,
           req.params.id
         );
@@ -447,4 +447,4 @@ const mainRoomClassCon = {
   },
 };
 
-module.exports = mainRoomClassCon;
+module.exports = mainRoomClassController;

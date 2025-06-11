@@ -1,46 +1,46 @@
 const router = require("express").Router();
-const commentCon = require("../controllers/comment.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const commentController = require("../controllers/comment.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH BÌNH LUẬN ===
 router.get(
   "/",
-  middlewareCon.authorizeSelfOrRoles("admin"),
-  commentCon.getAllComments
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  commentController.getAllComments
 );
 
 // === LẤY DANH SÁCH BÌNH LUẬN CHO USER ===
-router.get("/user", commentCon.getAllCommentsForUser);
+router.get("/user", commentController.getAllCommentsForUser);
 
 // === LẤY DANH SÁCH BÌNH LUẬN THEO ID ===
 router.get(
   "/:id",
-  middlewareCon.authorizeSelfOrRoles("admin"),
-  commentCon.getCommentById
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  commentController.getCommentById
 );
 
 // === THÊM BÌNH LUẬN ===
 router.post(
   "/",
-  middlewareCon.authorizeSelfOrRoles("admin"),
-  commentCon.addComment
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  commentController.addComment
 );
 
 // === CẬP NHẬT BÌNH LUẬN ===
-router.put("/:id", middlewareCon.authorizeCommentAndReview(), commentCon.updateComment);
+router.put("/:id", authMiddleware.authorizeCommentAndReview(), commentController.updateComment);
 
 // // === XÓA BÌNH LUẬN ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeCommentAndReview(),
-//   commentCon.deleteComment
+//   authMiddleware.authorizeCommentAndReview(),
+//   commentController.deleteComment
 // );
 
 // === KÍCH HOẠT/ VÔ HIỆU HÓA BÌNH LUẬN ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  commentCon.toggleCommentStatus
+  authMiddleware.authorizeRoles("admin"),
+  commentController.toggleCommentStatus
 );
 
 module.exports = router;

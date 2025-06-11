@@ -1,43 +1,43 @@
 const router = require("express").Router();
 
-const discountCon = require("../controllers/discount.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const discountController = require("../controllers/discount.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ KHUYẾN MÃI ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  discountCon.getAllDiscounts
+  authMiddleware.authorizeRoles("admin"),
+  discountController.getAllDiscounts
 );
 
 // === LẤY TẤT CẢ KHUYẾN MÃI CHO USER ===
-router.get("/user", discountCon.getAllDiscountsForUser);
+router.get("/user", discountController.getAllDiscountsForUser);
 
 // === LẤY KHUYẾN MÃI THEO ID ===
-router.get("/:id", discountCon.getDiscountById);
+router.get("/:id", discountController.getDiscountById);
 
 // === THÊM KHUYẾN MÃI ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  discountCon.addDiscount
+  authMiddleware.authorizeRoles("admin"),
+  discountController.addDiscount
 );
 
 // === CẬP NHẬT KHUYẾN MÃI ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  discountCon.updateDiscount
+  authMiddleware.authorizeRoles("admin"),
+  discountController.updateDiscount
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ KHUYẾN MÃI ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  discountCon.toggleDiscountStatus
+  authMiddleware.authorizeRoles("admin"),
+  discountController.toggleDiscountStatus
 );
 
 // // === XÓA KHUYẾN MÃI ===
-// router.delete("/:id", middlewareCon.authorizeRoles("admin"), discountCon.deleteDiscount);
+// router.delete("/:id", authMiddleware.authorizeRoles("admin"), discountController.deleteDiscount);
 
 module.exports = router;

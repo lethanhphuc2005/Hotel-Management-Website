@@ -1,7 +1,7 @@
 const BookingMethod = require("../models/bookingMethod.model");
 const Booking = require("../models/booking.model");
 
-const bookingMethodCon = {
+const bookingMethodController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===
   validateBookingMethod: async (methodData, methodId) => {
     const { name, description } = methodData;
@@ -122,7 +122,7 @@ const bookingMethodCon = {
     try {
       const newMethod = new BookingMethod(req.body);
 
-      const validation = await bookingMethodCon.validateBookingMethod(
+      const validation = await bookingMethodController.validateBookingMethod(
         newMethod
       );
       if (!validation.valid) {
@@ -162,7 +162,7 @@ const bookingMethodCon = {
           ? methodToUpdate.toObject()
           : { ...methodToUpdate.toObject(), ...req.body };
 
-      const validation = await bookingMethodCon.validateBookingMethod(
+      const validation = await bookingMethodController.validateBookingMethod(
         updatedData,
         req.params.id
       );
@@ -225,4 +225,4 @@ const bookingMethodCon = {
   },
 };
 
-module.exports = bookingMethodCon;
+module.exports = bookingMethodController;

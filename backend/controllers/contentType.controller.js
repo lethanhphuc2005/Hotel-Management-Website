@@ -1,7 +1,7 @@
 const ContentType = require("../models/contentType.model");
 const WebsiteContent = require("../models/websiteContent.model");
 
-const contentTypeCon = {
+const contentTypeController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI NỘI DUNG ===
   validateContentType: async (contentTypeData, contentTypeId) => {
     const { name, description } = contentTypeData;
@@ -184,7 +184,7 @@ const contentTypeCon = {
     try {
       const newContentType = new ContentType(req.body);
       // Validate content type data
-      const validation = await contentTypeCon.validateContentType(
+      const validation = await contentTypeController.validateContentType(
         newContentType
       );
       if (!validation.valid) {
@@ -218,7 +218,7 @@ const contentTypeCon = {
           : { ...contentTypeToUpdate.toObject(), ...req.body };
 
       // Validate dữ liệu cập nhật
-      const validation = await contentTypeCon.validateContentType(
+      const validation = await contentTypeController.validateContentType(
         updatedData,
         req.params.id
       );
@@ -306,4 +306,4 @@ const contentTypeCon = {
   },
 };
 
-module.exports = contentTypeCon;
+module.exports = contentTypeController;

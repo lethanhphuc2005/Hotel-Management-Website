@@ -1,6 +1,6 @@
 const { BookingStatus } = require("../models/status.model");
 
-const bookingStatusCon = {
+const bookingStatusController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TRẠNG THÁI ===
   validateBookingStatus: async (statusData, statusId) => {
     const { name } = statusData;
@@ -65,7 +65,7 @@ const bookingStatusCon = {
   addBookingStatus: async (req, res) => {
     try {
       const newBookingStatus = new BookingStatus(req.body);
-      const validation = await bookingStatusCon.validateBookingStatus(
+      const validation = await bookingStatusController.validateBookingStatus(
         newBookingStatus
       );
       if (!validation.valid) {
@@ -97,7 +97,7 @@ const bookingStatusCon = {
           ? statusToUpdate.toObject()
           : { ...statusToUpdate.toObject(), ...req.body };
 
-      const validation = await bookingStatusCon.validateBookingStatus(
+      const validation = await bookingStatusController.validateBookingStatus(
         updatedData,
         req.params.id
       );
@@ -169,4 +169,4 @@ const bookingStatusCon = {
   },
 };
 
-module.exports = bookingStatusCon;
+module.exports = bookingStatusController;

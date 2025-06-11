@@ -1,7 +1,7 @@
 const Employee = require("../models/employee.model");
 const bcrypt = require("bcryptjs");
 
-const employeeCon = {
+const employeeController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN NHÂN VIÊN ===
   validateEmployee: async (employeeData, employeeId) => {
     const {
@@ -218,7 +218,7 @@ const employeeCon = {
           ? userToUpdate.toObject()
           : { ...userToUpdate.toObject(), ...req.body };
 
-      const validation = await employeeCon.validateEmployee(
+      const validation = await employeeController.validateEmployee(
         updatedData,
         req.params.id
       );
@@ -274,4 +274,4 @@ const employeeCon = {
   },
 };
 
-module.exports = employeeCon;
+module.exports = employeeController;

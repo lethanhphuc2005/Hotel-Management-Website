@@ -12,7 +12,7 @@ const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 const { BookingStatus } = require("../models/status.model");
 
-const roomClassCon = {
+const roomClassController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
   validateRoomClass: async (roomClassData, roomClassId) => {
     const {
@@ -552,7 +552,7 @@ const roomClassCon = {
       try {
         const { features = [] } = req.body;
         const newRoomClass = new RoomClass(req.body);
-        const validation = await roomClassCon.validateRoomClass(newRoomClass);
+        const validation = await roomClassController.validateRoomClass(newRoomClass);
         if (!validation.valid) {
           if (req.files && req.files.length > 0) {
             deleteImagesOnError(req.files);
@@ -630,7 +630,7 @@ const roomClassCon = {
             ? roomClassToUpdate.toObject()
             : { ...roomClassToUpdate.toObject(), ...req.body };
 
-        const validation = await roomClassCon.validateRoomClass(
+        const validation = await roomClassController.validateRoomClass(
           updatedData,
           req.params.id
         );
@@ -808,4 +808,4 @@ const roomClassCon = {
   },
 };
 
-module.exports = roomClassCon;
+module.exports = roomClassController;

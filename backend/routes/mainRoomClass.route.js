@@ -1,47 +1,47 @@
 const router = require("express").Router();
 
-const mainRoomClassCon = require("../controllers/mainRoomClass.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const mainRoomClassController = require("../controllers/mainRoomClass.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  mainRoomClassCon.getAllMainRoomClasses
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  mainRoomClassController.getAllMainRoomClasses
 );
 
 // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH CHO USER ===
-router.get("/user", mainRoomClassCon.getAllMainRoomClassesForUser);
+router.get("/user", mainRoomClassController.getAllMainRoomClassesForUser);
 
 // === LẤY LOẠI PHÒNG CHÍNH THEO ID ===
-router.get("/:id", mainRoomClassCon.getMainRoomClassById);
+router.get("/:id", mainRoomClassController.getMainRoomClassById);
 
 // === THÊM LOẠI PHÒNG CHÍNH ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  mainRoomClassCon.addMainRoomClass
+  authMiddleware.authorizeRoles("admin"),
+  mainRoomClassController.addMainRoomClass
 );
 
 // === CẬP NHẬT LOẠI PHÒNG CHÍNH ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  mainRoomClassCon.updateMainRoomClass
+  authMiddleware.authorizeRoles("admin"),
+  mainRoomClassController.updateMainRoomClass
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG CHÍNH ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  mainRoomClassCon.toggleMainRoomClassStatus
+  authMiddleware.authorizeRoles("admin"),
+  mainRoomClassController.toggleMainRoomClassStatus
 );
 
 // // === XÓA LOẠI PHÒNG CHÍNH ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeRoles("admin"),
-//   mainRoomClassCon.deleteMainRoomClass
+//   authMiddleware.authorizeRoles("admin"),
+//   mainRoomClassController.deleteMainRoomClass
 // );
 
 module.exports = router;

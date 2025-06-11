@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const middlewareCon = {
+const authMiddleware = {
   // === XÁC THỰC TOKEN ===
   verifyToken: (req, res, next) => {
     try {
@@ -32,7 +32,7 @@ const middlewareCon = {
   // === XÁC THỰC TOKEN CHO ADMIN ===
   authorizeRoles: (...roles) => {
     return (req, res, next) => {
-      middlewareCon.verifyToken(req, res, () => {
+      authMiddleware.verifyToken(req, res, () => {
         if (roles.includes(req.user.role)) {
           next();
         } else {
@@ -45,7 +45,7 @@ const middlewareCon = {
   // === XÁC THỰC TOKEN CHO USER ===
   authorizeSelfOnly: () => {
     return (req, res, next) => {
-      middlewareCon.verifyToken(req, res, () => {
+      authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
         if (user.id && user.id === req.params.id) {
           next();
@@ -60,7 +60,7 @@ const middlewareCon = {
   // === XÁC THỰC BÌNH LUẬN CHO USER HOẶC NHÂN VIÊN ===
   authorizeCommentAndReview: () => {
     return (req, res, next) => {
-      middlewareCon.verifyToken(req, res, () => {
+      authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
         // Kiểm tra xem người dùng có phải là người tạo bình luận hoặc nhân viên liên quan không
 
@@ -83,7 +83,7 @@ const middlewareCon = {
   // === XÁC THỰC TOKEN CHO USER VÀ CÁC QUYỀN NHẤT ĐỊNH ===
   authorizeSelfOrRoles: (...roles) => {
     return (req, res, next) => {
-      middlewareCon.verifyToken(req, res, () => {
+      authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
         if (user.id === req.params.id || roles.includes(user.role)) {
           next();
@@ -95,4 +95,4 @@ const middlewareCon = {
   },
 };
 
-module.exports = middlewareCon;
+module.exports = authMiddleware;

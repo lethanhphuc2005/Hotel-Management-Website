@@ -6,7 +6,7 @@ const {
   deleteOldImages,
 } = require("../middlewares/upload");
 
-const websiteContentCon = {
+const websiteContentController = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===
   validateWebsiteContent: async (websiteContentData, websiteContentId) => {
     const { title, content, content_type_id } = websiteContentData;
@@ -204,7 +204,7 @@ const websiteContentCon = {
       try {
         const newWebsiteContent = new WebsiteContent(req.body);
         // Validate website content data
-        const validation = await websiteContentCon.validateWebsiteContent(
+        const validation = await websiteContentController.validateWebsiteContent(
           newWebsiteContent
         );
 
@@ -268,7 +268,7 @@ const websiteContentCon = {
         }
 
         // Validate dữ liệu cập nhật
-        const validation = await websiteContentCon.validateWebsiteContent(
+        const validation = await websiteContentController.validateWebsiteContent(
           updatedData,
           req.params.id
         );
@@ -349,4 +349,4 @@ const websiteContentCon = {
   },
 };
 
-module.exports = websiteContentCon;
+module.exports = websiteContentController;

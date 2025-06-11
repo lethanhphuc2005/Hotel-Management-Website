@@ -1,47 +1,47 @@
 const router = require("express").Router();
 
-const contentTypeCon = require("../controllers/contentType.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const contentTypeController = require("../controllers/contentType.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ LOẠI NỘI DUNG ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  contentTypeCon.getAllContentTypes
+  authMiddleware.authorizeRoles("admin"),
+  contentTypeController.getAllContentTypes
 );
 
 // === LẤY TẤT CẢ LOẠI NỘI DUNG CHO USER ===
-router.get("/user", contentTypeCon.getAllContentTypesForUser);
+router.get("/user", contentTypeController.getAllContentTypesForUser);
 
 // === LẤY LOẠI NỘI DUNG THEO ID ===
-router.get("/:id", contentTypeCon.getContentTypeById);
+router.get("/:id", contentTypeController.getContentTypeById);
 
 // === THÊM LOẠI NỘI DUNG ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  contentTypeCon.addContentType
+  authMiddleware.authorizeRoles("admin"),
+  contentTypeController.addContentType
 );
 
 // === CẬP NHẬT LOẠI NỘI DUNG ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  contentTypeCon.updateContentType
+  authMiddleware.authorizeRoles("admin"),
+  contentTypeController.updateContentType
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI NỘI DUNG ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  contentTypeCon.toggleContentTypeStatus
+  authMiddleware.authorizeRoles("admin"),
+  contentTypeController.toggleContentTypeStatus
 );
 
 // === XÓA LOẠI NỘI DUNG ===
 router.delete(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  contentTypeCon.deleteContentType
+  authMiddleware.authorizeRoles("admin"),
+  contentTypeController.deleteContentType
 );
 
 module.exports = router;

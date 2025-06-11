@@ -2,7 +2,7 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const accountController = require("./account.controller"); // Assuming you have an account controller for validation
 
-const userCon = {
+const userController = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
   getAllUsers: async (req, res) => {
     try {
@@ -211,4 +211,4 @@ const userCon = {
   },
 };
 
-module.exports = userCon;
+module.exports = userController;

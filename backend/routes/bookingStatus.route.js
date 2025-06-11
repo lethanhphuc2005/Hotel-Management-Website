@@ -1,48 +1,48 @@
 const router = require("express").Router();
 
-const bookingStatusCon = require("../controllers/bookingStatus.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const bookingStatusController = require("../controllers/bookingStatus.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ TRẠNG THÁI ĐẶT PHÒNG ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  bookingStatusCon.getAllBookingStatus
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  bookingStatusController.getAllBookingStatus
 );
 
 // === LẤY TRẠNG THÁI ĐẶT PHÒNG THEO ID ===
 router.get(
   "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  bookingStatusCon.getBookingStatusById
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  bookingStatusController.getBookingStatusById
 );
 
 // === THÊM TRẠNG THÁI ĐẶT PHÒNG MỚI ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  bookingStatusCon.addBookingStatus
+  authMiddleware.authorizeRoles("admin"),
+  bookingStatusController.addBookingStatus
 );
 
 // === CẬP NHẬT TRẠNG THÁI ĐẶT PHÒNG ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  bookingStatusCon.updateBookingStatus
+  authMiddleware.authorizeRoles("admin"),
+  bookingStatusController.updateBookingStatus
 );
 
 // === KÍCH HOẠT / VÔ HIỆU HÓA TRẠNG THÁI ĐẶT PHÒNG ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  bookingStatusCon.toggleBookingStatus
+  authMiddleware.authorizeRoles("admin"),
+  bookingStatusController.toggleBookingStatus
 );
 
 // // === XÓA TRẠNG THÁI ĐẶT PHÒNG ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeRoles("admin"),
-//   bookingStatusCon.deleteBookingStatus
+//   authMiddleware.authorizeRoles("admin"),
+//   bookingStatusController.deleteBookingStatus
 // );
 
 module.exports = router;

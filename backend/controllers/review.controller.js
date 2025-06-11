@@ -3,7 +3,7 @@ const Booking = require("../models/booking.model");
 const User = require("../models/user.model");
 const Employee = require("../models/employee.model");
 
-const reviewCon = {
+const reviewController = {
   // === XÂY DỰNG CẤU TRÚC CÂY ĐÁNH GIÁ ===
   // buildReviewTree: (reviews) => {
   //   const reviewMap = new Map();
@@ -292,7 +292,7 @@ const reviewCon = {
     try {
       const { booking_id, user_id } = req.body;
       const newReview = new Review(req.body);
-      const validation = await reviewCon.validateReview(newReview);
+      const validation = await reviewController.validateReview(newReview);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -352,7 +352,7 @@ const reviewCon = {
       // Chỉ cho phép cập nhật trường content
       const updatedData = { ...reviewToUpdate.toObject(), content };
 
-      const validation = await reviewCon.validateReview(updatedData, id);
+      const validation = await reviewController.validateReview(updatedData, id);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -408,4 +408,4 @@ const reviewCon = {
   },
 };
 
-module.exports = reviewCon;
+module.exports = reviewController;

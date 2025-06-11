@@ -1,50 +1,50 @@
 const router = require("express").Router();
-const roomCon = require("../controllers/room.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const roomController = require("../controllers/room.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH PHÒNG ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  roomCon.getAllRooms
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  roomController.getAllRooms
 );
 
 // === LẤY DANH SÁCH PHÒNG THEO THÁNG ===
 router.get(
   "/booking-calendar/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  roomCon.getRoomBookingCalendar
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  roomController.getRoomBookingCalendar
 );
 
 // === LẤY PHÒNG THEO ID ===
 router.get(
   "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  roomCon.getRoomById
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  roomController.getRoomById
 );
 
 // === THÊM PHÒNG ===
-router.post("/", middlewareCon.authorizeRoles("admin"), roomCon.addRoom);
+router.post("/", authMiddleware.authorizeRoles("admin"), roomController.addRoom);
 
 // === CẬP NHẬT THÔNG TIN PHÒNG ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  roomCon.updateRoom
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  roomController.updateRoom
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ PHÒNG ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  roomCon.toggleRoomStatus
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  roomController.toggleRoomStatus
 );
 
 // // === XÓA PHÒNG ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeRoles("admin"),
-//   roomCon.deleteRoom
+//   authMiddleware.authorizeRoles("admin"),
+//   roomController.deleteRoom
 // );
 
 module.exports = router;

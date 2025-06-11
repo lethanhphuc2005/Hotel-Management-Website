@@ -1,46 +1,46 @@
 const router = require("express").Router();
-const reviewCon = require("../controllers/review.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const reviewController = require("../controllers/review.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ ===
-router.get("/", middlewareCon.authorizeRoles("admin"), reviewCon.getAllReviews);
+router.get("/", authMiddleware.authorizeRoles("admin"), reviewController.getAllReviews);
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ CHO USER ===
-router.get("/user", reviewCon.getAllReviewsForUser);
+router.get("/user", reviewController.getAllReviewsForUser);
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ THEO ID ===
 router.get(
   "/:id",
-  middlewareCon.authorizeSelfOrRoles("admin"),
-  reviewCon.getReviewById
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  reviewController.getReviewById
 );
 
 // === THÊM ĐÁNH GIÁ ===
 router.post(
   "/",
-  middlewareCon.authorizeSelfOrRoles("admin"),
-  reviewCon.addReview
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  reviewController.addReview
 );
 
 // === CẬP NHẬT ĐÁNH GIÁ ===
 router.put(
   "/:id",
-  middlewareCon.authorizeCommentAndReview(),
-  reviewCon.updateReview
+  authMiddleware.authorizeCommentAndReview(),
+  reviewController.updateReview
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HÓA ĐÁNH GIÁ ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  reviewCon.toggleReviewStatus
+  authMiddleware.authorizeRoles("admin"),
+  reviewController.toggleReviewStatus
 );
 
 // // === XÓA ĐÁNH GIÁ ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeCommentAndReview(),
-//   reviewCon.deleteReview
+//   authMiddleware.authorizeCommentAndReview(),
+//   reviewController.deleteReview
 // );
 
 module.exports = router;

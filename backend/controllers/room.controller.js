@@ -4,7 +4,7 @@ const { RoomStatus, BookingStatus } = require("../models/status.model");
 const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 
-const roomCon = {
+const roomController = {
   // === KIỂM TRA ĐIỀU KIỆN PHÒNG ===
   validateRoom: async (roomData, roomId) => {
     const { floor, name, room_class_id, room_status_id } = roomData;
@@ -210,7 +210,7 @@ const roomCon = {
   addRoom: async (req, res) => {
     try {
       const newRoom = new Room(req.body);
-      const validation = await roomCon.validateRoom(newRoom);
+      const validation = await roomController.validateRoom(newRoom);
 
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
@@ -239,7 +239,7 @@ const roomCon = {
           ? roomToUpdate.toObject()
           : { ...roomToUpdate.toObject(), ...req.body };
 
-      const validation = await roomCon.validateRoom(updatedData, req.params.id);
+      const validation = await roomController.validateRoom(updatedData, req.params.id);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -319,4 +319,4 @@ const roomCon = {
   },
 };
 
-module.exports = roomCon;
+module.exports = roomController;

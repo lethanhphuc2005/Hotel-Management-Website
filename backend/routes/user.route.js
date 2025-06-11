@@ -1,41 +1,41 @@
 const router = require("express").Router();
 
-const middlewareCon = require("../middlewares/auth.middleware");
-const userCon = require("../controllers/user.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
+const userController = require("../controllers/user.controller");
 
 // === LẤY TẤT CẢ USER ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  userCon.getAllUsers
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  userController.getAllUsers
 );
 
 // === LẤY USER THEO ID ===
 router.get(
   "/user-info/:id",
-  middlewareCon.authorizeSelfOrRoles("admin", "receptionist"),
-  userCon.getUserById
+  authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
+  userController.getUserById
 );
 
 // === CẬP NHẬT USER ===
 router.put(
   "/update/:id",
-  middlewareCon.authorizeSelfOrRoles("admin"),
-  userCon.updateUser
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  userController.updateUser
 );
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA USER ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  userCon.toggleUserStatus
+  authMiddleware.authorizeRoles("admin"),
+  userController.toggleUserStatus
 );
 
 // === ĐỔI MẬT KHẨU USER ===
 router.put(
   "/change-password/:id",
-  middlewareCon.authorizeSelfOnly(),
-  userCon.changePassword
+  authMiddleware.authorizeSelfOnly(),
+  userController.changePassword
 );
 
 module.exports = router;

@@ -1,11 +1,10 @@
 const axios = require("axios");
 const crypto = require("crypto");
-const https = require("https");
-require("dotenv").config();
+
+const { MomoConfig } = require("../../config/payment");
 
 const Booking = require("../../models/booking.model");
 const Payment = require("../../models/payment.model");
-const { transcode } = require("buffer");
 
 const MomoService = {
   validateMomoResponse: (result) => {
@@ -13,7 +12,7 @@ const MomoService = {
       throw new Error("Invalid response from MoMo");
     }
 
-    if (result.resultCode !== "0") {
+    if (result.resultCode !== 0) {
       throw new Error(
         `MoMo error: ${result.message} (Code: ${result.resultCode})`
       );
@@ -29,16 +28,16 @@ const MomoService = {
     //   );
     // }
 
-    const accessKey = process.env.MOMO_ACCESS_KEY;
-    const secretKey = process.env.MOMO_SECRET_KEY;
-    const partnerCode = process.env.MOMO_PARTNER_CODE;
-    const redirectUrl = process.env.MOMO_RETURN_URL;
-    const ipnUrl = process.env.MOMO_NOTIFY_URL;
+    const accessKey = MomoConfig.accessKey;
+    const secretKey = MomoConfig.secretKey;
+    const partnerCode = MomoConfig.partnerCode;
+    const redirectUrl = MomoConfig.returnUrl;
+    const ipnUrl = MomoConfig.notifyUrl;
     const requestId = orderId;
-    const requestType = "payWithMethod";
+    const requestType = MomoConfig.requestType;
     const extraData = "merchantName=TestMerchant";
     const autoCapture = true;
-    const lang = "vi";
+    const lang = MomoConfig.locale; // Default to Vietnamese
 
     // Raw signature format (the order is important)
     const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
@@ -74,7 +73,7 @@ const MomoService = {
 
     const options = {
       method: "POST",
-      url: process.env.MOMO_API_URL + "/create",
+      url: MomoConfig.apiUrl + "/create",
       headers: {
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(requestBody),
@@ -85,9 +84,34 @@ const MomoService = {
     try {
       const response = await axios(options);
       const result = response.data;
-      // console.log("--------------------RESPONSE----------------");
-      // console.log(result);
+      console.log("--------------------RESPONSE----------------");
+      console.log(result);
       // Validate the MoMo response
+      MomoService.validateMomoResponse(result);
+
+      const successfulPaymnent = await Payment.findOne({
+        booking_id: orderId,
+        status: "completed",
+      });
+
+      if (successfulPaymnent) {
+        throw new Error(
+          `Payment for booking ID ${orderId} has already been processed`
+        );
+      }
+
+      const pendingMomoPayment = await Payment.findOne({
+        booking_id: orderId,
+        status: "pending",
+        method: "momo",
+      });
+
+      if (pendingMomoPayment) {
+        throw new Error(
+          `Payment for booking ID ${orderId} is already pending`
+        );
+      }
+
 
       if (result.resultCode === 0) {
         const payment = new Payment({
@@ -106,10 +130,7 @@ const MomoService = {
       return result;
     } catch (error) {
       console.error("Error creating payment:", error);
-      return res.status(500).json({
-        message: "Failed to create payment",
-        error: error.message,
-      });
+      throw error;
     }
   },
 
@@ -129,7 +150,7 @@ const MomoService = {
       // Update the booking status to PAID
       const booking = await Booking.findOneAndUpdate(
         { _id: orderId },
-        { payment_status: "PAID" }, // Assuming "PAID" is the ID for the paid status
+        { payment_status: "PAID" },
         { new: true }
       );
 
@@ -140,7 +161,6 @@ const MomoService = {
       }
 
       // update the payment record
-      // Tìm bản ghi payment theo transId
       const payment = await Payment.findOne({ booking_id: orderId });
 
       if (!payment) {
@@ -158,7 +178,7 @@ const MomoService = {
       payment.status = "completed"; // Assuming "success" is the ID for the successful status
       payment.transaction_id = transId; // Update transaction ID
       payment.metadata = {
-        resultCode: "0", // Assuming "0" means success
+        resultCode: 0, // Assuming "0" means success
         message: message,
       };
 
@@ -173,25 +193,22 @@ const MomoService = {
       });
     } catch (error) {
       console.error("Error handling MoMo callback:", error);
-      return res.status(error.status || 500).json({
-        error: error.message || "Failed to process payment callback",
-        code: error.code || "INTERNAL_SERVER_ERROR",
-      });
+      throw error;
     }
   },
 
   handleGetTransactionStatus: async (req, res) => {
     const { orderId } = req.body;
 
-    const rawSignature = `accessKey=${process.env.MOMO_ACCESS_KEY}&orderId=${orderId}&partnerCode=${process.env.MOMO_PARTNER_CODE}&requestId=${orderId}`;
+    const rawSignature = `accessKey=${MomoConfig.accessKey}&orderId=${orderId}&partnerCode=${MomoConfig.partnerCode}&requestId=${orderId}`;
 
     const signature = crypto
-      .createHmac("sha256", process.env.MOMO_SECRET_KEY)
+      .createHmac("sha256", MomoConfig.secretKey)
       .update(rawSignature)
       .digest("hex");
 
     const requestBody = JSON.stringify({
-      partnerCode: process.env.MOMO_PARTNER_CODE,
+      partnerCode: MomoConfig.partnerCode,
       requestId: orderId,
       orderId: orderId,
       signature: signature,
@@ -200,7 +217,7 @@ const MomoService = {
 
     const options = {
       method: "POST",
-      url: process.env.MOMO_API_URL + "/query",
+      url: MomoConfig.apiUrl + "/query",
       headers: {
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(requestBody),
@@ -215,10 +232,7 @@ const MomoService = {
       return result;
     } catch (error) {
       console.error("Error getting transaction status:", error);
-      return res.status(500).json({
-        message: "Failed to get transaction status",
-        error: error.message,
-      });
+      throw error;
     }
   },
 };

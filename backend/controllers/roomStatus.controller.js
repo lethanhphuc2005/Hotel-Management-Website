@@ -1,7 +1,7 @@
 const { RoomStatus } = require("../models/status.model");
 const Room = require("../models/room.model");
 
-const roomStatusCon = {
+const roomStatusController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TRẠNG THÁI ===
   validateRoomStatus: async (statusData, statusId) => {
     const { name } = statusData;
@@ -66,7 +66,7 @@ const roomStatusCon = {
   addRoomStatus: async (req, res) => {
     try {
       const newRoomStatus = new RoomStatus(req.body);
-      const validation = await roomStatusCon.validateRoomStatus(newRoomStatus);
+      const validation = await roomStatusController.validateRoomStatus(newRoomStatus);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -96,7 +96,7 @@ const roomStatusCon = {
           ? statusToUpdate.toObject()
           : { ...statusToUpdate.toObject(), ...req.body };
 
-      const validation = await roomStatusCon.validateRoomStatus(
+      const validation = await roomStatusController.validateRoomStatus(
         updatedData,
         req.params.id
       );
@@ -187,4 +187,4 @@ const roomStatusCon = {
   },
 };
 
-module.exports = roomStatusCon;
+module.exports = roomStatusController;

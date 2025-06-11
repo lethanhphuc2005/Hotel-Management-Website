@@ -1,6 +1,6 @@
 const { Feature, Room_Class_Feature } = require("../models/feature.model");
 
-const featureCon = {
+const featureController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TIỆN NGHI ===
   validateFeature: async (featureData, featureId) => {
     const { name, description, image } = featureData;
@@ -198,7 +198,7 @@ const featureCon = {
       const newFeature = new Feature(req.body);
 
       // Validate feature data
-      const validation = await featureCon.validateFeature(newFeature);
+      const validation = await featureController.validateFeature(newFeature);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -228,7 +228,7 @@ const featureCon = {
           : { ...featureToUpdate.toObject(), ...req.body };
 
       // Kiểm tra dữ liệu trong req.body
-      const validation = await featureCon.validateFeature(
+      const validation = await featureController.validateFeature(
         updatedData,
         req.params.id
       );
@@ -335,4 +335,4 @@ const featureCon = {
   },
 };
 
-module.exports = featureCon;
+module.exports = featureController;

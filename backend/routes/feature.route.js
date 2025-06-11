@@ -1,42 +1,42 @@
 const router = require("express").Router();
-const featureCon = require("../controllers/feature.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const featureController = require("../controllers/feature.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ TIỆN NGHI ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  featureCon.getAllFeatures
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  featureController.getAllFeatures
 );
 
 // === LẤY TẤT CẢ TIỆN NGHI CHO USER ===
-router.get("/user", featureCon.getAllFeaturesForUser);
+router.get("/user", featureController.getAllFeaturesForUser);
 
 // === LẤY TIỆN NGHI THEO ID ===
-router.get("/:id", featureCon.getFeatureById);
+router.get("/:id", featureController.getFeatureById);
 
 // === THÊM TIỆN NGHI ===
-router.post("/", middlewareCon.authorizeRoles("admin"), featureCon.addFeature);
+router.post("/", authMiddleware.authorizeRoles("admin"), featureController.addFeature);
 
 // === CẬP NHẬT TIỆN NGHI ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  featureCon.updateFeature
+  authMiddleware.authorizeRoles("admin"),
+  featureController.updateFeature
 );
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA TIỆN NGHI ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  featureCon.toggleFeatureStatus
+  authMiddleware.authorizeRoles("admin"),
+  featureController.toggleFeatureStatus
 );
 
 // // === XÓA TIỆN NGHI ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeRoles("admin"),
-//   featureCon.deleteFeature
+//   authMiddleware.authorizeRoles("admin"),
+//   featureController.deleteFeature
 // );
 
 module.exports = router;

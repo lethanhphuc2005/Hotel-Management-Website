@@ -1,6 +1,6 @@
 const Discount = require("../models/discount.model");
 
-const discountCon = {
+const discountController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN KHUYẾN MÃI ===
   validateDiscount: async (discountData, discountId) => {
     const {
@@ -253,7 +253,7 @@ const discountCon = {
       const newDiscount = new Discount(req.body);
 
       // Validate Discount data
-      const validation = await discountCon.validateDiscount(newDiscount);
+      const validation = await discountController.validateDiscount(newDiscount);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -283,7 +283,7 @@ const discountCon = {
           : { ...discountToUpdate.toObject(), ...req.body };
 
       // Validate dữ liệu cập nhật (dùng validateDiscount bạn đã tạo)
-      const validation = await discountCon.validateDiscount(
+      const validation = await discountController.validateDiscount(
         updatedData,
         req.params.id
       );
@@ -371,4 +371,4 @@ const discountCon = {
   },
 };
 
-module.exports = discountCon;
+module.exports = discountController;

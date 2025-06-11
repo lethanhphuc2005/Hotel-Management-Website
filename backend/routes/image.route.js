@@ -1,39 +1,39 @@
 const router = require("express").Router();
 
-const imageCon = require("../controllers/image.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const imageController = require("../controllers/image.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ HÌNH ẢNH ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin", "receptionist"),
-  imageCon.getAllImages
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  imageController.getAllImages
 );
 
 // === LẤY TẤT CẢ HÌNH ẢNH CHO USER ===
-router.get("/user", imageCon.getAllImagesForUser);
+router.get("/user", imageController.getAllImagesForUser);
 
 // === LẤY HÌNH ẢNH THEO ID ===
-router.get("/:id", imageCon.getImageById);
+router.get("/:id", imageController.getImageById);
 
 // === THÊM HÌNH ẢNH ===
-router.post("/", middlewareCon.authorizeRoles("admin"), imageCon.addImage);
+router.post("/", authMiddleware.authorizeRoles("admin"), imageController.addImage);
 
 // === CẬP NHẬT HÌNH ẢNH ===
-router.put("/:id", middlewareCon.authorizeRoles("admin"), imageCon.updateImage);
+router.put("/:id", authMiddleware.authorizeRoles("admin"), imageController.updateImage);
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA HÌNH ẢNH ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  imageCon.toggleImageStatus
+  authMiddleware.authorizeRoles("admin"),
+  imageController.toggleImageStatus
 );
 
 // // === XÓA HÌNH ẢNH ===
 // router.delete(
 //   "/:id",
-//   middlewareCon.authorizeRoles("admin", "receptionist"),
-//   imageCon.deleteImage
+//   authMiddleware.authorizeRoles("admin", "receptionist"),
+//   imageController.deleteImage
 // );
 
 module.exports = router;

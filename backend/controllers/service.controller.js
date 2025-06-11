@@ -5,7 +5,7 @@ const {
   deleteOldImages,
 } = require("../middlewares/upload");
 
-const serviceCon = {
+const serviceController = {
   // === KIỂM TRA ĐIỀU KIỆN DỊCH VỤ ===
   validateService: async (serviceData, serviceId) => {
     const { name, price, description } = serviceData;
@@ -182,7 +182,7 @@ const serviceCon = {
     async (req, res) => {
       try {
         const newService = new Service(req.body);
-        const validation = await serviceCon.validateService(newService);
+        const validation = await serviceController.validateService(newService);
         if (!validation.valid) {
           if (req.file) {
             deleteImagesOnError(req.file);
@@ -226,7 +226,7 @@ const serviceCon = {
             ? serviceToUpdate.toObject()
             : { ...serviceToUpdate.toObject(), ...req.body };
 
-        const validation = await serviceCon.validateService(
+        const validation = await serviceController.validateService(
           updatedData,
           req.params.id,
           req.file
@@ -319,4 +319,4 @@ const serviceCon = {
   // },
 };
 
-module.exports = serviceCon;
+module.exports = serviceController;

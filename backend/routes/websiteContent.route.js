@@ -1,47 +1,47 @@
 const router = require("express").Router();
 
-const websiteContentCon = require("../controllers/websiteContent.controller");
-const middlewareCon = require("../middlewares/auth.middleware");
+const websiteContentController = require("../controllers/websiteContent.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY TẤT CẢ NỘI DUNG WEBSITE ===
 router.get(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  websiteContentCon.getAllWebsiteContents
+  authMiddleware.authorizeRoles("admin"),
+  websiteContentController.getAllWebsiteContents
 );
 
 // === LẤY TẤT CẢ NỘI DUNG WEBSITE CHO USER ===
-router.get("/user", websiteContentCon.getAllWebsiteContentsForUser);
+router.get("/user", websiteContentController.getAllWebsiteContentsForUser);
 
 // === LẤY NỘI DUNG WEBSITE THEO ID ===
-router.get("/:id", websiteContentCon.getWebsiteContentById);
+router.get("/:id", websiteContentController.getWebsiteContentById);
 
 // === THÊM NỘI DUNG WEBSITE ===
 router.post(
   "/",
-  middlewareCon.authorizeRoles("admin"),
-  websiteContentCon.addWebsiteContent
+  authMiddleware.authorizeRoles("admin"),
+  websiteContentController.addWebsiteContent
 );
 
 // === CẬP NHẬT NỘI DUNG WEBSITE ===
 router.put(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  websiteContentCon.updateWebsiteContent
+  authMiddleware.authorizeRoles("admin"),
+  websiteContentController.updateWebsiteContent
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ NỘI DUNG WEBSITE ===
 router.put(
   "/toggle/:id",
-  middlewareCon.authorizeRoles("admin"),
-  websiteContentCon.toggleWebsiteContentStatus
+  authMiddleware.authorizeRoles("admin"),
+  websiteContentController.toggleWebsiteContentStatus
 );
 
 // === XÓA NỘI DUNG WEBSITE ===
 router.delete(
   "/:id",
-  middlewareCon.authorizeRoles("admin"),
-  websiteContentCon.deleteWebsiteContent
+  authMiddleware.authorizeRoles("admin"),
+  websiteContentController.deleteWebsiteContent
 );
 
 module.exports = router;

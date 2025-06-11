@@ -3,7 +3,7 @@ const RoomClass = require("../models/roomClass.model");
 const Employee = require("../models/employee.model");
 const User = require("../models/user.model");
 
-const commentCon = {
+const commentController = {
   // === XÂY CÂY DỰNG CÂU TRÚC BÌNH LUẬN ===
   // buildCommentTree: (comments) => {
   //   const commentMap = new Map();
@@ -259,7 +259,7 @@ const commentCon = {
   addComment: async (req, res) => {
     try {
       const newComment = new Comment(req.body);
-      const validation = await commentCon.validateComment(newComment);
+      const validation = await commentController.validateComment(newComment);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -297,7 +297,7 @@ const commentCon = {
       // Tạo dữ liệu mới chỉ với content
       const updatedData = { ...commentToUpdate.toObject(), content };
 
-      const validation = await commentCon.validateComment(updatedData, id);
+      const validation = await commentController.validateComment(updatedData, id);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
@@ -356,4 +356,4 @@ const commentCon = {
   },
 };
 
-module.exports = commentCon;
+module.exports = commentController;

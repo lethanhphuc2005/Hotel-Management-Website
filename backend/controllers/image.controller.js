@@ -7,7 +7,7 @@ const {
   deleteImagesOnError,
 } = require("../middlewares/upload");
 
-const imageCon = {
+const imageController = {
   // === KIỂM TRA ĐIỀU KIỆN HÌNH ẢNH ===
   validateImage: async (imageData, imageId) => {
     const { room_class_id, target } = imageData;
@@ -186,7 +186,7 @@ const imageCon = {
     async (req, res) => {
       try {
         const newImage = new Image(req.body);
-        const validation = await imageCon.validateImage(newImage);
+        const validation = await imageController.validateImage(newImage);
         if (!validation.valid) {
           if (req.file) {
             deleteImagesOnError(req.file);
@@ -234,7 +234,7 @@ const imageCon = {
             ? imageToUpdate.toObject()
             : { ...imageToUpdate.toObject(), ...req.body };
 
-        const validation = await imageCon.validateImage(
+        const validation = await imageController.validateImage(
           updatedData,
           req.params.id
         );
@@ -323,4 +323,4 @@ const imageCon = {
   },
 };
 
-module.exports = imageCon;
+module.exports = imageController;

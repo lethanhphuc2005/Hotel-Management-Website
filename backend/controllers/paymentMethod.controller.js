@@ -1,6 +1,6 @@
 const PaymentMethod = require("../models/paymentMethod.model");
 
-const paymentMethodCon = {
+const paymentMethodController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC THANH TOÁN ===
   validatePaymentMethod: async (paymentMethodData, paymentMethodId) => {
     const { name, status } = paymentMethodData;
@@ -125,7 +125,7 @@ const paymentMethodCon = {
     try {
       const newPaymentMethod = new PaymentMethod(req.body);
 
-      const validation = await paymentMethodCon.validatePaymentMethod(
+      const validation = await paymentMethodController.validatePaymentMethod(
         newPaymentMethod
       );
 
@@ -158,7 +158,7 @@ const paymentMethodCon = {
           ? paymentMethodToUpdate.toObject()
           : { ...paymentMethodToUpdate.toObject(), ...req.body };
 
-      const validation = await paymentMethodCon.validatePaymentMethod(
+      const validation = await paymentMethodController.validatePaymentMethod(
         updatedData,
         req.params.id
       );
@@ -211,4 +211,4 @@ const paymentMethodCon = {
   },
 };
 
-module.exports = paymentMethodCon;
+module.exports = paymentMethodController;
