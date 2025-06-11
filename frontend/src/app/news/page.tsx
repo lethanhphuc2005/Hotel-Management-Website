@@ -1,9 +1,9 @@
+'use client';
 import { New1, New2, New3, New4 } from "../components/news/newsItem";
-import { getWebsiteContents } from "../services/websitecontentService";
-import { WebsiteContent } from "../types/websitecontent";
+import { useData } from "../hooks/useData";
 
-export default async function News() {
-    const news: WebsiteContent[] = await getWebsiteContents('http://localhost:8000/v1/website-content/user');
+export default function News() {
+    const { websitecontent } = useData();
     return (
         <>
             <div className="container text-white" style={{ marginTop: '130px', marginBottom: '100px' }}>
@@ -13,14 +13,14 @@ export default async function News() {
                 <div className="row border-bottom">
                     <img className="w-100 mt-3 mb-3" style={{ height: '300px', objectFit: 'cover' }} src="/img/bannernew.png" alt="" />
                 </div>
-                <New1 new1={news[0]} />
+                <New1 new1={websitecontent[0]} />
                 <div className="row mt-4 border-top">
                     <div className="col-8 border-end">
-                        <New2 new2={news[1]}/>
-                        <New3 new3={news[3]}/>
+                        <New2 new2={websitecontent[1]} />
+                        <New3 new3={websitecontent[3]} />
                     </div>
                     <div className="col-4">
-                        <New4 new4={news[4]}/>
+                        <New4 new4={websitecontent[4]} />
                     </div>
                 </div>
             </div>

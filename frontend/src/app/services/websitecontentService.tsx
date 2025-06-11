@@ -9,7 +9,9 @@ export async function getWebsiteContents(url: string): Promise<WebsiteContent[]>
     content: p.content,
     content_type_id: p.content_type_id,
     image: p.image,
-    content_type: p.content_type
+    content_type: p.content_type,
+    status: p.status,
+    updatedAt: new Date(p.updatedAt)
   }));
   return websitecontent;
 }
