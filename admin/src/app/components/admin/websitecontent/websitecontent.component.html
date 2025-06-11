@@ -54,8 +54,8 @@
      <div (click)="onViewDetail(content)"> {{ content.title }}</div>
     <div>{{ content.content_type[0].name || 'Không rõ' }}</div>
     <div>{{ content.updatedAt | date:'dd/MM/yyyy' }}</div>
-    <div *ngIf="content?.image">
-      <img [src]="'/assets/img/' + content.image" />
+    <div >
+     <img *ngFor="let img of content?.images ?? []" [src]="'http://localhost:8000/' + img.url" alt="Hình ảnh" width="200" />
     </div>
     <div class="status-column">
       <button class="delete-button" (click)="onDelete(content)" title="Xóa">

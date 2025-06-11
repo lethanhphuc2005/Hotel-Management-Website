@@ -176,20 +176,24 @@ export class MainRoomClassComponent implements OnInit {
     this.editImageUrl = item.images?.[0]?.url || '';
     this.isEditPopupOpen = true;
   }
+
   onEditSubmit() {
-    // Chỉ tạo payload với các trường được phép update
-    const updatedPayload = {
+    const updatedRoom: MainRoomClass = {
+      _id: this.editMainRoom._id,
       name: this.editMainRoom.name,
       description: this.editMainRoom.description,
-      status: this.editMainRoom.status
-      // Không gửi _id, images, room_class_list, room_classes
+      status: this.editMainRoom.status,
+      images: this.editMainRoom.images || [],
+      room_class_list: this.editMainRoom.room_class_list || [],
+      room_classes: undefined
     };
 
+    // Nếu có file mới, gửi FormData để update kèm ảnh
     if (this.editSelectedFile) {
       const formData = new FormData();
-      formData.append('name', updatedPayload.name);
-      formData.append('description', updatedPayload.description);
-      formData.append('status', updatedPayload.status ? 'true' : 'false');
+      formData.append('name', updatedRoom.name);
+      formData.append('description', updatedRoom.description);
+      formData.append('status', updatedRoom.status ? 'true' : 'false');
       formData.append('image', this.editSelectedFile);
 
       this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, formData).subscribe({
@@ -203,7 +207,8 @@ export class MainRoomClassComponent implements OnInit {
         }
       });
     } else {
-      this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedPayload).subscribe({
+      // Không đổi ảnh, chỉ update thông tin
+      this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedRoom).subscribe({
         next: () => {
           this.getAllMainRoomClasses();
           this.isEditPopupOpen = false;
@@ -214,50 +219,6 @@ export class MainRoomClassComponent implements OnInit {
       });
     }
   }
-
-
-  // onEditSubmit() {
-  //   const updatedRoom: MainRoomClass = {
-  //     _id: this.editMainRoom._id,
-  //     name: this.editMainRoom.name,
-  //     description: this.editMainRoom.description,
-  //     status: this.editMainRoom.status,
-  //     images: this.editMainRoom.images || [],
-  //     room_class_list: this.editMainRoom.room_class_list || [],
-  //     room_classes: undefined
-  //   };
-
-  //   // Nếu có file mới, gửi FormData để update kèm ảnh
-  //   if (this.editSelectedFile) {
-  //     const formData = new FormData();
-  //     formData.append('name', updatedRoom.name);
-  //     formData.append('description', updatedRoom.description);
-  //     formData.append('status', updatedRoom.status ? 'true' : 'false');
-  //     formData.append('image', this.editSelectedFile);
-
-  //     this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, formData).subscribe({
-  //       next: () => {
-  //         this.getAllMainRoomClasses();
-  //         this.isEditPopupOpen = false;
-  //         this.editSelectedFile = null;
-  //       },
-  //       error: (err) => {
-  //         alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
-  //       }
-  //     });
-  //   } else {
-  //     // Không đổi ảnh, chỉ update thông tin
-  //     this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedRoom).subscribe({
-  //       next: () => {
-  //         this.getAllMainRoomClasses();
-  //         this.isEditPopupOpen = false;
-  //       },
-  //       error: (err) => {
-  //         alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
-  //       }
-  //     });
-  //   }
-  // }
 
   selectedFile: File | null = null;
 
