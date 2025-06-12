@@ -10,7 +10,8 @@ module.exports = {
     vnpayHost: process.env.VNPAY_API_URL || "https://sandbox.vnpayment.vn",
     queryDrAndRefundHost:
       process.env.VNPAY_QUERY_DR_REFUND_HOST || "https://sandbox.vnpayment.vn", // Default to sandbox URL
-    returnUrl: `${process.env.NGROK_URL}/v1/payment/vnpay/return`,
+    returnUrl: `${process.env.FRONTEND_URL}`,
+    notifyUrl: `${process.env.NGROK_URL}/v1/payment/vnpay/callback`,
     testMode: process.env.VNPAY_TEST_MODE === "true", // true for sandbox, false for production
     endpoints: {
       paymentEndpoint: "paymentv2/vpcpay.html",
@@ -27,7 +28,7 @@ module.exports = {
       process.env.MOMO_API_URL || "https://test-payment.momo.vn/v2/gateway/api",
     returnUrl: `${process.env.FRONTEND_URL}/v1/payment/momo/callback`,
     notifyUrl: `${process.env.NGROK_URL}/v1/payment/momo/ipn`,
-    requestType: "captureWallet", // Default request type for MoMo
+    requestType: "payWithMethod",
     locale: process.env.MOMO_LOCALE || "vi", // Default to Vietnamese
   },
 };

@@ -2,9 +2,9 @@ const axios = require("axios");
 const crypto = require("crypto");
 
 const { MomoConfig } = require("../../config/payment");
-
 const Booking = require("../../models/booking.model");
 const Payment = require("../../models/payment.model");
+const PaymentMethod = require("../../models/paymentMethod.model");
 
 const MomoService = {
   validateMomoResponse: (result) => {
@@ -35,7 +35,7 @@ const MomoService = {
     const ipnUrl = MomoConfig.notifyUrl;
     const requestId = orderId;
     const requestType = MomoConfig.requestType;
-    const extraData = "merchantName=TestMerchant";
+    const extraData = "";
     const autoCapture = true;
     const lang = MomoConfig.locale; // Default to Vietnamese
 
@@ -82,12 +82,12 @@ const MomoService = {
     };
 
     try {
-      const response = await axios(options);
-      const result = response.data;
-      console.log("--------------------RESPONSE----------------");
-      console.log(result);
-      // Validate the MoMo response
-      MomoService.validateMomoResponse(result);
+      const paymentMethod = await PaymentMethod.findOne({
+        name: { $regex: /^momo$/i },
+      });
+      if (!paymentMethod) {
+        throw new Error("Payment method 'momo' not found");
+      }
 
       const successfulPaymnent = await Payment.findOne({
         booking_id: orderId,
@@ -103,23 +103,30 @@ const MomoService = {
       const pendingMomoPayment = await Payment.findOne({
         booking_id: orderId,
         status: "pending",
-        method: "momo",
+        method: paymentMethod._id,
       });
 
       if (pendingMomoPayment) {
         throw new Error(
-          `Payment for booking ID ${orderId} is already pending`
+          "This order is already being processed by Momo. Please wait for the payment to complete or cancel the order."
         );
       }
 
+      const response = await axios(options);
+      const result = response.data;
+      // console.log("--------------------RESPONSE----------------");
+      // console.log(result);
+      // Validate the MoMo response
+      MomoService.validateMomoResponse(result);
 
       if (result.resultCode === 0) {
         const payment = new Payment({
           booking_id: orderId,
           amount: amount,
-          method: "momo",
+          payment_method_id: paymentMethod._id,
           status: "pending",
           transaction_id: result.transId || null,
+          payment_date: new Date(result.responseTime),
           metadata: {
             resultCode: result.resultCode,
             message: result.message,
@@ -135,10 +142,12 @@ const MomoService = {
   },
 
   handleCallBack: async (req, res) => {
-    const { message, orderId, amount, transId } = req.body;
+    // console.log("Handling MoMo callback...");
+    const { message, orderId, amount, transId, resultCode, responseTime } =
+      req.body;
     if (!message || !orderId || !amount || !transId) {
       throw new Error(
-        "Missing required fields: resultCode, message, orderId, amount, or transId"
+        "Missing required fields in MoMo callback: message, orderId, amount, or transId"
       );
     }
     try {
@@ -177,8 +186,9 @@ const MomoService = {
       // Cập nhật trạng thái thanh toán
       payment.status = "completed"; // Assuming "success" is the ID for the successful status
       payment.transaction_id = transId; // Update transaction ID
+      payment.payment_date = new Date(responseTime); // Update payment date
       payment.metadata = {
-        resultCode: 0, // Assuming "0" means success
+        resultCode: resultCode, // Assuming "0" means success
         message: message,
       };
 
@@ -192,8 +202,8 @@ const MomoService = {
         payment: payment,
       });
     } catch (error) {
-      console.error("Error handling MoMo callback:", error);
-      throw error;
+      // console.error("Error handling MoMo callback:", error);
+      // throw error;
     }
   },
 
