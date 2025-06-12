@@ -19,6 +19,7 @@ const Booking = require("../../models/booking.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
 
 const VNPayService = {
+  // === KHỞI TẠO VNPay ===
   vnpay: new VNPay({
     tmnCode: VNPayConfig.tmnCode,
     secureSecret: VNPayConfig.hashSecret,
@@ -56,6 +57,7 @@ const VNPayService = {
     },
   }),
 
+  // === TẠO YÊU CẦU THANH TOÁN ===
   handleCreatePayment: async (req, res) => {
     try {
       const { orderId, orderInfo, amount } = req.body;
@@ -132,6 +134,7 @@ const VNPayService = {
     }
   },
 
+  // === XÁC THỰC URL TRẢ VỀ TỪ VNPay ===
   verifyReturnUrl(query) {
     try {
       const isVerified = VNPayService.vnpay.verifyReturnUrl(query);
@@ -149,11 +152,13 @@ const VNPayService = {
     }
   },
 
+  // === CHUYỂN ĐỔI ĐỊNH DẠNG NGÀY THÁNG VÀ GIỜ SANG UTC ===
   parseToUTC: (str) => {
     const formatted = dayjs.tz(str, "YYYYMMDDHHmmss", "Asia/Ho_Chi_Minh");
     return formatted.toDate(); // trả về Date dạng UTC
   },
 
+  // === XỬ LÝ IPN TỪ VNPay ===
   handleIPN: async (query) => {
     try {
       const verify = VNPayService.vnpay.verifyReturnUrl(query);
@@ -216,6 +221,7 @@ const VNPayService = {
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req) => {
     try {
       const { orderId, transactionDate } = req.body;
@@ -266,6 +272,7 @@ const VNPayService = {
     }
   },
 
+  // === TẠO MÃ YÊU CẦU DUY NHẤT ===
   _generateRequestId() {
     return crypto.randomBytes(8).toString("hex"); // 16 ký tự hex
   },

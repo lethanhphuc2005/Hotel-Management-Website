@@ -75,7 +75,26 @@ const EmployeeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+EmployeeSchema.virtual("comments", {
+  ref: "comment",
+  localField: "_id",
+  foreignField: "employee_id",
+});
+
+EmployeeSchema.virtual("reviews", {
+  ref: "review",
+  localField: "_id",
+  foreignField: "employee_id",
+});
+
+EmployeeSchema.virtual("bookings", {
+  ref: "booking",
+  localField: "_id",
+  foreignField: "employee_id",
+});
+
 EmployeeSchema.set("toJSON", {
+  virtuals: true,
   versionKey: false,
   transform: function (doc, ret) {
     delete ret.id;

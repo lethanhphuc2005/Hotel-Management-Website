@@ -8,6 +8,7 @@ const Payment = require("../models/payment.model");
 const PaymentMethod = require("../models/paymentMethod.model");
 
 const PaymentController = {
+  // === TẠO YÊU CẦU THANH TOÁN ===
   createPayment: async (req, res) => {
     try {
       const { method } = req.params;
@@ -84,6 +85,7 @@ const PaymentController = {
     }
   },
 
+  // === XỬ LÝ IPN TỪ CÁC CỔNG THANH TOÁN ===
   checkIpn: async (req, res) => {
     try {
       const { method } = req.params;
@@ -114,6 +116,7 @@ const PaymentController = {
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   getTransactionStatus: async (req, res) => {
     try {
       const { method } = req.params;
@@ -145,6 +148,7 @@ const PaymentController = {
     }
   },
 
+  // === TRẢ VỀ CALLBACK URL CHO VNPAY ===
   checkIpnVNPay: async (req, res) => {
     try {
       const result = VNPAYService.verifyReturnUrl(req.query);

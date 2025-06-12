@@ -66,7 +66,26 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+UserSchema.virtual("comments", {
+  ref: "comment",
+  localField: "_id",
+  foreignField: "user_id",
+});
+
+UserSchema.virtual("reviews", {
+  ref: "review",
+  localField: "_id",
+  foreignField: "user_id",
+});
+
+UserSchema.virtual("bookings", {
+  ref: "booking",
+  localField: "_id",
+  foreignField: "user_id",
+});
+
 UserSchema.set("toJSON", {
+  virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
     delete ret.id;

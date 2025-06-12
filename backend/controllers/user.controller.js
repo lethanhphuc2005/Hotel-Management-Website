@@ -43,6 +43,17 @@ const userController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const users = await User.find(query)
+        .populate([
+          {
+            path: "comments",
+          },
+          {
+            path: "reviews",
+          },
+          {
+            path: "bookings",
+          },
+        ])
         .sort(sortOption)
         .select("-password") // Loại bỏ trường password và __v
         .skip(skip)

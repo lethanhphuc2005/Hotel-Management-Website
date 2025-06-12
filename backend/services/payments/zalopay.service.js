@@ -15,6 +15,7 @@ const Payment = require("../../models/payment.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
 
 const ZaloPayService = {
+  // === TẠO YÊU CẦU THANH TOÁN ===
   handleCreatePayment: async (req, res) => {
     const { orderId, amount, orderInfo } = req.body;
     if (!orderId || !amount || !orderInfo) {
@@ -132,6 +133,7 @@ const ZaloPayService = {
     }
   },
 
+  // === XỬ LÝ IPN TỪ ZALOPAY ===
   handleCallBack: async (req, res) => {
     try {
       const { data, mac } = req.body;
@@ -209,6 +211,7 @@ const ZaloPayService = {
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req, res) => {
     const { orderId } = req.body;
     if (!orderId) {

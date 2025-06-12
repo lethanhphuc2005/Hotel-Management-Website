@@ -7,6 +7,7 @@ const Payment = require("../../models/payment.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
 
 const MomoService = {
+  // === TẠO YÊU CẦU THANH TOÁN ===
   validateMomoResponse: (result) => {
     if (!result || typeof result.resultCode === "undefined") {
       throw new Error("Invalid response from MoMo");
@@ -141,6 +142,7 @@ const MomoService = {
     }
   },
 
+  // === XỬ LÝ IPN TỪ CỔNG THANH TOÁN ===
   handleCallBack: async (req, res) => {
     // console.log("Handling MoMo callback...");
     const { message, orderId, amount, transId, resultCode, responseTime } =
@@ -207,6 +209,7 @@ const MomoService = {
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req, res) => {
     const { orderId } = req.body;
 
