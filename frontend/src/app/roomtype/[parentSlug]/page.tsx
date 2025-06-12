@@ -1,7 +1,7 @@
 "use client"
 import { useParams } from 'next/navigation';
 import { RoomClassList } from '../../components/roomList';
-import React from "react";
+import React, { useEffect } from "react";
 import { useRoomSearch } from '../../hooks/useRoomSearch';
 import RoomSearchBar from '@/app/components/roomSearchBar';
 import { useData } from '@/app/hooks/useData';
@@ -13,20 +13,22 @@ export default function Roomclass() {
         amenities, setAmenities,
         dateRange, setDateRange,
         guests, setGuests,
-        beds, setBeds,
         showCalendar, setShowCalendar,
         showGuestBox, setShowGuestBox,
-        showBedBox, setShowBedBox,
-        guestBoxRef, calendarRef, bedRef
+        guestBoxRef, calendarRef,
+        maxGuests, setMaxGuests,
+        totalGuests,
+        numberOfNights, setNumberOfNights,
+        totalPrice, setTotalPrice,
+        hasSearched, setHasSearched
     } = useRoomSearch();
-    const { 
-        roomclass 
+    const {
+        roomclass
     } = useData();
 
     // Sử dụng useParams để lấy parentSlug từ URL
     const params = useParams();
-    const parentSlug = params.parentSlug as string;
-
+    const parentSlug = params.parentSlug as '6844c07eff4e54bdd5ee84a9' | '6844c09fff4e54bdd5ee84b3' | '6844c0c2ff4e54bdd5ee84bd';
     // Lọc roomclass theo parentSlug
     const filteredRoomClass = roomclass
         .filter(item => item.main_room_class_id === parentSlug)
@@ -48,7 +50,21 @@ export default function Roomclass() {
             setState(state.filter(item => item !== value));
         }
     };
-
+    useEffect(() => {
+        switch (parentSlug) {
+            case '6844c07eff4e54bdd5ee84a9': // Standard
+                setMaxGuests(4);
+                break;
+            case '6844c09fff4e54bdd5ee84b3': // Suite
+                setMaxGuests(6);
+                break;
+            case '6844c0c2ff4e54bdd5ee84bd': // Deluxe
+                setMaxGuests(8);
+                break;
+            default:
+                setMaxGuests(8); // Mặc định cho tất cả loại phòng hoặc không xác định
+        }
+    }, [parentSlug]);
     return (
         <>
             <div className={`container text-white`} style={{ height: '1750px', marginTop: '7%', marginBottom: '10%' }}>
@@ -58,17 +74,22 @@ export default function Roomclass() {
                         setDateRange={setDateRange}
                         guests={guests}
                         setGuests={setGuests}
-                        beds={beds}
-                        setBeds={setBeds}
                         showCalendar={showCalendar}
                         setShowCalendar={setShowCalendar}
                         showGuestBox={showGuestBox}
                         setShowGuestBox={setShowGuestBox}
-                        showBedBox={showBedBox}
-                        setShowBedBox={setShowBedBox}
                         guestBoxRef={guestBoxRef}
                         calendarRef={calendarRef}
-                        bedRef={bedRef}
+                        maxGuests={maxGuests}
+                        setMaxGuests={setMaxGuests}
+                        totalGuests={totalGuests}
+                        roomType={parentSlug}
+                        numberOfNights={numberOfNights}
+                        setNumberOfNights={setNumberOfNights}
+                        totalPrice={totalPrice}
+                        setTotalPrice={setTotalPrice}
+                        hasSearched={hasSearched}
+                        setHasSearched={setHasSearched}
                     />
                 </div>
                 <div className="row">
@@ -84,7 +105,7 @@ export default function Roomclass() {
                                 type="range"
                                 min="500000"
                                 max="5000000"
-                                step="1"
+                                step="100000"
                                 value={price}
                                 onChange={handleChange}
                                 className="w-100"
@@ -156,7 +177,7 @@ export default function Roomclass() {
                     </div>
                     <div className="col-9 border-top">
                         <div className='row p-3 gap-3'>
-                            <RoomClassList rcl={filteredRoomClass} />
+                            <RoomClassList rcl={filteredRoomClass} numberOfNights={numberOfNights} totalGuests={totalGuests} hasSearched={hasSearched}/>
                         </div>
                     </div>
                 </div>

@@ -52,11 +52,11 @@ export function ServiceList({ svl }: { svl: Service[] }) {
   );
 }
 
-export function RoomClassList({ rcl }: { rcl: RoomClass[] }) {
+export function RoomClassList({ rcl, numberOfNights, totalGuests, hasSearched  }: { rcl: RoomClass[], numberOfNights: number, totalGuests: number, hasSearched?: boolean }) {
   return (
     <>
       {rcl.map((rc) => (
-        <RoomClassItem rci={rc} key={rc._id} />
+        <RoomClassItem rci={rc} numberOfNights={numberOfNights} totalGuests={totalGuests} hasSearched={hasSearched} key={rc._id} />
       ))}
     </>
   );

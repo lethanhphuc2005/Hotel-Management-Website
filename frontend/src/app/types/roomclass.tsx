@@ -16,7 +16,11 @@ export interface MainRoomClass {
   name: string;
   description: string;
 }
-
+export interface Images {
+  _id: string;
+  room_class_id: string;
+  url: string;
+}
 export interface RoomClass {
   price_discount: number;
   _id: string;
@@ -30,4 +34,5 @@ export interface RoomClass {
   price: number;
   main_room_class: MainRoomClass[];
   features: RoomClassFeature[];
+  images: Images[];
 }

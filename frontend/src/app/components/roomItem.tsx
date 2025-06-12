@@ -13,7 +13,7 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
     <Col lg={4} md={6}>
       <div className={style.roomCard}>
         {mrci.images?.map((img, index) => {
-          console.log('Hình',img);
+          console.log('Hình', img);
           return (
             <Image
               key={index}
@@ -24,7 +24,7 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
               className={style.roomImage}
             />
           );
-         })}
+        })}
         <div className={style.roomOverlay}></div>
         <div className={style.roomContent}>
           <p className={style.roomLabel}>Phòng {mrci.name}</p>
@@ -43,17 +43,21 @@ export function RoomClassSaleItem({ rcsi }: { rcsi: RoomClass }) {
   return (
     <Col lg={3} md={6}>
       <div className={style.offerCard}>
-        <Image
-          src="/img/r4.jpg"
-          alt="Ưu đãi 1"
-          layout="fill"
-          objectFit="cover"
-          className={style.offerImage}
-        />
+        {rcsi.images?.map((img, index) => (
+          console.log('Hình', img),
+            <Image
+            key={index}
+              src={`/img/${img.url}`}
+              alt="Ưu đãi 1"
+              layout="fill"
+              objectFit="cover"
+              className={style.offerImage}
+            />
+        ))}
         <div className={style.offerOverlay}></div>
-        <div className={style.offerContent}>
-          <a href="#" className={style.offerButton}>Xem chi tiết →</a>
-        </div>
+          <div className={style.offerContent}>
+            <a href="#" className={style.offerButton}>Xem chi tiết →</a>
+          </div>
       </div>
     </Col>
   );
@@ -76,26 +80,32 @@ export function ServiceItem({ svi }: { svi: Service }) {
         </div>
         <div className="p-3">
           <h5 style={{ fontWeight: 600 }}>{svi.name}</h5>
-          <div className="mb-2 d-flex align-items-center gap-2">
+          {/* <div className="mb-2 d-flex align-items-center gap-2">
             <span role="img" aria-label="capacity"><i className="bi bi-geo-alt-fill"></i></span>
             <span>Vị trí:</span>
             <span style={{ marginLeft: 8, color: "white" }}>Tầng 1</span>
-          </div>
-          <div className="mb-4 d-flex align-items-center gap-2">
+          </div> */}
+          {/* <div className="mb-4 d-flex align-items-center gap-2">
             <span role="img" aria-label="clock"><i className="bi bi-alarm-fill"></i></span>
             <span>Giờ mở cửa:</span>
             <span style={{ marginLeft: 8, color: "white" }}>6h30 đến 22h00</span>
+          </div> */}
+          <div className="mb-4 mt-3 d-flex align-items-center gap-1">
+            <span role="img" aria-label="clock"><i className="bi bi-bookmark-check-fill"></i></span>
+            {/* <span>Mô tả:</span> */}
+            <span className="text-truncate" style={{ marginLeft: 8, color: "white" }}>{svi.description}</span>
           </div>
           <button className={`w-100`} onClick={() => setShowModal(true)}>Xem chi tiết</button>
         </div>
       </div>
-      <ServiceDetailModal show={showModal} onHide={() => setShowModal(false)} service={svi} />
+      {/* <ServiceDetailModal show={showModal} onHide={() => setShowModal(false)} service={svi} /> */}
     </>
   );
 }
 
-export function RoomClassItem({ rci }: { rci: RoomClass }) {
+export function RoomClassItem({ rci, numberOfNights, totalGuests, hasSearched }: { rci: RoomClass, numberOfNights: number, totalGuests: number, hasSearched?: boolean }) {
   const [liked, setLiked] = useState(false);
+  const totalPrice = numberOfNights > 0 ? rci.price * numberOfNights : rci.price;
 
   const handleLikeClick = () => {
     setLiked(prev => !prev);
@@ -141,7 +151,16 @@ export function RoomClassItem({ rci }: { rci: RoomClass }) {
           </p>
         </div>
         <div className='ms-auto align-self-end mb-2 text-end'>
-          <h5>{rci.price.toLocaleString('vi-VN')} VND/đêm</h5>
+          {hasSearched && (
+            <>
+              <p style={{ fontSize: '14px' }}>
+                {numberOfNights} đêm, {totalGuests} người lớn
+              </p>
+            </>
+          )}
+          <h5 style={{ color: 'white', fontWeight: 'bold' }}>
+            VND {totalPrice.toLocaleString('vi-VN')}
+          </h5>
           <p style={{ fontSize: '12px' }}>Đã bao gồm thuế và phí</p>
           <button className='border-0 rounded text-black' style={{ height: '40px', width: '150px', backgroundColor: '#FAB320' }}>
             Đặt phòng <i className="bi bi-chevron-right"></i>
