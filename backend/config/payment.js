@@ -31,4 +31,13 @@ module.exports = {
     requestType: "payWithMethod",
     locale: process.env.MOMO_LOCALE || "vi", // Default to Vietnamese
   },
+  ZaloPayConfig: {
+    app_id: process.env.ZALOPAY_APP_ID,
+    key1: process.env.ZALOPAY_KEY1,
+    key2: process.env.ZALOPAY_KEY2,
+    createUrl: `${process.env.ZALOPAY_API_URL}/create`,
+    queryUrl: `${process.env.ZALOPAY_API_URL}/query`,
+    callbackUrl: `${process.env.NGROK_URL}/v1/payment/zalopay/ipn`,
+    returnUrl: `${process.env.FRONTEND_URL}/v1/payment/zalopay/callback`,
+  },
 };
