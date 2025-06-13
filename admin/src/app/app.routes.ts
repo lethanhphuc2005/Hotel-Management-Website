@@ -14,6 +14,9 @@ import { MainRoomClassComponent } from './components/admin/main-room-class/main-
 import { CommentComponent } from './components/admin/comment/comment.component';
 import { CommentItemComponent } from './components/admin/comment/comment-item/comment-item.component';
 import { ContentTypeComponent } from './components/admin/content-type/content-type.component';
+import { ServiceComponent } from './components/admin/service/service.component';
+import { DiscountComponent } from './components/admin/discount/discount.component';
+import { EmployeeComponent } from './components/admin/employee/employee.component';
 
 export const routes: Routes = [
   { path: 'header', component: HeaderComponent },
@@ -30,6 +33,9 @@ export const routes: Routes = [
           { path:'user', component: UserComponent },
           { path:'websitecontent', component: WebsitecontentComponent },
           { path:'content-type', component: ContentTypeComponent },
+            { path:'service', component: ServiceComponent },
+              { path:'discount', component: DiscountComponent },
+                { path:'employee', component: EmployeeComponent },
           { path:'comment', component: CommentComponent,
              children: [
                  { path:'comment-item', component: CommentItemComponent}
