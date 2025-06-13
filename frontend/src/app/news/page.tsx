@@ -13,14 +13,14 @@ export default function News() {
                 <div className="row border-bottom">
                     <img className="w-100 mt-3 mb-3" style={{ height: '300px', objectFit: 'cover' }} src="/img/bannernew.png" alt="" />
                 </div>
-                <New1 new1={websitecontent[0]} />
+                <New1 new1={websitecontent[3]} />
                 <div className="row mt-4 border-top">
                     <div className="col-8 border-end">
-                        <New2 new2={websitecontent[1]} />
-                        <New3 new3={websitecontent[3]} />
+                        <New2 new2={websitecontent[4]} />
+                        <New3 new3={websitecontent[0]} />
                     </div>
                     <div className="col-4">
-                        <New4 new4={websitecontent[4]} />
+                        <New4 new4={websitecontent[2]} />
                     </div>
                 </div>
             </div>

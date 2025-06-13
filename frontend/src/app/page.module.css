@@ -174,7 +174,7 @@
   text-decoration: none;
   padding: 8px 20px;
   border: 1px solid #FAB320;
-  border-radius: 25px;
+  border-radius: 10px;
   transition: all 0.3s ease;
 }
 
@@ -264,17 +264,12 @@
 
 /* ƯU ĐÃI ĐẶC BIỆT Styles */
 .offerCard {
-  position: relative;
-  background-color: #2a2f4a;
-  border-radius: 10px;
-  overflow: hidden;
-  height: 300px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .offerCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .offerImage {
