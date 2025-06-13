@@ -1,0 +1,175 @@
+<div class="roomtype-management-card">
+  <h2>Quản lý khuyến mãi</h2>
+
+  <div class="room-controls">
+    <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearch()" placeholder="Tìm kiếm khuyến mãi..." />
+    <button class="add-room" (click)="openAddPopup()">+ Thêm khuyến mãi</button>
+  </div>
+
+  <!-- Table header -->
+  <div class="table-header">
+    <div>STT</div>
+    <!-- <div>Ảnh</div> -->
+    <div>Tên</div>
+    <!-- <div>Mô tả</div> -->
+    <div>Giá trị</div>
+    <div>Loại</div>
+    <div>Thời gian</div>
+    <!-- <div>Số lượng</div> -->
+    <div>Giới hạn</div>
+    <div>Trạng thái</div>
+    <div>Hành động</div>
+  </div>
+
+  <!-- Table rows -->
+  <div *ngFor="let discount of filteredDiscounts; let i = index" class="table-row">
+    <div>{{ i + 1 }}</div>
+    <div (click)="viewDetail(discount)" style="cursor: pointer;">{{ discount.name }}</div>
+    <div>{{ discount.type === 'Percentage' ? discount.value + '%' : (discount.value | number:'1.0-0') + ' VNĐ' }}</div>
+    <div>{{ discount.type }}</div>
+    <div>{{ discount.start_day | date:'shortDate' }} - {{ discount.end_day | date:'shortDate' }}</div>
+    <!-- <div>{{ discount.quantity }}</div> -->
+    <div>{{ discount.limit === 'unlimited' ? 'Không giới hạn' : 'Có giới hạn' }}</div>
+
+    <div class="status-column">
+      <label class="switch">
+        <input type="checkbox" [checked]="discount.status" (change)="toggleStatus(discount)"
+          [disabled]="!isValidToToggle(discount)" />
+
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button class="icon-button" (click)="openEditPopup(discount)">
+        <i class="fas fa-pen"></i>
+      </button>
+      <!-- <button class="icon-button" (click)="deleteDiscount(discount)">
+        <i class="fas fa-trash"></i>
+      </button> -->
+    </div>
+  </div>
+
+
+  <!-- Popup thêm / sửa -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen || isEditPopupOpen">
+    <div class="popup-content">
+      <h2>{{ isEditPopupOpen ? 'Sửa' : 'Thêm' }} khuyến mãi</h2>
+
+      <form (ngSubmit)="onSubmit()" #discountForm="ngForm">
+        <!-- Tên -->
+        <div class="popup-section">
+          <label for="name">Tên:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="currentDiscount.name" required />
+        </div>
+
+        <!-- Mô tả -->
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea id="description" name="description" [(ngModel)]="currentDiscount.description"></textarea>
+        </div>
+        <!-- anh -->
+        <div class="popup-section">
+          <label for="image">Ảnh:</label>
+          <input type="file" id="image" (change)="onImageSelected($event)" />
+          <div *ngIf="previewImage" style="margin-top: 10px;">
+            <img [src]="previewImage" alt="Ảnh xem trước"
+              style="max-width: 200px; max-height: 150px; object-fit: contain;" />
+          </div>
+        </div>
+
+        <!-- Loại khuyến mãi -->
+        <div class="popup-section">
+          <label for="type">Loại:</label>
+          <select id="type" name="type" [(ngModel)]="currentDiscount.type" required>
+            <option value="Percentage">Phần trăm (%)</option>
+            <option value="Fixed Amount">Giảm cố định (VNĐ)</option>
+            <option value="Service Discount">Giảm Dịch Vụ</option>
+          </select>
+        </div>
+
+        <!-- Giá trị -->
+        <div class="popup-section">
+          <label for="value">Giá trị:</label>
+          <input type="number" id="value" name="value" [(ngModel)]="currentDiscount.value" required [min]="1" />
+        </div>
+
+        <!-- Ngày bắt đầu & kết thúc -->
+        <div class="popup-section" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label>Ngày bắt đầu:</label>
+            <input type="date" [(ngModel)]="currentDiscount.start_day" name="start_day" required />
+          </div>
+          <div style="flex: 1;">
+            <label>Ngày kết thúc:</label>
+            <input type="date" [(ngModel)]="currentDiscount.end_day" name="end_day" required />
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="quantity">Số lượng:</label>
+          <input type="number" id="quantity" name="quantity" [(ngModel)]="currentDiscount.quantity"
+            [required]="currentDiscount.limit === 'limited'" [disabled]="currentDiscount.limit === 'unlimited'"
+            min="0" />
+        </div>
+
+
+        <!-- Giới hạn -->
+        <div class="popup-section">
+          <label for="limit">Giới hạn:</label>
+          <select id="limit" name="limit" [(ngModel)]="currentDiscount.limit" required>
+            <option value="limited">Có giới hạn</option>
+            <option value="unlimited">Không giới hạn</option>
+          </select>
+        </div>
+
+        <!-- Trạng thái -->
+        <div class="popup-section">
+          <label for="status">Trạng thái:</label>
+          <select id="status" name="status" [(ngModel)]="currentDiscount.status" required>
+            <option [ngValue]="true">Hoạt động</option>
+            <option [ngValue]="false">Ẩn</option>
+          </select>
+        </div>
+
+        <!-- Nút -->
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!discountForm.form.valid">Lưu</button>
+          <button type="button" (click)="closePopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Popup chi tiết -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen">
+    <div class="popup-content">
+      <h2>Chi tiết khuyến mãi</h2>
+      <p><strong>Tên:</strong> {{ selectedDiscount.name }}</p>
+      <p><strong>Mô tả:</strong> {{ selectedDiscount.description }}</p>
+      <p><strong>Ảnh:</strong></p>
+      <img *ngIf="selectedDiscount.image" [src]="'http://localhost:8000/' + selectedDiscount.image" alt="Ảnh khuyến mãi"
+        style="max-width: 300px; max-height: 200px; object-fit: contain;" />
+      <p *ngIf="!selectedDiscount.image">Không có ảnh</p>
+      <p><strong>Giá trị:</strong> {{ selectedDiscount.value }} {{ selectedDiscount.type === 'Percentage' ? '%' : 'VNĐ'
+        }}</p>
+      <p><strong>Loại:</strong> {{ selectedDiscount.type }}</p>
+      <p><strong>Ngày:</strong> {{ selectedDiscount.start_day | date }} - {{ selectedDiscount.end_day | date }}</p>
+      <!-- Tiếp nối phần chi tiết -->
+      <p><strong>Số lượng:</strong>
+        {{
+        selectedDiscount.limit === 'unlimited' ? 'Không giới hạn' : (selectedDiscount.quantity || 0)
+        }}
+      </p>
+      <p><strong>Giới hạn:</strong>
+        {{ selectedDiscount.limit === 'unlimited' ? 'Không giới hạn' : 'Có giới hạn' }}
+      </p>
+      <p><strong>Trạng thái:</strong>
+        {{ selectedDiscount.status ? 'Hoạt động' : 'Ẩn' }}
+      </p>
+      <div class="popup-actions">
+        <button (click)="closePopup()">Đóng</button>
+      </div>
+
+    </div>
+  </div>
