@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 module.exports = {
+  // === CẤU HÌNH THANH TOÁN ===
   VNPayConfig: {
     tmnCode: process.env.VNPAY_TMNCODE,
     hashSecret: process.env.VNPAY_HASH_SECRET,

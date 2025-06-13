@@ -2,6 +2,8 @@ const User = require("../models/user.model");
 const Employee = require("../models/employee.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const mailSender = require("../helpers/mail.sender");
+const { verficationEmail } = require("../config/mail");
 
 let refreshTokens = [];
 const accountController = {
@@ -77,21 +79,42 @@ const accountController = {
   addUserAccount: async (req, res) => {
     try {
       const checkAccount = new User(req.body);
-      console.log(req.body);
       const validation = await accountController.validateUser(checkAccount);
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
+
+      // 1. Tạo mã xác nhận 6 chữ số
+      const verificationCode = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
+
+      // 2. Gửi mã xác nhận qua email
+      try {
+        await mailSender({
+          email: req.body.email,
+          subject: verficationEmail.subject,
+          html: verficationEmail.html(verificationCode),
+        });
+      } catch (mailError) {
+        return res.status(500).json({
+          message: "Gửi mã xác nhận thất bại",
+          error: mailError.message,
+        });
+      }
+
       // Mã hoá mật khẩu bằng bcrypt
       const hashPassword = await bcrypt.hash(req.body.password, 10);
       // Tạo một instance mới của userModel
       const newAccountToSave = new User({
         email: req.body.email,
         password: hashPassword,
+        verification_code: verificationCode, // lưu để đối chiếu sau
+        is_verified: false,
       });
       // Lưu vào database bằng hàm save()
       const savedAccount = await newAccountToSave.save();
-      const { password, ...accountData } = savedAccount._doc;
+      const { password, verification_code, ...accountData } = savedAccount._doc;
       res.status(200).json({
         message: "Tạo tài khoản thành công",
         data: accountData,
@@ -143,13 +166,26 @@ const accountController = {
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
 
-      const isMatch = bcrypt.compare(req.body.password, checkUser.password);
+      // Kiểm tra xem tài khoản đã được xác minh chưa
+      if (!checkUser.is_verified) {
+        return res
+          .status(403)
+          .json(
+            "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để xác minh tài khoản."
+          );
+      }
+
+      const isMatch = await bcrypt.compare(
+        req.body.password,
+        checkUser.password
+      );
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
       if (checkUser && isMatch) {
         const accessToken = accountController.creareToken(checkUser);
         const refreshToken = accountController.creareRefreshToken(checkUser);
 
         const { password, ...others } = checkUser._doc;
+
         res.status(200).json({
           message: "Đăng nhập thành công",
           data: { ...others, accessToken, refreshToken },
@@ -172,7 +208,7 @@ const accountController = {
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
 
-      const isMatch = bcrypt.compare(req.body.password, admin.password);
+      const isMatch = await bcrypt.compare(req.body.password, admin.password);
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
 
       const accessToken = accountController.creareToken(admin);

@@ -250,7 +250,7 @@ const mainRoomClassController = {
             try {
               const newImage = new Image({
                 room_class_id: newMainRoomClass._id,
-                url: `/images/${file.filename}`, // hoặc `/images/${file.filename}` nếu dùng Multer cấu hình thư mục public
+                url: file.filename, // hoặc `/images/${file.filename}` nếu dùng Multer cấu hình thư mục public
                 target: "main_room_class",
               });
 
@@ -327,7 +327,7 @@ const mainRoomClassController = {
             // Thêm ảnh mới vào DB
             const imageData = req.files.map((file) => ({
               room_class_id: req.params.id,
-              url: `/images/${file.filename}`,
+              url: file.filename,
               target: "main_room_class",
             }));
 

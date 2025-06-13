@@ -1,5 +1,6 @@
 const axios = require("axios");
 const crypto = require("crypto");
+const { v4: uuidv4 } = require("uuid");
 
 const { MomoConfig } = require("../../config/payment");
 const Booking = require("../../models/booking.model");
@@ -34,11 +35,11 @@ const MomoService = {
     const partnerCode = MomoConfig.partnerCode;
     const redirectUrl = MomoConfig.returnUrl;
     const ipnUrl = MomoConfig.notifyUrl;
-    const requestId = orderId;
+    const requestId = uuidv4(); // Unique request ID for idempotency
     const requestType = MomoConfig.requestType;
     const extraData = "";
     const autoCapture = true;
-    const lang = MomoConfig.locale; // Default to Vietnamese
+    const lang = MomoConfig.locale;
 
     // Raw signature format (the order is important)
     const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
@@ -53,7 +54,6 @@ const MomoService = {
 
     // console.log("--------------------SIGNATURE----------------");
     // console.log(signature);
-
     const requestBody = JSON.stringify({
       partnerCode: partnerCode,
       partnerName: "Test",
@@ -212,8 +212,9 @@ const MomoService = {
   // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req, res) => {
     const { orderId } = req.body;
+    const uniqueRequestId = uuidv4(); // Unique request ID for idempotency
 
-    const rawSignature = `accessKey=${MomoConfig.accessKey}&orderId=${orderId}&partnerCode=${MomoConfig.partnerCode}&requestId=${orderId}`;
+    const rawSignature = `accessKey=${MomoConfig.accessKey}&orderId=${orderId}&partnerCode=${MomoConfig.partnerCode}&requestId=${uniqueRequestId}`;
 
     const signature = crypto
       .createHmac("sha256", MomoConfig.secretKey)
@@ -222,7 +223,7 @@ const MomoService = {
 
     const requestBody = JSON.stringify({
       partnerCode: MomoConfig.partnerCode,
-      requestId: orderId,
+      requestId: uniqueRequestId,
       orderId: orderId,
       signature: signature,
       lang: "vi",
