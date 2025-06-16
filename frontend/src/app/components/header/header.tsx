@@ -119,11 +119,12 @@ export default function Header() {
                   </>
                 )}
               </div>
-              <a className='text-white' href=""><i className="bi bi-receipt fs-5"></i></a>
             </div>
+
+            <a className='text-white' href="/cart"><i className="bi bi-bag-check-fill fs-5"></i></a>
           </div>
         </div>
-      </nav>
-    </>
-  )
+      </div>
+    </nav>
+  );
 }
