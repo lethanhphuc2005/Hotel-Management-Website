@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import "animate.css";
 import "./globals.css";
 import Footer from "./components/footer/footer";
 import Header from "./components/header/header";
+import "react-datepicker/dist/react-datepicker.css";  
+import { AuthProvider } from "./services/AuthProvider"; // Import AuthProvider, điều chỉnh đường dẫn nếu cần
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+             <AuthProvider>
         <Header/>
         {children}
         <Footer/>
+        </AuthProvider>
       </body>
     </html>
   );

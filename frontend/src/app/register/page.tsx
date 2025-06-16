@@ -1,26 +1,78 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import styles from './dangky.module.css';
+import { useRouter } from "next/navigation";
 
-const LoginPage = () => {
+const RegisterPage = () => {
+  const [first_name, setFirstName] = useState('');
+  const [phone_number, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword, ] = useState('');
+  const [password, setPassword] = useState('');
   const [repassword, setRepassword] = useState('');
+  const [message, setMessage] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Đăng nhập với email:", email, "và password:", password);
+
+    if (password !== repassword) {
+      setMessage("❌ Mật khẩu không khớp.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8000/v1/account/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ first_name, phone_number, email, password }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        setMessage(`❌ ${result.message || "Đăng ký thất bại"}`);
+      } else {
+        setMessage("✅ Đăng ký thành công! Đang chuyển hướng...");
+        setFirstName('');
+        setPhoneNumber('');
+        setEmail('');
+        setPassword('');
+        setRepassword('');
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Lỗi đăng ký:", error);
+      setMessage("❌ Có lỗi xảy ra khi đăng ký.");
+    }
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
         <h2 className={styles.title}>Đăng Ký</h2>
-        <div className={styles.separator}></div> {/* Đường kẻ ngang */}
-        <p className={styles.welcomeText}>Chào mừng đến với The Moon</p> {/* Lời chào */}
+        <div className={styles.separator}></div>
+        <p className={styles.welcomeText}>Chào mừng đến với The Moon</p>
 
         <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Nhập tên của bạn"
+            value={first_name}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Nhập số điện thoại của bạn"
+            value={phone_number}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            required
+          />
           <input
             type="email"
             className={styles.input}
@@ -37,7 +89,7 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-           <input
+          <input
             type="password"
             className={styles.input}
             placeholder="Nhập lại password của bạn"
@@ -45,24 +97,32 @@ const LoginPage = () => {
             onChange={(e) => setRepassword(e.target.value)}
             required
           />
-           <p className={styles.infoText}>
-          Chúng tôi sẽ gọi điện hoặc nhắn tin cho bạn để xác nhận số điện thoại. Có áp dụng phí dữ liệu và phí tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
-        </p>
+
+     
 
           <button type="submit" className={styles.continueButton}>Tiếp tục</button>
-           <div className={styles.text}>
-           <p>
-               Bạn đã có tài khoản?  <a href="">Đăng nhập</a>
-          </p>
-              <p>
-              <a href="">Tạo tài khoản?</a>
-          </p>
+
+          {message && (
+            <p
+              style={{
+                color: message.includes("✅") ? "green" : "red",
+                textAlign: "center",
+                marginTop: "1rem",
+              }}
+            >
+              {message}
+            </p>
+          )}
+
+          <div className={styles.text}>
+            <p>
+              Bạn đã có tài khoản? <a href="/login">Đăng nhập</a>
+            </p>
           </div>
         </form>
-         </div>
       </div>
-
+    </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

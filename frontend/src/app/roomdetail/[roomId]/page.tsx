@@ -1,12 +1,21 @@
 "use client";
+import { useData } from "@/app/hooks/useData";
 import styles from "./roomDetail.module.css";
 import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 
 const RoomDetail = () => {
+  const params = useParams();
+  const roomId = params.roomId as string; // roomId chính là id trên URL
+  const { roomclass } = useData();
   const [showFAQModal, setShowFAQModal] = useState(false);
   const [showAskModal, setShowAskModal] = useState(false);
   const [question, setQuestion] = useState("");
   const [openFAQIndex, setOpenFAQIndex] = useState<{ col: number; idx: number } | null>(null);
+
+  // Lấy room như cũ
+  const room = roomclass.find((item) => item._id === roomId);
+  const images = room?.images || [];
 
   const faqColumns = [
     [
@@ -76,43 +85,32 @@ const RoomDetail = () => {
 
       {/* Main Content */}
       <div className={styles.container}>
-        <h1 className={styles.title}>STANDARD ROOM - VIEW BIỂN</h1>
+        <h1 className={styles.title}>{room ? room.name : "Không tìm thấy phòng"}</h1>
         <div className={styles.imageContainer}>
           <img
-            src="/img/r1.jpg"
+            src={images.length > 0 ? `/img/${images[0].url}` : "/img/default.jpg"}
             alt="Main Room View"
             className={styles.mainImage}
           />
           <div className={styles.smallImageGrid}>
-            <img
-              src="/img/r2.jpg"
-              alt="Room View"
-              className={styles.smallImage}
-            />
-            <img
-              src="/img/r3.jpg"
-              alt="Room View"
-              className={styles.smallImage}
-            />
-            <img
-              src="/img/r4.jpg"
-              alt="Room View"
-              className={styles.smallImage}
-            />
-            <img
-              src="/img/r5.jpg"
-              alt="Room View"
-              className={styles.smallImage}
-            />
+            {images.slice(1).map(img => (
+              <img
+                key={img._id}
+                src={`/img/${img.url}`}
+                alt="Room View"
+                className={styles.smallImage}
+              />
+            ))}
           </div>
         </div>
 
         <div className={styles.details}>
           <div className={styles.leftSection}>
-            <p className={styles.roomNumber}>Phòng số 01</p>
+            {/* <p className={styles.roomNumber}>Phòng số 01</p> */}
             <p className={styles.roomInfo}>
-              2 phòng ngủ - 2 giường - 1 phòng tắm | Vị trí: Tầng 1 | Diện tích:
-              25m² | Trạng thái: Còn phòng
+              {room
+                ? `${room.bed_amount} giường - Sức chứa ${room.capacity} khách | View: ${room.view} | Trạng thái: ${room.status ? "Còn phòng" : "Hết phòng"}`
+                : ""}
               <span className={styles.availableIcon}>
                 <i className="bi bi-check-circle"></i>
               </span>
@@ -148,7 +146,9 @@ const RoomDetail = () => {
           <div className={styles.rightSection}>
             <div className={styles.price}></div>
             <div className={styles.infoSection}>
-              <p className={styles.priceText}>400.000 VNĐ / Đêm</p>
+             <p className={styles.priceText}>
+  {room ? `${room.price.toLocaleString()} VNĐ / Đêm` : ""}
+</p>
               <div className={styles.bookingDetails}>
                 <div className={styles.checkInOutRow}>
                   <div className={styles.bookingItem}>

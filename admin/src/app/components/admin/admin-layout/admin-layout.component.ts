@@ -8,7 +8,7 @@ import { FooterComponent } from "../../footer/footer.component";
   standalone: true,
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css'],
-  imports: [SidebarComponent, RouterModule]
+  imports: [RouterModule]
 })
 export class AdminLayoutComponent implements OnInit {
 
