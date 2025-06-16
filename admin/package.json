@@ -20,6 +20,7 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fullcalendar/angular": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
+    "fullcalendar": "^6.1.17",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
