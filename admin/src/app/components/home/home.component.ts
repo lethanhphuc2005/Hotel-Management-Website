@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -11,9 +12,13 @@ import { RouterModule } from '@angular/router';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+ constructor(private router: Router, private authService: AuthService) {}
+
 
   ngOnInit() {
   }
+logout() {
+  this.authService.logout(); // gọi hàm logout từ service (đã có sẵn)
+}
 
 }

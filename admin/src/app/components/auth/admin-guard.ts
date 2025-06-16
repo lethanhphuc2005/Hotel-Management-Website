@@ -1,34 +1,28 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
   constructor(private router: Router) {}
-
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): boolean {
+  ): boolean | UrlTree {
     const jsonData = localStorage.getItem('login');
-
-    if (jsonData) {
-      const user = JSON.parse(jsonData);
-      const isAdminRoute = route.data['adminOnly'] === true;
-
-      // Nếu route yêu cầu admin mà user không phải admin
-      if (isAdminRoute && !user.admin) {
-        this.router.navigate(['/unauthorized']);
-        return false;
-      }
-
-      // Cho phép truy cập
-      return true;
+    // Nếu chưa đăng nhập
+    if (!jsonData) {
+      alert('Vui lòng đăng nhập trước');
+      return this.router.parseUrl('/login');
     }
-
-    // Nếu chưa đăng nhập thì chuyển hướng
-    this.router.navigate(['/login']);
-    return false;
+ const user = JSON.parse(jsonData);
+const isAdminRoute = route.data['adminOnly'] === true;
+// Kiểm tra role thay vì admin
+if (isAdminRoute && user.data?.role !== 'admin') {
+  alert('Bạn không có quyền truy cập trang này');
+  return this.router.parseUrl('/unauthorized');
+}
+    return true;
   }
 }
