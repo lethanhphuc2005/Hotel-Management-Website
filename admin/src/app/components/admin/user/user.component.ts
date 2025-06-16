@@ -51,7 +51,9 @@ export class UserComponent implements OnInit, OnDestroy {
     this.subscription?.unsubscribe();
   }
 
- toggleUserStatus(user: User) {
+ onToggleUserStatus(event: Event, user: User) {
+  event.preventDefault();
+
   const action = user.isActive ? 'vô hiệu hóa' : 'kích hoạt lại';
   const confirmed = window.confirm(`Bạn có chắc muốn ${action} tài khoản này không?`);
 
@@ -64,9 +66,11 @@ export class UserComponent implements OnInit, OnDestroy {
     },
     error: (err) => {
       console.error('Không thể cập nhật trạng thái tài khoản:', err);
+      alert('Có lỗi khi cập nhật trạng thái!');
     }
   });
 }
+
 
 
   onViewUserDetail(user: User) {
