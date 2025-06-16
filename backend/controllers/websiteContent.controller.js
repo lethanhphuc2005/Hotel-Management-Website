@@ -217,7 +217,7 @@ const websiteContentController = {
 
         // Nếu có file ảnh, lưu đường dẫn vào trường image
         if (req.file) {
-          newWebsiteContent.image = `/images/${req.file.filename}`;
+          newWebsiteContent.image = req.file.filename;
         }
 
         const saveWebsiteContent = await newWebsiteContent.save();
@@ -259,7 +259,7 @@ const websiteContentController = {
 
         // Nếu có file ảnh mới, xóa ảnh cũ và cập nhật đường dẫn mới
         if (req.file) {
-          updatedData.image = `/images/${req.file.filename}`;
+          updatedData.image = req.file.filename;
           if (websiteContentToUpdate.image) {
             deleteOldImages(websiteContentToUpdate.image);
           }

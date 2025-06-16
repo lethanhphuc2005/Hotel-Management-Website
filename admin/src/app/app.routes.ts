@@ -14,6 +14,10 @@ import { MainRoomClassComponent } from './components/admin/main-room-class/main-
 import { CommentComponent } from './components/admin/comment/comment.component';
 import { CommentItemComponent } from './components/admin/comment/comment-item/comment-item.component';
 import { ContentTypeComponent } from './components/admin/content-type/content-type.component';
+import { BookingComponent } from './components/admin/booking/booking.component';
+import { BookingMethodComponent } from './components/admin/booking-method/booking-method.component';
+import { BookingStatusComponent } from './components/admin/booking-status/booking-status.component';
+import { ReviewComponent } from './components/admin/review/review.component';
 
 export const routes: Routes = [
   { path: 'header', component: HeaderComponent },
@@ -21,22 +25,28 @@ export const routes: Routes = [
   { path: 'sidebar', component: SidebarComponent },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-  {path:'', redirectTo: '/login', pathMatch: 'full'},
-  {path: 'admin',component: AdminLayoutComponent,canActivate: [AuthGuard],
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  {
+    path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard],
     children: [
-          { path: 'room-list', component: RoomListComponent },
-          { path: 'main-room-class', component: MainRoomClassComponent },
-          { path: 'room-class-list', component: RoomClassListComponent },
-          { path:'user', component: UserComponent },
-          { path:'websitecontent', component: WebsitecontentComponent },
-          { path:'content-type', component: ContentTypeComponent },
-          { path:'comment', component: CommentComponent,
-             children: [
-                 { path:'comment-item', component: CommentItemComponent}
-             ]
-          },
+      { path: 'room-list', component: RoomListComponent },
+      { path: 'main-room-class', component: MainRoomClassComponent },
+      { path: 'room-class-list', component: RoomClassListComponent },
+      { path: 'user', component: UserComponent },
+      { path: 'websitecontent', component: WebsitecontentComponent },
+      { path: 'content-type', component: ContentTypeComponent },
+      { path: 'booking', component: BookingComponent },
+      { path: 'booking-method', component: BookingMethodComponent },
+      { path: 'booking-status', component: BookingStatusComponent },
+      { path: 'review', component: ReviewComponent },
+      {
+        path: 'comment', component: CommentComponent,
+        children: [
+          { path: 'comment-item', component: CommentItemComponent }
         ]
       },
-    { path: '**', redirectTo : '/home' },
+    ]
+  },
+  { path: '**', redirectTo: '/home' },
 ];
 

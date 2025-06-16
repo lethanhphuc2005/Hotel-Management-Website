@@ -38,4 +38,29 @@ router.put(
   userController.changePassword
 );
 
+// === XÁC MINH TÀI KHOẢN QUA EMAIL ===
+router.post(
+  "/verify",
+  userController.verifyUser
+);
+
+// === GỬI LẠI MÃ XÁC MINH QUA EMAIL ===
+router.post(
+  "/resend-verification",
+  authMiddleware.authorizeSelfOnly(),
+  userController.resendEmailVerification
+);
+
+// === QUÊN MẬT KHẨU ===
+router.post(
+  "/forgot-password",
+  userController.forgotPassword
+);
+
+// === ĐẶT LẠI MẬT KHẨU ===
+router.post(
+  "/reset-password",
+  userController.resetPassword
+);
+
 module.exports = router;

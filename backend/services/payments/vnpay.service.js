@@ -4,18 +4,22 @@ const {
   ProductCode,
   VnpLocale,
   dateFormat,
-  QueryDr,
-  QueryDrResponse,
-  getDateInGMT7,
 } = require("vnpay");
 const crypto = require("crypto");
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const { VNPayConfig } = require("../../config/payment");
 
 const Payment = require("../../models/payment.model");
 const Booking = require("../../models/booking.model");
+const PaymentMethod = require("../../models/paymentMethod.model");
 
 const VNPayService = {
+  // === KHỞI TẠO VNPay ===
   vnpay: new VNPay({
     tmnCode: VNPayConfig.tmnCode,
     secureSecret: VNPayConfig.hashSecret,
@@ -53,6 +57,7 @@ const VNPayService = {
     },
   }),
 
+  // === TẠO YÊU CẦU THANH TOÁN ===
   handleCreatePayment: async (req, res) => {
     try {
       const { orderId, orderInfo, amount } = req.body;
@@ -61,6 +66,10 @@ const VNPayService = {
           "Missing required fields: orderId, orderInfo, or amount"
         );
       }
+
+      const paymentMethod = await PaymentMethod.findOne({
+        name: { $regex: /vnpay/i },
+      });
 
       const successfulPayment = await Payment.findOne({
         booking_id: orderId,
@@ -76,7 +85,7 @@ const VNPayService = {
       const pendingVNPay = await Payment.findOne({
         booking_id: orderId,
         status: "pending",
-        method: "vnpay",
+        payment_method_id: paymentMethod._id,
       });
 
       if (pendingVNPay) {
@@ -94,7 +103,7 @@ const VNPayService = {
         vnp_TxnRef: orderId, // Mã đơn hàng duy nhất
         vnp_OrderInfo: orderInfo, // Thông tin mô tả đơn hàng
         vnp_OrderType: ProductCode.Other,
-        vnp_ReturnUrl: VNPayConfig.returnUrl, // URL sẽ được VNPay gọi lại sau khi thanh toán
+        vnp_ReturnUrl: VNPayConfig.notifyUrl, // URL sẽ được VNPay gọi lại sau khi thanh toán
         vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
         vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là thời gian hiện tại
         vnp_ExpireDate: dateFormat(tomorrow), // tùy chọn
@@ -103,17 +112,21 @@ const VNPayService = {
       const payment = new Payment({
         booking_id: orderId,
         amount: amount,
-        method: "vnpay",
+        payment_method_id: paymentMethod._id,
         status: "pending",
         transaction_id: null,
+        payment_date: new Date(),
         metadata: { paymentUrl: paymentUrl },
       });
       await payment.save();
 
       return {
         orderId: orderId,
-        message: "VNPay payment created successfully",
-        paymentUrl: paymentUrl,
+        requestId: VNPayService._generateRequestId(),
+        amount: amount,
+        responseTime: dateFormat(new Date()),
+        message: "Payment created successfully",
+        payUrl: paymentUrl,
       };
     } catch (error) {
       console.error("Error creating VNPay payment:", error);
@@ -121,6 +134,7 @@ const VNPayService = {
     }
   },
 
+  // === XÁC THỰC URL TRẢ VỀ TỪ VNPay ===
   verifyReturnUrl(query) {
     try {
       const isVerified = VNPayService.vnpay.verifyReturnUrl(query);
@@ -138,6 +152,13 @@ const VNPayService = {
     }
   },
 
+  // === CHUYỂN ĐỔI ĐỊNH DẠNG NGÀY THÁNG VÀ GIỜ SANG UTC ===
+  parseToUTC: (str) => {
+    const formatted = dayjs.tz(str, "YYYYMMDDHHmmss", "Asia/Ho_Chi_Minh");
+    return formatted.toDate(); // trả về Date dạng UTC
+  },
+
+  // === XỬ LÝ IPN TỪ VNPay ===
   handleIPN: async (query) => {
     try {
       const verify = VNPayService.vnpay.verifyReturnUrl(query);
@@ -149,9 +170,17 @@ const VNPayService = {
         vnp_TxnRef: booking_id,
         vnp_ResponseCode,
         vnp_TransactionNo: transaction_id,
+        vnp_PayDate: transaction_date,
       } = query;
 
-      const payment = await Payment.findOne({ booking_id, method: "vnpay" });
+      const paymentMethod = await PaymentMethod.findOne({
+        name: { $regex: /vnpay/i },
+      });
+
+      const payment = await Payment.findOne({
+        booking_id,
+        payment_method_id: paymentMethod._id,
+      });
       if (!payment) {
         throw new Error(
           `Payment record not found for booking ID ${booking_id}`
@@ -166,10 +195,12 @@ const VNPayService = {
       if (vnp_ResponseCode === "00") {
         payment.status = "completed";
         payment.transaction_id = transaction_id;
+        payment.payment_date = VNPayService.parseToUTC(transaction_date);
         booking.payment_status = "PAID";
       } else {
         payment.status = "failed";
         payment.transaction_id = transaction_id;
+        payment.payment_date = VNPayService.parseToUTC(transaction_date);
         booking.payment_status = "UNPAID";
       }
 
@@ -190,6 +221,7 @@ const VNPayService = {
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req) => {
     try {
       const { orderId, transactionDate } = req.body;
@@ -200,7 +232,7 @@ const VNPayService = {
       if (isNaN(dateObj.getTime())) {
         throw new Error("Invalid transactionDate format");
       }
-      
+
       const date = dateFormat(new Date(dateObj));
 
       const requestData = {
@@ -240,6 +272,7 @@ const VNPayService = {
     }
   },
 
+  // === TẠO MÃ YÊU CẦU DUY NHẤT ===
   _generateRequestId() {
     return crypto.randomBytes(8).toString("hex"); // 16 ký tự hex
   },

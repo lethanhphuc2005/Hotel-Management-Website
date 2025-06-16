@@ -1,0 +1,159 @@
+<div class="roomtype-management-card">
+  <h2>Quản lý nhân viên</h2>
+
+  <div class="room-controls">
+    <input
+      type="text"
+      placeholder="Tìm kiếm theo tên hoặc chức vụ"
+      [(ngModel)]="searchKeyword"
+      (ngModelChange)="onSearch()"
+      style="width: 100%; padding-right: 30px;"
+    />
+    <!-- <button class="add-room" (click)="onAdd()">+ Thêm Nhân Viên</button> -->
+  </div>
+
+  <!-- Popup Thêm nhân viên -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm nhân viên</h2>
+      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
+        <div class="popup-section">
+          <label for="first_name">Họ:</label>
+          <input type="text" id="first_name" name="first_name" [(ngModel)]="newEmployee.first_name" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="last_name">Tên:</label>
+          <input type="text" id="last_name" name="last_name" [(ngModel)]="newEmployee.last_name" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="position">Chức vụ:</label>
+          <input type="text" id="position" name="position" [(ngModel)]="newEmployee.position" />
+        </div>
+
+        <div class="popup-section">
+          <label for="department">Bộ phận:</label>
+          <input type="text" id="department" name="department" [(ngModel)]="newEmployee.department" />
+        </div>
+
+        <div class="popup-section">
+          <label for="address">Địa chỉ:</label>
+          <input type="text" id="address" name="address" [(ngModel)]="newEmployee.address" />
+        </div>
+
+        <div class="popup-section">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" [(ngModel)]="newEmployee.email" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="phone_number">Số điện thoại:</label>
+          <input type="text" id="phone_number" name="phone_number" [(ngModel)]="newEmployee.phone_number" />
+        </div>
+
+        <div class="popup-section">
+          <label for="role">Vai trò:</label>
+          <select id="role" name="role" [(ngModel)]="newEmployee.role">
+            <option value="staff">Nhân viên</option>
+            <option value="admin">Quản trị</option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label for="status">Trạng thái:</label>
+          <select id="status" name="status" [(ngModel)]="newEmployee.status">
+            <option [value]="true">Đang làm việc</option>
+            <option [value]="false">Nghỉ việc</option>
+          </select>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!addForm.form.valid">Lưu</button>
+          <button type="button" (click)="closeAddPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên nhân viên</div>
+    <div>Chức vụ</div>
+    <div>Bộ phận</div>
+    <div>Email</div>
+    <div>Trạng thái</div>
+    <div>Hành động</div>
+  </div>
+
+<div *ngFor="let employee of filteredEmployeeList; let i = index" class="table-row">
+    <div>{{ i + 1 }}</div>
+    <div (click)="onViewDetail(employee)" style="cursor: pointer">
+      {{ employee.last_name }} {{ employee.first_name }}
+    </div>
+    <div>{{ employee.position }}</div>
+    <div>{{ employee.department }}</div>
+    <div>{{ employee.email }}</div>
+    <div class="status-column">
+      <label class="switch">
+        <input type="checkbox" [checked]="employee.status" (change)="toggleEmployeeStatus(employee); $event.stopPropagation()" />
+        <span class="slider"></span>
+      </label>
+    </div>
+   <div class="actions">
+  <button class="icon-button" (click)="onEdit(employee); $event.stopPropagation()">
+    <i class="fas fa-pen"></i>
+  </button>
+  <!-- <button class="icon-button" (click)="onOpenChangePasswordPopup(employee); $event.stopPropagation()" title="Đổi mật khẩu">
+    <i class="fas fa-key"></i>
+  </button> -->
+</div>
+
+  </div>
+
+  <!-- Popup chi tiết nhân viên -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedEmployee">
+    <div class="popup-content">
+      <h2>Chi tiết nhân viên</h2>
+
+      <div class="popup-section"><label>Họ tên:</label> <span>{{ selectedEmployee.last_name }} {{ selectedEmployee.first_name }}</span></div>
+      <div class="popup-section"><label>Chức vụ:</label> <span>{{ selectedEmployee.position }}</span></div>
+      <div class="popup-section"><label>Bộ phận:</label> <span>{{ selectedEmployee.department }}</span></div>
+      <div class="popup-section"><label>Địa chỉ:</label> <span>{{ selectedEmployee.address }}</span></div>
+      <div class="popup-section"><label>Email:</label> <span>{{ selectedEmployee.email }}</span></div>
+      <div class="popup-section"><label>SĐT:</label> <span>{{ selectedEmployee.phone_number }}</span></div>
+      <div class="popup-section"><label>Vai trò:</label> <span>{{ selectedEmployee.role }}</span></div>
+      <div class="popup-section"><label>Trạng thái:</label> <span [ngClass]="selectedEmployee.status ? 'active' : 'inactive'">{{ selectedEmployee.status ? 'Đang làm việc' : 'Nghỉ việc' }}</span></div>
+
+      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Popup Sửa nhân viên -->
+  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
+    <div class="popup-content">
+      <h2>Sửa thông tin nhân viên</h2>
+
+      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
+        <div class="popup-section"><label for="first_name">Họ:</label> <input type="text" id="first_name" name="first_name" [(ngModel)]="editEmployee.first_name" required /></div>
+        <div class="popup-section"><label for="last_name">Tên:</label> <input type="text" id="last_name" name="last_name" [(ngModel)]="editEmployee.last_name" required /></div>
+        <div class="popup-section"><label for="position">Chức vụ:</label> <input type="text" id="position" name="position" [(ngModel)]="editEmployee.position" /></div>
+        <div class="popup-section"><label for="department">Bộ phận:</label> <input type="text" id="department" name="department" [(ngModel)]="editEmployee.department" /></div>
+        <div class="popup-section"><label for="address">Địa chỉ:</label> <input type="text" id="address" name="address" [(ngModel)]="editEmployee.address" /></div>
+        <div class="popup-section"><label for="email">Email:</label> <input type="email" id="email" name="email" [(ngModel)]="editEmployee.email" required /></div>
+        <div class="popup-section"><label for="phone_number">SĐT:</label> <input type="text" id="phone_number" name="phone_number" [(ngModel)]="editEmployee.phone_number" /></div>
+        <div class="popup-section"><label for="role">Vai trò:</label> <select id="role" name="role" [(ngModel)]="editEmployee.role"><option value="staff">Nhân viên</option><option value="admin">Quản trị</option></select></div>
+        <div class="popup-section"><label for="status">Trạng thái:</label> <select id="status" name="status" [(ngModel)]="editEmployee.status"><option [value]="true">Đang làm việc</option><option [value]="false">Nghỉ việc</option></select></div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!editForm.form.valid">Lưu</button>
+          <button type="button" (click)="isEditPopupOpen = false">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+
+</div>

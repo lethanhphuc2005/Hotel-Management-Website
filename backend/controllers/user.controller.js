@@ -1,6 +1,8 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
-const accountController = require("./account.controller"); // Assuming you have an account controller for validation
+const accountController = require("./account.controller");
+const mailSender = require("../helpers/mail.sender");
+const { verificationEmail, forgotPasswordEmail } = require("../config/mail"); // Import email template
 
 const userController = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
@@ -43,6 +45,17 @@ const userController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const users = await User.find(query)
+        .populate([
+          {
+            path: "comments",
+          },
+          {
+            path: "reviews",
+          },
+          {
+            path: "bookings",
+          },
+        ])
         .sort(sortOption)
         .select("-password") // Loại bỏ trường password và __v
         .skip(skip)
@@ -206,6 +219,162 @@ const userController = {
         data: { userId: user._id },
       });
     } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === XÁC THỰC MÃ XÁC NHẬN TÀI KHOẢN ===
+  verifyUser: async (req, res) => {
+    try {
+      const { email, verificationCode } = req.body;
+
+      if (!email || !verificationCode) {
+        return res.status(400).json("Email và mã xác nhận không được để trống");
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json("Không tìm thấy tài khoản với email này");
+      }
+
+      if (user.is_verified) {
+        return res.status(400).json("Tài khoản đã được xác minh trước đó");
+      }
+
+      if (user.verification_code !== verificationCode) {
+        return res.status(400).json("Mã xác nhận không chính xác");
+      }
+
+      user.is_verified = true;
+      user.verification_code = null; // Xoá mã xác nhận sau khi xác thực
+      await user.save();
+
+      res.status(200).json({
+        message: "Xác thực tài khoản thành công",
+        data: { userId: user._id },
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  resendEmailVerification: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json("Email không được để trống");
+      }
+
+      const user = await User.find({ email });
+      if (!user || user.length === 0) {
+        return res.status(404).json("Không tìm thấy tài khoản với email này");
+      }
+      if (user.is_verified) {
+        return res.status(400).json("Tài khoản đã được xác minh trước đó");
+      }
+      // Tạo mã xác nhận mới và gửi qua email
+      const verificationCode = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
+      user.verification_code = verificationCode;
+      await user.save();
+      // Gửi mã xác nhận qua email (giả sử bạn đã có hàm gửi email)
+      try {
+        await mailSender({
+          email: user.email,
+          subject: verificationEmail.subject,
+          html: verificationEmail.html(verificationCode),
+        });
+      } catch (error) {
+        return res.status(500).json({
+          message: "Gửi mã xác nhận thất bại",
+          error: error.message,
+        });
+      }
+      res.status(200).json({
+        message: "Mã xác nhận đã được gửi đến email của bạn",
+        data: { userId: user._id },
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === QUÊN MẬT KHẨU ===
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json("Email không được để trống");
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json("Không tìm thấy tài khoản với email này");
+      }
+
+      // Tạo mã xác nhận mới và gửi qua email
+      const verificationCode = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
+      user.verification_code = verificationCode;
+      await user.save();
+
+      // Gửi mã xác nhận qua email (giả sử bạn đã có hàm gửi email)
+      try {
+        await mailSender({
+          email: user.email,
+          subject: forgotPasswordEmail.subject,
+          html: forgotPasswordEmail.html(verificationCode),
+        });
+      } catch (error) {
+        return res.status(500).json({
+          message: "Gửi mã xác nhận thất bại",
+          error: error.message,
+        });
+      }
+
+      res.status(200).json({
+        message: "Mã xác nhận đã được gửi đến email của bạn",
+        data: { userId: user._id },
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
+  // === ĐẶT LẠI MẬT KHẨU ===
+  resetPassword: async (req, res) => {
+    try {
+      const { email, verificationCode, newPassword } = req.body;
+
+      if (!email || !verificationCode || !newPassword) {
+        return res.status(400).json("Các trường không được để trống");
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json("Không tìm thấy tài khoản với email này");
+      }
+
+      if (user.verification_code !== verificationCode) {
+        return res.status(400).json("Mã xác nhận không chính xác");
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      user.verification_code = null; // Xoá mã xác nhận sau khi đặt lại mật khẩu
+      await user.save();
+
+      res.status(200).json({
+        message: "Đặt lại mật khẩu thành công",
+        data: { userId: user._id },
+      });
+    } catch (error) {
+      console.error("Lỗi khi reset password:", error);
+
       res.status(500).json(error);
     }
   },

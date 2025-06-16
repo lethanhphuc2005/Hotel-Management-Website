@@ -568,7 +568,7 @@ const roomClassController = {
             try {
               const newImage = new Image({
                 room_class_id: newRoomClass._id,
-                url: `/images/${file.filename}`,
+                url: file.filename,
                 target: "room_class",
               });
               const savedImage = await newImage.save();
@@ -660,7 +660,7 @@ const roomClassController = {
             // Thêm các hình ảnh mới
             const imageData = req.files.map((file) => ({
               room_class_id: req.params.id,
-              url: `/images/${file.filename}`,
+              url: file.filename,
               target: "room_class",
             }));
 

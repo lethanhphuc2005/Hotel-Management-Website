@@ -11,18 +11,22 @@ const PaymentSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    method: {
-      type: String,
-      enum: ["momo", "vnpay", "zalopay"],
+    payment_method_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "payment_method",
       required: true,
     },
     status: {
       type: String,
-      enum: ["pending", "completed", "failed"],
+      enum: ["pending", "completed", "failed", "refunded"],
       default: "pending",
     },
     transaction_id: {
       type: String,
+    },
+    payment_date: {
+      type: Date,
+      default: Date.now,
     },
     metadata: {
       type: mongoose.Schema.Types.Mixed,
@@ -37,11 +41,16 @@ PaymentSchema.virtual("booking", {
   localField: "booking_id",
   foreignField: "_id",
 });
+PaymentSchema.virtual("payment_method", {
+  ref: "payment_method",
+  localField: "payment_method_id",
+  foreignField: "_id",
+});
 
 PaymentSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
-  transform: (doc, ret) => {  
+  transform: (doc, ret) => {
     delete ret.id;
     return ret;
   },

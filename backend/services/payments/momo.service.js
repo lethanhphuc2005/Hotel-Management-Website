@@ -1,12 +1,14 @@
 const axios = require("axios");
 const crypto = require("crypto");
+const { v4: uuidv4 } = require("uuid");
 
 const { MomoConfig } = require("../../config/payment");
-
 const Booking = require("../../models/booking.model");
 const Payment = require("../../models/payment.model");
+const PaymentMethod = require("../../models/paymentMethod.model");
 
 const MomoService = {
+  // === TẠO YÊU CẦU THANH TOÁN ===
   validateMomoResponse: (result) => {
     if (!result || typeof result.resultCode === "undefined") {
       throw new Error("Invalid response from MoMo");
@@ -33,11 +35,11 @@ const MomoService = {
     const partnerCode = MomoConfig.partnerCode;
     const redirectUrl = MomoConfig.returnUrl;
     const ipnUrl = MomoConfig.notifyUrl;
-    const requestId = orderId;
+    const requestId = uuidv4(); // Unique request ID for idempotency
     const requestType = MomoConfig.requestType;
-    const extraData = "merchantName=TestMerchant";
+    const extraData = "";
     const autoCapture = true;
-    const lang = MomoConfig.locale; // Default to Vietnamese
+    const lang = MomoConfig.locale;
 
     // Raw signature format (the order is important)
     const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
@@ -52,7 +54,6 @@ const MomoService = {
 
     // console.log("--------------------SIGNATURE----------------");
     // console.log(signature);
-
     const requestBody = JSON.stringify({
       partnerCode: partnerCode,
       partnerName: "Test",
@@ -82,12 +83,12 @@ const MomoService = {
     };
 
     try {
-      const response = await axios(options);
-      const result = response.data;
-      console.log("--------------------RESPONSE----------------");
-      console.log(result);
-      // Validate the MoMo response
-      MomoService.validateMomoResponse(result);
+      const paymentMethod = await PaymentMethod.findOne({
+        name: { $regex: /^momo$/i },
+      });
+      if (!paymentMethod) {
+        throw new Error("Payment method 'momo' not found");
+      }
 
       const successfulPaymnent = await Payment.findOne({
         booking_id: orderId,
@@ -103,23 +104,30 @@ const MomoService = {
       const pendingMomoPayment = await Payment.findOne({
         booking_id: orderId,
         status: "pending",
-        method: "momo",
+        method: paymentMethod._id,
       });
 
       if (pendingMomoPayment) {
         throw new Error(
-          `Payment for booking ID ${orderId} is already pending`
+          "This order is already being processed by Momo. Please wait for the payment to complete or cancel the order."
         );
       }
 
+      const response = await axios(options);
+      const result = response.data;
+      // console.log("--------------------RESPONSE----------------");
+      // console.log(result);
+      // Validate the MoMo response
+      MomoService.validateMomoResponse(result);
 
       if (result.resultCode === 0) {
         const payment = new Payment({
           booking_id: orderId,
           amount: amount,
-          method: "momo",
+          payment_method_id: paymentMethod._id,
           status: "pending",
           transaction_id: result.transId || null,
+          payment_date: new Date(result.responseTime),
           metadata: {
             resultCode: result.resultCode,
             message: result.message,
@@ -134,11 +142,14 @@ const MomoService = {
     }
   },
 
+  // === XỬ LÝ IPN TỪ CỔNG THANH TOÁN ===
   handleCallBack: async (req, res) => {
-    const { message, orderId, amount, transId } = req.body;
+    // console.log("Handling MoMo callback...");
+    const { message, orderId, amount, transId, resultCode, responseTime } =
+      req.body;
     if (!message || !orderId || !amount || !transId) {
       throw new Error(
-        "Missing required fields: resultCode, message, orderId, amount, or transId"
+        "Missing required fields in MoMo callback: message, orderId, amount, or transId"
       );
     }
     try {
@@ -177,8 +188,9 @@ const MomoService = {
       // Cập nhật trạng thái thanh toán
       payment.status = "completed"; // Assuming "success" is the ID for the successful status
       payment.transaction_id = transId; // Update transaction ID
+      payment.payment_date = new Date(responseTime); // Update payment date
       payment.metadata = {
-        resultCode: 0, // Assuming "0" means success
+        resultCode: resultCode, // Assuming "0" means success
         message: message,
       };
 
@@ -192,15 +204,17 @@ const MomoService = {
         payment: payment,
       });
     } catch (error) {
-      console.error("Error handling MoMo callback:", error);
-      throw error;
+      // console.error("Error handling MoMo callback:", error);
+      // throw error;
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req, res) => {
     const { orderId } = req.body;
+    const uniqueRequestId = uuidv4(); // Unique request ID for idempotency
 
-    const rawSignature = `accessKey=${MomoConfig.accessKey}&orderId=${orderId}&partnerCode=${MomoConfig.partnerCode}&requestId=${orderId}`;
+    const rawSignature = `accessKey=${MomoConfig.accessKey}&orderId=${orderId}&partnerCode=${MomoConfig.partnerCode}&requestId=${uniqueRequestId}`;
 
     const signature = crypto
       .createHmac("sha256", MomoConfig.secretKey)
@@ -209,7 +223,7 @@ const MomoService = {
 
     const requestBody = JSON.stringify({
       partnerCode: MomoConfig.partnerCode,
-      requestId: orderId,
+      requestId: uniqueRequestId,
       orderId: orderId,
       signature: signature,
       lang: "vi",

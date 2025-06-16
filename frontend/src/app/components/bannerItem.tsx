@@ -3,7 +3,7 @@
 import style from "../page.module.css";
 import { WebsiteContent } from "../types/websitecontent";
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
+import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/autoplay';
 
@@ -26,8 +26,9 @@ export function Banner({ banners }: { banners: WebsiteContent[] }) {
         <section className={style.banner}>
             <Swiper
                 loop={true}
-                autoplay={{ delay: 3000 }}
-                modules={[Autoplay]}
+                autoplay={{ delay: 5000 }}
+                modules={[Autoplay, Navigation]}
+                navigation={true}
             >
                 {images.map((img, index) => (
                     <SwiperSlide key={index}>

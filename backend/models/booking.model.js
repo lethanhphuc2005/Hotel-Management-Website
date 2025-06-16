@@ -70,7 +70,7 @@ const bookingSchema = new mongoose.Schema(
     },
     payment_status: {
       type: String,
-      enum: ["PAID", "UNPAID"],
+      enum: ["PAID", "UNPAID", "CANCELED"],
       default: "UNPAID",
       required: true,
     },
@@ -127,10 +127,10 @@ bookingSchema.virtual("discount", {
   foreignField: "_id",
 });
 
-bookingSchema.virtual("payment_method", {
-  ref: "payment_method",
-  localField: "payment_method_id",
-  foreignField: "_id",
+bookingSchema.virtual("payment", {
+  ref: "payment",
+  localField: "_id",
+  foreignField: "booking_id",
 });
 
 bookingSchema.virtual("employee", {

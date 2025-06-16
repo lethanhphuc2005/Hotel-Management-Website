@@ -343,7 +343,10 @@ const bookingController = {
               path: "employee",
               select: "first_name last_name position department",
             },
-            { path: "payment_method", select: "name" },
+            {
+              path: "payment",
+              populate: { path: "payment_method", select: "name" },
+            },
             { path: "discount", select: "name type value start_date end_date" },
             {
               path: "booking_details",
@@ -442,7 +445,11 @@ const bookingController = {
               path: "employee",
               select: "first_name last_name position department",
             },
-            { path: "payment_method", select: "name" },
+            {
+              path: "payment",
+              select: "-metadata -createdAt, -updatedAt",
+              populate: { path: "payment_method", select: "name" },
+            },
             { path: "discount", select: "name type value start_date end_date" },
             {
               path: "booking_details",
@@ -502,7 +509,10 @@ const bookingController = {
           path: "employee",
           select: "first_name last_name position department",
         },
-        { path: "payment_method", select: "name" },
+        {
+          path: "payment",
+          populate: { path: "payment_method", select: "name" },
+        },
         { path: "discount", select: "name type value start_date end_date" },
         {
           path: "booking_details",

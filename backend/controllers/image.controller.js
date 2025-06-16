@@ -194,7 +194,7 @@ const imageController = {
           return res.status(400).json({ message: validation.message });
         }
 
-        newImage.url = `/images/${req.file.filename}`; // Lưu đường dẫn hình ảnh
+        newImage.url = req.file.filename; // Lưu đường dẫn hình ảnh
 
         const savedImage = await newImage.save();
         if (!savedImage) {
@@ -252,7 +252,7 @@ const imageController = {
           if (imageToUpdate.url) {
             deleteOldImages(imageToUpdate.url);
           }
-          updatedData.url = `/images/${req.file.filename}`; // Cập nhật đường dẫn mới
+          updatedData.url = req.file.filename; // Cập nhật đường dẫn mới
         } else {
           updatedData.url = imageToUpdate.url; // Giữ nguyên đường dẫn cũ nếu không có file mới
         }

@@ -58,7 +58,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#forms">
+          <a [routerLink]="['/admin/booking']" class="nav-link">
             <i class="fas fa-pen-square"></i>
             <p>Quản lí đặt phòng</p>
             <!-- <span class="caret"></span> -->
@@ -100,7 +100,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="../../documentation/index.html">
+          <a [routerLink]="['/admin/review']" class="nav-link">
             <i class="fas fa-file"></i>
             <p>Quản lí đánh giá</p>
             <!-- <span class="badge badge-secondary"></span> -->

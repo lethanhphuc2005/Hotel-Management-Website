@@ -127,6 +127,17 @@ const employeeController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const users = await Employee.find(query)
+        .populate([
+          {
+            path: "comments",
+          },
+          {
+            path: "reviews",
+          },
+          {
+            path: "bookings",
+          },
+        ])
         .sort(sort)
         .skip(skip)
         .limit(parseInt(limit))

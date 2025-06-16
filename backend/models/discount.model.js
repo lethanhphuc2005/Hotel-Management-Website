@@ -73,7 +73,6 @@ const DiscountSchema = new mongoose.Schema(
         return this.limit === "limited"; // Chỉ yêu cầu khi loại là "Limited"
       },
       min: 1,
-      default: 1,
       validate: {
         validator: function (v) {
           return this.limit === "unlimited" || v > 0; // Giá trị phải > 0 nếu là "Limited"

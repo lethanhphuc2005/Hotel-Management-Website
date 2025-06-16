@@ -54,6 +54,7 @@ const roomController = {
         sort = "createdAt",
         order = "asc",
         status,
+        floor,
         type,
         check_in_date,
         check_out_date,
@@ -71,6 +72,17 @@ const roomController = {
 
       if (type) {
         query.room_class_id = type;
+      }
+
+      if (floor) {
+        const floorNumber = parseInt(floor);
+        if (!isNaN(floorNumber) && floorNumber > 0) {
+          query.floor = floorNumber;
+        } else {
+          return res
+            .status(400)
+            .json({ message: "Tầng phải là số nguyên dương" });
+        }
       }
 
       // === Xử lý lọc phòng trống ===
@@ -239,7 +251,10 @@ const roomController = {
           ? roomToUpdate.toObject()
           : { ...roomToUpdate.toObject(), ...req.body };
 
-      const validation = await roomController.validateRoom(updatedData, req.params.id);
+      const validation = await roomController.validateRoom(
+        updatedData,
+        req.params.id
+      );
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }

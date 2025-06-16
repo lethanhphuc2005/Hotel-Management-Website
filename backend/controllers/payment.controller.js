@@ -1,13 +1,71 @@
 const PaymentFactory = require("../utils/paymentFactory");
 const VNPAYService = require("../services/payments/vnpay.service");
 
+const { VNPayConfig } = require("../config/payment");
+
+const Booking = require("../models/booking.model");
+const Payment = require("../models/payment.model");
+const PaymentMethod = require("../models/paymentMethod.model");
+
 const PaymentController = {
+  // === TẠO YÊU CẦU THANH TOÁN ===
   createPayment: async (req, res) => {
     try {
       const { method } = req.params;
       if (!method) {
         return res.status(400).json({
           error: "Payment method is required",
+        });
+      }
+
+      if (method === "cash") {
+        // Handle cash payment creation
+        const { orderId } = req.body;
+        if (!orderId) {
+          return res.status(400).json({
+            error: "OrderId is required for cash payment",
+          });
+        }
+
+        const paymentMethod = await PaymentMethod.findOne({
+          name: { $regex: /cash/i },
+        });
+
+        const booking = await Booking.findById(orderId);
+        if (!booking) {
+          return res.status(404).json({
+            error: "Booking not found",
+          });
+        }
+        if (booking.payment_status === "PAID") {
+          return res.status(400).json({
+            error: "Booking has already been paid",
+          });
+        } else if (booking.payment_status === "CANCELED") {
+          return res.status(400).json({
+            error: "Booking has been canceled",
+          });
+        }
+
+        // Update booking payment status
+        booking.payment_status = "PAID";
+        await booking.save();
+
+        // Create a cash payment record
+        const payment = new Payment({
+          booking_id: orderId,
+          amount: booking.total_price,
+          payment_method_id: paymentMethod._id,
+          status: "completed",
+          transaction_id: `cash-${orderId}-${Date.now()}`,
+          payment_date: new Date(),
+        });
+
+        await payment.save();
+        return res.status(200).json({
+          success: true,
+          message: "Cash payment created successfully",
+          data: { orderId, method: "cash" },
         });
       }
 
@@ -27,6 +85,7 @@ const PaymentController = {
     }
   },
 
+  // === XỬ LÝ IPN TỪ CÁC CỔNG THANH TOÁN ===
   checkIpn: async (req, res) => {
     try {
       const { method } = req.params;
@@ -57,6 +116,7 @@ const PaymentController = {
     }
   },
 
+  // === LẤY TRẠNG THÁI GIAO DỊCH ===
   getTransactionStatus: async (req, res) => {
     try {
       const { method } = req.params;
@@ -88,6 +148,7 @@ const PaymentController = {
     }
   },
 
+  // === TRẢ VỀ CALLBACK URL CHO VNPAY ===
   checkIpnVNPay: async (req, res) => {
     try {
       const result = VNPAYService.verifyReturnUrl(req.query);
@@ -110,7 +171,7 @@ const PaymentController = {
       // ✅ Giao dịch thành công + xử lý IPN thành công
       // Có thể redirect sang frontend
       return res.redirect(
-        `${process.env.FRONTEND_PAYMENT_SUCCESS_URL}?orderId=${req.query.vnp_TxnRef}`
+        `${VNPayConfig.returnUrl}?orderId=${req.query.vnp_TxnRef}`
       );
     } catch (error) {
       return res.status(500).send({

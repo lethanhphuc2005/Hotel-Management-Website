@@ -192,7 +192,7 @@ const serviceController = {
 
         // Gắn ảnh nếu có
         if (req.file) {
-          newService.image = `/images/${req.file.filename}`;
+          newService.image = req.file.filename;
         }
 
         // Lưu dịch vụ mới
@@ -240,7 +240,7 @@ const serviceController = {
 
         // Gắn ảnh mới nếu có
         if (req.file) {
-          updatedData.image = `/images/${req.file.filename}`;
+          updatedData.image = req.file.filename;
           // Xoá ảnh cũ nếu có
           if (serviceToUpdate.image) {
             deleteOldImages(serviceToUpdate.image);

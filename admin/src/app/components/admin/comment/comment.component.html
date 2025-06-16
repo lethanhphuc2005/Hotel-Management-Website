@@ -13,42 +13,63 @@
 
   <!-- popup xem chi tiết -->
   <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedComment">
-    <div class="popup-content">
-      <h2>Chi tiết {{ selectedComment.isReplyOnly ? 'phản hồi' : 'bình luận' }}</h2>
+  <div class="popup-content">
+    <h2>Chi tiết {{ selectedComment.isReplyOnly ? 'phản hồi' : 'bình luận' }}</h2>
 
-      <div class="popup-section">
-        <label>Người gửi:</label>
-        <span>
-          {{ selectedComment.user_id?.last_name || selectedComment.employee_id?.last_name }}
-          {{ selectedComment.user_id?.first_name || selectedComment.employee_id?.first_name }}
-        </span>
-      </div>
-
-      <div class="popup-section">
-        <label>Email:</label>
-        <span>{{ selectedComment.user_id?.email || selectedComment.employee_id?.email }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Nội dung:</label>
-        <span>{{ selectedComment.content }}</span>
-      </div>
-
-      <div class="popup-section" *ngIf="!selectedComment.isReplyOnly && selectedComment.replies?.length">
-        <label>Phản hồi:</label>
-        <ul>
-          <li *ngFor="let reply of selectedComment.replies">
-            <strong>
-              {{ reply.user_id?.last_name || reply.employee_id?.last_name }}
-              {{ reply.user_id?.first_name || reply.employee_id?.first_name }}:
-            </strong> {{ reply.content }}
-          </li>
-        </ul>
-      </div>
-
-      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+    <div class="popup-section">
+      <label>Người gửi:</label>
+      <span>
+        {{ selectedComment.user_id?.last_name || selectedComment.employee_id?.last_name }}
+        {{ selectedComment.user_id?.first_name || selectedComment.employee_id?.first_name }}
+      </span>
     </div>
+
+    <div class="popup-section" *ngIf="selectedComment.user_id || selectedComment.employee_id">
+      <label>Email:</label>
+      <span>{{ selectedComment.user_id?.email || selectedComment.employee_id?.email }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="selectedComment.user_id?.phone_number || selectedComment.employee_id?.phone_number">
+      <label>SĐT:</label>
+      <span>{{ selectedComment.user_id?.phone_number || selectedComment.employee_id?.phone_number }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="selectedComment.user_id?.address || selectedComment.employee_id?.address">
+      <label>Địa chỉ:</label>
+      <span>{{ selectedComment.user_id?.address || selectedComment.employee_id?.address }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Phòng:</label>
+      <span>{{ selectedComment.room_class_id?.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Nội dung:</label>
+      <span>{{ selectedComment.content }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Ngày tạo:</label>
+      <span>{{ selectedComment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="!selectedComment.isReplyOnly && selectedComment.replies?.length">
+      <label>Phản hồi:</label>
+      <ul>
+        <li *ngFor="let reply of selectedComment.replies">
+          <strong>
+            {{ reply.user_id?.last_name || reply.employee_id?.last_name }}
+            {{ reply.user_id?.first_name || reply.employee_id?.first_name }}:
+          </strong> {{ reply.content }}
+        </li>
+      </ul>
+    </div>
+
+    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
   </div>
+</div>
+
 
   <app-comment-item *ngFor="let comment of comments; let i = index" [comment]="comment" [index]="i" [level]="0"
     [onViewComment]="viewComment.bind(this)">

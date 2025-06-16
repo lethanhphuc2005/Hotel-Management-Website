@@ -11,17 +11,15 @@
   <div>{{ comment.room_class_id?.name }}</div>
   <div>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
   <div class="actions">
-    <button (click)="viewComment(comment)"><i class="fa fa-eye"></i></button>
-    <button (click)="deleteComment(comment._id)"><i class="fa fa-trash"></i></button>
+    <label class="switch">
+      <input type="checkbox" [checked]="comment.status" (change)="toggleStatus(comment)" />
+      <span class="slider round"></span>
+    </label>
   </div>
+
 </div>
 
 <div *ngFor="let reply of comment.replies; let j = index">
-  <app-comment-item
-    [comment]="reply"
-    [index]="j"
-    [level]="level + 1"
-    [onViewComment]="onViewComment"> <!-- ✅ THÊM -->
+  <app-comment-item [comment]="reply" [index]="j" [level]="level + 1" [onViewComment]="onViewComment">
   </app-comment-item>
 </div>
-
