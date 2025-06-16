@@ -1,114 +1,156 @@
 .container {
   display: flex;
-  justify-content: center; /* Căn giữa theo chiều ngang */
-  align-items: center; /* Căn giữa theo chiều dọc */
-  height: 100vh; /* Chiều cao toàn bộ màn hình */
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+  height: 100vh; /* Full screen height */
   margin-top: 30px;
-  /* margin-bottom: 50px; */
-  background-image: url('/img/banner1.webp'); /* sửa đường dẫn đúng */
+  position: relative; /* Position for overlay */
+  background: linear-gradient(135deg, #1a1a2e, #16213e); /* Dark gradient background */
+  background-image: url('/img/banner1.webp'); /* Correct path */
   background-size: cover;
   background-position: center;
+  border-radius: 15px; /* Rounded corners for the main container */
+  padding: 20px;
 }
 
 .container::before {
-  content: "";
+  content: '';
   position: absolute;
-  inset: 0; /* top:0; right:0; bottom:0; left:0; */
-  background-color: rgba(0, 0, 0, 0.6); /* màu đen mờ 50% */
-  z-index: 1; /* lớp phủ nằm dưới form */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit; /* Inherit background image */
+  filter: blur(5px); /* Blur effect */
+  opacity: 0.5; /* Opacity for overlay */
+  z-index: 1; /* Behind the content */
+  border-radius: 15px; /* Match rounded corners */
 }
 
 .formContainer {
-  width: 500px; /* Chiều rộng của container */
-  border: 1px solid white;
-  padding: 20px; /* Khoảng cách bên trong */
-  border-radius: 10px; /* Bo tròn các góc */
-  z-index: 10;
-  position: relative;
+  border-radius: 10px; /* Rounded corners for the form */
+  padding: 30px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  animation: gradientAnimation 6s infinite alternate; /* Border gradient animation */
+  position: relative; /* Ensure form is above the overlay */
+  z-index: 2; /* Above the blurred background */
+}
+
+@keyframes gradientAnimation {
+  0% { border-image: linear-gradient(to right, #6b48ff, #ff4b9e) 1; }
+  50% { border-image: linear-gradient(to right, #ff4b9e, #ff8c00) 1; }
+  100% { border-image: linear-gradient(to right, #ff8c00, #6b48ff) 1; }
 }
 
 .title {
-  text-align: center; /* Căn giữa tiêu đề */
-  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 10px;
   font-weight: bold;
 }
 
-.input {
-  width: 100%; /* Chiều rộng 100% */
-  height: 50px;
-  background-color: black;
-  padding: 10px; /* Khoảng cách bên trong */
-  margin: 10px 0; /* Khoảng cách giữa các input */
-  border-radius: 5px;
-  border: 1px solid white;
-  color: #fff;
-}
-
-.continueButton {
-  width: 100%; /* Chiều rộng 100% */
-  height: 50px;
-  padding: 10px; /* Khoảng cách bên trong */
-  margin: 10px 0; /* Khoảng cách dưới nút */
-  border: none;
-  border-radius: 5px;
-  background-color: #FAB320; /* Màu nền cho nút "Tiếp tục" */
-  color: black;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.orContainer {
-  display: flex;
-  align-items: center; /* Căn giữa theo chiều dọc */
-  margin: 20px 0; /* Khoảng cách phía trên và dưới */
-}
-
-.orLine {
-  flex-grow: 1; /* Đường kẻ kéo dài hết chiều rộng */
-  height: 2px; /* Độ dày của đường kẻ */
-  background-color: white; /* Màu đường kẻ */
-}
-
-.orText {
-  margin: 0 10px; /* Khoảng cách giữa đường kẻ và chữ */
-  font-size: 16px; /* Kích thước chữ */
-  color: #fff;
-}
-
-.socialLogin {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Căn giữa các nút */
-  width: 100%;
-}
-.title {
-  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
-  color: #fff;
-  font-size: 24px; /* Kích thước chữ */
-}
 .separator {
-  height: 2px; /* Độ dày của đường kẻ */
-  background-color: white; /* Màu đường kẻ */
-  margin: 10px 0; /* Khoảng cách phía trên và dưới */
+  height: 2px;
+  width: 50px;
+  background: linear-gradient(to right, #6b48ff, #ff4b9e);
+  margin: 10px auto;
 }
 
 .welcomeText {
-  text-align: center; /* Căn giữa lời chào */
-  margin: 10px 0; /* Khoảng cách phía trên và dưới */
-  font-size: 18px; /* Kích thước chữ */
-   color: #fff;
+  color: #ccc;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
 }
+
+.input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px; /* Space between inputs */
+  border: none;
+  border-radius: 5px;
+  background: #000; /* Black background for inputs */
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  border: 1px solid white; /* White border */
+}
+
+.input::placeholder {
+  color: #ddd;
+}
+
+.passwordContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px; /* Reduced margin for closer spacing */
+}
+
+.togglePassword {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #ccc;
+}
+
+.togglePassword:hover {
+  color: #fff; /* Change color on hover */
+}
+
+.continueButton {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(to right, #d4af37, #9acd32); /* Light green-yellow gradient */
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.continueButton:hover {
+  background: linear-gradient(to right, #9acd32, #d4af37); /* Reverse gradient on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(148, 205, 50, 0.5); /* Green shadow */
+}
+
 .infoText {
-  text-align: left; /* Căn giữa thông báo */
-  margin: 10px 0; /* Khoảng cách phía trên và dưới */
-  font-size: 14px; /* Kích thước chữ */
-   color: #fff;
+  color: #ccc;
+  font-size: 0.8rem;
+  margin: 10px 0;
+  text-align: left;
 }
-.text{
-  text-align: center;
+
+.text {
+  color: #ccc;
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
-.text a{
+
+.text a {
+  color: #6b48ff; /* Link color */
   text-decoration: none;
-  color: white;
-  font-weight: bold;
+}
+
+.text a:hover {
+  text-decoration: underline; /* Underline link on hover */
+}
+.passwordContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 2px; /* Reduced margin for closer spacing */
+}
+.eyeIcon {
+  position: absolute;
+  right: 10px;
+  top: 40%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }

@@ -1,0 +1,100 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #121212;
+  font-family: 'Segoe UI', sans-serif;
+  color: #ffffff;
+}
+
+.box {
+  background: #1e1e1e;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.desc {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  border-color: #ff6bcb;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #ff6bcb;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #ff57c1;
+}
+
+.resend {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #ccc;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.resend:hover {
+  color: #ff6bcb;
+}
+
+.message {
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.resendBtn {
+  background: transparent;
+  border: none;
+  color: #007bff;
+  margin-top: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.resendBtn:disabled {
+  color: gray;
+  cursor: not-allowed;
+}
+

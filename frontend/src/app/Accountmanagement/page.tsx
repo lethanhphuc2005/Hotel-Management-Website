@@ -99,7 +99,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-setFormData({
+      setFormData({
         first_name: user.first_name || "",
         email: user.email || "",
         phone_number: user.phone_number || "",

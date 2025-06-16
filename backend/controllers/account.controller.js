@@ -3,7 +3,7 @@ const Employee = require("../models/employee.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mailSender = require("../helpers/mail.sender");
-const { verficationEmail } = require("../config/mail");
+const { verificationEmail } = require("../config/mail");
 
 let refreshTokens = [];
 const accountController = {
@@ -93,8 +93,8 @@ const accountController = {
       try {
         await mailSender({
           email: req.body.email,
-          subject: verficationEmail.subject,
-          html: verficationEmail.html(verificationCode),
+          subject: verificationEmail.subject,
+          html: verificationEmail.html(verificationCode),
         });
       } catch (mailError) {
         return res.status(500).json({
