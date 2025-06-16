@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { IContent } from '../models/websitecontent';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -23,15 +22,17 @@ export class WebsiteContentService {
     return this.http.get<IContent>(`${this.apiUrl}/${id}`);
   }
 
-  createContent(content: IContent): Observable<IContent> {
-    return this.http.post<IContent>(this.apiUrl, content);
-  }
-
-  updateContent(id: string, content: IContent): Observable<IContent> {
-    return this.http.put<IContent>(`${this.apiUrl}/${id}`, content);
+  updateContent(id: string, formData: FormData): Observable<IContent> {
+    return this.http.put<IContent>(`${this.apiUrl}/${id}`, formData);
   }
 
   onDelete(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  createContent(formData: FormData) {
+    return this.http.post<IContent>(this.apiUrl, formData);
+  }
+
+
 }

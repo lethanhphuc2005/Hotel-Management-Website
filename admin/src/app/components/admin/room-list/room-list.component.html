@@ -7,6 +7,47 @@
     <button class="add-room" (click)="openAddPopup()">+ Thêm Phòng</button>
   </div>
 
+  <!-- 🧹 Thanh lọc  -->
+  <div class="filter-bar">
+
+    <!-- Lọc trạng thái phòng -->
+    <div>
+      <label for="roomStatus">Trạng thái phòng:</label>
+      <select id="roomStatus" [(ngModel)]="filter.room_status_id" (change)="filterRooms()">
+        <option value="">Tất cả</option>
+        <option *ngFor="let status of roomStatuses" [value]="status._id">
+          {{ status.name }}
+        </option>
+      </select>
+    </div>
+    <!-- Lọc loại phòng -->
+    <div>
+      <label for="room-class">Loại phòng:</label>
+      <select id="room-class" [(ngModel)]="filter.room_class_id" (change)="filterRooms()">
+        <option value="">Tất cả</option>
+        <option *ngFor="let roomClass of roomClasses" [value]="roomClass._id">
+          {{ roomClass.name }}
+        </option>
+      </select>
+    </div>
+
+
+    <!-- Ngày nhận -->
+    <div>
+      <label>Ngày nhận:</label>
+      <input type="date" [(ngModel)]="filter.check_in_date" (change)="filterByDate()" />
+    </div>
+
+    <!-- Ngày trả -->
+    <div>
+      <label>Ngày trả:</label>
+      <input type="date" [(ngModel)]="filter.check_out_date" (change)="filterByDate()" />
+    </div>
+
+    <!-- Nút lọc theo ngày -->
+    <!-- <button (click)="filterByDate()">Lọc phòng trống</button> -->
+  </div>
+
   <!-- popup thêm phòng -->
   <div class="popup-add-popup" *ngIf="isAddRoomPopupOpen">
     <div class="popup-content">
@@ -24,7 +65,15 @@
           <label for="floor">Tầng:</label>
           <input type="text" id="floor" name="floor" [(ngModel)]="newRoom.floor" required />
         </div>
-
+        <!-- trạng thái phòng -->
+        <div class="popup-section">
+          <label>Trạng thái phòng</label>
+          <select [(ngModel)]="newRoom.room_status_id" name="room_status">
+            <option *ngFor="let status of roomStatuses" [value]="status._id">
+              {{ status.name }}
+            </option>
+          </select>
+        </div>
         <!-- Chọn loại phòng -->
         <div class="popup-section">
           <label for="roomClass">Loại phòng:</label>
@@ -33,6 +82,7 @@
             <option *ngFor="let rc of roomClasses" [value]="rc._id">{{ rc.name }}</option>
           </select>
         </div>
+
 
         <!-- Tự hiển thị thông tin loại phòng -->
         <div *ngIf="selectedRoomClassInfo">
@@ -60,7 +110,6 @@
     </div>
   </div>
 
-
   <!-- Table Header -->
   <div class="table-header">
     <div>STT</div>
@@ -70,13 +119,13 @@
     <div>Trạng thái</div>
     <div>Số giường</div>
     <div>Giá</div>
-    <div>Mô tả</div>
+    <!-- <div>Mô tả</div> -->
     <!-- <div>Tiện nghi</div> -->
     <div>Hành động</div>
   </div>
 
   <!-- Table Rows -->
-  <div class="table-row" *ngFor="let room of rooms; let i = index">
+  <div class="table-row" *ngFor="let room of filteredRooms; let i = index">
     <div>{{ i + 1 }}</div>
     <div (click)="viewRoomDetail(room)" style="cursor: pointer">{{ room.name }}</div>
     <div>{{ room.floor }}</div>
@@ -84,14 +133,9 @@
     <div>{{ room.status[0].name || 'Không rõ' }}</div>
     <div>{{ room.room_class[0].bed_amount }}</div>
     <div>{{ room.room_class[0].price | currency: 'VND' }}</div>
-    <div>{{ room.room_class[0].description }}</div>
+    <!-- <div>{{ room.room_class[0].description }}</div> -->
     <!-- <div>{{ getFeatureNames(room) }}</div> -->
     <div class="actions">
-      <!-- Switch Toggle -->
-      <!-- <label class="switch">
-        <input type="checkbox" [checked]="room.status" (change)="toggleRoomStatus(room)" />
-        <span class="slider"></span>
-      </label> -->
 
       <!-- Edit icon -->
       <button class="icon-button" (click)="editRoom(room); $event.stopPropagation()">
@@ -100,9 +144,15 @@
 
     </div>
   </div>
+  <!-- popup chi tiết -->
   <div class="popup-overlay" *ngIf="isRoomDetailOpen && selectedRoom">
     <div class="popup-content">
       <h2>Chi tiết phòng: {{ selectedRoom.name }}</h2>
+
+      <div class="popup-section">
+        <label>Lịch đặt phòng:</label>
+        <full-calendar [options]="calendarOptions"></full-calendar>
+      </div>
 
       <div class="popup-section">
         <label>Tên phòng:</label>
@@ -205,6 +255,4 @@
       </form>
     </div>
   </div>
-
-
 </div>

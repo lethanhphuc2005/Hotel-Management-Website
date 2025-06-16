@@ -1,61 +1,61 @@
 <div class="user-management-card">
   <h2>Quản lí khách hàng</h2>
 
-  <!-- Header bảng -->
+  <!-- Table Header -->
   <div class="table-header">
     <div>STT</div>
     <div>Tên</div>
     <div>Email</div>
-    <div>Điện thoại</div>
+    <div>Phone</div>
     <div>Địa chỉ</div>
     <div>Ghi chú</div>
     <div>Trạng thái</div>
   </div>
 
-  <!-- Popup chi tiết user -->
-<div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedUser">
-  <div class="popup-content">
-    <h2>Chi tiết khách hàng</h2>
+  <!-- User Detail Popup -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedUser">
+    <div class="popup-content">
+      <h2>Customer Detail</h2>
 
-    <div class="popup-section">
-      <label>Tên khách hàng:</label>
-      <span>{{ selectedUser.TenKH }}</span>
-    </div>
-    <div class="popup-section">
-      <label>Email:</label>
-      <span>{{ selectedUser.Email }}</span>
-    </div>
-    <div class="popup-section">
-      <label>Số điện thoại:</label>
-      <span>{{ selectedUser.SoDT }}</span>
-    </div>
-    <div class="popup-section">
-      <label>Địa chỉ:</label>
-      <span>{{ selectedUser.DiaChi }}</span>
-    </div>
-    <div class="popup-section">
-      <label>Ghi chú:</label>
-      <span>{{ selectedUser.YeuCau_DB || '—' }}</span>
-    </div>
-    <div class="popup-section">
-      <label>Trạng thái:</label>
-      <span [class.active]="selectedUser.isActive" [class.inactive]="!selectedUser.isActive">
-        {{ selectedUser.isActive ? 'Đang hoạt động' : 'Vô hiệu hóa' }}
-      </span>
-    </div>
+      <div class="popup-section">
+        <label>Full Name:</label>
+        <span>{{ selectedUser.fullName }}</span>
+      </div>
+      <div class="popup-section">
+        <label>Email:</label>
+        <span>{{ selectedUser.email }}</span>
+      </div>
+      <div class="popup-section">
+        <label>Phone Number:</label>
+        <span>{{ selectedUser.phoneNumber }}</span>
+      </div>
+      <div class="popup-section">
+        <label>Address:</label>
+        <span>{{ selectedUser.address }}</span>
+      </div>
+      <div class="popup-section">
+        <label>Request:</label>
+        <span>{{ selectedUser.requestNote || '—' }}</span>
+      </div>
+      <div class="popup-section">
+        <label>Status:</label>
+        <span [class.active]="selectedUser.isActive" [class.inactive]="!selectedUser.isActive">
+          {{ selectedUser.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
 
-    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+      <button class="close-btn" (click)="isDetailPopupOpen = false">Close</button>
+    </div>
   </div>
-</div>
 
-
+  <!-- Table Body -->
   <div *ngFor="let user of users; let i = index" class="table-row">
     <div>{{ i + 1 }}</div>
-    <div (click)="onViewUserDetail(user)" class="clickable-name">{{ user.TenKH }}</div>
-    <div>{{ user.Email }}</div>
-    <div>{{ user.SoDT }}</div>
-    <div>{{ user.DiaChi }}</div>
-    <div>{{ user.YeuCau_DB || '—' }}</div>
+    <div (click)="onViewUserDetail(user)" class="clickable-name">{{ user.fullName }}</div>
+    <div>{{ user.email }}</div>
+    <div>{{ user.phoneNumber }}</div>
+    <div>{{ user.address }}</div>
+    <div>{{ user.requestNote || '—' }}</div>
     <div class="status-toggle">
       <label class="switch">
         <input type="checkbox" [checked]="user.isActive" (change)="toggleUserStatus(user)" />

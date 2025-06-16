@@ -16,6 +16,7 @@ import { MainRoomClassService } from '../../../services/main-room-class.service'
 })
 export class RoomClassListComponent implements OnInit {
   roomClasses: any[] = [];
+  allRoomClasses: any[] = [];
   selectedFeatureDropdown: string | null = null;
   selectedRoomClass: any;
   isDetailPopupOpen: boolean = false;
@@ -23,6 +24,16 @@ export class RoomClassListComponent implements OnInit {
   newRoomClass: any = {};
   features: any[] = [];
   mainRoomClasses: any[] = [];
+  selectedRoomClassFiles: File[] = [];
+  previewRoomClassImages: string[] = [];
+  editRoomClassFiles: File[] = [];
+  editPreviewImages: string[] = [];
+  filter = {
+    feature: [] as string[]
+  };
+
+
+
 
   constructor(private http: HttpClient, private roomClassService: RoomClassService, private featureService: FeatureService, private mainRoomClassService: MainRoomClassService) { }
 
@@ -86,28 +97,78 @@ export class RoomClassListComponent implements OnInit {
     this.isAddRoomPopupOpen = true;
     this.newRoomClass = {};
   }
+  // them
+
+  // Bo anh review
+  removeSelectedImage(index: number): void {
+    this.selectedRoomClassFiles.splice(index, 1);
+    this.previewRoomClassImages.splice(index, 1);
+  }
+
+
+  onRoomClassImagesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      const newFiles = Array.from(input.files);
+
+      // Thêm vào danh sách ảnh đã chọn (nếu muốn chọn nhiều lần)
+      this.selectedRoomClassFiles = [...this.selectedRoomClassFiles, ...newFiles];
+
+      // Cập nhật preview
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      this.previewRoomClassImages = [...this.previewRoomClassImages, ...newPreviews];
+    }
+  }
+
 
   onAddRoomClassSubmit() {
-    const selectedFeatures = this.features
-      .filter(f => f.selected)
-      .map(f => ({ feature_id: f._id })); // ✅ Map thành object
-
-    const data = {
-      ...this.newRoomClass,
-      features: selectedFeatures,
-      status: true // trạng thái hđ
-    };
-
-    this.roomClassService.addRoomClass(data).subscribe({
-      next: () => {
-        this.loadRoomClasses();
-        this.closeAddRoomPopup();
-      },
-      error: (err) => {
-        console.error('Lỗi khi thêm loại phòng:', err);
-      }
-    });
+  if (!this.newRoomClass.name || !this.newRoomClass.price || !this.newRoomClass.main_room_class_id) {
+    alert('Vui lòng nhập đầy đủ thông tin.');
+    return;
   }
+
+  const formData = new FormData();
+
+  formData.append('name', this.newRoomClass.name);
+  formData.append('description', this.newRoomClass.description);
+  formData.append('bed_amount', this.newRoomClass.bed_amount.toString());
+  formData.append('view', this.newRoomClass.view || '');
+  formData.append('capacity', this.newRoomClass.capacity.toString());
+  formData.append('price', this.newRoomClass.price.toString());
+  formData.append('main_room_class_id', this.newRoomClass.main_room_class_id);
+
+  const selectedFeatureIds = this.features
+    .filter(f => f.selected)
+    .map(f => f._id);
+  formData.append('features', JSON.stringify(selectedFeatureIds));
+
+  if (this.selectedRoomClassFiles.length === 0) {
+    alert('Vui lòng chọn ít nhất 1 ảnh.');
+    return;
+  }
+
+  this.selectedRoomClassFiles.forEach(file => {
+    formData.append('images', file);
+  });
+
+  // DEBUG
+  for (const pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
+
+  this.roomClassService.addRoomClass(formData).subscribe({
+    next: () => {
+      this.loadRoomClasses();
+      this.isAddRoomPopupOpen = false;
+      this.selectedRoomClassFiles = [];
+      this.previewRoomClassImages = [];
+    },
+    error: err => {
+      console.error('❌ Lỗi server:', err);
+      alert('Thêm loại phòng thất bại: ' + (err.error?.message || err.message || err.statusText));
+    }
+  });
+}
 
 
   closeAddRoomPopup() {
@@ -125,15 +186,32 @@ export class RoomClassListComponent implements OnInit {
   editRoomClass: any = {};
 
   onEdit(rc: any) {
-    // Copy data vào biến edit
     this.editRoomClass = { ...rc, main_room_class_id: rc.main_room_class?.[0]?._id };
 
-    // Gán lại selected tiện nghi
     this.features.forEach(f => {
       f.selected = rc.features?.some((rf: any) => rf.feature_id?._id === f._id);
     });
 
+    // Gán ảnh cũ (URL ảnh từ backend nếu có)
+    this.editPreviewImages = rc.images || []; // giả sử ảnh backend trả về là mảng URL
+    this.editRoomClassFiles = []; // chưa có ảnh File mới
     this.isEditRoomPopupOpen = true;
+  }
+
+  // sua anh
+  onEditRoomClassImagesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      const newFiles = Array.from(input.files);
+      this.editRoomClassFiles = [...this.editRoomClassFiles, ...newFiles];
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      this.editPreviewImages = [...this.editPreviewImages, ...newPreviews];
+    }
+  }
+  // xoa anh da chon
+  removeEditImage(index: number) {
+    this.editRoomClassFiles.splice(index, 1);
+    this.editPreviewImages.splice(index, 1);
   }
 
 
@@ -142,15 +220,26 @@ export class RoomClassListComponent implements OnInit {
       .filter(f => f.selected)
       .map(f => ({ feature_id: f._id }));
 
-    const updatedData = {
-      ...this.editRoomClass,
-      features: selectedFeatures,
-    };
+    const formData = new FormData();
+    formData.append('name', this.editRoomClass.name);
+    formData.append('description', this.editRoomClass.description);
+    formData.append('bed_amount', this.editRoomClass.bed_amount.toString());
+    formData.append('view', this.editRoomClass.view || '');
+    formData.append('capacity', this.editRoomClass.capacity.toString());
+    formData.append('price', this.editRoomClass.price.toString());
+    formData.append('main_room_class_id', this.editRoomClass.main_room_class_id);
+    formData.append('features', JSON.stringify(selectedFeatures));
 
-    this.roomClassService.updateFullRoomClass(this.editRoomClass._id, updatedData).subscribe({
+    this.editRoomClassFiles.forEach(file => {
+      formData.append('images', file);
+    });
+
+    this.roomClassService.updateFullRoomClass(this.editRoomClass._id, formData).subscribe({
       next: () => {
         this.loadRoomClasses();
         this.isEditRoomPopupOpen = false;
+        this.editRoomClassFiles = [];
+        this.editPreviewImages = [];
       },
       error: (err) => {
         console.error('Lỗi khi cập nhật loại phòng:', err);
@@ -158,4 +247,38 @@ export class RoomClassListComponent implements OnInit {
     });
   }
 
+  // Nếu ảnh từ backend không có dạng URL trực tiếp, bạn có thể thêm host vào như: this.editPreviewImages = rc.images?.map((img: string) => environment.apiUrl + '/' + img);
+
+  // lọc
+  onFeatureFilterChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const featureId = input.value;
+
+    if (input.checked) {
+      this.filter.feature.push(featureId);
+    } else {
+      this.filter.feature = this.filter.feature.filter((id: string) => id !== featureId);
+    }
+
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.allRoomClasses];
+
+    if (this.filter.feature.length > 0) {
+      filtered = filtered.filter((room: any) => {
+        const roomFeatureIds = (room.features || [])
+          .map((f: any) => f.feature_id?._id)
+          .filter(Boolean);
+        return this.filter.feature.some((id: string) => roomFeatureIds.includes(id));
+      });
+    }
+
+    this.roomClasses = filtered;
+  }
+
+
+
+  // chọn nhiều return this.filter.feature.every((id: string) => roomFeatureIds.includes(id));
 }

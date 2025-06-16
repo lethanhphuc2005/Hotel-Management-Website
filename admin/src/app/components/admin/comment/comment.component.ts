@@ -24,27 +24,18 @@ export class CommentComponent implements OnInit {
     });
   }
 
-  editComment(comment: any) {
-    console.log('Sửa:', comment);
-  }
-
-  deleteComment(id: string) {
-    if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
-      this.commentService.deleteComment(id).subscribe(() => {
-        this.getAll();
-      });
-    }
-  }
   // popup xem
   selectedComment: any = null;
   isDetailPopupOpen = false;
 
-  viewComment(comment: any, isReply = false) {
-    this.selectedComment = {
-      ...comment,
-      isReplyOnly: isReply
-    };
-    this.isDetailPopupOpen = true;
-  }
+viewComment(comment: any) {
+  this.selectedComment = {
+    ...comment,
+    replies: comment.parent_comment || [],
+    isReplyOnly: !!comment.parent_id
+  };
+  this.isDetailPopupOpen = true;
+}
+
 
 }

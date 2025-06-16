@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { WebsiteContentService } from '../../../services/websitecontent.service';
 import { IContent } from '../../../models/websitecontent';
+import { ContentTypeService } from '../../../services/content-type.service';
+import { ContentType } from '../../../models/content-type';
 
 
 @Component({
@@ -19,19 +21,35 @@ export class WebsitecontentComponent implements OnInit {
   contents: any;
   img: any;
   rt: any;
+  contentTypes: ContentType[] = [];
+  searchKeyword: string = '';
+  filteredReviews: any;
+  reviews: any;
+  filteredContents: any;
 
-  constructor(private websitecontentService: WebsiteContentService) { }
 
+  constructor(private websitecontentService: WebsiteContentService, private contentTypeService: ContentTypeService) { }
   ngOnInit(): void {
     this.websitecontentService.getAllContents().subscribe(data => {
-      console.log('Danh sách content:', data);
       this.websiteContents = data;
+      this.filteredContents = data; // hiển thị ban đầu
+      console.log('Danh sách content:', data);
+    });
+
+    this.contentTypeService.getAll().subscribe(response => {
+      this.contentTypes = response.data;
+      console.log('Danh sách loại content:', response.data);
     });
   }
 
-  onEdit(content: any) {
 
+  getAllContents() {
+    this.websitecontentService.getAllContents().subscribe(data => {
+      this.websiteContents = data;
+      this.filteredContents = data;
+    });
   }
+
 
   onDelete(content: IContent) {
     const confirmed = window.confirm(`Bạn có chắc muốn xoá bài viết "${content.title}" không?`);
@@ -50,16 +68,134 @@ export class WebsitecontentComponent implements OnInit {
     });
   }
 
-  // popup xem
-  isDetailPopupOpen: boolean = false;
-selectedContent!: IContent;
-
-onViewDetail(content: IContent) {
-  this.selectedContent = content;
-  this.isDetailPopupOpen = true;
+getContentTypeName(typeId: string): string {
+  if (!Array.isArray(this.contentTypes)) return 'Không rõ';
+  const type = this.contentTypes.find(t => t._id === typeId);
+  return type ? type.name : 'Không rõ';
 }
 
 
+
+  // popup xem
+  isDetailPopupOpen: boolean = false;
+  selectedContent!: IContent;
+
+  onViewDetail(content: IContent) {
+    this.selectedContent = content;
+    this.isDetailPopupOpen = true;
+  }
+  // tìm kiếm
+
+  onSearch() {
+    const keyword = this.searchKeyword.trim().toLowerCase();
+    this.filteredContents = this.websiteContents.filter((content: IContent) =>
+      (content.title || '').toLowerCase().includes(keyword)
+    );
+  }
+  // thêm
+  isAddPopupOpen = false;
+  newContent: any = {
+    title: '',
+    content_type_id: '',
+    content: '',
+    image: null
+  };
+
+  onAdd() {
+    this.newContent = {
+      title: '',
+      content_type_id: '',
+      content: '',
+      image: null
+    };
+    this.isAddPopupOpen = true;
+    this.getAllContentTypes(); // load danh sách loại nội dung
+  }
+
+  closeAddPopup() {
+    this.isAddPopupOpen = false;
+  }
+
+  onAddSubmit() {
+    const formData = new FormData();
+    formData.append('title', this.newContent.title);
+    formData.append('content_type_id', this.newContent.content_type_id);
+    formData.append('content', this.newContent.content || '');
+    if (this.newContent.image) {
+      formData.append('image', this.newContent.image);
+    }
+
+    this.websitecontentService.createContent(formData).subscribe({
+      next: () => {
+        this.isAddPopupOpen = false;
+        this.getAllContents(); // reload lại danh sách
+      },
+      error: (err: any) => console.error(err)
+    });
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.newContent.image = file;
+    }
+  }
+
+getAllContentTypes() {
+  this.contentTypeService.getAll().subscribe({
+    next: (res: any) => {
+      this.contentTypes = Array.isArray(res.data) ? res.data : [];
+    },
+    error: err => console.error(err)
+  });
+}
+
+  // sửa
+  isEditPopupOpen = false;
+  editContent: any = null;
+
+onEdit(content: any) {
+  console.log('Sửa content:', content);
+
+  this.editContent = {
+    _id: content._id,
+    title: content.title || '',
+    content_type_id: content.content_type_id || '',
+    content: content.content || '',
+    image: content.image || '',
+    newImage: null
+  };
+
+  this.isEditPopupOpen = true;
+  this.getAllContentTypes();
+}
+
+
+
+  onEditFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.editContent.newImage = file;
+    }
+  }
+
+  onEditSubmit() {
+    const formData = new FormData();
+    formData.append('title', this.editContent.title);
+    formData.append('content_type_id', this.editContent.content_type_id);
+    formData.append('content', this.editContent.content || '');
+    if (this.editContent.newImage) {
+      formData.append('image', this.editContent.newImage);
+    }
+
+    this.websitecontentService.updateContent(this.editContent._id, formData).subscribe({
+      next: () => {
+        this.isEditPopupOpen = false;
+        this.getAllContents(); // refresh list
+      },
+      error: (err: any) => console.error(err)
+    });
+  }
 }
 
 

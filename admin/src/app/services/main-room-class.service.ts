@@ -11,11 +11,26 @@ export class MainRoomClassService {
 
   constructor(private httpClient: HttpClient) { }
 
-  getAllMainRoomClasses(): Observable<{ message: string, data: MainRoomClass[] }> {
-    return this.httpClient.get<{ message: string, data: MainRoomClass[] }>(
-      `${this.url}/main-room-class`
-    );
+
+getAllMainRoomClasses(
+  search: string = '',
+  status?: boolean,
+  sort: string = 'createdAt',
+  order: 'asc' | 'desc' = 'asc'
+): Observable<{ message: string, data: MainRoomClass[] }> {
+  const params: any = { search, sort, order };
+  if (status !== undefined) {
+    params.status = status.toString();
   }
+
+  return this.httpClient.get<{ message: string, data: MainRoomClass[] }>(
+    `${this.url}/main-room-class`,
+    { params }
+  );
+}
+
+
+
   getMainRoomClassById(id: string): Observable<{ message: string, data: MainRoomClass }> {
     return this.httpClient.get<{ message: string, data: MainRoomClass }>(
       `${this.url}/main-room-class/${id}`
