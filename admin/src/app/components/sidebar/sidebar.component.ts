@@ -10,9 +10,10 @@ import { Router, RouterModule } from '@angular/router';
 export class SidebarComponent {
   constructor(private router: Router) {}
 
-  // logout() {
-  //   localStorage.removeItem('login');
-  //   this.router.navigate(['/login']);
-  // }
+  logout() {
+    localStorage.removeItem('login');
+    alert('Bạn đã đăng xuất');
+    this.router.navigate(['/login']);
+  }
 
 }

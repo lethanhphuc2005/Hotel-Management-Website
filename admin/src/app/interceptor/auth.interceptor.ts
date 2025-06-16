@@ -35,7 +35,6 @@ const accessToken = loginData?.data?.accessToken;
 const refreshToken = loginData?.data?.refreshToken;
 
 if (isProtectedAPI && !accessToken) {
-  alert('Phiên đăng nhập đã hết. Vui lòng đăng nhập lại!');
   location.assign('/login');
   return EMPTY;
 }

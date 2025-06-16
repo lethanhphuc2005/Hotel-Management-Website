@@ -18,7 +18,8 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
   }
 logout() {
-  this.authService.logout(); // gọi hàm logout từ service (đã có sẵn)
+  localStorage.removeItem('login');
+  this.authService.logout();
+  alert('Bạn đã đăng xuất');
 }
-
 }

@@ -74,10 +74,4 @@ export class LoginComponent implements OnInit {
     this.isRegister = !this.isRegister;
   }
 
-  logout() {
-    localStorage.removeItem('login');
-    alert('Bạn đã đăng xuất');
-    this.router.navigate(['/login']); // Optional, nếu đang ở trang khác
-  }
-
 }
