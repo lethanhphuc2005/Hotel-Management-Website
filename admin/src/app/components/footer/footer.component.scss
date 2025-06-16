@@ -1,0 +1,45 @@
+.footerWrapper {
+  color: #d0d4e7;
+  background-image: url('/assets/img/ft1.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding-bottom: 40px;
+  background-color: rgba(0, 0, 0, 0.6); // lớp đen mờ
+  background-blend-mode: darken;        // trộn màu tối với ảnh
+  position: relative;
+}
+
+.quick {
+  margin-top: 37px;
+  padding-left: 5rem;
+}
+
+.send {
+  margin-top: 37px;
+}
+
+.emailInput {
+  width: 328px;
+  height: 57px;
+  background-color: #d0d4e7;
+  padding: 20px;
+  outline: none;
+  color: black;
+}
+
+.sendButton {
+  width: 104px;
+  height: 57px;
+  background-color: #fab320;
+}
+
+.socialIcons a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.socialIcons a:hover {
+  color: #fab320;
+}

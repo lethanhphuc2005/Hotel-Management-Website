@@ -1,0 +1,132 @@
+<div class="website-content-card">
+  <h2>Quản lý đánh giá</h2>
+
+  <div class="room-controls">
+    <input type="text" placeholder="Tìm kiếm đánh giá..." [(ngModel)]="searchKeyword" (input)="onSearch()" />
+  </div>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Người đánh giá</div>
+    <div>Nội dung</div>
+    <div>Điểm</div>
+    <div>Nhân viên trả lời</div>
+    <div>Ngày cập nhật</div>
+    <div>Hành động</div>
+  </div>
+
+
+  <div class="table-row" *ngFor="let review of filteredReviews; let i = index">
+    <div>{{ i + 1 }}</div>
+    <div (click)="onViewDetail(review)">
+      {{ getReviewerName(review) }}
+    </div>
+    <div>{{ review.content }}</div>
+    <div>{{ review.rating || '-' }}</div>
+
+    <div>
+      <ng-container *ngIf="review.replies?.length > 0">
+        <div *ngFor="let reply of review.replies">
+          <span>{{ getReviewerName(reply) }}</span>
+        </div>
+      </ng-container>
+      <span *ngIf="!review.replies?.length">-</span>
+    </div>
+
+    <div>{{ review.updatedAt | date:'dd/MM/yyyy' }}</div>
+
+    <div class="status-column">
+      <label class="switch">
+        <input type="checkbox" [checked]="review.status !== false" (change)="onToggleVisibility(review)">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Popup chi tiết đánh giá -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedReview">
+    <div class="popup-content">
+      <h2>Chi tiết đánh giá</h2>
+
+      <div class="popup-section">
+        <label>Người đánh giá:</label>
+        <span>
+          {{
+          selectedReview.user_id
+          ? (selectedReview.user_id.first_name + ' ' + selectedReview.user_id.last_name)
+          : (selectedReview.employee_id
+          ? (selectedReview.employee_id.first_name + ' ' + selectedReview.employee_id.last_name)
+          : 'Không xác định')
+          }}
+        </span>
+      </div>
+
+      <div class="popup-section" *ngIf="selectedReview.user_id">
+        <label>Email người dùng:</label>
+        <span>{{ selectedReview.user_id.email }}</span>
+      </div>
+
+      <div class="popup-section" *ngIf="selectedReview.employee_id">
+        <label>Email nhân viên:</label>
+        <span>{{ selectedReview.employee_id.email }}</span>
+      </div>
+
+      <div class="popup-section"
+        *ngIf="selectedReview.user_id?.phone_number || selectedReview.employee_id?.phone_number">
+        <label>Điện thoại:</label>
+        <span>{{ selectedReview.user_id?.phone_number || selectedReview.employee_id?.phone_number }}</span>
+      </div>
+
+      <div class="popup-section" *ngIf="selectedReview.booking_id">
+        <label>Đặt phòng:</label>
+        <span>
+          Từ {{ selectedReview.booking_id.check_in_date | date:'dd/MM/yyyy' }}
+          đến {{ selectedReview.booking_id.check_out_date | date:'dd/MM/yyyy' }}
+          ({{ selectedReview.booking_id.booking_status_id?.name || 'Không rõ trạng thái' }})
+        </span>
+      </div>
+
+      <div class="popup-section">
+        <label>Điểm đánh giá:</label>
+        <span>{{ selectedReview.rating ?? 'Chưa có' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Trạng thái:</label>
+        <span>{{ selectedReview.status ? 'Hiển thị' : 'Ẩn' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Ngày tạo:</label>
+        <span>{{ selectedReview.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Ngày cập nhật:</label>
+        <span>{{ selectedReview.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Nội dung:</label>
+        <div style="white-space: pre-line; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+          {{ selectedReview.content }}
+        </div>
+      </div>
+      <div class="popup-section" *ngIf="selectedReview.replies?.length">
+        <label>Phản hồi:</label>
+        <div *ngFor="let reply of selectedReview.replies"
+          style="margin-bottom: 12px; padding-left: 10px; border-left: 2px solid #ccc;">
+          <div>
+            <strong>{{ getReviewerName(reply) }}:</strong>
+          </div>
+          <div>{{ reply.content }}</div>
+          <div style="font-size: 12px; color: gray;">
+            {{ reply.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+          </div>
+        </div>
+      </div>
+
+
+      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+    </div>
+  </div>

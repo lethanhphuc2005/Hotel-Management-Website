@@ -34,4 +34,9 @@ export class CommentService {
   getCommentById(id: string): Observable<any> {
     return this.http.get(`${this.API_URL}/${id}`);
   }
+
+  toggleStatus(id: string) {
+  return this.http.put(`${this.API_URL}/toggle/${id}`, {});
+  }
+
 }

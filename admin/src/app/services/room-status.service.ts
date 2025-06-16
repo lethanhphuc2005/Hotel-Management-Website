@@ -14,4 +14,6 @@ export class RoomStatusService {
   getAllRoomStatuses(): Observable<any> {
     return this.http.get(this.apiUrl);
   }
+
+
 }

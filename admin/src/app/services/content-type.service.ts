@@ -2,7 +2,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ContentType } from '../models/content-type';
+import { ContentType, ContentTypeResponse } from '../models/content-type';
+
 
 
 @Injectable({
@@ -13,17 +14,19 @@ export class ContentTypeService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ContentType[]> {
-    return this.http.get<ContentType[]>(this.apiUrl);
-  }
+getAll(): Observable<ContentTypeResponse> {
+  return this.http.get<ContentTypeResponse>(this.apiUrl);
+}
+
 
   add(contentType: Partial<ContentType>): Observable<any> {
     return this.http.post(this.apiUrl, contentType);
   }
 
-  update(id: string, contentType: Partial<ContentType>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, contentType);
-  }
+ updateContent(id: string, data: FormData) {
+  return this.http.put(`/v1/content/${id}`, data);
+}
+
 
   delete(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);

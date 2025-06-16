@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import style from "./page.module.css";
-import { RoomClassSaleList, MainRoomClassList, ServiceList } from "./components/roomList";
+import { DiscountList, MainRoomClassList, ServiceList } from "./components/roomList";
 import { Banner } from "./components/bannerItem";
 import RoomSearchBar from "./components/roomSearchBar";
 import { useRoomSearch } from './hooks/useRoomSearch';
@@ -16,9 +16,16 @@ export default function Home() {
     guests, setGuests,
     showCalendar, setShowCalendar,
     showGuestBox, setShowGuestBox,
-    guestBoxRef, calendarRef
+    guestBoxRef, calendarRef,
+    maxGuests, setMaxGuests,
+    totalGuests,
+    numberOfNights, setNumberOfNights,
+    totalPrice, setTotalPrice,
+    hasSearched, setHasSearched,
+    pendingGuests, setPendingGuests,
+    pendingDateRange, setPendingDateRange
   } = useRoomSearch();
-  const { websitecontent, mainroomclass, services, roomclass } = useData();
+  const { websitecontent, mainroomclass, services, discount } = useData();
   return (
     <>
       <Banner banners={websitecontent} />
@@ -34,7 +41,21 @@ export default function Home() {
           setShowGuestBox={setShowGuestBox}
           guestBoxRef={guestBoxRef}
           calendarRef={calendarRef}
+          maxGuests={maxGuests}
+          setMaxGuests={setMaxGuests}
+          totalGuests={totalGuests}
+          numberOfNights={numberOfNights}
+          setNumberOfNights={setNumberOfNights}
+          totalPrice={totalPrice}
+          setTotalPrice={setTotalPrice}
+          hasSearched={hasSearched}
+          setHasSearched={setHasSearched}
+          pendingGuests={pendingGuests}
+          setPendingGuests={setPendingGuests}
+          pendingDateRange={pendingDateRange}
+          setPendingDateRange={setPendingDateRange}
         />
+
       </div>
       <Container fluid className={`${style.customContainer} container`}>
         {/* LOẠI PHÒNG Section */}
@@ -61,7 +82,7 @@ export default function Home() {
           <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
         </div>
         <Row className="g-4 justify-content-center">
-          <RoomClassSaleList rcsl={roomclass.slice(0,4)} />
+          <DiscountList dcl={discount.slice(0, 3)} />
         </Row>
         <br />
         <br />

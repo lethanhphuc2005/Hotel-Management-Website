@@ -15,7 +15,6 @@ router.post("/logout", authMiddleware.verifyToken, accountController.logout);
 /// === LẤY REFRESH TOKEN ===
 router.post(
   "/refresh",
-  authMiddleware.verifyToken,
   accountController.requestRefreshToken
 );
 

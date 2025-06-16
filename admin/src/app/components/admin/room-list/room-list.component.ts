@@ -9,12 +9,14 @@ import { StatusService } from '../../../services/status.service';
 import { RoomStatusService } from '../../../services/room-status.service';
 import { FormsModule } from '@angular/forms';
 import { RoomClassService } from '../../../services/room-class.service';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import dayGridPlugin from '@fullcalendar/daygrid';
 
 @Component({
   selector: 'app-room-list',
   templateUrl: './room-list.component.html',
   styleUrls: ['./room-list.component.scss'],
-  imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
+  imports: [RouterModule, CommonModule, HttpClientModule, FormsModule, FullCalendarModule],
   standalone: true
 })
 export class RoomListComponent implements OnInit {
@@ -24,7 +26,6 @@ export class RoomListComponent implements OnInit {
   statuses: Status[] = [];
   showAddPopup!: boolean;
   showDetailPopup = false;
-  rt: any;
   roomStatusList: any[] = [];
   isRoomDetailOpen = false;
   isAddRoomPopupOpen = false;
@@ -32,31 +33,75 @@ export class RoomListComponent implements OnInit {
   roomStatuses: any[] = [];
   selectedRoomClassInfo: any;
   roomClasses: any;
+  selectedFloor: number | null = null;
+  selectedStatus: string | null = null;
+  searchKeyword: string = '';
+  filteredRooms: any[] = [];
+  totalRooms: number = 0;
+  selectedRoomClass: string = '';
+  allRooms: Room[] = []; // chứa tất cả dữ liệu gốc từ API
+  filter: {
+    check_in_date?: string;
+    check_out_date?: string;
+    room_status_id?: string;
+    room_class_id?: string;
+    status?: string;
+    keyword?: string;
+  } = {
+      check_in_date: '',
+      check_out_date: '',
+      room_status_id: '',
+      room_class_id: '',
+      status: '',
+      keyword: ''
+    };
+
+  bookingService: any;
+  calendarOptions: any = {
+    initialView: 'dayGridMonth',
+    events: [],
+    height: 'auto',
+    locale: 'vi'
+  };
+
 
   constructor(
     private roomService: RoomService,
-    private statusService: StatusService,
+    // private statusService: StatusService,
     private roomStatusService: RoomStatusService,
-    private roomClassService: RoomClassService // 🆕 inject status service
+    private roomClassService: RoomClassService
   ) { }
-
 
   ngOnInit() {
     this.getAllRooms();
-    this.getAllStatus();
+    this.getAllRoomStatuses();
     this.loadRoomStatuses();
     this.getAllRoomClasses();
+    this.getAvailableRooms(); // gọi hàm mới
+  }
+
+  getAvailableRooms() {
+    this.roomStatusService.getAllRoomStatuses().subscribe((statuses: any[]) => {
+      const emptyStatus = statuses.find(s => s.name === 'Đang trống');
+      if (emptyStatus) {
+        const availableRooms = emptyStatus.rooms;
+        console.log('Phòng trống:', availableRooms);
+      }
+    });
   }
 
   getAllRooms(): void {
     this.roomService.getAllRooms().subscribe({
       next: (res: any) => {
-        this.rooms = res.data; // 👈 lấy mảng data
+        this.rooms = res.data;
+        this.filterRooms();
         console.log('Danh sách phòng:', this.rooms);
+        console.log('Tất cả trạng thái phòng:', this.rooms.map(room => room.room_status_id));
       },
       error: (err) => console.error('Lỗi khi lấy danh sách phòng:', err),
     });
   }
+
 
   getAllRoomClasses() {
     this.roomClassService.getAllRoomClass().subscribe({
@@ -69,14 +114,20 @@ export class RoomListComponent implements OnInit {
     });
   }
 
-  getAllStatus(): void {
-    this.statusService.getAllStatus().subscribe({
-      next: (res: Status[]) => this.statuses = res,
-      error: (err: any) => console.error('Lỗi khi lấy trạng thái:', err)
+  // lấy tất cả trạng thái
+  getAllRoomStatuses(): void {
+    this.roomStatusService.getAllRoomStatuses().subscribe({
+      next: (res: any) => {
+        this.roomStatuses = res.data;
+      },
+      error: (err: any) => {
+        console.error('Lỗi khi lấy room status:', err);
+      }
     });
   }
 
-  // 🆕 Hàm lấy tên trạng thái từ ID
+
+  // Hàm lấy tên trạng thái từ ID
   getStatusName(id: string): string {
     return this.statuses.find(s => s._id === id)?.name || 'Không rõ';
   }
@@ -110,22 +161,21 @@ export class RoomListComponent implements OnInit {
   viewRoomDetail(room: any) {
     this.selectedRoom = room;
     this.isRoomDetailOpen = true;
+
+    this.bookingService.getBookedDates(room._id).subscribe((res: { data: string[] }) => {
+      const events = res.data.map((dateStr: string) => ({
+        title: 'Đã đặt',
+        start: dateStr.split('T')[0],
+        allDay: true,
+        color: '#f87171' // đỏ
+      }));
+
+      this.calendarOptions = {
+        ...this.calendarOptions,
+        events
+      };
+    });
   }
-
-  //   toggleRoomStatus(room: any) {
-  //   const newStatus = !room.status;
-
-  //   this.roomService.updateRoomStatus(room._id, { status: newStatus }).subscribe({
-  //     next: () => {
-  //       room.status = newStatus;
-  //       console.log('Cập nhật trạng thái hiển thị phòng thành công');
-  //     },
-  //     error: (err) => {
-  //       console.error('Lỗi khi cập nhật trạng thái phòng:', err);
-  //     }
-  //   });
-  // }
-
 
   loadRoomStatuses() {
     this.roomStatusService.getAllRoomStatuses().subscribe({
@@ -136,7 +186,9 @@ export class RoomListComponent implements OnInit {
         console.error('Lỗi khi load roomStatuses:', err);
       }
     });
+
   }
+
 
   onRoomClassChange(selectedId: string) {
     const selected = this.roomClasses.find((rc: { _id: string; }) => rc._id === selectedId);
@@ -152,27 +204,30 @@ export class RoomListComponent implements OnInit {
 
 
   onAddRoomSubmit() {
-    const defaultStatus = this.roomStatusList.find(s => s.name === 'Đang trống');
-    const defaultStatusId = defaultStatus?._id;
-
-    if (!defaultStatusId) {
-      console.error('Không tìm thấy trạng thái "Đang trống"');
+    if (!this.newRoom.room_status_id) {
+      alert("Vui lòng chọn trạng thái phòng.");
       return;
     }
 
-    const data = {
-      ...this.newRoom,
-      room_status_id: defaultStatusId
+    const payload = {
+      name: this.newRoom.name,
+      floor: this.newRoom.floor,
+      room_class_id: this.newRoom.room_class_id,
+      room_status_id: this.newRoom.room_status_id
     };
 
-    this.roomService.addRoom(data).subscribe({
+    this.roomService.addRoom(payload).subscribe({
       next: () => {
-        this.loadRooms();
         this.closeAddRoomPopup();
+        this.loadRooms(); // Reload lại danh sách phòng
       },
-      error: (err) => console.error('Lỗi khi thêm phòng:', err)
+      error: (err) => {
+        console.error('Lỗi khi thêm phòng:', err);
+      }
     });
+
   }
+
 
   // sửa
   isEditRoomPopupOpen = false;
@@ -221,6 +276,50 @@ export class RoomListComponent implements OnInit {
     this.editRoomData = {};
     this.selectedEditRoomClassInfo = null;
   }
+
+  // lọc
+  filterRooms() {
+    this.filteredRooms = this.rooms.filter(room => {
+      const matchStatus = this.filter.room_status_id ? room.room_status_id === this.filter.room_status_id : true;
+      const matchClass = this.filter.room_class_id ? room.room_class_id === this.filter.room_class_id : true;
+      const matchKeyword = this.filter.keyword ? room.name?.toLowerCase().includes(this.filter.keyword.toLowerCase()) : true;
+      return matchStatus && matchClass && matchKeyword;
+    });
+
+    console.log('Kết quả lọc:', this.filteredRooms);
+  }
+
+
+
+  filterByDate() {
+    const params: any = {};
+
+    if (this.filter.check_in_date)
+      params.check_in_date = new Date(this.filter.check_in_date).toISOString();
+
+    if (this.filter.check_out_date)
+      params.check_out_date = new Date(this.filter.check_out_date).toISOString();
+
+    if (this.filter.room_status_id)
+      params.room_status_id = this.filter.room_status_id;
+
+    if (this.filter.room_class_id)
+      params.room_class_id = this.filter.room_class_id;
+
+    if (this.filter.keyword)
+      params.keyword = this.filter.keyword;
+
+    this.roomService.getRooms(params).subscribe({
+      next: (res) => {
+        this.filteredRooms = res.data;
+        console.log('Phòng trống trong khoảng ngày:', this.filteredRooms);
+      },
+      error: (err) => {
+        console.error('Lỗi khi lọc phòng trống:', err);
+      },
+    });
+  }
+
 
 }
 

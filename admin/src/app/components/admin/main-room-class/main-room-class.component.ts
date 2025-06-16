@@ -25,6 +25,14 @@ export class MainRoomClassComponent implements OnInit {
   errorMessage: string | null = null;
   selectedMainRoom: MainRoomClass | null = null;
   isDetailPopupOpen = false;
+  searchKeyword: string = '';
+  suggestions: MainRoomClass[] = [];
+  showSuggestions: boolean = false;
+  hovered: string = '';
+  statusFilterString: string = '';
+  statusFilter: boolean | undefined = undefined;
+  sortField: string = 'status';
+  sortOrder: 'asc' | 'desc' = 'asc';
 
 
   constructor(private mainRoomClassService: MainRoomClassService, private imageService: ImageService) { }
@@ -34,21 +42,68 @@ export class MainRoomClassComponent implements OnInit {
   }
 
   getAllMainRoomClasses(): void {
-    this.mainRoomClassService.getAllMainRoomClasses().subscribe({
+    this.mainRoomClassService.getAllMainRoomClasses(
+      this.searchKeyword,
+      this.statusFilter,
+      this.sortField,
+      this.sortOrder
+    ).subscribe({
       next: (res) => {
-        this.mainRoomClasses = res.data; // ✅ Lấy đúng mảng
-        console.log('Main room classes:', this.mainRoomClasses);
+        this.mainRoomClasses = res.data;
       },
       error: (err) => {
-        this.errorMessage = 'Lỗi khi load loại phòng chính: ' + (err.message || err.statusText || 'Unknown error');
+        console.error(err);
       }
     });
   }
 
-  // onEdit(item: MainRoomClass) {
-  //   // Mở popup edit
-  //   console.log('Edit:', item);
-  // }
+
+  onStatusChange(): void {
+    if (this.statusFilterString === '') {
+      this.statusFilter = undefined;
+    } else {
+      this.statusFilter = this.statusFilterString === 'true';
+    }
+    this.getAllMainRoomClasses();
+  }
+
+  // Toggle sort order
+  toggleSortOrder() {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.getAllMainRoomClasses();
+  }
+
+  // Change status filter (via dropdown/button)
+  setStatusFilter(value: 'all' | 'active' | 'inactive') {
+    if (value === 'all') this.statusFilter = undefined;
+    else this.statusFilter = value === 'active';
+    this.getAllMainRoomClasses();
+  }
+
+  clearSearch() {
+    this.searchKeyword = '';
+    this.onSearchInput(); // để cập nhật lại danh sách nếu có lọc
+  }
+
+  onSearch(): void {
+    this.getAllMainRoomClasses();
+  }
+  onSearchInput(): void {
+    if (!this.searchKeyword.trim()) {
+      this.suggestions = [];
+      return;
+    }
+
+    this.mainRoomClassService.getAllMainRoomClasses(this.searchKeyword).subscribe({
+      next: (res) => {
+        this.suggestions = res.data;
+      },
+      error: (err) => {
+        console.error('Lỗi lấy danh sách gợi ý loại phòng chính', err);
+      }
+    });
+  }
+
 
   toggleMainRoomClass(mainRoomClass: any): void {
     const newStatus = !mainRoomClass.status; // Đảo trạng thái boolean
@@ -58,6 +113,16 @@ export class MainRoomClassComponent implements OnInit {
         mainRoomClass.status = newStatus;
       },
       error: (err) => {
+        const message = err?.error?.message || 'Lỗi không xác định';
+
+        if (message.includes("đang được sử dụng")) {
+          alert(" Không thể vô hiệu hóa loại phòng chính này vì đang có loại phòng con đang được sử dụng.");
+        } else if (message.includes("có loại phòng con")) {
+          alert(" Không thể vô hiệu hóa loại phòng chính vì nó vẫn còn loại phòng con.");
+        } else {
+          alert(" Có lỗi xảy ra khi cập nhật trạng thái:\n" + message);
+        }
+
         console.error('Lỗi khi cập nhật trạng thái loại phòng:', err);
       }
     });
@@ -152,7 +217,7 @@ export class MainRoomClassComponent implements OnInit {
     description: string;
     status: boolean;
     images: RoomClassImage[];
-    room_class_list: RoomClass[]; // ✅ Đúng cú pháp kiểu
+    room_class_list: RoomClass[]; 
   } = {
       _id: '',
       name: '',
@@ -164,6 +229,14 @@ export class MainRoomClassComponent implements OnInit {
 
   editImageUrl = '';
 
+  // xoá ảnh hiện tại
+  removeEditImage() {
+    this.editImageUrl = '';
+    this.editSelectedFile = null;
+    this.editMainRoom.images = [];
+  }
+
+
   onEdit(item: MainRoomClass) {
     this.editMainRoom = {
       _id: item._id,
@@ -171,53 +244,38 @@ export class MainRoomClassComponent implements OnInit {
       description: item.description,
       status: item.status,
       images: item.images || [],
-      room_class_list: item.room_class_list || [] // ✅ Gán giá trị, không phải kiểu
+      room_class_list: item.room_class_list || []
     };
     this.editImageUrl = item.images?.[0]?.url || '';
     this.isEditPopupOpen = true;
   }
 
   onEditSubmit() {
-    const updatedRoom: MainRoomClass = {
-      _id: this.editMainRoom._id,
-      name: this.editMainRoom.name,
-      description: this.editMainRoom.description,
-      status: this.editMainRoom.status,
-      images: this.editMainRoom.images || [],
-      room_class_list: this.editMainRoom.room_class_list || [],
-      room_classes: undefined
-    };
+    const formData = new FormData();
+    formData.append('name', this.editMainRoom.name);
+    formData.append('description', this.editMainRoom.description);
+    // formData.append('status', this.editMainRoom.status ? 'true' : 'false');
+    // console.log(this.editMainRoom.status)
 
-    // Nếu có file mới, gửi FormData để update kèm ảnh
+    // Nếu có ảnh mới
     if (this.editSelectedFile) {
-      const formData = new FormData();
-      formData.append('name', updatedRoom.name);
-      formData.append('description', updatedRoom.description);
-      formData.append('status', updatedRoom.status ? 'true' : 'false');
-      formData.append('image', this.editSelectedFile);
-
-      this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, formData).subscribe({
-        next: () => {
-          this.getAllMainRoomClasses();
-          this.isEditPopupOpen = false;
-          this.editSelectedFile = null;
-        },
-        error: (err) => {
-          alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
-        }
-      });
-    } else {
-      // Không đổi ảnh, chỉ update thông tin
-      this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, updatedRoom).subscribe({
-        next: () => {
-          this.getAllMainRoomClasses();
-          this.isEditPopupOpen = false;
-        },
-        error: (err) => {
-          alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
-        }
-      });
+  formData.append('image', this.editSelectedFile);
+    } else if (this.editImageUrl) {
+      // Gửi lại URL ảnh cũ nếu backend chấp nhận
+      formData.append('existingImageUrl', this.editImageUrl);
     }
+
+    this.mainRoomClassService.updateMainRoomClass(this.editMainRoom._id, formData).subscribe({
+      next: () => {
+        this.getAllMainRoomClasses();
+        this.isEditPopupOpen = false;
+        this.editSelectedFile = null;
+        this.editImageUrl = '';
+      },
+      error: (err) => {
+        alert('Cập nhật loại phòng chính thất bại: ' + (err.error?.message || err.message || err.statusText));
+      }
+    });
   }
 
   selectedFile: File | null = null;
@@ -235,6 +293,8 @@ export class MainRoomClassComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.editSelectedFile = file;
+      this.editImageUrl = URL.createObjectURL(file); // để preview
     }
   }
+
 }
