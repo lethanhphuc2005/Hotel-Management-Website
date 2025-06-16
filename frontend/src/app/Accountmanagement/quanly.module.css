@@ -1,0 +1,196 @@
+.container {
+  background: #fef3f8;
+  min-height: 100vh;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  margin-top: 100px;
+}
+
+.settingsWrapper {
+  display: flex;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 1800px;
+  width: 100%;
+}
+
+.sidebar {
+  padding: 20px;
+  width: 250px;
+  background: linear-gradient(to bottom, #fff, #ffeaf5); /* màu nền hồng nhạt */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;  /* đảm bảo căn trái */
+  justify-content: flex-start; /* đảm bảo không bị đẩy xuống dưới */
+  height: 100%; /* thêm dòng này */
+}
+
+
+.sidebar h2 {
+  font-size: 22px;
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.sidebar li {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.sidebar li:hover {
+  background-color: transparent;
+  color: #fbbc04;
+}
+
+.sidebar .active {
+  color: #fbbc04;
+  background-color: transparent;
+  font-weight: bold;
+}
+
+.mainContent {
+  flex: 3;
+  padding: 40px;
+}
+
+.header h2 {
+  font-size: 26px;
+  margin-bottom: 30px;
+}
+
+.section h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f0a0c0;
+}
+
+.uploadText {
+  color: #0070f3;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.removeText {
+  color: #e53e3e;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.infoRow {
+  margin-bottom: 20px;
+}
+
+.infoRow label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.infoRow input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fdfdfd;
+  color: black;
+}
+
+.notificationRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.deleteBtn {
+  background-color: black;
+  color: white;
+  padding: 8px 16px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.deleteBtn:hover {
+  background-color: #333;
+}
+
+.editBtn {
+  background-color: #fbbc04;
+  color: black;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.editBtn:hover {
+  background-color: #f9a602;
+}
+
+.bookedList {
+  list-style: none;
+  padding-left: 0;
+}
+
+.logoutWrapper {
+  margin-top: auto;
+  text-align: center;
+}
+
+.logoutBtn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background-color: #c0392b;
+}
+.logoutBtn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background-color: #c0392b;
+}

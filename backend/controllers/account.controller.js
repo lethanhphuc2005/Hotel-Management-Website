@@ -88,6 +88,12 @@ const accountController = {
       const newAccountToSave = new User({
         email: req.body.email,
         password: hashPassword,
+        first_name: req.body.first_name,
+        phone_number: req.body.phone_number,
+        address: req.body.address,
+        last_name: req.body.last_name,
+        request: req.body.request,
+        status: true, // mặc định là true hoặc bạn xử lý theo logic riêng
       });
       // Lưu vào database bằng hàm save()
       const savedAccount = await newAccountToSave.save();
@@ -142,9 +148,8 @@ const accountController = {
           .status(403)
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
-
-      const isMatch = bcrypt.compare(req.body.password, checkUser.password);
-      if (!isMatch) return res.status(400).json("Sai mật khẩu");
+      const isMatch = await bcrypt.compare(req.body.password, checkUser.password);
+      if (!isMatch) return res.status(400).json({ message: "Sai mật khẩu" });
       if (checkUser && isMatch) {
         const accessToken = accountController.creareToken(checkUser);
         const refreshToken = accountController.creareRefreshToken(checkUser);

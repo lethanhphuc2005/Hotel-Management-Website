@@ -1,16 +1,33 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import styles from './Login.module.css';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import styles from "./Login.module.css";
+import { useRouter } from "next/navigation"; // ✅
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { login } = useAuth();
+  const [message, setMessage] = useState<string>("");
+  const router = useRouter(); // ✅
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Đăng nhập với email:", email, "và password:", password);
-  };
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  try {
+    const success = await login(email, password);
+    if (!success) {
+      setMessage("❌ Email hoặc mật khẩu không đúng.");
+    } else {
+      setMessage("✅ Đăng nhập thành công!");
+      setTimeout(() => {
+        router.push("/");
+      }, 300);
+    }
+  } catch (error) {
+    setMessage("❌ Đã xảy ra lỗi khi đăng nhập.");
+  }
+};
 
   return (
     <div className={styles.container}>
@@ -37,17 +54,31 @@ const LoginPage = () => {
             required
           />
           <p className={styles.infoText}>
-           Chúng tôi sẽ gọi hoặc nhắn tin cho bạn để xác nhận số điện thoại. Có áp dụng phí dữ liệu và tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
+            Chúng tôi sẽ gọi hoặc nhắn tin cho bạn để xác nhận số điện thoại.
+            Có áp dụng phí dữ liệu và tin nhắn tiêu chuẩn. Chính sách quyền riêng tư.
           </p>
 
           <button type="submit" className={styles.continueButton}>Tiếp tục</button>
-           <div className={styles.text}>
-           <p>
-               Bạn chưa có tài khoản?  <a href="">Đăng ký</a>
-          </p>
-              <p>
+
+          {message && (
+            <p
+              style={{
+                color: message.includes("thành công") ? "green" : "red",
+                textAlign: "center",
+                marginTop: "1rem",
+              }}
+            >
+              {message}
+            </p>
+          )}
+
+          <div className={styles.text}>
+            <p>
+              Bạn chưa có tài khoản? <a href="/register">Đăng ký</a>
+            </p>
+            <p>
               <a href="">Quên mật khẩu?</a>
-          </p>
+            </p>
           </div>
         </form>
 
