@@ -51,7 +51,7 @@ onLogin() {
       alert('Dữ liệu không hợp lệ')
   } else {
       this.authService.login(this.loginForm.value).subscribe(data => {
-          // alert('Bạn đã đăng nhập thành công');
+          alert('Bạn đã đăng nhập thành công');
           let jsonData = JSON.stringify(data);
           console.log(jsonData)
           localStorage.setItem('login', jsonData);
