@@ -1,10 +1,37 @@
 <div class="roomtype-management-card">
   <h2>Quản lý loại phòng chính</h2>
 
-  <div class="room-controls">
-    <input type="text" placeholder="Tìm kiếm loại phòng..." />
+  <div class="room-controls" style="display: flex; align-items: center; gap: 8px;">
+    <div style="position: relative; flex: 1;">
+      <input type="text" placeholder="Tìm kiếm loại phòng..." [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
+        style="width: 100%; padding-right: 30px;" />
+    </div>
+
     <button class="add-room" (click)="onAdd()">+ Thêm loại phòng chính</button>
   </div>
+
+  <!-- 🧹 Thanh lọc -->
+  <div class="filter-bar">
+
+    <!-- Lọc trạng thái -->
+    <div>
+      <label for="status">Trạng thái:</label>
+      <select id="status" [(ngModel)]="statusFilterString" (change)="onStatusChange()">
+        <option value="">Tất cả</option>
+        <option value="true">Đang hoạt động</option>
+        <option value="false">Vô hiệu hóa</option>
+      </select>
+    </div>
+
+    <!-- Nút sắp xếp theo trạng thái -->
+    <div>
+      <label>Sắp xếp:</label>
+      <button (click)="toggleSortOrder()">
+        Trạng thái: {{ sortOrder === 'asc' ? '↑' : '↓' }}
+      </button>
+    </div>
+  </div>
+
 
   <!-- Popup Thêm loại phòng chính -->
   <div class="popup-add-popup" *ngIf="isAddPopupOpen">
@@ -113,8 +140,8 @@
       <div class="popup-section">
         <label>Hình ảnh:</label>
         <div class="image-list">
-          <img *ngFor="let img of selectedMainRoom.images" [src]="'http://localhost:8000/' + img.url"
-            alt="Hình ảnh" width="200" />
+          <img *ngFor="let img of selectedMainRoom.images" [src]="'http://localhost:8000/' + img.url" alt="Hình ảnh"
+            width="200" />
         </div>
       </div>
 
@@ -137,17 +164,25 @@
           <textarea id="description" name="description" [(ngModel)]="editMainRoom.description"></textarea>
         </div>
 
-        <div class="popup-section">
+        <!-- <div class="popup-section">
           <label for="status">Trạng thái:</label>
           <select id="status" name="status" [(ngModel)]="editMainRoom.status">
             <option [ngValue]="true">Đang hoạt động</option>
             <option [ngValue]="false">Tạm dừng hoạt động</option>
           </select>
-        </div>
+        </div> -->
 
         <div class="popup-section">
-          <label for="images">Ảnh (URL):</label>
-          <input type="file" id="images" name="images" (change)="onEditFileSelected($event)" />
+          <label for="editImage">Ảnh(Url):</label>
+          <input type="file" id="editImage" (change)="onEditFileSelected($event)" />
+
+          <!-- Hiển thị ảnh preview -->
+          <div class="image-preview" *ngIf="editImageUrl">
+            <div class="image-wrapper">
+              <img [src]="editImageUrl" width="100px" height="100px" />
+              <span class="remove-btn" (click)="removeEditImage()">✖</span>
+            </div>
+          </div>
         </div>
 
         <div class="popup-actions">

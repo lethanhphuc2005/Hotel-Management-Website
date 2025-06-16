@@ -21,7 +21,8 @@ export class ContentTypeComponent implements OnInit {
 
   getContentTypes() {
     this.contentTypeService.getAll().subscribe(data => {
-      this.contentTypes = data;
+      this.contentTypes = data.data;
+
     });
   }
 
