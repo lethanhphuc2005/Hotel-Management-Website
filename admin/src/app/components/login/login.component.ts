@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   isRegister = false;
   loginForm!: FormGroup;
   registerF!: FormGroup;
-  constructor(private authService: AuthService,  private router: Router) {
+  constructor(private authService: AuthService, private router: Router) {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -35,42 +35,49 @@ export class LoginComponent implements OnInit {
   }
   passwordMatchValidator(): ValidatorFn {
     return (formGroup: AbstractControl): ValidationErrors | null => {
-        const password = formGroup.get('password')?.value;
-        const confirmPassword = formGroup.get('rePassword')?.value;
+      const password = formGroup.get('password')?.value;
+      const confirmPassword = formGroup.get('rePassword')?.value;
 
-        if (password !== confirmPassword) {
-            return { mismatch: true };
-        } else {
-            return null;
-        }
+      if (password !== confirmPassword) {
+        return { mismatch: true };
+      } else {
+        return null;
+      }
 
     }
-}
-onLogin() {
-  if (this.loginForm.invalid) {
+  }
+  onLogin() {
+    if (this.loginForm.invalid) {
       alert('Dữ liệu không hợp lệ')
-  } else {
+    } else {
       this.authService.login(this.loginForm.value).subscribe(data => {
-          alert('Bạn đã đăng nhập thành công');
-          let jsonData = JSON.stringify(data);
-          console.log(jsonData)
-          localStorage.setItem('login', jsonData);
-          location.assign('/home');
+        alert('Bạn đã đăng nhập thành công');
+        let jsonData = JSON.stringify(data);
+        console.log(jsonData)
+        localStorage.setItem('login', jsonData);
+        location.assign('/home');
       })
+    }
   }
-}
-onRegister() {
-  if (this.registerF.invalid) {
+  onRegister() {
+    if (this.registerF.invalid) {
       alert('Dữ liệu không hợp lệ')
-  } else {
+    } else {
       this.authService.register(this.registerF.value).subscribe(data => {
-          alert('Bạn đã đăng ký thành công')
+        alert('Bạn đã đăng ký thành công')
       })
+    }
+    console.log(this.registerF)
   }
-  console.log(this.registerF)
-}
   toggleForm() {
     this.isActive = !this.isActive;
     this.isRegister = !this.isRegister;
   }
+
+  logout() {
+    localStorage.removeItem('login');
+    alert('Bạn đã đăng xuất');
+    this.router.navigate(['/login']); // Optional, nếu đang ở trang khác
+  }
+
 }
