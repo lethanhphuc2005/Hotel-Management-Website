@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent implements OnInit {
   isRegister = false;
   loginForm!: FormGroup;
   registerF!: FormGroup;
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(private authService: AuthService, private router: Router, private ToastService: ToastService) {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -48,14 +49,17 @@ export class LoginComponent implements OnInit {
   }
   onLogin() {
     if (this.loginForm.invalid) {
-      alert('Dữ liệu không hợp lệ')
+      this.ToastService.show('Lỗi', 'Dữ liệu không hợp lệ', 'error');
+      return;
     } else {
       this.authService.login(this.loginForm.value).subscribe(data => {
-        alert('Bạn đã đăng nhập thành công');
+        this.ToastService.show('Thành công', 'Đăng nhập thành công', 'success');
         let jsonData = JSON.stringify(data);
         console.log(jsonData)
         localStorage.setItem('login', jsonData);
-        location.assign('/home');
+        setTimeout(() => {
+          this.router.navigate(['/home']);
+        }, 2000);
       })
     }
   }

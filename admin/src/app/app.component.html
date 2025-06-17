@@ -1,6 +1,8 @@
-<app-header></app-header>
-<app-sidebar></app-sidebar>
+<app-toast
+  [title]="toastTitle"
+  [message]="toastMessage"
+  [visible]="showToast"
+  [type]="toastType">
+</app-toast>
+
 <router-outlet></router-outlet>
-<app-footer></app-footer>
-
-

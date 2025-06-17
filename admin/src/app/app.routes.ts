@@ -21,36 +21,48 @@ import { BookingComponent } from './components/admin/booking/booking.component';
 import { BookingMethodComponent } from './components/admin/booking-method/booking-method.component';
 import { BookingStatusComponent } from './components/admin/booking-status/booking-status.component';
 import { ReviewComponent } from './components/admin/review/review.component';
+import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 export const routes: Routes = [
-  { path: 'header', component: HeaderComponent },
-  { path: 'footer', component: FooterComponent },
-  { path: 'sidebar', component: SidebarComponent },
-  { path: 'home', component: HomeComponent },
+  // Trang login riêng biệt, không có layout
   { path: 'login', component: LoginComponent },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+
+  // Layout mặc định với header, sidebar, footer
   {
-    path: 'admin', component: AdminLayoutComponent, canActivate: [AuthGuard],
+    path: '',
+    component: MainLayoutComponent,
     children: [
-          { path: 'room-list', component: RoomListComponent },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: HomeComponent },
+      {
+        path: 'admin',
+        component: AdminLayoutComponent,
+        canActivate: [AuthGuard],
+        children: [
+          { path: 'room', component: RoomListComponent },
           { path: 'main-room-class', component: MainRoomClassComponent },
-          { path: 'room-class-list', component: RoomClassListComponent },
-          { path:'user', component: UserComponent },
-          { path:'websitecontent', component: WebsitecontentComponent },
-          { path:'content-type', component: ContentTypeComponent },
-          { path:'booking', component: BookingComponent },
-          { path:'booking-method', component: BookingMethodComponent },
-          { path:'booking-status', component: BookingStatusComponent },
-          { path:'service', component: ServiceComponent },
-          { path:'discount', component: DiscountComponent },
-          { path:'employee', component: EmployeeComponent },
-          { path:'review', component: ReviewComponent },
-          { path:'comment', component: CommentComponent,
-             children: [
-                 { path:'comment-item', component: CommentItemComponent}
-             ]
+          { path: 'room-class', component: RoomClassListComponent },
+          { path: 'user', component: UserComponent },
+          { path: 'website-content', component: WebsitecontentComponent },
+          { path: 'content-type', component: ContentTypeComponent },
+          { path: 'booking', component: BookingComponent },
+          { path: 'booking-method', component: BookingMethodComponent },
+          { path: 'booking-status', component: BookingStatusComponent },
+          { path: 'service', component: ServiceComponent },
+          { path: 'discount', component: DiscountComponent },
+          { path: 'employee', component: EmployeeComponent },
+          { path: 'review', component: ReviewComponent },
+          {
+            path: 'comment',
+            component: CommentComponent,
+            children: [
+              { path: 'comment-item', component: CommentItemComponent },
+            ],
           },
-    ]
+        ],
+      },
+    ],
   },
+
+  // Redirect khi không khớp route nào
   { path: '**', redirectTo: '/home' },
 ];
-
