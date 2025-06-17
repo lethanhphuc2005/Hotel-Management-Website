@@ -14,30 +14,31 @@ export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
- const isAuthApi = req.url.includes('/auth/login') || req.url.includes('/auth/register');
-const isProtectedAPI = req.url.includes('/v1/') && !isAuthApi;
+  const isAuthApi =
+    req.url.includes('/auth/login') || req.url.includes('/auth/register');
+  const isProtectedAPI = req.url.includes('/v1/') && !isAuthApi;
 
-const http = inject(HttpClient);
+  const http = inject(HttpClient);
 
-let loginData: any = null;
+  let loginData: any = null;
 
-try {
-  const loginDataStr = localStorage.getItem('login');
-  if (loginDataStr) {
-    loginData = JSON.parse(loginDataStr);
+  try {
+    const loginDataStr = localStorage.getItem('login');
+    if (loginDataStr) {
+      loginData = JSON.parse(loginDataStr);
+    }
+  } catch (error) {
+    console.error('Lỗi parse localStorage:', error);
+    // localStorage.removeItem('login');
   }
-} catch (error) {
-  console.error('Lỗi parse localStorage:', error);
-  localStorage.removeItem('login');
-}
 
-const accessToken = loginData?.data?.accessToken;
-const refreshToken = loginData?.data?.refreshToken;
+  const accessToken = loginData?.data?.accessToken;
+  const refreshToken = loginData?.data?.refreshToken;
 
-if (isProtectedAPI && !accessToken) {
-  location.assign('/login');
-  return EMPTY;
-}
+  if (isProtectedAPI && !accessToken) {
+    location.assign('/login');
+    return EMPTY;
+  }
   // 👉 Clone request và thêm token nếu có
   let clonedReq = req;
   if (isProtectedAPI && accessToken) {
@@ -71,7 +72,7 @@ if (isProtectedAPI && !accessToken) {
               };
 
               localStorage.setItem('login', JSON.stringify(updatedLoginData));
-              console.log('Lưu localStorage thành công')
+              console.log('Lưu localStorage thành công');
               // 👉 Gửi lại request với token mới
               const retryReq = req.clone({
                 setHeaders: {

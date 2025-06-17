@@ -77,11 +77,7 @@ getAllBookings(): void {
   this.bookingService.getAll().subscribe((res: any) => {
     this.allBookings = Array.isArray(res.data) ? res.data : [];
     this.bookings = [...this.allBookings];
-    this.bookings.forEach(booking => {
-      if (booking.user_id) {
-        this.getUserName(booking.user_id); // ✅ gọi để load tên
-      }
-    });
+    console.log('Tất cả đặt phòng:', this.allBookings);
     this.filterBookings();
   });
 }
@@ -120,13 +116,13 @@ getAllBookings(): void {
     const search = this.searchText.trim().toLowerCase();
 
     this.bookings = this.allBookings.filter(booking => {
-      const customerName = booking.customer?.name?.toLowerCase() || '';
-      const matchName = customerName.includes(search);
+      // const customerName = booking.user?.first_name?.toLowerCase() || '';
+      // const matchName = customerName.includes(search);
 
       const bookingStatusId = booking.booking_status?.[0]?._id; // ✅ Lấy _id của trạng thái đầu tiên
       const matchStatus = this.filter.status ? bookingStatusId === this.filter.status : true;
 
-      return matchName && matchStatus;
+      return matchStatus;
     });
   }
 

@@ -5,12 +5,13 @@ booking_method_id: string;
   _id?: string;
   code?: string;
   user_id: string;
-  customer?: {
+  user?: {
     _id?: string;
-    name?: string;
-    phone?: string;
+    first_name?: string;
+    last_name?: string;
+    phone_number?: string;
     email?: string;
-  };
+  }[];
   check_in_date?: string;
   check_out_date?: string;
   adult_count?: number;

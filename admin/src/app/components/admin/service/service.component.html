@@ -73,7 +73,7 @@
     <div (click)="onViewDetail(sv)" style="cursor: pointer">{{ sv.name }}</div>
     <div>{{ sv.price | number }} VND</div>
     <div class="image-list">
-      <img [src]="'http://localhost:8000/' + sv.image" alt="Ảnh dịch vụ" width="200" />
+      <img [src]="('http://localhost:8000/images/ ' + sv.image) " alt="Ảnh dịch vụ" width="200" />
     </div>
     <div class="status-column">
       <label class="switch">

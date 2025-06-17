@@ -3,8 +3,15 @@
 
   <!-- Controls -->
   <div class="room-controls">
-    <input type="text" placeholder="Tìm kiếm tên khách hàng..." [(ngModel)]="searchText" (input)="filterBookings()" />
-    <button class="add-room" (click)="openAddPopup()">+ Thêm Đơn Đặt Phòng</button>
+    <input
+      type="text"
+      placeholder="Tìm kiếm tên khách hàng..."
+      [(ngModel)]="searchText"
+      (input)="filterBookings()"
+    />
+    <button class="add-room" (click)="openAddPopup()">
+      + Thêm Đơn Đặt Phòng
+    </button>
   </div>
 
   <!-- Bộ lọc -->
@@ -12,7 +19,11 @@
     <!-- Trạng thái -->
     <div>
       <label for="booking-status">Trạng thái:</label>
-      <select id="booking-status" [(ngModel)]="filter.status" (change)="filterBookings()">
+      <select
+        id="booking-status"
+        [(ngModel)]="filter.status"
+        (change)="filterBookings()"
+      >
         <option value="">Tất cả</option>
         <option *ngFor="let status of bookingStatuses" [value]="status._id">
           {{ status.name }}
@@ -21,27 +32,34 @@
     </div>
 
     <!-- Phương thức đặt -->
-<div>
-  <label for="booking-method">Phương thức đặt:</label>
-  <select id="booking-method" [(ngModel)]="filter.booking_method" (ngModelChange)="filterBookings()">
-    <option value="">Tất cả</option>
-    <option *ngFor="let method of bookingMethods" [value]="method._id">
-      {{ method.name }}
-    </option>
-  </select>
-</div>
+    <div>
+      <label for="booking-method">Phương thức đặt:</label>
+      <select
+        id="booking-method"
+        [(ngModel)]="filter.booking_method"
+        (ngModelChange)="filterBookings()"
+      >
+        <option value="">Tất cả</option>
+        <option *ngFor="let method of bookingMethods" [value]="method._id">
+          {{ method.name }}
+        </option>
+      </select>
+    </div>
 
-<!-- Trạng thái thanh toán -->
-<div>
-  <label for="payment-status">Thanh toán:</label>
-  <select id="payment-status" [(ngModel)]="filter.payment_status" (ngModelChange)="filterBookings()">
-    <option value="">Tất cả</option>
-    <option *ngFor="let status of paymentStatuses" [value]="status._id">
-      {{ status.name }}
-    </option>
-  </select>
-</div>
-
+    <!-- Trạng thái thanh toán -->
+    <div>
+      <label for="payment-status">Thanh toán:</label>
+      <select
+        id="payment-status"
+        [(ngModel)]="filter.payment_status"
+        (ngModelChange)="filterBookings()"
+      >
+        <option value="">Tất cả</option>
+        <option *ngFor="let status of paymentStatuses" [value]="status._id">
+          {{ status.name }}
+        </option>
+      </select>
+    </div>
 
     <!-- Ngày nhận -->
     <div>
@@ -74,11 +92,13 @@
 
   <!-- Table Rows -->
   <div class="table-row" *ngFor="let booking of bookings; let i = index">
-    <div>{{ booking.code || '---' }}</div>
-   <td>{{ userNameMap[booking.user_id] || 'Đang tải...' }}</td>
+    <div>{{ booking._id || "---" }}</div>
+    <td>{{ booking.user?.[0]?.last_name }}
+      {{ booking.user?.[0]?.first_name || 'Không rõ' }}
+    </td>
     <div>
-      {{ booking.check_in_date | date: 'dd/MM/yyyy' }}<br />
-      {{ booking.check_out_date | date: 'dd/MM/yyyy' }}
+      {{ booking.check_in_date | date : "dd/MM/yyyy" }}<br />
+      {{ booking.check_out_date | date : "dd/MM/yyyy" }}
     </div>
     <!-- <div>
       {{ booking.adult_count }}
@@ -86,10 +106,13 @@
     </div> -->
     <div>{{ booking.booking_method?.[0]?.name || 'Không rõ' }}</div>
     <div>{{ booking.booking_status?.[0]?.name || 'Chưa xác định' }}</div>
-    <div>{{ booking.payment_status || 'Chưa thanh toán' }}</div>
-    <div>{{ booking.total_price | currency: 'VND' }}</div>
+    <div>{{ booking.payment_status || "Chưa thanh toán" }}</div>
+    <div>{{ booking.total_price | currency : "VND" }}</div>
     <div class="actions">
-      <button class="icon-button" (click)="editBooking(booking); $event.stopPropagation()">
+      <button
+        class="icon-button"
+        (click)="editBooking(booking); $event.stopPropagation()"
+      >
         <i class="fas fa-pen"></i>
       </button>
     </div>
