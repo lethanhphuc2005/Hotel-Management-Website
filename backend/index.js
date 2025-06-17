@@ -25,6 +25,7 @@ const bookingRouter = require("./routes/booking.route");
 const commentRouter = require("./routes/comment.route");
 const reviewRouter = require("./routes/review.route");
 const paymentRouter = require("./routes/payment.route");
+const chatRouter = require("./routes/chat.route");
 
 dotenv.config();
 
@@ -70,5 +71,6 @@ app.use("/v1/booking", bookingRouter);
 app.use("/v1/comment", commentRouter);
 app.use("/v1/review", reviewRouter);
 app.use("/v1/payment", paymentRouter);
+app.use("/v1/chat", chatRouter);
 
 app.listen(8000, () => {});
