@@ -29,12 +29,13 @@ export const AuthInterceptor: HttpInterceptorFn = (
     }
   } catch (error) {
     console.error('Lỗi parse localStorage:', error);
-    // localStorage.removeItem('login');
+    localStorage.removeItem('login');
   }
 
   const accessToken = loginData?.data?.accessToken;
   const refreshToken = loginData?.data?.refreshToken;
-
+  console.log('Access Token:', accessToken);
+  console.log('Refresh Token:', refreshToken);
   if (isProtectedAPI && !accessToken) {
     location.assign('/login');
     return EMPTY;
@@ -59,8 +60,8 @@ export const AuthInterceptor: HttpInterceptorFn = (
           })
           .pipe(
             switchMap((res: any) => {
-              const newAccessToken = res.accessToken;
-              const newRefreshToken = res.refreshToken;
+              const newAccessToken = res.data.accessToken;
+              const newRefreshToken = res.data.refreshToken;
 
               const updatedLoginData = {
                 ...loginData,
@@ -84,7 +85,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
             }),
             catchError(() => {
               // 👉 Refresh thất bại => Xoá login và chuyển về login
-              localStorage.removeItem('login');
+              // localStorage.removeItem('login');
               location.assign('/login');
               return EMPTY;
             })

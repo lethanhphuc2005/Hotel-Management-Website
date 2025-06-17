@@ -49,7 +49,8 @@
             active: isSubmenuActive([
               '/admin/main-room-class',
               '/admin/room-class',
-              '/admin/room'
+              '/admin/room',
+              '/admin/feature'
             ])
           }"
         >
@@ -93,6 +94,11 @@
               <li [ngClass]="{ active: isActive('/admin/room') }">
                 <a [routerLink]="['/admin/room']"
                   ><span class="sub-item">Danh sách phòng</span></a
+                >
+              </li>
+              <li [ngClass]="{ active: isActive('/admin/feature') }">
+                <a [routerLink]="['/admin/feature']"
+                  ><span class="sub-item">Danh sách tiện nghi</span></a
                 >
               </li>
             </ul>
@@ -350,4 +356,3 @@
     </div>
   </div>
 </div>
-<!-- End Sidebar -->
