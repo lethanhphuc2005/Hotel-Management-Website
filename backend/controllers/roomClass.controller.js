@@ -187,6 +187,15 @@ const roomClassController = {
             },
           },
           { path: "images", select: "url" },
+          {
+            path: "rooms",
+          },
+          {
+            path: "comments",
+          },
+          {
+            path: "reviews",
+          },
         ])
         .exec();
       // --- Lọc theo tiện nghi
@@ -386,6 +395,40 @@ const roomClassController = {
             },
           },
           { path: "images", select: "url", match: { status: true } },
+
+          {
+            path: "comments",
+            select: "-status -createdAt -updatedAt",
+            populate: [
+              {
+                path: "user_id",
+                select: "first_name last_name email phone_number",
+              },
+              {
+                path: "employee_id",
+                select: "first_name last_name email phone_number",
+              },
+              {
+                path: "parent_id",
+              },
+            ],
+          },
+          {
+            path: "reviews",
+            populate: [
+              {
+                path: "user_id",
+                select: "first_name last_name email phone_number",
+              },
+              {
+                path: "employee_id",
+                select: "first_name last_name email phone_number",
+              },
+              {
+                path: "parent_id",
+              },
+            ],
+          },
         ])
         .exec();
       // --- Lọc theo tiện nghi
@@ -530,6 +573,39 @@ const roomClassController = {
           },
         },
         { path: "images", select: "url", match: { status: true } },
+        {
+          path: "comments",
+          select: "-status -createdAt -updatedAt",
+          populate: [
+            {
+              path: "user_id",
+              select: "first_name last_name email phone_number",
+            },
+            {
+              path: "employee_id",
+              select: "first_name last_name email phone_number",
+            },
+            {
+              path: "parent_id",
+            },
+          ],
+        },
+        {
+          path: "reviews",
+          populate: [
+            {
+              path: "user_id",
+              select: "first_name last_name email phone_number",
+            },
+            {
+              path: "employee_id",
+              select: "first_name last_name email phone_number",
+            },
+            {
+              path: "parent_id",
+            },
+          ],
+        },
       ]);
       if (!roomClassData || roomClassData.length === 0) {
         return res
@@ -552,7 +628,9 @@ const roomClassController = {
       try {
         const { features = [] } = req.body;
         const newRoomClass = new RoomClass(req.body);
-        const validation = await roomClassController.validateRoomClass(newRoomClass);
+        const validation = await roomClassController.validateRoomClass(
+          newRoomClass
+        );
         if (!validation.valid) {
           if (req.files && req.files.length > 0) {
             deleteImagesOnError(req.files);

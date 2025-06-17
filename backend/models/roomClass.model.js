@@ -82,6 +82,18 @@ RoomClassSchema.virtual("images", {
   foreignField: "room_class_id",
 });
 
+RoomClassSchema.virtual("reviews", {
+  ref: "review",
+  localField: "_id",
+  foreignField: "room_class_id",
+});
+
+RoomClassSchema.virtual("comments", {
+  ref: "comment",
+  localField: "_id",
+  foreignField: "room_class_id",
+});
+
 RoomClassSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
