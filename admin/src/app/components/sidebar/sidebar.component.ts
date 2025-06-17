@@ -12,6 +12,7 @@ export class SidebarComponent {
 
   logout() {
     localStorage.removeItem('login');
+    alert('Bạn đã đăng xuất');
     this.router.navigate(['/login']);
   }
 

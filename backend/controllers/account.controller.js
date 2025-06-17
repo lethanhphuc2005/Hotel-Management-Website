@@ -3,7 +3,7 @@ const Employee = require("../models/employee.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mailSender = require("../helpers/mail.sender");
-const { verficationEmail } = require("../config/mail");
+const { verificationEmail } = require("../config/mail");
 
 let refreshTokens = [];
 const accountController = {
@@ -93,8 +93,8 @@ const accountController = {
       try {
         await mailSender({
           email: req.body.email,
-          subject: verficationEmail.subject,
-          html: verficationEmail.html(verificationCode),
+          subject: verificationEmail.subject,
+          html: verificationEmail.html(verificationCode),
         });
       } catch (mailError) {
         return res.status(500).json({
@@ -109,6 +109,12 @@ const accountController = {
       const newAccountToSave = new User({
         email: req.body.email,
         password: hashPassword,
+        first_name: req.body.first_name,
+        phone_number: req.body.phone_number,
+        address: req.body.address,
+        last_name: req.body.last_name,
+        request: req.body.request,
+        status: true, // mặc định là true hoặc bạn xử lý theo logic riêng
         verification_code: verificationCode, // lưu để đối chiếu sau
         is_verified: false,
       });
