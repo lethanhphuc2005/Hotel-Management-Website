@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
   constructor(private router: Router, private toastService: ToastService) {}
 
   ngOnInit() {
-    // this.toastService.show('Thành công', 'Tải dữ liệu hoàn tất', 'success');
+    this.toastService.show('Thành công', 'Tải dữ liệu hoàn tất', 'success');
     // this.toastService.show('Lỗi', 'Không thể kết nối đến máy chủ', 'error');
   }
 }

@@ -220,13 +220,11 @@
   }
 
   .popup-section {
-    display: flex;
     align-items: center;
     margin-bottom: 1rem;
 
     label {
       flex-shrink: 0;
-      width: 140px;
       font-weight: 600;
       color: #444;
       white-space: nowrap;

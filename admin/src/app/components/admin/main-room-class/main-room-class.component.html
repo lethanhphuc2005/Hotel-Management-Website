@@ -1,10 +1,24 @@
 <div class="roomtype-management-card">
   <h2>Quản lý loại phòng chính</h2>
 
-  <div class="room-controls" style="display: flex; align-items: center; gap: 8px;">
-    <div style="position: relative; flex: 1;">
-      <input type="text" placeholder="Tìm kiếm loại phòng..." [(ngModel)]="searchKeyword" (keyup.enter)="onSearch()"
-        style="width: 100%; padding-right: 30px;" />
+  <div
+    class="room-controls"
+    style="display: flex; align-items: center; gap: 8px"
+  >
+    <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+      />
+      <label for="floatingInput">Tìm kiếm</label>
     </div>
 
     <button class="add-room" (click)="onAdd()">+ Thêm loại phòng chính</button>
@@ -12,11 +26,14 @@
 
   <!-- 🧹 Thanh lọc -->
   <div class="filter-bar">
-
     <!-- Lọc trạng thái -->
     <div>
       <label for="status">Trạng thái:</label>
-      <select id="status" [(ngModel)]="statusFilterString" (change)="onStatusChange()">
+      <select
+        id="status"
+        [(ngModel)]="statusFilterString"
+        (change)="onStatusChange()"
+      >
         <option value="">Tất cả</option>
         <option value="true">Đang hoạt động</option>
         <option value="false">Vô hiệu hóa</option>
@@ -27,11 +44,10 @@
     <div>
       <label>Sắp xếp:</label>
       <button (click)="toggleSortOrder()">
-        Trạng thái: {{ sortOrder === 'asc' ? '↑' : '↓' }}
+        Trạng thái: {{ sortOrder === "asc" ? "↑" : "↓" }}
       </button>
     </div>
   </div>
-
 
   <!-- Popup Thêm loại phòng chính -->
   <div class="popup-add-popup" *ngIf="isAddPopupOpen">
@@ -40,18 +56,38 @@
 
       <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
         <div class="popup-section">
-          <label for="name">Tên loại phòng chính:</label>
-          <input type="text" id="name" name="name" [(ngModel)]="newMainRoom.name" required />
+          <div class="form-floating form-floating-custom mb-3">
+            <input
+              type="email"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="name@example.com"
+              [(ngModel)]="newMainRoom.name"
+              required
+            />
+            <label for="name">Tên loại phòng chính</label>
+          </div>
         </div>
 
         <div class="popup-section">
           <label for="description">Mô tả:</label>
-          <textarea id="description" name="description" [(ngModel)]="newMainRoom.description"></textarea>
+          <textarea
+            class="form-control mb-3"
+            id="description"
+            name="description"
+            [(ngModel)]="newMainRoom.description"
+          ></textarea>
         </div>
 
         <div class="popup-section">
           <label for="status">Trạng thái:</label>
-          <select id="status" name="status" [(ngModel)]="newMainRoom.status">
+          <select
+            id="status"
+            name="status"
+            class="form-select form-control mb-3"
+            [(ngModel)]="newMainRoom.status"
+          >
             <option [value]="true">Đang hoạt động</option>
             <option [value]="false">Tạm dừng hoạt động</option>
           </select>
@@ -59,17 +95,34 @@
 
         <div class="popup-section">
           <label for="images">Ảnh (URL):</label>
-          <input type="file" id="images" name="images" (change)="onFileSelected($event)" />
+          <input
+            class="form-control mb-3"
+            type="file"
+            id="images"
+            name="images"
+            (change)="onFileSelected($event)"
+          />
         </div>
 
         <div class="popup-actions">
-          <button type="submit" [disabled]="!addForm.form.valid">Lưu</button>
-          <button type="button" (click)="closeAddPopup()">Hủy</button>
+          <button
+            class="btn btn-success"
+            type="submit"
+            [disabled]="!addForm.form.valid"
+          >
+            Lưu
+          </button>
+          <button
+            class="btn btn-danger"
+            type="button"
+            (click)="closeAddPopup()"
+          >
+            Hủy
+          </button>
         </div>
       </form>
     </div>
   </div>
-
 
   <div class="table-header">
     <div>STT</div>
@@ -83,10 +136,17 @@
 
   <div *ngFor="let rtm of mainRoomClasses; let i = index" class="table-row">
     <div>{{ i + 1 }}</div>
-    <div (click)="onViewDetail(rtm)" style="cursor: pointer">{{ rtm.name }}</div>
+    <div (click)="onViewDetail(rtm)" style="cursor: pointer">
+      {{ rtm.name }}
+    </div>
     <!-- <div>{{ rtm.description }}</div> -->
     <div class="image-list">
-      <img *ngFor="let img of rtm.images ?? []" [src]="'http://localhost:8000/' + img.url" alt="Hình ảnh" width="200" />
+      <img
+        *ngFor="let img of rtm.images ?? []"
+        [src]="'http://localhost:8000/images/' + img.url"
+        alt="Hình ảnh"
+        width="200"
+      />
     </div>
     <div>
       <ul class="room-children-list">
@@ -97,12 +157,19 @@
     </div>
     <div class="status-column">
       <label class="switch">
-        <input type="checkbox" [checked]="rtm.status" (change)="toggleMainRoomClass(rtm); $event.stopPropagation()" />
+        <input
+          type="checkbox"
+          [checked]="rtm.status"
+          (change)="toggleMainRoomClass(rtm); $event.stopPropagation()"
+        />
         <span class="slider"></span>
       </label>
     </div>
     <div class="actions">
-      <button class="icon-button" (click)="onEdit(rtm); $event.stopPropagation()">
+      <button
+        class="icon-button"
+        (click)="onEdit(rtm); $event.stopPropagation()"
+      >
         <i class="fas fa-pen"></i>
       </button>
     </div>
@@ -126,26 +193,36 @@
       <div class="popup-section">
         <label>Trạng thái:</label>
         <span [ngClass]="selectedMainRoom.status ? 'active' : 'inactive'">
-          {{ selectedMainRoom.status ? 'Đang hoạt động' : 'Tạm dừng hoạt động' }}
+          {{
+            selectedMainRoom.status ? "Đang hoạt động" : "Tạm dừng hoạt động"
+          }}
         </span>
       </div>
 
       <div class="popup-section">
         <label>Loại phòng con:</label>
         <ul>
-          <li *ngFor="let rc of selectedMainRoom.room_class_list">{{ rc.name }}</li>
+          <li *ngFor="let rc of selectedMainRoom.room_class_list">
+            {{ rc.name }}
+          </li>
         </ul>
       </div>
 
       <div class="popup-section">
         <label>Hình ảnh:</label>
         <div class="image-list">
-          <img *ngFor="let img of selectedMainRoom.images" [src]="'http://localhost:8000/' + img.url" alt="Hình ảnh"
-            width="200" />
+          <img
+            *ngFor="let img of selectedMainRoom.images"
+            [src]="'http://localhost:8000/' + img.url"
+            alt="Hình ảnh"
+            width="200"
+          />
         </div>
       </div>
 
-      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+      <button class="close-btn" (click)="isDetailPopupOpen = false">
+        Đóng
+      </button>
     </div>
   </div>
   <!-- Popup Sửa loại phòng chính -->
@@ -155,13 +232,27 @@
 
       <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
         <div class="popup-section">
-          <label for="name">Tên loại phòng chính:</label>
-          <input type="text" id="name" name="name" [(ngModel)]="editMainRoom.name" required />
+          <div class="form-floating form-floating-custom mb-3">
+            <input
+              type="email"
+              class="form-control"
+              id="name"
+              name="name"
+              [(ngModel)]="editMainRoom.name"
+              required
+            />
+            <label for="name">Tên loại phòng chính</label>
+          </div>
         </div>
 
         <div class="popup-section">
           <label for="description">Mô tả:</label>
-          <textarea id="description" name="description" [(ngModel)]="editMainRoom.description"></textarea>
+          <textarea
+            class="form-control mb-3"
+            id="description"
+            name="description"
+            [(ngModel)]="editMainRoom.description"
+          ></textarea>
         </div>
 
         <!-- <div class="popup-section">
@@ -174,23 +265,40 @@
 
         <div class="popup-section">
           <label for="editImage">Ảnh(Url):</label>
-          <input type="file" id="editImage" (change)="onEditFileSelected($event)" />
+          <input
+            type="file"
+            id="editImage"
+            class="form-control mb-3"
+            (change)="onEditFileSelected($event)"
+          />
 
           <!-- Hiển thị ảnh preview -->
-          <div class="image-preview" *ngIf="editImageUrl">
-            <div class="image-wrapper">
-              <img [src]="editImageUrl" width="100px" height="100px" />
-              <span class="remove-btn" (click)="removeEditImage()">✖</span>
-            </div>
+          <div class="col-6 col-sm-4">
+            <label class="imagecheck mb-4">
+              <input
+                [(ngModel)]="isImageChecked"
+                name="imagecheck"
+                type="checkbox"
+                value="2"
+                class="imagecheck-input"
+                checked=""
+              />
+              <figure class="imagecheck-figure">
+                <img
+                  [src]="editImageUrl"
+                  alt="title"
+                  class="imagecheck-image"
+                />
+              </figure>
+            </label>
           </div>
         </div>
 
         <div class="popup-actions">
-          <button type="submit" [disabled]="!editForm.form.valid">Lưu</button>
-          <button type="button" (click)="isEditPopupOpen = false">Hủy</button>
+          <button class="btn btn-success" type="submit" [disabled]="!editForm.form.valid">Lưu</button>
+          <button class="btn btn-danger" type="button" (click)="isEditPopupOpen = false">Hủy</button>
         </div>
       </form>
     </div>
   </div>
-
 </div>

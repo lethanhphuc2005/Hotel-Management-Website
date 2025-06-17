@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<div class="sidebar" data-background-color="dark2">
+<div class="sidebar sidebar-style-2" data-background-color="dark2">
   <div class="sidebar-logo">
     <!-- Logo Header -->
     <div class="logo-header" data-background-color="dark">
@@ -28,161 +28,320 @@
   <div class="sidebar-wrapper scrollbar scrollbar-inner">
     <div class="sidebar-content">
       <ul class="nav nav-secondary">
-        <li class="nav-item active">
+        <li class="nav-item" [ngClass]="{ active: isActive('/home') }">
           <a [routerLink]="['/home']" class="collapsed" aria-expanded="false">
             <i class="fas fa-home"></i>
             <p>Dashboard</p>
-            <!-- <span class="caret"></span> -->
           </a>
         </li>
+
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
           </span>
           <h4 class="text-section">Management</h4>
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#rooms">
+
+        <!-- Quản lý phòng -->
+        <li
+          class="nav-item"
+          [ngClass]="{
+            active: isSubmenuActive([
+              '/admin/main-room-class',
+              '/admin/room-class',
+              '/admin/room'
+            ])
+          }"
+        >
+          <a
+            data-bs-toggle="collapse"
+            href="#rooms"
+            [attr.aria-expanded]="
+              isSubmenuActive([
+                '/admin/main-room-class',
+                '/admin/room-class',
+                '/admin/room'
+              ])
+            "
+          >
             <i class="fas fa-hotel"></i>
             <p>Quản lý phòng</p>
             <span class="caret"></span>
           </a>
-          <div class="collapse" id="rooms">
+          <div
+            class="collapse"
+            id="rooms"
+            [ngClass]="{
+              show: isSubmenuActive([
+                '/admin/main-room-class',
+                '/admin/room-class',
+                '/admin/room'
+              ])
+            }"
+          >
             <ul class="nav nav-collapse">
-              <li>
-                <a [routerLink]="['/admin/main-room-class']">
-                  <span class="sub-item">Danh sách loại phòng chính</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/main-room-class') }">
+                <a [routerLink]="['/admin/main-room-class']"
+                  ><span class="sub-item">Danh sách loại phòng chính</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/room-class']">
-                  <span class="sub-item">Danh sách loại phòng</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/room-class') }">
+                <a [routerLink]="['/admin/room-class']"
+                  ><span class="sub-item">Danh sách loại phòng</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/room']">
-                  <span class="sub-item">Danh sách phòng</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/room') }">
+                <a [routerLink]="['/admin/room']"
+                  ><span class="sub-item">Danh sách phòng</span></a
+                >
               </li>
             </ul>
           </div>
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#bookings">
+
+        <!-- Quản lý đặt phòng -->
+        <li
+          class="nav-item"
+          [ngClass]="{
+            active: isSubmenuActive([
+              '/admin/booking',
+              '/admin/booking-status',
+              '/admin/booking-method'
+            ])
+          }"
+        >
+          <a
+            data-bs-toggle="collapse"
+            href="#bookings"
+            [attr.aria-expanded]="
+              isSubmenuActive([
+                '/admin/booking',
+                '/admin/booking-status',
+                '/admin/booking-method'
+              ])
+            "
+          >
             <i class="fa-solid fa-calendar-days"></i>
             <p>Quản lý đặt phòng</p>
             <span class="caret"></span>
           </a>
-          <div class="collapse" id="bookings">
+          <div
+            class="collapse"
+            id="bookings"
+            [ngClass]="{
+              show: isSubmenuActive([
+                '/admin/booking',
+                '/admin/booking-status',
+                '/admin/booking-method'
+              ])
+            }"
+          >
             <ul class="nav nav-collapse">
-              <li>
-                <a [routerLink]="['/admin/main-room-class']">
-                  <span class="sub-item">Danh sách đặt phòng</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/booking') }">
+                <a [routerLink]="['/admin/booking']"
+                  ><span class="sub-item">Danh sách đặt phòng</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/room-class']">
-                  <span class="sub-item">Trạng thái đặt phòng</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/booking-status') }">
+                <a [routerLink]="['/admin/booking-status']"
+                  ><span class="sub-item">Trạng thái đặt phòng</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/room']">
-                  <span class="sub-item">Phương thức đặt phòng</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/booking-method') }">
+                <a [routerLink]="['/admin/booking-method']"
+                  ><span class="sub-item">Phương thức đặt phòng</span></a
+                >
               </li>
             </ul>
           </div>
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#contents">
+
+        <!-- Quản lý nội dung trang -->
+        <li
+          class="nav-item"
+          [ngClass]="{
+            active: isSubmenuActive([
+              '/admin/website-content',
+              '/admin/content-type',
+              '/admin/comment',
+              '/admin/review'
+            ])
+          }"
+        >
+          <a
+            data-bs-toggle="collapse"
+            href="#contents"
+            [attr.aria-expanded]="
+              isSubmenuActive([
+                '/admin/website-content',
+                '/admin/content-type',
+                '/admin/comment',
+                '/admin/review'
+              ])
+            "
+          >
             <i class="fa-solid fa-envelopes-bulk"></i>
             <p>Quản lý nội dung trang</p>
             <span class="caret"></span>
           </a>
-          <div class="collapse" id="contents">
+          <div
+            class="collapse"
+            id="contents"
+            [ngClass]="{
+              show: isSubmenuActive([
+                '/admin/website-content',
+                '/admin/content-type',
+                '/admin/comment',
+                '/admin/review'
+              ])
+            }"
+          >
             <ul class="nav nav-collapse">
-              <li>
-                <a [routerLink]="['/admin/website-content']">
-                  <span class="sub-item">Nội dung trang</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/website-content') }">
+                <a [routerLink]="['/admin/website-content']"
+                  ><span class="sub-item">Nội dung trang</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/content-type']">
-                  <span class="sub-item">Loại nội dung</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/content-type') }">
+                <a [routerLink]="['/admin/content-type']"
+                  ><span class="sub-item">Loại nội dung</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/comment']">
-                  <span class="sub-item">Bình luận</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/comment') }">
+                <a [routerLink]="['/admin/comment']"
+                  ><span class="sub-item">Bình luận</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/review']">
-                  <span class="sub-item">Đánh giá</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/review') }">
+                <a [routerLink]="['/admin/review']"
+                  ><span class="sub-item">Đánh giá</span></a
+                >
               </li>
             </ul>
           </div>
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#users">
+
+        <!-- Quản lý người dùng -->
+        <li
+          class="nav-item"
+          [ngClass]="{
+            active: isSubmenuActive(['/admin/user', '/admin/employee'])
+          }"
+        >
+          <a
+            data-bs-toggle="collapse"
+            href="#users"
+            [attr.aria-expanded]="
+              isSubmenuActive(['/admin/user', '/admin/employee'])
+            "
+          >
             <i class="fa-solid fa-users"></i>
             <p>Quản lý người dùng</p>
             <span class="caret"></span>
           </a>
-          <div class="collapse" id="users">
+          <div
+            class="collapse"
+            id="users"
+            [ngClass]="{
+              show: isSubmenuActive(['/admin/user', '/admin/employee'])
+            }"
+          >
             <ul class="nav nav-collapse">
-              <li>
-                <a [routerLink]="['/admin/user']">
-                  <span class="sub-item">Danh sách khách hàng</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/user') }">
+                <a [routerLink]="['/admin/user']"
+                  ><span class="sub-item">Danh sách khách hàng</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/employee']">
-                  <span class="sub-item">Trạng thái nhân viên</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/employee') }">
+                <a [routerLink]="['/admin/employee']"
+                  ><span class="sub-item">Trạng thái nhân viên</span></a
+                >
               </li>
             </ul>
           </div>
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#features">
+
+        <!-- Dịch vụ & Ưu đãi -->
+        <li
+          class="nav-item"
+          [ngClass]="{
+            active: isSubmenuActive(['/admin/service', '/admin/discount'])
+          }"
+        >
+          <a
+            data-bs-toggle="collapse"
+            href="#features"
+            [attr.aria-expanded]="
+              isSubmenuActive(['/admin/service', '/admin/discount'])
+            "
+          >
             <i class="fa-solid fa-tags"></i>
             <p>Dịch vụ & Ưu đãi</p>
             <span class="caret"></span>
           </a>
-          <div class="collapse" id="features">
+          <div
+            class="collapse"
+            id="features"
+            [ngClass]="{
+              show: isSubmenuActive(['/admin/service', '/admin/discount'])
+            }"
+          >
             <ul class="nav nav-collapse">
-              <li>
-                <a [routerLink]="['/admin/service']">
-                  <span class="sub-item">Danh sách dịch vụ</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/service') }">
+                <a [routerLink]="['/admin/service']"
+                  ><span class="sub-item">Danh sách dịch vụ</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/discount']">
-                  <span class="sub-item">Danh sách khuyến mãi</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/discount') }">
+                <a [routerLink]="['/admin/discount']"
+                  ><span class="sub-item">Danh sách khuyến mãi</span></a
+                >
               </li>
             </ul>
           </div>
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#payments">
+
+        <!-- Quản lý thanh toán -->
+        <li
+          class="nav-item"
+          [ngClass]="{
+            active: isSubmenuActive([
+              '/admin/payments',
+              '/admin/payment-method'
+            ])
+          }"
+        >
+          <a
+            data-bs-toggle="collapse"
+            href="#payments"
+            [attr.aria-expanded]="
+              isSubmenuActive(['/admin/payments', '/admin/payment-method'])
+            "
+          >
             <i class="fa-solid fa-cart-shopping"></i>
             <p>Quản lý thanh toán</p>
             <span class="caret"></span>
           </a>
-          <div class="collapse" id="payments">
+          <div
+            class="collapse"
+            id="payments"
+            [ngClass]="{
+              show: isSubmenuActive([
+                '/admin/payments',
+                '/admin/payment-method'
+              ])
+            }"
+          >
             <ul class="nav nav-collapse">
-              <li>
-                <a [routerLink]="['/admin/payments']">
-                  <span class="sub-item">Danh sách hoá đơn</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/payments') }">
+                <a [routerLink]="['/admin/payments']"
+                  ><span class="sub-item">Danh sách hoá đơn</span></a
+                >
               </li>
-              <li>
-                <a [routerLink]="['/admin/payment-method']">
-                  <span class="sub-item">Phương thức thanh toán</span>
-                </a>
+              <li [ngClass]="{ active: isActive('/admin/payment-method') }">
+                <a [routerLink]="['/admin/payment-method']"
+                  ><span class="sub-item">Phương thức thanh toán</span></a
+                >
               </li>
             </ul>
           </div>
