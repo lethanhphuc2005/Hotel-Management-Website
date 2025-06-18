@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 
 export function useRoomSearch() {
-    const [maxGuests, setMaxGuests] = useState(8);
+    const [maxGuests, setMaxGuests] = useState(20);
     const [price, setPrice] = useState(500000);
     const [views, setViews] = useState<string[]>([]);
     const [amenities, setAmenities] = useState<string[]>([]);
@@ -22,6 +22,7 @@ export function useRoomSearch() {
     const totalGuests = guests.adults + guests.children.age0to6 + guests.children.age7to17;
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const [showDateError, setShowDateError] = useState(false);
     // Tính số khách thực tế
     // const numAdults = numberOfAdults;
     // const numChildrenUnder6 = guests.children.age0to6;
@@ -49,6 +50,7 @@ export function useRoomSearch() {
         pendingDateRange, setPendingDateRange,
         startDate, setStartDate,
         endDate, setEndDate,
+        showDateError, setShowDateError,
         // numAdults,
         // numChildrenUnder6,
         // numChildrenOver6,

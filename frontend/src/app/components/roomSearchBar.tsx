@@ -6,6 +6,8 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useEffect } from 'react';
 import { useData } from '../hooks/useData';
+import { toast, ToastContainer } from 'react-toastify';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface RoomSearchBarProps {
     dateRange: any;
@@ -74,7 +76,9 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     const {
         roomclass
     } = useData();
-    console.log("RoomClass Data:", roomclass);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     // Đóng popup khi click ra ngoài
     useEffect(() => {
@@ -104,10 +108,57 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
         };
     }, [showGuestBox, showCalendar]);
 
+    // Lấy dữ liệu từ URL
+    useEffect(() => {
+        const start = searchParams.get('start');
+        const end = searchParams.get('end');
+
+        const adults = Number(searchParams.get('adults') || 1);
+        const children6 = Number(searchParams.get('children6') || 0);
+        const children17 = Number(searchParams.get('children17') || 0);
+
+        // Luôn set guests (nếu muốn)
+        setGuests({
+            adults,
+            children: {
+                age0to6: children6,
+                age7to17: children17,
+            },
+        });
+
+        setPendingGuests({
+            adults,
+            children: {
+                age0to6: children6,
+                age7to17: children17,
+            },
+        });
+
+        // ✅ Chỉ khi có ngày thì mới set các giá trị liên quan đến tìm kiếm
+        if (start && end) {
+            const startD = new Date(start);
+            const endD = new Date(end);
+
+            if (!isNaN(startD.getTime()) && !isNaN(endD.getTime())) {
+                setStartDate(startD);
+                setEndDate(endD);
+                setDateRange([{ startDate: startD, endDate: endD, key: 'selection' }]);
+                setPendingDateRange([{ startDate: startD, endDate: endD, key: 'selection' }]);
+
+                const nights = Math.ceil(
+                    (endD.getTime() - startD.getTime()) / (1000 * 60 * 60 * 24)
+                );
+                setNumberOfNights(nights);
+
+                setHasSearched(true); // ✅ Chỉ gọi khi dữ liệu hợp lệ
+            }
+        }
+    }, []);
 
     return (
         <>
-
+            {/* ToastContainer phải luôn ở trong JSX và nằm ngoài hàm onClick */}
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="col">
                 <div className="bg-black border mx-auto rounded-5 d-flex align-items-center justify-content-center mb-4" style={{ position: 'relative', width: '630px' }}>
                     <div className={`px-5 ${style.calendarHover}`} style={{ position: 'relative' }}>
@@ -268,19 +319,29 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                         type="button"
                         onClick={() => {
                             if (!Array.isArray(pendingDateRange) || !pendingDateRange[0]) {
-                                alert("Vui lòng chọn ngày đến và ngày đi.");
+                                toast.warning("Vui lòng chọn ngày đến và ngày đi.");
                                 return;
                             }
                             const startDate = pendingDateRange[0]?.startDate;
                             const endDate = pendingDateRange[0]?.endDate;
 
                             if (!startDate || !endDate) {
-                                alert("Vui lòng chọn ngày đến và ngày đi.");
+                                toast.warning("Vui lòng chọn ngày đến và ngày đi.");
                                 return;
                             }
 
                             if (new Date(endDate).getTime() <= new Date(startDate).getTime()) {
-                                alert("Ngày đi phải sau ngày đến ít nhất 1 ngày.");
+                                toast.error("Ngày đi phải sau ngày đến ít nhất 1 ngày.");
+                                return;
+                            }
+
+                            const pendingAdults = pendingGuests.adults ?? 0;
+                            const pendingChildren0to6 = pendingGuests.children?.age0to6 ?? 0;
+                            const pendingChildren7to17 = pendingGuests.children?.age7to17 ?? 0;
+                            const pendingTotalGuests = pendingAdults + pendingChildren0to6 + pendingChildren7to17;
+
+                            if (pendingTotalGuests > maxGuests) {
+                                toast.error(`Số khách (${pendingTotalGuests}) vượt quá sức chứa tối đa (${maxGuests}).`);
                                 return;
                             }
 
@@ -291,28 +352,25 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                             const nights = Math.ceil(
                                 (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
                             );
-
-                            // Kiểm tra có đêm Thứ 7 không
-                            let hasSaturday = false;
-                            const current = new Date(startDate);
-                            while (current < new Date(endDate)) {
-                                if (current.getDay() === 6) { // 6 là Thứ 7
-                                    hasSaturday = true;
-                                    break;
-                                }
-                                current.setDate(current.getDate() + 1);
-                            }
-
-
-                            // Ví dụ: giá gốc mỗi đêm là 1 triệu
-                            const basePrice = 1000000;
-                            const total = hasSaturday ? basePrice * nights * 1.2 : basePrice * nights;
-
                             setStartDate(startDate);
                             setEndDate(endDate);
-                            setTotalPrice(total);
                             setNumberOfNights(nights);
                             setHasSearched(true);
+
+                            // ✅ Chỉ chuyển hướng nếu đang ở trang chủ
+                            if (pathname === "/") {
+                                const query = new URLSearchParams({
+                                    start: startDate.toISOString(),
+                                    end: endDate.toISOString(),
+                                    adults: pendingAdults.toString(),
+                                    children6: pendingChildren0to6.toString(),
+                                    children17: pendingChildren7to17.toString(),
+                                });
+
+                                router.push(`/roomtype?${query.toString()}`);
+                            } else {
+                                toast.success("Tìm phòng thành công!");
+                            }
                         }}
                     >
                         <i className="bi bi-search"></i> Tìm kiếm

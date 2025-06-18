@@ -9,6 +9,7 @@ import RoomSearchBar from "./components/roomSearchBar";
 import { useRoomSearch } from './hooks/useRoomSearch';
 import { useData } from "./hooks/useData";
 import { motion } from "framer-motion";
+import { start } from "repl";
 
 export default function Home() {
   const {
@@ -23,7 +24,9 @@ export default function Home() {
     totalPrice, setTotalPrice,
     hasSearched, setHasSearched,
     pendingGuests, setPendingGuests,
-    pendingDateRange, setPendingDateRange
+    pendingDateRange, setPendingDateRange,
+    startDate, setStartDate,
+    endDate, setEndDate,
   } = useRoomSearch();
   const { websitecontent, mainroomclass, services, discount } = useData();
   return (
@@ -31,7 +34,7 @@ export default function Home() {
       <Banner banners={websitecontent} />
       <div className="mt-2">
         <RoomSearchBar
-          
+
           dateRange={dateRange}
           setDateRange={setDateRange}
           guests={guests}
@@ -55,6 +58,10 @@ export default function Home() {
           setPendingGuests={setPendingGuests}
           pendingDateRange={pendingDateRange}
           setPendingDateRange={setPendingDateRange}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
         />
 
       </div>
