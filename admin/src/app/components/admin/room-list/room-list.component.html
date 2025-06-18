@@ -9,11 +9,14 @@
 
   <!-- 🧹 Thanh lọc  -->
   <div class="filter-bar">
-
     <!-- Lọc trạng thái phòng -->
     <div>
       <label for="roomStatus">Trạng thái phòng:</label>
-      <select id="roomStatus" [(ngModel)]="filter.room_status_id" (change)="filterRooms()">
+      <select
+        id="roomStatus"
+        [(ngModel)]="filter.room_status_id"
+        (change)="filterRooms()"
+      >
         <option value="">Tất cả</option>
         <option *ngFor="let status of roomStatuses" [value]="status._id">
           {{ status.name }}
@@ -23,7 +26,11 @@
     <!-- Lọc loại phòng -->
     <div>
       <label for="room-class">Loại phòng:</label>
-      <select id="room-class" [(ngModel)]="filter.room_class_id" (change)="filterRooms()">
+      <select
+        id="room-class"
+        [(ngModel)]="filter.room_class_id"
+        (change)="filterRooms()"
+      >
         <option value="">Tất cả</option>
         <option *ngFor="let roomClass of roomClasses" [value]="roomClass._id">
           {{ roomClass.name }}
@@ -31,17 +38,24 @@
       </select>
     </div>
 
-
     <!-- Ngày nhận -->
     <div>
       <label>Ngày nhận:</label>
-      <input type="date" [(ngModel)]="filter.check_in_date" (change)="filterByDate()" />
+      <input
+        type="date"
+        [(ngModel)]="filter.check_in_date"
+        (change)="filterByDate()"
+      />
     </div>
 
     <!-- Ngày trả -->
     <div>
       <label>Ngày trả:</label>
-      <input type="date" [(ngModel)]="filter.check_out_date" (change)="filterByDate()" />
+      <input
+        type="date"
+        [(ngModel)]="filter.check_out_date"
+        (change)="filterByDate()"
+      />
     </div>
 
     <!-- Nút lọc theo ngày -->
@@ -57,13 +71,25 @@
         <!-- Tên phòng -->
         <div class="popup-section">
           <label for="name">Tên phòng:</label>
-          <input type="text" id="name" name="name" [(ngModel)]="newRoom.name" required />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="newRoom.name"
+            required
+          />
         </div>
 
         <!-- Tầng -->
         <div class="popup-section">
           <label for="floor">Tầng:</label>
-          <input type="text" id="floor" name="floor" [(ngModel)]="newRoom.floor" required />
+          <input
+            type="text"
+            id="floor"
+            name="floor"
+            [(ngModel)]="newRoom.floor"
+            required
+          />
         </div>
         <!-- trạng thái phòng -->
         <div class="popup-section">
@@ -77,33 +103,55 @@
         <!-- Chọn loại phòng -->
         <div class="popup-section">
           <label for="roomClass">Loại phòng:</label>
-          <select id="roomClass" name="roomClass" [(ngModel)]="newRoom.room_class_id"
-            (change)="onRoomClassChange(newRoom.room_class_id)" required>
-            <option *ngFor="let rc of roomClasses" [value]="rc._id">{{ rc.name }}</option>
+          <select
+            id="roomClass"
+            name="roomClass"
+            [(ngModel)]="newRoom.room_class_id"
+            (change)="onRoomClassChange(newRoom.room_class_id)"
+            required
+          >
+            <option *ngFor="let rc of roomClasses" [value]="rc._id">
+              {{ rc.name }}
+            </option>
           </select>
         </div>
-
 
         <!-- Tự hiển thị thông tin loại phòng -->
         <div *ngIf="selectedRoomClassInfo">
           <div class="popup-section">
             <label for="bed_amount">Số giường:</label>
-            <input type="text" id="bed_amount" [value]="selectedRoomClassInfo.bed_amount" readonly />
+            <input
+              type="text"
+              id="bed_amount"
+              [value]="selectedRoomClassInfo.bed_amount"
+              readonly
+            />
           </div>
 
           <div class="popup-section">
             <label for="price">Giá:</label>
-            <input type="text" id="price" [value]="selectedRoomClassInfo.price | currency:'VND'" readonly />
+            <input
+              type="text"
+              id="price"
+              [value]="selectedRoomClassInfo.price | currency : 'VND'"
+              readonly
+            />
           </div>
 
           <div class="popup-section">
             <label for="description">Mô tả:</label>
-            <textarea id="description" [value]="selectedRoomClassInfo.description" readonly></textarea>
+            <textarea
+              id="description"
+              [value]="selectedRoomClassInfo.description"
+              readonly
+            ></textarea>
           </div>
         </div>
 
         <div class="popup-actions">
-          <button type="submit" [disabled]="!addRoomForm.form.valid">Lưu</button>
+          <button type="submit" [disabled]="!addRoomForm.form.valid">
+            Lưu
+          </button>
           <button type="button" (click)="closeAddRoomPopup()">Hủy</button>
         </div>
       </form>
@@ -127,21 +175,24 @@
   <!-- Table Rows -->
   <div class="table-row" *ngFor="let room of filteredRooms; let i = index">
     <div>{{ i + 1 }}</div>
-    <div (click)="viewRoomDetail(room)" style="cursor: pointer">{{ room.name }}</div>
+    <div (click)="viewRoomDetail(room)" style="cursor: pointer">
+      {{ room.name }}
+    </div>
     <div>{{ room.floor }}</div>
-    <div>{{ room.room_class[0].name || 'Không rõ' }}</div>
-    <div>{{ room.status[0].name || 'Không rõ' }}</div>
+    <div>{{ room.room_class[0].name || "Không rõ" }}</div>
+    <div>{{ room.status[0].name || "Không rõ" }}</div>
     <div>{{ room.room_class[0].bed_amount }}</div>
-    <div>{{ room.room_class[0].price | currency: 'VND' }}</div>
+    <div>{{ room.room_class[0].price | currency : "VND" }}</div>
     <!-- <div>{{ room.room_class[0].description }}</div> -->
     <!-- <div>{{ getFeatureNames(room) }}</div> -->
     <div class="actions">
-
       <!-- Edit icon -->
-      <button class="icon-button" (click)="editRoom(room); $event.stopPropagation()">
+      <button
+        class="icon-button"
+        (click)="editRoom(room); $event.stopPropagation()"
+      >
         <i class="fas fa-pen"></i>
       </button>
-
     </div>
   </div>
   <!-- popup chi tiết -->
@@ -149,14 +200,12 @@
     <div class="popup-content">
       <h2>Chi tiết phòng: {{ selectedRoom.name }}</h2>
 
-      <div class="popup-section">
-        <label>Lịch đặt phòng:</label>
-        <full-calendar [options]="calendarOptions"></full-calendar>
-      </div>
+      <label>Lịch đặt phòng:</label>
+      <full-calendar [options]="calendarOptions"></full-calendar>
 
       <div class="popup-section">
         <label>Tên phòng:</label>
-        <span>{{ selectedRoom.name || 'Không rõ' }}</span>
+        <span>{{ selectedRoom.name || "Không rõ" }}</span>
       </div>
 
       <div class="popup-section">
@@ -186,12 +235,17 @@
 
       <div class="popup-section">
         <label>Giá:</label>
-        <span>{{ selectedRoom.room_class[0]?.price | currency: 'VND':'symbol' }}</span>
+        <span>{{
+          selectedRoom.room_class[0]?.price | currency : "VND" : "symbol"
+        }}</span>
       </div>
 
       <div class="popup-section">
         <label>Giá giảm:</label>
-        <span>{{ selectedRoom.room_class[0]?.price_discount | currency: 'VND':'symbol' }}</span>
+        <span>{{
+          selectedRoom.room_class[0]?.price_discount
+            | currency : "VND" : "symbol"
+        }}</span>
       </div>
 
       <div class="popup-section">
@@ -212,21 +266,41 @@
         <!-- Tên phòng -->
         <div class="popup-section">
           <label for="editName">Tên phòng:</label>
-          <input type="text" id="editName" name="editName" [(ngModel)]="editRoomData.name" required />
+          <input
+            type="text"
+            id="editName"
+            name="editName"
+            [(ngModel)]="editRoomData.name"
+            required
+          />
         </div>
 
         <!-- Tầng -->
         <div class="popup-section">
           <label for="editFloor">Tầng:</label>
-          <input type="number" id="editFloor" name="editFloor" [(ngModel)]="editRoomData.floor" required min="1" />
+          <input
+            type="number"
+            id="editFloor"
+            name="editFloor"
+            [(ngModel)]="editRoomData.floor"
+            required
+            min="1"
+          />
         </div>
 
         <!-- Chọn loại phòng -->
         <div class="popup-section">
           <label for="editRoomClass">Loại phòng:</label>
-          <select id="editRoomClass" name="editRoomClass" [(ngModel)]="editRoomData.room_class_id"
-            (change)="onEditRoomClassChange(editRoomData.room_class_id)" required>
-            <option *ngFor="let rc of roomClasses" [value]="rc._id">{{ rc.name }}</option>
+          <select
+            id="editRoomClass"
+            name="editRoomClass"
+            [(ngModel)]="editRoomData.room_class_id"
+            (change)="onEditRoomClassChange(editRoomData.room_class_id)"
+            required
+          >
+            <option *ngFor="let rc of roomClasses" [value]="rc._id">
+              {{ rc.name }}
+            </option>
           </select>
         </div>
 
@@ -234,22 +308,38 @@
         <div *ngIf="selectedEditRoomClassInfo">
           <div class="popup-section">
             <label for="bed_amount">Số giường:</label>
-            <input type="text" id="bed_amount" [value]="selectedEditRoomClassInfo.bed_amount" readonly />
+            <input
+              type="text"
+              id="bed_amount"
+              [value]="selectedEditRoomClassInfo.bed_amount"
+              readonly
+            />
           </div>
 
           <div class="popup-section">
             <label for="price">Giá:</label>
-            <input type="text" id="price" [value]="selectedEditRoomClassInfo.price | currency:'VND'" readonly />
+            <input
+              type="text"
+              id="price"
+              [value]="selectedEditRoomClassInfo.price | currency : 'VND'"
+              readonly
+            />
           </div>
 
           <div class="popup-section">
             <label for="description">Mô tả:</label>
-            <textarea id="description" [value]="selectedEditRoomClassInfo.description" readonly></textarea>
+            <textarea
+              id="description"
+              [value]="selectedEditRoomClassInfo.description"
+              readonly
+            ></textarea>
           </div>
         </div>
 
         <div class="popup-actions">
-          <button type="submit" [disabled]="!editRoomForm.form.valid">Lưu</button>
+          <button type="submit" [disabled]="!editRoomForm.form.valid">
+            Lưu
+          </button>
           <button type="button" (click)="closeEditRoomPopup()">Hủy</button>
         </div>
       </form>

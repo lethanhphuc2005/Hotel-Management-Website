@@ -93,9 +93,7 @@
   <!-- Table Rows -->
   <div class="table-row" *ngFor="let booking of bookings; let i = index">
     <div>{{ booking._id || "---" }}</div>
-    <td>{{ booking.user?.[0]?.last_name }}
-      {{ booking.user?.[0]?.first_name || 'Không rõ' }}
-    </td>
+    <div>{{ booking.full_name }}</div>
     <div>
       {{ booking.check_in_date | date : "dd/MM/yyyy" }}<br />
       {{ booking.check_out_date | date : "dd/MM/yyyy" }}

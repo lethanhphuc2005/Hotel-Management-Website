@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Room } from '../models/room';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoomService {
   private apiUrl = 'http://127.0.0.1:8000/v1';
@@ -36,6 +36,12 @@ export class RoomService {
     });
 
     return this.http.get<any>(`${this.apiUrl}/room`, { params: httpParams });
+  }
+
+  getBookingCalendar(roomId: string, year: number, month: number) {
+    return this.http.get<any>(`${this.apiUrl}/room/booking-calendar`, {
+      params: { room_id: roomId, year, month },
+    });
   }
 
   // Thêm phòng
