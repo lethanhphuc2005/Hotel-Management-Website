@@ -1,51 +1,61 @@
 <div class="website-content-card">
   <h2>Quản lý nội dung website</h2>
-  <div class="room-controls">
-    <input type="text" placeholder="Tìm kiếm tiêu đề..." [(ngModel)]="searchKeyword" (input)="onSearch()" />
-<button class="add-room" (click)="onAdd()">+ Thêm nội dung</button>
+  <div
+    class="room-controls"
+    style="display: flex; align-items: center; gap: 8px"
+  >
+    <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (input)="onSearch()"
+      />
+      <label for="floatingInput">Tìm kiếm</label>
+    </div>
+    <button class="add-room" (click)="onAdd()">+ Thêm nội dung</button>
   </div>
+  <!-- Popup Thêm nội dung -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm nội dung website</h2>
 
+      <form (ngSubmit)="onAddSubmit()" #addContentForm="ngForm">
+        <div class="popup-section">
+          <label for="title">Tiêu đề:</label>
+          <input type="text" id="title" name="title" [(ngModel)]="newContent.title" required />
+        </div>
 
-<!-- Popup Thêm nội dung -->
-<div class="popup-add-popup" *ngIf="isAddPopupOpen">
-  <div class="popup-content">
-    <h2>Thêm nội dung website</h2>
+        <div class="popup-section">
+          <label for="content_type_id">Loại nội dung:</label>
+          <select id="content_type_id" name="content_type_id" [(ngModel)]="newContent.content_type_id" required>
+            <option *ngFor="let type of contentTypes" [value]="type._id">{{ type.name }}</option>
+          </select>
+        </div>
 
-    <form (ngSubmit)="onAddSubmit()" #addContentForm="ngForm">
-      <div class="popup-section">
-        <label for="title">Tiêu đề:</label>
-        <input type="text" id="title" name="title" [(ngModel)]="newContent.title" required />
-      </div>
+        <div class="popup-section">
+          <label for="content">Nội dung:</label>
+          <textarea id="content" name="content" [(ngModel)]="newContent.content"></textarea>
+        </div>
 
-      <div class="popup-section">
-        <label for="content_type_id">Loại nội dung:</label>
-        <select
-          id="content_type_id"
-          name="content_type_id"
-          [(ngModel)]="newContent.content_type_id"
-          required
-        >
-          <option *ngFor="let type of contentTypes" [value]="type._id">{{ type.name }}</option>
-        </select>
-      </div>
+        <div class="popup-section">
+          <label for="image">Ảnh (file):</label>
+          <input type="file" id="image" name="image" (change)="onFileSelected($event)" />
+        </div>
 
-      <div class="popup-section">
-        <label for="content">Nội dung:</label>
-        <textarea id="content" name="content" [(ngModel)]="newContent.content"></textarea>
-      </div>
-
-      <div class="popup-section">
-        <label for="image">Ảnh (file):</label>
-        <input type="file" id="image" name="image" (change)="onFileSelected($event)" />
-      </div>
-
-      <div class="popup-actions">
-        <button type="submit" [disabled]="!addContentForm.form.valid">Lưu</button>
-        <button type="button" (click)="closeAddPopup()">Hủy</button>
-      </div>
-    </form>
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!addContentForm.form.valid">Lưu</button>
+          <button type="button" (click)="closeAddPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
 
   <div class="table-header">
@@ -91,7 +101,7 @@
   </div>
 
 
- <div class="table-row" *ngFor="let content of filteredContents; let i = index">
+  <div class="table-row" *ngFor="let content of filteredContents; let i = index">
     <div>{{ i + 1 }}</div>
     <div (click)="onViewDetail(content)"> {{ content.title }}</div>
     <div>{{ getContentTypeName(content.content_type_id) }}</div>
@@ -110,48 +120,42 @@
     </div>
   </div>
   <!-- Popup Sửa nội dung -->
-<div class="popup-add-popup" *ngIf="isEditPopupOpen">
-  <div class="popup-content">
-    <h2>Sửa nội dung website</h2>
+  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
+    <div class="popup-content">
+      <h2>Sửa nội dung website</h2>
 
-    <form (ngSubmit)="onEditSubmit()" #editContentForm="ngForm">
-      <div class="popup-section">
-        <label for="edit-title">Tiêu đề:</label>
-        <input type="text" id="edit-title" name="title" [(ngModel)]="editContent.title" required />
-      </div>
-
-      <div class="popup-section">
-        <label for="edit-content_type_id">Loại nội dung:</label>
-        <select
-          id="edit-content_type_id"
-          name="content_type_id"
-          [(ngModel)]="editContent.content_type_id"
-          required
-        >
-          <option *ngFor="let type of contentTypes" [value]="type._id">{{ type.name }}</option>
-        </select>
-      </div>
-
-      <div class="popup-section">
-        <label for="edit-content">Nội dung:</label>
-        <textarea id="edit-content" name="content" [(ngModel)]="editContent.content"></textarea>
-      </div>
-
-      <div class="popup-section">
-        <label for="edit-image">Ảnh (file):</label>
-        <input type="file" id="edit-image" name="image" (change)="onEditFileSelected($event)" />
-        <div *ngIf="editContent.image">
-          <label>Ảnh hiện tại:</label>
-          <img [src]="'http://localhost:8000/images/' + editContent.image" width="120px" height="100px" />
+      <form (ngSubmit)="onEditSubmit()" #editContentForm="ngForm">
+        <div class="popup-section">
+          <label for="edit-title">Tiêu đề:</label>
+          <input type="text" id="edit-title" name="title" [(ngModel)]="editContent.title" required />
         </div>
-      </div>
 
-      <div class="popup-actions">
-        <button type="submit" [disabled]="!editContentForm.form.valid">Cập nhật</button>
-        <button type="button" (click)="isEditPopupOpen = false">Hủy</button>
-      </div>
-    </form>
+        <div class="popup-section">
+          <label for="edit-content_type_id">Loại nội dung:</label>
+          <select id="edit-content_type_id" name="content_type_id" [(ngModel)]="editContent.content_type_id" required>
+            <option *ngFor="let type of contentTypes" [value]="type._id">{{ type.name }}</option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label for="edit-content">Nội dung:</label>
+          <textarea id="edit-content" name="content" [(ngModel)]="editContent.content"></textarea>
+        </div>
+
+        <div class="popup-section">
+          <label for="edit-image">Ảnh (file):</label>
+          <input type="file" id="edit-image" name="image" (change)="onEditFileSelected($event)" />
+          <div *ngIf="editContent.image">
+            <label>Ảnh hiện tại:</label>
+            <img [src]="'http://localhost:8000/images/' + editContent.image" width="120px" height="100px" />
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!editContentForm.form.valid">Cập nhật</button>
+          <button type="button" (click)="isEditPopupOpen = false">Hủy</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
-
 </div>

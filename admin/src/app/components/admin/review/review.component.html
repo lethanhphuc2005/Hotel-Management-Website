@@ -1,8 +1,25 @@
 <div class="website-content-card">
   <h2>Quản lý đánh giá</h2>
 
-  <div class="room-controls">
-    <input type="text" placeholder="Tìm kiếm đánh giá..." [(ngModel)]="searchKeyword" (input)="onSearch()" />
+  <div
+    class="room-controls"
+    style="display: flex; align-items: center; gap: 8px"
+  >
+    <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (input)="onSearch()"
+      />
+      <label for="floatingInput">Tìm kiếm đánh giá</label>
+    </div>
   </div>
 
   <div class="table-header">

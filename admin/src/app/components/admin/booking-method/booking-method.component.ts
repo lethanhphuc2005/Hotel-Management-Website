@@ -5,7 +5,7 @@ import { BookingMethodService } from '../../../services/booking-method.service';
 @Component({
   selector: 'app-booking-method',
   templateUrl: './booking-method.component.html',
-  styleUrls: ['./booking-method.component.css']
+  styleUrls: ['./booking-method.component.scss']
 })
 
 export class BookingMethodComponent implements OnInit {

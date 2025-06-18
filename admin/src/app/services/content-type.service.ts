@@ -12,23 +12,22 @@ import { ContentType, ContentTypeResponse } from '../models/content-type';
 export class ContentTypeService {
   private apiUrl = 'http://127.0.0.1:8000/v1/content-type';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-getAll(): Observable<ContentTypeResponse> {
-  return this.http.get<ContentTypeResponse>(this.apiUrl);
-}
-
-
-  add(contentType: Partial<ContentType>): Observable<any> {
-    return this.http.post(this.apiUrl, contentType);
+  getAll(): Observable<ContentTypeResponse> {
+    return this.http.get<ContentTypeResponse>(this.apiUrl);
   }
 
- updateContent(id: string, data: FormData) {
-  return this.http.put(`/v1/content/${id}`, data);
-}
 
+  create(data: any) {
+    return this.http.post(this.apiUrl, data);
+  }
 
-  delete(id: string): Observable<any> {
+  update(id: string, data: any) {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
+
+  delete(id: string) {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

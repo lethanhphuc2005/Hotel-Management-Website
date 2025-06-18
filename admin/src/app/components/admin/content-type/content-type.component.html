@@ -1,4 +1,139 @@
-<p>
-  content-type works!
-</p>
+<div class="website-content-card">
+  <h2>Quản lý loại nội dung</h2>
 
+  <div
+    class="room-controls"
+    style="display: flex; align-items: center; gap: 8px"
+  >
+    <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+      />
+      <label for="floatingInput">Tìm kiếm</label>
+    </div>
+    <button class="add-room" (click)="onAdd()">+ Thêm loại nội dung</button>
+  </div>
+
+  <!-- Popup Thêm -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm loại nội dung</h2>
+      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
+        <div class="popup-section">
+          <label for="name">Tên loại:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="newContentType.name" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea id="description" name="description" [(ngModel)]="newContentType.description"></textarea>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!addForm.form.valid">Lưu</button>
+          <button type="button" (click)="closeAddPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Popup Chi tiết -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedContentType">
+    <div class="popup-content">
+      <h2>Chi tiết loại nội dung</h2>
+
+      <div class="popup-section">
+        <label>Tên:</label>
+        <span>{{ selectedContentType.name }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Mô tả:</label>
+        <span>{{ selectedContentType.description || 'Không có mô tả' }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Ngày cập nhật:</label>
+        <span>{{ selectedContentType.updatedAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="popup-section">
+        <label>Nội dung con:</label>
+        <div *ngIf="selectedContentType.website_content_list?.length > 0; else noContent">
+          <ul>
+            <li *ngFor="let content of selectedContentType.website_content_list">
+              {{ content.title }}
+            </li>
+          </ul>
+        </div>
+        <ng-template #noContent>
+          <span>Không có nội dung con</span>
+        </ng-template>
+      </div>
+
+      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+    </div>
+  </div>
+  <!-- Header -->
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên loại</div>
+    <div>Mô tả</div>
+    <div>Ngày cập nhật</div>
+    <div>Nội dung con</div>
+    <div>Hành động</div>
+  </div>
+
+  <!-- Rows -->
+  <div class="table-row" *ngFor="let type of filteredContentTypes; let i = index">
+    <div>{{ i + 1 }}</div>
+    <div (click)="onViewDetail(type)" style="cursor: pointer">{{ type.name }}</div>
+    <div>{{ type.description }}</div>
+    <div>{{ type.updatedAt | date:'dd/MM/yyyy' }}</div>
+    <ul *ngIf="type.website_content_list?.length > 0; else noContent">
+      <li *ngFor="let content of type.website_content_list">{{ content.title }}</li>
+    </ul>
+    <ng-template #noContent>
+      <span>Không có</span>
+    </ng-template>
+    <div class="status-column">
+      <button class="delete-button" (click)="onDelete(type)" title="Xóa">
+        <i class="fas fa-trash"></i>
+      </button>
+      <button class="edit-button" (click)="onEdit(type)" title="Sửa">
+        <i class="fas fa-pen"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Popup Sửa -->
+  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
+    <div class="popup-content">
+      <h2>Sửa loại nội dung</h2>
+      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
+        <div class="popup-section">
+          <label for="edit-name">Tên loại:</label>
+          <input type="text" id="edit-name" name="name" [(ngModel)]="editContentType.name" required />
+        </div>
+
+        <div class="popup-section">
+          <label for="edit-description">Mô tả:</label>
+          <textarea id="edit-description" name="description" [(ngModel)]="editContentType.description"></textarea>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!editForm.form.valid">Cập nhật</button>
+          <button type="button" (click)="isEditPopupOpen = false">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

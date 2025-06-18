@@ -1,16 +1,23 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class BookingStatusService {
-  private apiUrl = 'http://127.0.0.1:8000/v1/booking-status';
+  private baseUrl = 'http://localhost:8000/v1/booking-status';
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getAll() {
+    return this.http.get(`${this.baseUrl}`);
   }
+
+  create(data: any) {
+    return this.http.post(`${this.baseUrl}`, data);
+  }
+
+ update(id: string, data: any): Observable<any> {
+  return this.http.put(`${this.baseUrl}/${id}`, data); // ✅ PUT thay vì PATCH
+}
+
 }
