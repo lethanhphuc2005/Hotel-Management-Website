@@ -126,11 +126,15 @@ function sanitizeHistory(history) {
       m &&
       typeof m === "object" &&
       !Array.isArray(m) &&
-      typeof m.sender === "string" &&
-      typeof m.text === "string";
+      (m.role === "user" || m.role === "model") &&
+      Array.isArray(m.parts) &&
+      m.parts.length > 0 &&
+      typeof m.parts[0].text === "string";
+
     if (!isValid) {
       console.warn("Invalid history item detected:", m);
     }
+
     return isValid;
   });
 }
@@ -166,9 +170,11 @@ function extractFiltersFromPrompt(prompt) {
 
 const generateResponseWithDB = async (req, res) => {
   const { prompt, history = [] } = req.body;
-  const filters = extractFiltersFromPrompt(prompt);
-  if (!prompt) {
-    return res.status(400).json({ response: "Thiếu prompt" });
+
+  if (!prompt || typeof prompt !== "string") {
+    return res
+      .status(400)
+      .json({ response: "Thiếu hoặc sai định dạng prompt" });
   }
 
   if (
@@ -181,63 +187,71 @@ const generateResponseWithDB = async (req, res) => {
   }
 
   try {
+    const filters = extractFiltersFromPrompt(prompt);
     const rooms = await getFilteredRooms(filters);
 
-    const roomListTextHeader = `Dưới đây là các phòng còn trống từ ${filters.check_in_date} đến ${filters.check_out_date}:\n`;
+    // Tạo system prompt thông minh
+    const systemPrompt = `
+      Bạn là trợ lý AI của khách sạn The Moon Hotel.
+      Nhiệm vụ của bạn là tư vấn, giải thích chính sách và gợi ý các phòng phù hợp dựa trên nhu cầu của khách.
 
-    const roomListText = rooms
-      .map(
-        (room) =>
-          `Phòng: ${room.name} - ${room.price} VND/đêm, ${room.bed_amount} giường, sức chứa ${room.capacity}, view ${room.view}, xem thêm tại: http://localhost:3000/roomdetail/${room._id}`
-      )
-      .join("\n");
-
-    const fullText = roomListTextHeader + roomListText;
-
-    const validHistory = sanitizeHistory(history);
-    if (validHistory.length > 10) {
-      // Giới hạn lịch sử tối đa 10 tin nhắn
-      validHistory.splice(0, validHistory.length - 10);
+      📅 Khoảng thời gian được chọn: Từ ${filters.check_in_date} đến ${
+      filters.check_out_date
     }
-    // console.log("Valid history:", validHistory);
 
-    const context = `Dữ liệu phòng hiện tại:\n${fullText}`;
-    const chat = model.startChat({
-      history: validHistory.map((message) => ({
-        role: message.role,
-        parts: message.parts,
-      })),
-    });
+      📌 Danh sách các phòng hiện còn trống:
+      ${rooms
+        .map(
+          (room, i) => `(${i + 1}) ${room.name}
+            - Giá: ${room.price} VND/đêm
+            - Giường: ${room.bed_amount}
+            - Sức chứa: ${room.capacity}
+            - View: ${room.view}
+            - Xem thêm: http://localhost:3000/roomdetail/${room._id}`
+        )
+        .join("\n\n")}
 
-    const policies = `
-      Chính sách khách sạn:
-      - Huỷ miễn phí trước 24h.
-      - Không hút thuốc trong phòng.
-      - Không mang theo thú cưng.
-      - Trẻ em dưới 6 tuổi ở miễn phí nếu không sử dụng giường phụ.
-      - Trẻ em từ 6-16 tuổi tính thêm 200.000 VND/đêm nếu sử dụng giường phụ.
-      - Giường phụ có sẵn với giá 300.000 VND/đêm.
-      `;
-    const result = await chat.sendMessage(
-      `${context}\n\n${prompt}\n\n${policies}`
-    );
+        📋 Chính sách khách sạn:
+        - Huỷ miễn phí trước 24h
+        - Không hút thuốc trong phòng
+        - Không mang theo thú cưng
+        - Trẻ dưới 6 tuổi ở miễn phí nếu không dùng giường phụ
+        - Trẻ từ 6-16 tuổi: +200.000 VND/đêm nếu có giường phụ
+        - Giường phụ: 300.000 VND/đêm
+
+        💬 Dưới đây là câu hỏi của khách:
+        "${prompt}"
+        `;
+
+    // Lọc và chuẩn hoá lịch sử cũ
+    const validHistory = sanitizeHistory(history).slice(-10);
+    console.log("🧾 validHistory:", JSON.stringify(validHistory, null, 2));
+
+    const chat = model.startChat({ history: validHistory });
+
+    // Gửi prompt + system context
+    const result = await chat.sendMessage(systemPrompt);
     const response = result.response.text();
-    console.log("✅Gemini response:", response);
-    // Add the latest prompt and response to history
+    console.log("✅ Gemini response:", response);
+
+    // Cập nhật lại lịch sử hội thoại
     const updatedHistory = [
-      ...(Array.isArray(history) ? history : []), // giữ nguyên mảng cũ
+      ...validHistory,
       { role: "user", parts: [{ text: prompt }] },
       { role: "model", parts: [{ text: response }] },
     ];
 
-    res.json({
+    return res.json({
       response,
-      rooms: rooms,
+      rooms,
       history: updatedHistory,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ response: "Lỗi khi lấy dữ liệu hoặc gọi Gemini" });
+    console.error("❌ Lỗi trong generateResponseWithDB:", err);
+    return res.status(500).json({
+      response: "Lỗi khi lấy dữ liệu hoặc gọi AI",
+      error: err.message || "Unknown error",
+    });
   }
 };
 

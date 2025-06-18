@@ -6,6 +6,7 @@ import Footer from "./components/footer/footer";
 import Header from "./components/header/header";
 import "react-datepicker/dist/react-datepicker.css";  
 import { AuthProvider } from "./services/AuthProvider"; // Import AuthProvider, điều chỉnh đường dẫn nếu cần
+import ChatbotPopup from "./components/chatbotAI/chatBotPopup";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({
         {children}
         <Footer/>
         </AuthProvider>
+        <ChatbotPopup />
       </body>
     </html>
   );

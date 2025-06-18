@@ -8,7 +8,7 @@ import { Banner } from "./components/bannerItem";
 import RoomSearchBar from "./components/roomSearchBar";
 import { useRoomSearch } from './hooks/useRoomSearch';
 import { useData } from "./hooks/useData";
-
+import { motion } from "framer-motion";
 
 export default function Home() {
   const {
@@ -93,18 +93,69 @@ export default function Home() {
         </div>
         <div className={style.infoSection}>
           <div className={style.infoMainCard}>
-            <div>
-              <img src="/img/about.jpg" width='773px' height='530px' alt="" />
-            </div>
-            <div className={style.infoMainContent}>
-              <h3 className={style.infoTitle}>THE MOON</h3>
-              <p className={style.infoText}>
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại The Moon Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /><br />
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại The Moon Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.Tại The Moon Hotel & Resort, chúng tôi mang đến không gian nghỉ dưỡng sang trọng, dịch vụ đẳng cấp cùng những trải nghiệm tuyệt vời. Mỗi căn phòng không chỉ là nơi dừng chân mà còn là điểm khởi đầu cho những hành trình đáng nhớ. <br /> <br />
-                Nơi lưu trú lý tưởng cho những khoảnh khắc đáng nhớ.
-              </p>
-            </div>
+            <motion.div
+              className={style.imageWrapper}
+              whileHover="hover"
+              initial="rest"
+              animate="rest"
+              variants={{ rest: {}, hover: {} }}
+            >
+              <motion.img
+                src="/img/about.jpg"
+                alt="default"
+                className={`${style.image} ${style.defaultImage}`}
+                variants={{
+                  rest: { opacity: 1, scale: 1 },
+                  hover: { opacity: 0, scale: 1.05 },
+                }}
+                transition={{ duration: 0.5 }}
+              />
+              <motion.img
+                src="/img/phong13.jpg"
+                alt="hover"
+                className={`${style.image} ${style.hoverImage}`}
+                variants={{
+                  rest: { opacity: 0, scale: 1 },
+                  hover: { opacity: 1, scale: 1.05 },
+                }}
+                transition={{ duration: 0.5 }}
+              />
+            </motion.div>
+
+            {/* Nội dung có animation khi hiện ra */}
+            <motion.div
+              className={style.infoMainContent}
+              initial={{ x: 50, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: false }}
+            >
+              <motion.h3
+                className={style.infoTitle}
+                initial={{ x: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: false }}
+              >
+                THE MOON
+              </motion.h3>
+
+              <motion.p
+                className={style.infoText}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.2 }}
+                viewport={{ once: false }}
+              >
+                Tận hưởng kỳ nghỉ trong mơ tại The Moon Hotel & Resort. Chúng tôi mang đến không gian sang trọng, yên bình và đầy cảm hứng.
+                <br /><br />
+                Mỗi căn phòng là sự kết hợp hoàn hảo giữa tiện nghi hiện đại và vẻ đẹp tinh tế.
+                <br /><br />
+                Hãy để hành trình của bạn bắt đầu với những trải nghiệm độc đáo và dịch vụ tận tâm từ chúng tôi.
+                <br /><br />
+                The Moon – nơi mỗi khoảnh khắc đều là một kỷ niệm đáng nhớ.
+              </motion.p>
+            </motion.div>
           </div>
           <Row className="g-4 justify-content-center mt-4">
             <Col lg={4} md={6}>
