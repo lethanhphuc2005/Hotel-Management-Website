@@ -7,11 +7,14 @@ import Link from "next/link";
 import { getMainRoomClass } from "../../services/mainroomclassService";
 import { MainRoomClass } from "../../types/mainroomclass";
 import { useAuth } from "../../context/AuthContext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/context/store";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
   const { user, logout } = useAuth();
+  const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -187,7 +190,27 @@ export default function Header() {
             </div>
 
             <Link className={`text-white`} href="/cart">
-              <i className="bi bi-bag-check-fill fs-5"></i>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <i className="bi bi-cart fs-5" style={{ fontSize: 28, color: '#fff' }}></i>
+                {cartCount > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -5,
+                      right: -13,
+                      background: '#FAB320',
+                      color: 'black',
+                      borderRadius: '50%',
+                      padding: '3px 8px',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </div>
             </Link>
           </div>
         </div>

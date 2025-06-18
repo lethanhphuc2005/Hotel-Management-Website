@@ -9,6 +9,8 @@ import { AuthProvider } from "./services/AuthProvider"; // Import AuthProvider, 
 import ChatbotPopup from "./components/chatbotAI/chatBotPopup";
 import { LoadingProvider } from "./context/LoadingContext";
 import GlobalLoading from "./components/loadingPage/GlobalLoading";
+import { store } from './context/store';
+import CartProvider from "./services/CartProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,15 +37,17 @@ export default function RootLayout({
         <link rel="preload" as="image" href="/img/loading-bg.jpg" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <LoadingProvider>
-          <AuthProvider>
-            <GlobalLoading />
-            <Header />
-            {children}
-            <Footer />
-          </AuthProvider>
-          <ChatbotPopup />
-        </LoadingProvider>
+        <CartProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <GlobalLoading />
+              <Header />
+              {children}
+              <Footer />
+            </AuthProvider>
+            <ChatbotPopup />
+          </LoadingProvider>
+        </CartProvider>
       </body>
     </html>
   );

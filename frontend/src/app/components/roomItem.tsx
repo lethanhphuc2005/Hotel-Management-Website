@@ -2,6 +2,7 @@
 import { Col } from "react-bootstrap";
 import Image from "next/image";
 import style from "../page.module.css";
+import roomtypeStyle from "../roomtype/[parentSlug]/rcChild.module.css";
 import { Service } from "../types/service";
 import { useState, useRef, useEffect } from "react";
 import { MainRoomClass } from "../types/mainroomclass";
@@ -18,6 +19,11 @@ import {
 import { useInView } from "react-intersection-observer";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { addRoomToCart } from "../context/cartSlice";
+import { useRoomSearch } from "../hooks/useRoomSearch";
+import { toast } from "react-toastify";
+import { RootState } from "../context/store";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -273,6 +279,57 @@ export function RoomClassItem({
   showExtraBedOver6?: boolean;
 }) {
   const [liked, setLiked] = useState(false);
+  const dispatch = useDispatch();
+  const { guests, startDate: selectedStartDate, endDate: selectedEndDate } = useRoomSearch();
+  const adults = numberOfAdults;
+  const childrenUnder6 = guests.children.age0to6;
+  const childrenOver6 = guests.children.age7to17;
+  const cartRooms = useSelector((state: RootState) => state.cart.rooms);
+
+
+  const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
+
+  const isSaturdayNight = hasSaturdayNight(startDate, endDate);
+  const finalTotal = basePrice * numberOfNights * (isSaturdayNight ? 1.5 : 1);
+  const handleAddToCart = () => {
+    // Kiểm tra ngày đã chọn chưa
+    if (!hasSearched || !selectedStartDate || !selectedEndDate) {
+      toast.error("Vui lòng chọn ngày nhận và trả phòng trước khi thêm vào giỏ hàng!");
+      return;
+    }
+    const checkInISO = startDate?.toLocaleDateString('vi-VN') || '';
+    const checkOutISO = endDate?.toLocaleDateString('vi-VN') || '';
+    // 🔍 Kiểm tra trùng phòng đã có trong giỏ hàng
+    const isDuplicate = cartRooms.some(room =>
+      room.name.includes(rci.name) &&
+      room.view === rci.view &&
+      room.checkIn === checkInISO &&
+      room.checkOut === checkOutISO
+    );
+
+    if (isDuplicate) {
+      toast.error("Phòng này bạn đã thêm vào giỏ hàng rồi!");
+      return;
+    }
+    dispatch(addRoomToCart({
+      id: rci._id + '-' + Date.now(),
+      name: rci.name,
+      img: rci.images[0]?.url || '',
+      desc: `${adults ?? 1} người lớn${numberOfChildren ? `, ${numberOfChildren} trẻ em` : ''}, ${rci.bed_amount} giường đôi`,
+      price: rci.price_discount > 0 ? rci.price_discount : rci.price,
+      nights: numberOfNights,
+      checkIn: startDate?.toLocaleDateString('vi-VN') || '',
+      checkOut: endDate?.toLocaleDateString('vi-VN') || '',
+      adults: adults ?? 1,
+      childrenUnder6,
+      childrenOver6,
+      bedAmount: rci.bed_amount,
+      view: rci.view,
+      total: finalTotal,
+      hasSaturdayNight: isSaturdayNight,
+    }));
+    toast.success("Đã thêm phòng vào giỏ hàng!");
+  };
 
   // Hàm kiểm tra có đêm Thứ 7 không
   function hasSaturdayNight(start?: Date, end?: Date) {
@@ -307,9 +364,16 @@ export function RoomClassItem({
   return (
     <>
       <div
-        className="col border rounded-4 d-flex p-3 gap-3"
+        className="col border rounded-4 d-flex p-3 gap-3 position-relative"
         style={{ height: "280px" }}
       >
+        <button
+          type="button"
+          className={roomtypeStyle.cartButton}
+          onClick={handleAddToCart}
+        >
+          <i className={`bi bi-bag-plus-fill ${roomtypeStyle.cartIcon}`}></i>
+        </button>
         <div className="position-relative">
           <a href={`/roomdetail/${rci._id}`}>
             <img
@@ -325,9 +389,8 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${
-                liked ? "text-danger" : "text-dark"
-              }`}
+              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
+                }`}
             ></i>
           </button>
         </div>
