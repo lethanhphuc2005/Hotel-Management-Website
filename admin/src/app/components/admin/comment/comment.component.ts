@@ -6,7 +6,7 @@ import { CommentItemComponent } from "./comment-item/comment-item.component";
 @Component({
   selector: 'app-comment',
   templateUrl: './comment.component.html',
-  styleUrls: ['./comment.component.css'],
+  styleUrls: ['./comment.component.scss'],
   imports: [CommonModule, CommentItemComponent]
 })
 export class CommentComponent implements OnInit {

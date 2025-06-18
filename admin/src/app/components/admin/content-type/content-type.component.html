@@ -1,8 +1,25 @@
 <div class="website-content-card">
   <h2>Quản lý loại nội dung</h2>
 
-  <div class="room-controls">
-    <input type="text" placeholder="Tìm kiếm tên loại..." [(ngModel)]="searchKeyword" (input)="onSearch()" />
+  <div
+    class="room-controls"
+    style="display: flex; align-items: center; gap: 8px"
+  >
+    <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+      />
+      <label for="floatingInput">Tìm kiếm</label>
+    </div>
     <button class="add-room" (click)="onAdd()">+ Thêm loại nội dung</button>
   </div>
 
