@@ -70,16 +70,6 @@ const roomClassController = {
     if (typeof status !== "boolean") {
       return { valid: false, message: "Trạng thái phải là true hoặc false." };
     }
-    // Check if the room type is active
-    // if (roomClassId) {
-    //   const existingRoomClass = await RoomClass.findById(roomClassId);
-    //   if (existingRoomClass && existingRoomClass.TrangThai === true) {
-    //     return {
-    //       valid: false,
-    //       message: "Không thể cập nhật loại phòng đang hoạt động.",
-    //     };
-    //   }
-    // }
 
     // Check features if provided
     if (Array.isArray(features) && features.length > 0) {
@@ -398,7 +388,7 @@ const roomClassController = {
 
           {
             path: "comments",
-            select: "-status -createdAt -updatedAt",
+            select: "-status",
             populate: [
               {
                 path: "user_id",
@@ -415,6 +405,7 @@ const roomClassController = {
           },
           {
             path: "reviews",
+            select: "-status",
             populate: [
               {
                 path: "user_id",
@@ -575,7 +566,7 @@ const roomClassController = {
         { path: "images", select: "url", match: { status: true } },
         {
           path: "comments",
-          select: "-status -createdAt -updatedAt",
+          select: "-status",
           populate: [
             {
               path: "user_id",
@@ -592,14 +583,15 @@ const roomClassController = {
         },
         {
           path: "reviews",
+          select: "-status",
           populate: [
             {
               path: "user_id",
-              select: "first_name last_name email phone_number",
+              select: "-address -status -createdAt -updatedAt",
             },
             {
               path: "employee_id",
-              select: "first_name last_name email phone_number",
+              select: "-address -status -createdAt -updatedAt",
             },
             {
               path: "parent_id",

@@ -85,7 +85,19 @@ const userController = {
   // ==== LẤY USER THEO ID ====
   getUserById: async (req, res) => {
     try {
-      const user = await User.findById(req.params.id).select("-password");
+      const user = await User.findById(req.params.id)
+        .select("-password")
+        .populate([
+          {
+            path: "comments",
+          },
+          {
+            path: "reviews",
+          },
+          {
+            path: "bookings",
+          },
+        ]);
       if (!user) {
         return res.status(404).json("Không tìm thấy user");
       }

@@ -18,7 +18,7 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
           return (
             <Image
               key={index}
-              src={`http://localhost:8000${img.url}`}
+              src={`http://localhost:8000/images/${img.url}`}
               alt="Phòng Standard"
               layout="fill"
               objectFit="cover"
@@ -46,7 +46,7 @@ export function DiscountItem({ dci }: { dci: Discount }) {
       <div className={`card h-100 shadow-sm border-0 ${style.offerCard}`}>
         <div className="position-relative">
           <img
-            src={`/img/${dci.image}`}
+            src={`http://localhost:8000/images/${dci.image}`}
             className="card-img-top"
             alt={dci.name}
             style={{ height: "220px", objectFit: "cover" }}
@@ -81,7 +81,7 @@ export function ServiceItem({ svi }: { svi: Service }) {
       <div className={`${style.serviceCard}`}>
         <div style={{ position: "relative", width: "100%", height: 180 }}>
           <Image
-            src={`/img/${svi.image}`}
+            src={`http://localhost:8000/images/${svi.image}`}
             alt={svi.name}
             layout="fill"
             objectFit="cover"
