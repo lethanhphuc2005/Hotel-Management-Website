@@ -55,20 +55,16 @@
 .container {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 90px 1rem 0;
+  padding: 70px 1rem 0;
 }
 
 .title {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 0.75rem;
+  margin-top: 3.5rem;
 }
 
-.imageContainer {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
 
 .mainImage {
   width: 51.52%;
@@ -619,4 +615,78 @@
 }
 .customTextarea::placeholder {
   color: white;
+}
+
+/* Kéo dài container ảnh ra toàn màn hình */
+.swiperContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+}
+.thumbImage {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: border 0.5s;
+  cursor: pointer
+}
+.swiper-slide-thumb-active .thumbImage {
+  border: 2px solid #ffb700;
+}
+.mainImage {
+  width: 100%;
+  height: 600px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+
+
+.thumbWrapper {
+  flex-basis: 20%;   /* Đổi thành 30% nếu muốn 30-70 */
+  max-width: 20%;
+  min-width: 80px;
+}
+
+.mainWrapper {
+  flex-basis: 80%;   /* Đổi thành 70% nếu muốn 30-70 */
+  max-width: 80%;
+  position: relative;
+  padding-bottom: 40px;
+}
+
+.mainSwiper {
+  width: 100%;
+  height: 600px; /* chỉnh chiều cao nếu cần */
+}
+.thumbSwiper {
+  width: 100%;
+  height: 600px;
+}
+.thumbImage{
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+.swiper-pagination {
+  bottom: 10px !important; /* đảm bảo nằm phía dưới */
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+}
+
+.swiper-pagination-bullet {
+  background-color: #ddd;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #ffb700;
+  opacity: 1;
 }
