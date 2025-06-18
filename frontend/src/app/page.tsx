@@ -31,6 +31,7 @@ export default function Home() {
       <Banner banners={websitecontent} />
       <div className="mt-2">
         <RoomSearchBar
+          
           dateRange={dateRange}
           setDateRange={setDateRange}
           guests={guests}
@@ -132,7 +133,7 @@ export default function Home() {
             >
               <motion.h3
                 className={style.infoTitle}
-                initial={{ x: 20, opacity: 0 }}
+                initial={{ y: -90, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6 }}
                 viewport={{ once: false }}

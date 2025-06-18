@@ -6,7 +6,38 @@ const bookingSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
+      required: false,
+      default: null,
+    },
+    full_name: {
+      type: String,
       required: true,
+      trim: true,
+      maxlength: 100,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100,
+      validate: {
+        validator: function (v) {
+          return /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid email!`,
+      },
+    },
+    phone_number: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 15,
+      validate: {
+        validator: function (v) {
+          return /^\+?[1-9]\d{1,14}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid phone number!`,
+      },
     },
     booking_date: {
       type: Date,

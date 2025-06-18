@@ -16,6 +16,8 @@ import {
   useAnimation,
 } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { tr } from "date-fns/locale";
+import Link from "next/link";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -107,14 +109,20 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
           <div className={style.priceContainer}>
             <span className={style.priceLabel}>{mrci.description}</span>
           </div>
-          <motion.a
-            href="#"
-            className={style.seeMore}
-            whileHover={{ backgroundColor: "#fab320", color: "#2a2f4a" }}
-            transition={{ duration: 0 }}
-          >
-            Xem thêm
-          </motion.a>
+          <Link href={`/roomtype/${mrci._id}`}>
+            <motion.div
+              className={style.seeMore}
+              whileHover={{
+                backgroundColor: "#fab320",
+                color: "#2a2f4a",
+                scale: 1.1,
+              }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0 }}
+            >
+              Xem thêm
+            </motion.div>
+          </Link>
         </div>
       </motion.div>
     </Col>
@@ -154,7 +162,8 @@ export function DiscountItem({ dci }: { dci: Discount }) {
           <p className="card-text">{dci.description}</p>
           <ul className="list-unstyled small">
             <li>
-              <strong>Từ:</strong> {new Date(dci.start_day).toLocaleDateString()}
+              <strong>Từ:</strong>{" "}
+              {new Date(dci.start_day).toLocaleDateString()}
             </li>
             <li>
               <strong>Đến:</strong> {new Date(dci.end_day).toLocaleDateString()}
@@ -163,9 +172,14 @@ export function DiscountItem({ dci }: { dci: Discount }) {
               <strong>Giới hạn:</strong> {dci.limit}
             </li>
           </ul>
-          <a href="#" className={`btn-sm mt-2 ${style.seeMore}`}>
+          <motion.a
+            className={`btn-sm mt-2 ${style.seeMore}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0 }}
+          >
             Xem chi tiết →
-          </a>
+          </motion.a>
         </div>
       </motion.div>
     </Col>
@@ -193,7 +207,7 @@ export function ServiceItem({ svi }: { svi: Service }) {
         className={style.serviceCard}
         initial={{ opacity: 0, y: 40 }}
         animate={controls}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
       >
         <div style={{ position: "relative", width: "100%", height: 180 }}>
           <Image
@@ -218,9 +232,15 @@ export function ServiceItem({ svi }: { svi: Service }) {
               {svi.description}
             </span>
           </div>
-          <button className={`w-100`} onClick={() => setShowModal(true)}>
-            Xem chi tiết
-          </button>
+          <a>
+            <motion.button
+              className={`w-100`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Xem chi tiết
+            </motion.button>
+          </a>
         </div>
       </motion.div>
     </>
@@ -305,8 +325,9 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
-                }`}
+              className={`bi bi-heart-fill ${
+                liked ? "text-danger" : "text-dark"
+              }`}
             ></i>
           </button>
         </div>
