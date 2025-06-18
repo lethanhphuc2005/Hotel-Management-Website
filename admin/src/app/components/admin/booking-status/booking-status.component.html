@@ -59,13 +59,17 @@
     </label>
   </div>
   <div>
-    <ng-container *ngIf="status.bookings?.length > 0; else noBooking">
-      <div *ngFor="let booking of status.bookings" style="font-size: 13px">
-        - Mã: {{ booking._id?.slice(-6) }} <!-- hoặc booking.user_id / booking.booking_date -->
-      </div>
-    </ng-container>
-    <ng-template #noBooking>Không có</ng-template>
-  </div>
+  <ng-container *ngIf="status.bookings?.length > 0; else noBooking">
+    <div *ngFor="let booking of status.bookings.slice(0, 2)" style="font-size: 13px">
+      - Mã: {{ booking._id?.slice(-6) }}
+    </div>
+
+    <div *ngIf="status.bookings.length > 2" style="font-size: 13px; color: #888;">
+      +{{ status.bookings.length - 2 }} bản ghi nữa
+    </div>
+  </ng-container>
+  <ng-template #noBooking>Không có</ng-template>
+</div>
 
   <div class="actions">
     <button class="icon-button" (click)="onEdit(status); $event.stopPropagation()">
