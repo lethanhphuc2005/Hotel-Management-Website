@@ -16,6 +16,8 @@
         id="floatingInput"
         placeholder="name@example.com"
         style="width: 100%; padding-right: 30px"
+         [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
       />
       <label for="floatingInput">Tìm kiếm</label>
     </div>
