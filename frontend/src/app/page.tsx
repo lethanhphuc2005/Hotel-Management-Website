@@ -1,40 +1,57 @@
-'use client';
+"use client";
 import Image from "next/image";
 import { Container, Row, Col } from "react-bootstrap";
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import "bootstrap-icons/font/bootstrap-icons.css";
 import style from "./page.module.css";
-import { DiscountList, MainRoomClassList, ServiceList } from "./components/roomList";
+import {
+  DiscountList,
+  MainRoomClassList,
+  ServiceList,
+} from "./components/roomList";
 import { Banner } from "./components/bannerItem";
 import RoomSearchBar from "./components/roomSearchBar";
-import { useRoomSearch } from './hooks/useRoomSearch';
+import { useRoomSearch } from "./hooks/useRoomSearch";
 import { useData } from "./hooks/useData";
 import { motion } from "framer-motion";
-import { start } from "repl";
+import { useScrollAnimation } from "./hooks/animations/useScrollAnimation";
 
 export default function Home() {
   const {
-    dateRange, setDateRange,
-    guests, setGuests,
-    showCalendar, setShowCalendar,
-    showGuestBox, setShowGuestBox,
-    guestBoxRef, calendarRef,
-    maxGuests, setMaxGuests,
+    dateRange,
+    setDateRange,
+    guests,
+    setGuests,
+    showCalendar,
+    setShowCalendar,
+    showGuestBox,
+    setShowGuestBox,
+    guestBoxRef,
+    calendarRef,
+    maxGuests,
+    setMaxGuests,
     totalGuests,
-    numberOfNights, setNumberOfNights,
-    totalPrice, setTotalPrice,
-    hasSearched, setHasSearched,
-    pendingGuests, setPendingGuests,
-    pendingDateRange, setPendingDateRange,
-    startDate, setStartDate,
-    endDate, setEndDate,
+    numberOfNights,
+    setNumberOfNights,
+    totalPrice,
+    setTotalPrice,
+    hasSearched,
+    setHasSearched,
+    pendingGuests,
+    setPendingGuests,
+    pendingDateRange,
+    setPendingDateRange,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
   } = useRoomSearch();
   const { websitecontent, mainroomclass, services, discount } = useData();
+  const [ref, controls] = useScrollAnimation(0.2, false);
   return (
     <>
       <Banner banners={websitecontent} />
       <div className="mt-2">
         <RoomSearchBar
-
           dateRange={dateRange}
           setDateRange={setDateRange}
           guests={guests}
@@ -63,43 +80,18 @@ export default function Home() {
           endDate={endDate}
           setEndDate={setEndDate}
         />
-
       </div>
       <Container fluid className={`${style.customContainer} container`}>
-        {/* LOẠI PHÒNG Section */}
-        <div className={style.headerContainer}>
-          <h2 className={style.sectionTitle}>LOẠI PHÒNG</h2>
-          <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
-        </div>
-        <Row className="g-4 justify-content-center">
-          <MainRoomClassList mrcl={mainroomclass} />
-        </Row>
-        <br />
+        <MainRoomClassList title="Loại phòng" mrcl={mainroomclass} />
 
-        {/* DỊCH VỤ KHÁCH SẠN Section */}
-        <div className={`mt-5 ${style.headerContainer}`}>
-          <h2 className={style.sectionTitle}>DỊCH VỤ KHÁCH SẠN</h2>
-          <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
-        </div>
-        <Row className="g-4 justify-content-center">
-          <ServiceList svl={services} />
-        </Row>
-        {/* ƯU ĐÃI ĐẶC BIỆT Section */}
-        <div className={`mt-5 ${style.headerContainer}`}>
-          <h2 className={style.sectionTitle}>ƯU ĐÃI ĐẶC BIỆT (giảm 30% khi đặt trước 7 ngày)</h2>
-          <a href="#" className={style.seeAll}>Xem tất cả <i className="bi bi-arrow-right"></i></a>
-        </div>
-        <Row className="g-4 justify-content-center">
-          <DiscountList dcl={discount.slice(0, 3)} />
-        </Row>
-        <br />
-        <br />
-        <br />
-        {/* THÔNG TIN Section */}
-        <div className={style.headerContainer1}>
-          <h2 className={style.sectionTitle1}>THÔNG TIN</h2>
-        </div>
+        <ServiceList title="Dịch vụ khách sạn" svl={services} />
+
+        <DiscountList title="Ưu đãi đặc biệt" dcl={discount.slice(0, 3)} />
+
         <div className={style.infoSection}>
+          <div className={style.headerContainer1}>
+            <h2 className={style.sectionTitle1}>THÔNG TIN</h2>
+          </div>
           <div className={style.infoMainCard}>
             <motion.div
               className={style.imageWrapper}
@@ -155,17 +147,30 @@ export default function Home() {
                 transition={{ duration: 0.9, delay: 0.2 }}
                 viewport={{ once: false }}
               >
-                Tận hưởng kỳ nghỉ trong mơ tại The Moon Hotel & Resort. Chúng tôi mang đến không gian sang trọng, yên bình và đầy cảm hứng.
-                <br /><br />
-                Mỗi căn phòng là sự kết hợp hoàn hảo giữa tiện nghi hiện đại và vẻ đẹp tinh tế.
-                <br /><br />
-                Hãy để hành trình của bạn bắt đầu với những trải nghiệm độc đáo và dịch vụ tận tâm từ chúng tôi.
-                <br /><br />
+                Tận hưởng kỳ nghỉ trong mơ tại The Moon Hotel & Resort. Chúng
+                tôi mang đến không gian sang trọng, yên bình và đầy cảm hứng.
+                <br />
+                <br />
+                Mỗi căn phòng là sự kết hợp hoàn hảo giữa tiện nghi hiện đại và
+                vẻ đẹp tinh tế.
+                <br />
+                <br />
+                Hãy để hành trình của bạn bắt đầu với những trải nghiệm độc đáo
+                và dịch vụ tận tâm từ chúng tôi.
+                <br />
+                <br />
                 The Moon – nơi mỗi khoảnh khắc đều là một kỷ niệm đáng nhớ.
               </motion.p>
             </motion.div>
           </div>
-          <Row className="g-4 justify-content-center mt-4">
+
+          <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 40 }}
+            animate={controls}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="mt-5 mb-5 d-flex row"
+          >
             <Col lg={4} md={6}>
               <div className={style.infoCard}>
                 <Image
@@ -179,8 +184,10 @@ export default function Home() {
                 <div className={style.infoCardContent}>
                   <h4 className={style.infoCardTitle}>THE MOON</h4>
                   <p className={style.infoCardText}>
-                    Nơi để sáng tạo vòng đời với không gian sang trọng và hưởng ứng cocktail độc đáo. Tất cả, chúng tôi mang
-                    đến sự trải nghiệm tuyệt vời với những món cocktail đặc biệt tại quầy bar của chúng tôi.
+                    Nơi để sáng tạo vòng đời với không gian sang trọng và hưởng
+                    ứng cocktail độc đáo. Tất cả, chúng tôi mang đến sự trải
+                    nghiệm tuyệt vời với những món cocktail đặc biệt tại quầy
+                    bar của chúng tôi.
                   </p>
                   <ul className={style.infoList}>
                     <li>Check-in: Từ 2:00 PM</li>
@@ -230,7 +237,7 @@ export default function Home() {
                 </div>
               </div>
             </Col>
-          </Row>
+          </motion.div>
         </div>
       </Container>
     </>

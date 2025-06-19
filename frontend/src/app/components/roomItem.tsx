@@ -44,17 +44,9 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
       : "0px 8px 20px rgba(0, 0, 0, 0.05)"
   );
 
-  const controls = useAnimation();
-  const [inViewRef, inView] = useInView({ threshold: 0.2, triggerOnce: false });
-
   const setRefs = (node: HTMLDivElement | null) => {
     ref.current = node;
-    inViewRef(node);
   };
-
-  useEffect(() => {
-    controls.start(inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 });
-  }, [inView]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -90,9 +82,6 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
           boxShadow,
           transformStyle: "preserve-3d",
         }}
-        initial={{ opacity: 0, y: 40 }}
-        animate={controls}
-        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className={style.roomImageWrapper}>
           {mrci.images?.map((img, index) => (
@@ -139,11 +128,7 @@ export function DiscountItem({ dci }: { dci: Discount }) {
   return (
     <Col lg={4} md={6} className="mb-4">
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.03 }}
-        viewport={{ once: false }}
-        transition={{ duration: 0.4 }}
         className={`card h-100 shadow-sm border-0 ${style.offerCard}`}
         style={{ cursor: "pointer", overflow: "hidden" }}
       >
@@ -195,61 +180,42 @@ export function DiscountItem({ dci }: { dci: Discount }) {
 export function ServiceItem({ svi }: { svi: Service }) {
   const [showModal, setShowModal] = useState(false);
 
-  const controls = useAnimation();
-  const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: false });
-
-  useEffect(() => {
-    if (inView) {
-      controls.start({ opacity: 1, y: 0 });
-    } else {
-      controls.start({ opacity: 0, y: 40 });
-    }
-  }, [inView]);
-
   return (
-    <>
-      <motion.div
-        ref={ref}
-        className={style.serviceCard}
-        initial={{ opacity: 0, y: 40 }}
-        animate={controls}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
-      >
-        <div style={{ position: "relative", width: "100%", height: 180 }}>
-          <Image
-            src={`http://localhost:8000/images/${svi.image}`}
-            alt={svi.name}
-            layout="fill"
-            objectFit="cover"
-            className={style.serviceImage}
-          />
-        </div>
-        <div className="p-3">
-          <h5 style={{ fontWeight: 600 }}>{svi.name}</h5>
+    <div className={style.serviceCard}>
+      <div style={{ position: "relative", width: "100%", height: 180 }}>
+        <Image
+          src={`http://localhost:8000/images/${svi.image}`}
+          alt={svi.name}
+          layout="fill"
+          objectFit="cover"
+          className={style.serviceImage}
+        />
+      </div>
+      <div className="p-3">
+        <h5 style={{ fontWeight: 600 }}>{svi.name}</h5>
 
-          <div className="mb-4 mt-3 d-flex align-items-center gap-1">
-            <span role="img" aria-label="clock">
-              <i className="bi bi-bookmark-check-fill"></i>
-            </span>
-            <span
-              className="text-truncate"
-              style={{ marginLeft: 8, color: "white" }}
-            >
-              {svi.description}
-            </span>
-          </div>
-          <a>
-            <motion.button
-              className={`w-100`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Xem chi tiết
-            </motion.button>
-          </a>
+        <div className="mb-4 mt-3 d-flex align-items-center gap-1">
+          <span role="img" aria-label="clock">
+            <i className="bi bi-bookmark-check-fill"></i>
+          </span>
+          <span
+            className="text-truncate"
+            style={{ marginLeft: 8, color: "white" }}
+          >
+            {svi.description}
+          </span>
         </div>
-      </motion.div>
-    </>
+        <a>
+          <motion.button
+            className={`w-100`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Xem chi tiết
+          </motion.button>
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -280,12 +246,15 @@ export function RoomClassItem({
 }) {
   const [liked, setLiked] = useState(false);
   const dispatch = useDispatch();
-  const { guests, startDate: selectedStartDate, endDate: selectedEndDate } = useRoomSearch();
+  const {
+    guests,
+    startDate: selectedStartDate,
+    endDate: selectedEndDate,
+  } = useRoomSearch();
   const adults = numberOfAdults;
   const childrenUnder6 = guests.children.age0to6;
   const childrenOver6 = guests.children.age7to17;
   const cartRooms = useSelector((state: RootState) => state.cart.rooms);
-
 
   const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
 
@@ -294,40 +263,47 @@ export function RoomClassItem({
   const handleAddToCart = () => {
     // Kiểm tra ngày đã chọn chưa
     if (!hasSearched || !selectedStartDate || !selectedEndDate) {
-      toast.error("Vui lòng chọn ngày nhận và trả phòng trước khi thêm vào giỏ hàng!");
+      toast.error(
+        "Vui lòng chọn ngày nhận và trả phòng trước khi thêm vào giỏ hàng!"
+      );
       return;
     }
-    const checkInISO = startDate?.toLocaleDateString('vi-VN') || '';
-    const checkOutISO = endDate?.toLocaleDateString('vi-VN') || '';
+    const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
+    const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
     // 🔍 Kiểm tra trùng phòng đã có trong giỏ hàng
-    const isDuplicate = cartRooms.some(room =>
-      room.name.includes(rci.name) &&
-      room.view === rci.view &&
-      room.checkIn === checkInISO &&
-      room.checkOut === checkOutISO
+    const isDuplicate = cartRooms.some(
+      (room) =>
+        room.name.includes(rci.name) &&
+        room.view === rci.view &&
+        room.checkIn === checkInISO &&
+        room.checkOut === checkOutISO
     );
 
     if (isDuplicate) {
       toast.error("Phòng này bạn đã thêm vào giỏ hàng rồi!");
       return;
     }
-    dispatch(addRoomToCart({
-      id: rci._id + '-' + Date.now(),
-      name: rci.name,
-      img: rci.images[0]?.url || '',
-      desc: `${adults ?? 1} người lớn${numberOfChildren ? `, ${numberOfChildren} trẻ em` : ''}, ${rci.bed_amount} giường đôi`,
-      price: rci.price_discount > 0 ? rci.price_discount : rci.price,
-      nights: numberOfNights,
-      checkIn: startDate?.toLocaleDateString('vi-VN') || '',
-      checkOut: endDate?.toLocaleDateString('vi-VN') || '',
-      adults: adults ?? 1,
-      childrenUnder6,
-      childrenOver6,
-      bedAmount: rci.bed_amount,
-      view: rci.view,
-      total: finalTotal,
-      hasSaturdayNight: isSaturdayNight,
-    }));
+    dispatch(
+      addRoomToCart({
+        id: rci._id + "-" + Date.now(),
+        name: rci.name,
+        img: rci.images[0]?.url || "",
+        desc: `${adults ?? 1} người lớn${
+          numberOfChildren ? `, ${numberOfChildren} trẻ em` : ""
+        }, ${rci.bed_amount} giường đôi`,
+        price: rci.price_discount > 0 ? rci.price_discount : rci.price,
+        nights: numberOfNights,
+        checkIn: startDate?.toLocaleDateString("vi-VN") || "",
+        checkOut: endDate?.toLocaleDateString("vi-VN") || "",
+        adults: adults ?? 1,
+        childrenUnder6,
+        childrenOver6,
+        bedAmount: rci.bed_amount,
+        view: rci.view,
+        total: finalTotal,
+        hasSaturdayNight: isSaturdayNight,
+      })
+    );
     toast.success("Đã thêm phòng vào giỏ hàng!");
   };
 
@@ -389,8 +365,9 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
-                }`}
+              className={`bi bi-heart-fill ${
+                liked ? "text-danger" : "text-dark"
+              }`}
             ></i>
           </button>
         </div>

@@ -2,6 +2,13 @@ const router = require("express").Router();
 const PaymentController = require("../controllers/payment.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
+// === LẤY DANH SÁCH ĐƠN THANH TOÁN ===
+router.get(
+  "/",
+  authMiddleware.authorizeRoles("admin"),
+  PaymentController.getAllPayments
+);
+
 // === TẠO YÊU CẦU THANH TOÁN ===
 router.post("/:method/create", PaymentController.createPayment);
 

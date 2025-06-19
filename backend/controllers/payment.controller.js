@@ -180,6 +180,31 @@ const PaymentController = {
       });
     }
   },
+
+  // === LẤY DANH SÁCH ĐƠN THANH TOÁN ===
+  getAllPayments: async (req, res) => {
+    try {
+      const payments = await Payment.find().populate(
+        "booking payment_method"
+      );
+      if (!payments || payments.length === 0) {
+        return res.status(404).json({
+          error: "No payments found",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Payments retrieved successfully",
+        data: payments,
+      });
+    } catch (error) {
+      console.error("Get all payments error:", error.message);
+      return res.status(500).json({
+        error: error.message || "Failed to get all payments",
+        code: error.code || "INTERNAL_SERVER_ERROR",
+      });
+    }
+  },
 };
 
 module.exports = PaymentController;
