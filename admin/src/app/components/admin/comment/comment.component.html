@@ -1,6 +1,22 @@
 <div class="comment-management-card">
   <h2>Quản lí bình luận</h2>
 
+  <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+      />
+      <label for="floatingInput">Tìm kiếm</label>
+    </div>
+
   <div class="table-header">
     <div>STT</div>
     <div>Tên người dùng</div>
@@ -71,8 +87,12 @@
 </div>
 
 
-  <app-comment-item *ngFor="let comment of comments; let i = index" [comment]="comment" [index]="i" [level]="0"
-    [onViewComment]="viewComment.bind(this)">
-  </app-comment-item>
+  <app-comment-item
+  *ngFor="let comment of filteredComments; let i = index"
+  [comment]="comment"
+  [index]="i"
+  [level]="0"
+  [onViewComment]="viewComment.bind(this)">
+</app-comment-item>
 
 </div>
