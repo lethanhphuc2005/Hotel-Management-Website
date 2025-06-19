@@ -1,5 +1,5 @@
 "use client";
-import { useData } from "@/app/hooks/useData";
+import { useData } from "@/hooks/useData";
 import styles from "./roomDetail.module.css";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";

@@ -39,8 +39,7 @@ const RoomClassSchema = new mongoose.Schema(
     },
     view: {
       type: String,
-      enum: ["sea", "mountain", "city", "garden", "pool"],
-      default: "city",
+      enum: ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"],
       trim: true,
     },
     description: {

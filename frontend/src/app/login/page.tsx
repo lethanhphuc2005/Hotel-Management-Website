@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import styles from "./Login.module.css";
 import { useRouter } from "next/navigation";
 
@@ -54,10 +54,14 @@ const LoginPage = () => {
             required
           />
           <p className={styles.infoText}>
-            <a href="/quenmk" style={{ color: "white" }}>Quên mật khẩu? Nhấn vào đây</a>
+            <a href="/quenmk" style={{ color: "white" }}>
+              Quên mật khẩu? Nhấn vào đây
+            </a>
           </p>
 
-          <button type="submit" className={styles.continueButton}>Đăng Nhập</button>
+          <button type="submit" className={styles.continueButton}>
+            Đăng Nhập
+          </button>
 
           {message && (
             <p
@@ -85,8 +89,12 @@ const LoginPage = () => {
         </div>
 
         <div className={styles.socialLogin}>
-          <a href=""><i className="bi bi-facebook"></i></a>
-          <a href=""><i className="bi bi-twitter"></i></a>
+          <a href="">
+            <i className="bi bi-facebook"></i>
+          </a>
+          <a href="">
+            <i className="bi bi-twitter"></i>
+          </a>
         </div>
       </div>
     </div>

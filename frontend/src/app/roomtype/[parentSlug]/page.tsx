@@ -1,11 +1,11 @@
 "use client";
 import { useParams } from "next/navigation";
-import { RoomClassList } from "../../components/roomList";
+import { RoomClassList } from "@/components/roomList";
 import React, { useEffect, useState } from "react";
-import { useRoomSearch } from "../../hooks/useRoomSearch";
-import RoomSearchBar from "@/app/components/roomSearchBar";
-import { useData } from "@/app/hooks/useData";
-import AnimatedCheckbox from "@/app/components/checkbox";
+import { useRoomSearch } from "@/hooks/useRoomSearch";
+import RoomSearchBar from "@/components/roomSearchBar";
+import { useData } from "@/hooks/useData";
+import AnimatedCheckbox from "@/components/checkbox";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Roomclass() {
@@ -51,15 +51,7 @@ export default function Roomclass() {
     // totalEffectiveGuests
   } = useRoomSearch();
   const { roomclass } = useData();
-  const viewList = [
-    "sea",
-    "city",
-    "garden",
-    "mountain",
-    "pool",
-    "river",
-    "lake",
-  ];
+  const viewList = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
 
@@ -186,7 +178,7 @@ export default function Roomclass() {
     <>
       <div
         className={`container text-white`}
-        style={{ height: "1750px", marginTop: "7%", marginBottom: "10%" }}
+        style={{ marginTop: "7%", marginBottom: "10%" }}
       >
         <div className="row">
           <RoomSearchBar
@@ -249,9 +241,9 @@ export default function Roomclass() {
               <p className="mt-2">Giá: {price.toLocaleString("vi-VN")}đ</p>
 
               <p
-                className="mt-3 mb-2  cursor-pointer"
+                className="mt-3 mb-2"
                 onClick={() => setShowViewFilter(!showViewFilter)}
-                style={{ userSelect: "none" }}
+                style={{ userSelect: "none", cursor: "pointer" }}
               >
                 LỌC THEO VIEW {showViewFilter ? "▲" : "▼"}
               </p>
@@ -337,7 +329,6 @@ export default function Roomclass() {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <div className="d-flex gap-3 mb-3"></div>
             </div>
           </div>
           <div className="col-9 border-top">

@@ -1,6 +1,6 @@
 'use client'
-import { HotelServiceList } from "../components/hotelservice/List";
-import { useData } from "../hooks/useData";
+import { HotelServiceList } from "@/components/hotelservice/List";
+import { useData } from "@/hooks/useData";
 
 export default function ServicesPage() {
   const { services } = useData();
