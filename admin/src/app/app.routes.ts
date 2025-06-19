@@ -1,3 +1,4 @@
+import { PaymentMethodComponent } from './components/admin/payment-method/payment-method.component';
 import { Routes } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -53,6 +54,7 @@ export const routes: Routes = [
           { path: 'employee', component: EmployeeComponent },
           { path: 'review', component: ReviewComponent },
           { path: 'feature', component: FeatureComponent },
+          { path: 'payment-method', component: PaymentMethodComponent },
           {
             path: 'comment',
             component: CommentComponent,
