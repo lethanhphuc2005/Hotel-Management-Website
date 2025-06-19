@@ -2,15 +2,14 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "animate.css";
 import "./globals.css";
-import Footer from "./components/footer/footer";
-import Header from "./components/header/header";
+import Footer from "@/components/footer/footer";
+import Header from "@/components/header/header";
 import "react-datepicker/dist/react-datepicker.css";
-import { AuthProvider } from "./services/AuthProvider"; // Import AuthProvider, điều chỉnh đường dẫn nếu cần
-import ChatbotPopup from "./components/chatbotAI/chatBotPopup";
-import { LoadingProvider } from "./context/LoadingContext";
-import GlobalLoading from "./components/loadingPage/GlobalLoading";
-import { store } from './context/store';
-import CartProvider from "./services/CartProvider";
+import { AuthProvider } from "@/services/AuthProvider"; // Import AuthProvider, điều chỉnh đường dẫn nếu cần
+import ChatbotPopup from "@/components/chatbotAI/chatBotPopup";
+import { LoadingProvider } from "@/contexts/LoadingContext";
+import GlobalLoading from "@/components/loadingPage/GlobalLoading";
+import CartProvider from "@/services/CartProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,22 +31,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>{/* _app.tsx hoặc layout.tsx */}
-        <link rel="preload" as="image" href="/img/loading-bg.jpg" />
+    <html lang="en" suppressHydrationWarning={true}>
+      <head>
+        {/* _app.tsx hoặc layout.tsx */}
+        <link rel="preload" as="image" href="/img/banner1.webp" />
+        <link rel="preload" as="image" href="/img/logo-doc.png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <CartProvider>
-          <LoadingProvider>
-            <AuthProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <CartProvider>
               <GlobalLoading />
               <Header />
               {children}
               <Footer />
-            </AuthProvider>
-            <ChatbotPopup />
-          </LoadingProvider>
-        </CartProvider>
+            </CartProvider>
+          </AuthProvider>
+          <ChatbotPopup />
+        </LoadingProvider>
       </body>
     </html>
   );
