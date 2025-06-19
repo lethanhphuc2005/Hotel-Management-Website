@@ -11,7 +11,6 @@ import { PaymentService } from '../../../services/payment.service';
 import { UserService } from '../../../services/user.service';
 import { UserRaw } from '../../../models/user';
 
-
 @Component({
   selector: 'app-booking',
   standalone: true,
@@ -23,7 +22,6 @@ import { UserRaw } from '../../../models/user';
 export class BookingComponent implements OnInit {
   bookings: Booking[] = [];
   allBookings: Booking[] = [];
-  searchText: string = '';
   rooms: any[] = [];             // Toàn bộ danh sách phòng
   filteredRooms: any[] = [];     // Danh sách phòng sau khi lọc
   roomClasses: any[] = [];       // Danh sách loại phòng
@@ -34,6 +32,7 @@ export class BookingComponent implements OnInit {
   uniqueFloors: number[] = [];        // Danh sách các tầng không trùng
   bookingStatuses: any[] = [];
   paymentStatuses: any[] = [];
+  searchKeyword: string = '';
   filteredBookings: Booking[] = [];
   filter = {
     status: '',
@@ -57,30 +56,29 @@ export class BookingComponent implements OnInit {
     this.getAllBookings();
   }
 
-getUserName(userId: string): void {
-  if (this.userNameMap[userId]) return;
+  getUserName(userId: string): void {
+    if (this.userNameMap[userId]) return;
 
-  this.userService.getUserById(userId).subscribe({
-    next: (res) => {
-      const user = res as UserRaw;
-      const fullName = `${user.first_name} ${user.last_name}`;
-      this.userNameMap[userId] = fullName; // <-- cần thêm dòng này
-    },
-    error: () => {
-      this.userNameMap[userId] = 'Ẩn danh';
-    }
-  });
-}
+    this.userService.getUserById(userId).subscribe({
+      next: (res) => {
+        const user = res as UserRaw;
+        const fullName = `${user.first_name} ${user.last_name}`;
+        this.userNameMap[userId] = fullName; // <-- cần thêm dòng này
+      },
+      error: () => {
+        this.userNameMap[userId] = 'Ẩn danh';
+      }
+    });
+  }
 
-
-getAllBookings(): void {
-  this.bookingService.getAll().subscribe((res: any) => {
-    this.allBookings = Array.isArray(res.data) ? res.data : [];
-    this.bookings = [...this.allBookings];
-    console.log('Tất cả đặt phòng:', this.allBookings);
-    this.filterBookings();
-  });
-}
+  getAllBookings(): void {
+    this.bookingService.getAll().subscribe((res: any) => {
+      this.allBookings = Array.isArray(res.data) ? res.data : [];
+      this.bookings = [...this.allBookings];
+      console.log('Tất cả đặt phòng:', this.allBookings);
+      this.filterBookings();
+    });
+  }
 
   // trạng thái thanh toán
   getPaymentStatuses() {
@@ -89,13 +87,20 @@ getAllBookings(): void {
       error: (err) => console.error('Lỗi khi load payment statuses:', err)
     });
   }
-
   loadBookingStatuses(): void {
-    this.bookingStatusService.getAll().subscribe((res: any) => {
-      this.bookingStatuses = res;
-      this.bookingStatusMap = {};
-      for (let status of res) {
-        this.bookingStatusMap[status._id] = status.name;
+    this.bookingStatusService.getAll().subscribe({
+      next: (res: any) => {
+        const statuses = res.data || res; // Nếu API không có .data thì vẫn fallback
+
+        this.bookingStatuses = statuses;
+        this.bookingStatusMap = {};
+
+        for (let status of statuses) {
+          this.bookingStatusMap[status._id] = status.name;
+        }
+      },
+      error: (err) => {
+        console.error('Lỗi khi load trạng thái booking:', err);
       }
     });
   }
@@ -107,25 +112,50 @@ getAllBookings(): void {
     });
   }
   // trạng thái đặt phòng
-  filterBookings(): void {
-    if (!Array.isArray(this.allBookings)) {
-      this.bookings = [];
-      return;
-    }
+//   filterBookings(): void {
+//   const keyword = this.searchKeyword.trim().toLowerCase();
 
-    const search = this.searchText.trim().toLowerCase();
+//   this.bookings = this.allBookings.filter((booking: any) => {
+//     const user = booking.user || {};
+//     const room = booking.room_id || {};
+//     const request = (booking as any)?.request?.toLowerCase() || '';
 
-    this.bookings = this.allBookings.filter(booking => {
-      // const customerName = booking.user?.first_name?.toLowerCase() || '';
-      // const matchName = customerName.includes(search);
+//     const fullName = `${user.last_name || ''} ${user.first_name || ''}`.toLowerCase();
+//     const email = user.email?.toLowerCase() || '';
+//     const phone = user.phone_number || '';
+//     const roomName = room.name?.toLowerCase() || '';
 
-      const bookingStatusId = booking.booking_status?.[0]?._id; // ✅ Lấy _id của trạng thái đầu tiên
-      const matchStatus = this.filter.status ? bookingStatusId === this.filter.status : true;
+//     const matchKeyword =
+//       fullName.includes(keyword) ||
+//       email.includes(keyword) ||
+//       phone.includes(keyword) ||
+//       roomName.includes(keyword) ||
+//       request.includes(keyword);
 
-      return matchStatus;
-    });
-  }
+//     const bookingStatusId = booking.booking_status?.[0]?._id;
+//     const matchStatus = this.filter.status ? bookingStatusId === this.filter.status : true;
 
+//     return matchKeyword && matchStatus;
+//   });
+// }
+filterBookings(): void {
+  const keyword = this.searchKeyword.trim().toLowerCase();
+
+  this.bookings = this.allBookings.filter((booking: any) => {
+    const fullName = (booking.full_name || '').toLowerCase();
+    const matchStatus = this.filter.status
+      ? booking.booking_status?.[0]?._id === this.filter.status
+      : true;
+
+    return fullName.includes(keyword) && matchStatus;
+  });
+  console.log('Kết quả tìm kiếm:', this.bookings);
+}
+
+
+onSearch(): void {
+  this.filterBookings();
+}
 
   // lọc theo ngày
   filterByDate(): void {

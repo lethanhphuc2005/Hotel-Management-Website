@@ -25,4 +25,7 @@ export interface Booking {
   total_price?: number;
   created_at?: string;
   updated_at?: string;
+  room_id?: {
+    name?: string;
+  };
 }
