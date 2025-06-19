@@ -8,8 +8,27 @@ import { Autoplay, Navigation, Thumbs, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
+import "swiper/css/pagination";
+import { Mousewheel } from "swiper/modules";
 import style from "./roomDetail.module.css"; // Đảm bảo đúng đường dẫn
 import axios from "axios";
+
+interface User {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+}
+interface Comment {
+  _id: string;
+  room_class_id: string;
+  parent_id: string | null;
+  user_id: User;
+  content: string;
+  createdAt: string; // Ngày tạo bình luận
+  updatedAt: string; // Ngày cập nhật bình luận
+}
 
 // Định nghĩa interface cho review
 interface Review {
@@ -45,6 +64,7 @@ const RoomDetail = () => {
   const [roomClasses, setRoomClasses] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]); // Thêm state cho reviews
   const [features, setFeatures] = useState<FeatureItem[]>([]); // Thêm state cho features
+  const [comments, setComments] = useState<Comment[]>([]);
 
   // Lấy room như cũ
   const room = roomclass.find((item) => item._id === roomId);
@@ -113,10 +133,12 @@ const RoomDetail = () => {
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/v1/room-class/user")
-      .then((res: any) => setRoomClasses(res.data.data))
-      .catch((err) => console.error(err));
+    fetch("http://localhost:8000/v1/room-class/user")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data); // Xem cấu trúc dữ liệu trả về
+        // Xử lý tiếp ở bước 2
+      });
   }, []);
 
   useEffect(() => {
@@ -135,6 +157,22 @@ const RoomDetail = () => {
       .catch((err) => console.error(err));
   }, [roomId]);
 
+  useEffect(() => {
+    // Lấy danh sách bình luận của phòng
+    axios
+      .get(`http://localhost:8000/v1/comments?roomId=${roomId}`)
+      .then((res: any) => setComments(res.data.data))
+      .catch((err) => console.error(err));
+  }, [roomId]);
+
+  const ratingCount = comments.length;
+  const avgRating =
+    ratingCount === 0
+      ? 0
+      : (
+          comments.reduce((sum, cmt) => sum + (cmt.rating || 0), 0) / ratingCount
+        ).toFixed(1);
+
   if (!room) return <div>Room not found</div>;
 
   return (
@@ -142,28 +180,6 @@ const RoomDetail = () => {
       <div className={styles.container}>
         <div className={styles.imageContainer}>
           <div className={styles.swiperContainer}>
-            <div className={styles.thumbWrapper}>
-              <Swiper
-                onSwiper={setThumbsSwiper}
-                direction="vertical"
-                spaceBetween={10}
-                slidesPerView={5}
-                freeMode={true}
-                watchSlidesProgress={true}
-                modules={[Thumbs]}
-                className={styles.thumbSwiper}
-              >
-                {images.map((img, index) => (
-                  <SwiperSlide key={index}>
-                    <img
-                      src={`/img/${img.url}`}
-                      alt={`Thumb ${index + 1}`}
-                      className={styles.thumbImage}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
             <div className={styles.mainWrapper}>
               <Swiper
                 loop={true}
@@ -179,6 +195,29 @@ const RoomDetail = () => {
                       src={`/img/${img.url}`}
                       alt={`Room Image ${index + 1}`}
                       className={styles.mainImage}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+            <div className={styles.thumbWrapper}>
+              <Swiper
+                onSwiper={setThumbsSwiper}
+                direction="vertical"
+                spaceBetween={10}
+                slidesPerView={5}
+                freeMode={true}
+                watchSlidesProgress={true}
+                modules={[Thumbs, Mousewheel]}
+                mousewheel={true}
+                className={styles.thumbSwiper}
+              >
+                {images.map((img, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      src={`/img/${img.url}`}
+                      alt={`Thumb ${index + 1}`}
+                      className={styles.thumbImage}
                     />
                   </SwiperSlide>
                 ))}
@@ -213,11 +252,16 @@ const RoomDetail = () => {
                 nhất trên The Moon
               </span>
               <div className={styles.ratingScoreWrapper}>
-                <span className={styles.ratingScore}>4,9/5</span>
-                <span className={styles.stars}>★★★★★</span>
+                <span className={styles.ratingScore}>
+                  {avgRating}/5
+                </span>
+                <span className={styles.stars}>
+                  {"★★★★★".slice(0, Math.round(avgRating))}
+                  {"☆☆☆☆☆".slice(0, 5 - Math.round(avgRating))}
+                </span>
               </div>
               <div className={styles.ratingCountWrapper}>
-                <span className={styles.ratingCount}>111</span>
+                <span className={styles.ratingCount}>{ratingCount}</span>
                 <span className={styles.feadback}>Đánh giá</span>
               </div>
             </div>
@@ -360,7 +404,7 @@ const RoomDetail = () => {
                     style={{ color: "#FAB320" }}
                     onClick={() => setShowFAQModal(true)}
                   >
-                    Xem các câu hỏi khác (20)
+                    Xem các câu bình luận
                   </button>
                 </div>
               </div>
@@ -449,7 +493,7 @@ const RoomDetail = () => {
                 >
                   <div className="modal-header">
                     <h5 className="modal-title fw-bold">
-                      Thắc mắc của khách hàng
+                      Bình luận của khách hàng
                     </h5>
                     <button
                       type="button"
@@ -458,70 +502,22 @@ const RoomDetail = () => {
                     ></button>
                   </div>
                   <div className={`modal-body ${styles.custommodalbody}`}>
-                    {/* Danh sách các câu hỏi và trả lời */}
-                    <div className="mb-4 mt-4">
-                      <div className="fw-semibold mb-1">
-                        <i className="bi bi-chat-dots me-2"></i>
-                        Căn này có mấy toilet v ạ
+                    {comments.length === 0 && <div>Chưa có bình luận nào</div>}
+                    {comments.map((cmt) => (
+                      <div key={cmt._id} style={{ marginBottom: 16 }}>
+                        <b>
+                          {cmt.user_id?.first_name} {cmt.user_id?.last_name}
+                        </b>
+                        <div>Email: {cmt.user_id?.email}</div>
+                        <div>SĐT: {cmt.user_id?.phone_number}</div>
+                        <div>Nội dung: {cmt.content}</div>
+                        <div>
+                          Thời gian:{" "}
+                          {new Date(cmt.createdAt).toLocaleString("vi-VN")}
+                        </div>
+                        <hr />
                       </div>
-                      <div className="text-secondary" style={{ fontSize: 13 }}>
-                        ngày 18 tháng 4 năm 2023
-                      </div>
-                      <div className="rounded p-2 mt-1 mb-1">
-                        Dạ loại căn hộ Superior có 2 wc ạ
-                      </div>
-                      <div className="d-flex gap-3 ps-2">
-                        <span style={{ cursor: "pointer", color: "#FAB320" }}>
-                          Hữu ích
-                        </span>
-                        <span style={{ cursor: "pointer", color: "#FAB320" }}>
-                          Không hữu ích
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <div className="fw-semibold mb-1">
-                        <i className="bi bi-chat-dots me-2"></i>
-                        Mình hỗ trợ check in sớm k ạ
-                      </div>
-                      <div className="text-secondary" style={{ fontSize: 13 }}>
-                        ngày 28 tháng 2 năm 2023
-                      </div>
-                      <div className="rounded p-2 mt-1 mb-1">
-                        Dạ, thời gian nhận phòng của mình là 14h, nếu có sớm thì
-                        bên mình sẽ liên hệ bạn nhé
-                      </div>
-                      <div className="d-flex gap-3 ps-2">
-                        <span style={{ cursor: "pointer", color: "#FAB320" }}>
-                          Hữu ích
-                        </span>
-                        <span style={{ cursor: "pointer", color: "#FAB320" }}>
-                          Không hữu ích
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <div className="fw-semibold mb-1">
-                        <i className="bi bi-chat-dots me-2"></i>
-                        Cho mình hỏi. phòng này còn ko ạ
-                      </div>
-                      <div className="text-secondary" style={{ fontSize: 13 }}>
-                        ngày 8 tháng 2 năm 2023
-                      </div>
-                      <div className="rounded p-2 mt-1 mb-1">
-                        Dạ mình còn nhé ạ
-                      </div>
-                      <div className="d-flex gap-3 ps-2">
-                        <span style={{ cursor: "pointer", color: "#FAB320" }}>
-                          Hữu ích
-                        </span>
-                        <span style={{ cursor: "pointer", color: "#FAB320" }}>
-                          Không hữu ích
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ...Thêm các câu hỏi khác nếu muốn... */}
+                    ))}
                   </div>
                   <div
                     className="modal-footer p-3 border-top"
