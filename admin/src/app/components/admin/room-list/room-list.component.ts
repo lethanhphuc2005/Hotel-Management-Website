@@ -150,7 +150,7 @@ export class RoomListComponent implements OnInit {
   getFeatureNames(room: Room): string {
     const features = room.room_class?.[0]?.features;
     if (!features || features.length === 0) return 'Không có';
-    return features.map(f => f.feature_id?.name).join(', ');
+    return features.map(f => f.feature_id).join(', ');
   }
 
 
