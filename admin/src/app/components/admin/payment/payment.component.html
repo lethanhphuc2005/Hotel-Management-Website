@@ -1,0 +1,71 @@
+<div class="roomtype-management-card">
+  <h2>Quản lý thanh toán</h2>
+
+  <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
+    <div class="form-floating form-floating-custom mb-3" style="position: relative; flex: 1">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Tìm kiếm theo tên, SĐT..."
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+      />
+      <label>Tìm kiếm</label>
+    </div>
+  </div>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Người thanh toán</div>
+    <!-- <div>SĐT</div> -->
+    <div>Tổng tiền</div>
+    <div>Ngày thanh toán</div>
+    <div>Trạng thái</div>
+    <div>Phương thức</div>
+    <!-- <div>Giao dịch ID</div> -->
+    <div>Thao tác</div>
+  </div>
+
+  <div *ngFor="let payment of filteredPayments(); let i = index" class="table-row">
+    <div>{{ i + 1 }}</div>
+    <div>{{ payment.booking[0].full_name }}</div>
+    <!-- <div>{{ payment.booking[0]?.phone_number }}</div> -->
+    <div>{{ payment.amount | currency:'VND' }}</div>
+    <div>{{ payment.payment_date | date: 'dd/MM/yyyy HH:mm' }}</div>
+    <div>
+      <span [ngClass]="{
+        'text-success': payment.status === 'completed',
+        'text-danger': payment.status !== 'completed'
+      }">
+        {{ payment.status === 'completed' ? 'Hoàn tất' : 'Lỗi/Chờ xử lý' }}
+      </span>
+    </div>
+    <div>{{ payment.payment_method[0].name }}</div>
+    <!-- <div>{{ payment.transaction_id }}</div> -->
+    <div>
+      <button class="icon-button" (click)="viewDetail(payment)">
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Popup chi tiết -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedPayment">
+    <div class="popup-content">
+      <h2>Chi tiết thanh toán</h2>
+
+      <div class="popup-section"><label>Người thanh toán:</label><span>{{ selectedPayment.booking[0].full_name }}</span></div>
+      <div class="popup-section"><label>SĐT:</label><span>{{ selectedPayment.booking[0].phone_number }}</span></div>
+      <div class="popup-section"><label>Tổng tiền:</label><span>{{ selectedPayment.amount | currency:'VND' }}</span></div>
+      <div class="popup-section"><label>Ngày thanh toán:</label><span>{{ selectedPayment.payment_date | date:'dd/MM/yyyy HH:mm' }}</span></div>
+      <div class="popup-section"><label>Trạng thái:</label><span>{{ selectedPayment.status }}</span></div>
+      <div class="popup-section"><label>Phương thức:</label><span>{{ selectedPayment.payment_method[0].name }}</span></div>
+      <div class="popup-section"><label>Giao dịch ID:</label><span>{{ selectedPayment.transaction_id }}</span></div>
+      <div class="popup-section"><label>Ghi chú:</label><span>{{ selectedPayment.booking[0].note }}</span></div>
+      <div class="popup-section" *ngIf="selectedPayment.metadata"><label>Phản hồi:</label><span>{{ selectedPayment.metadata.message }}</span></div>
+
+      <button class="close-btn" (click)="closeDetailPopup()">Đóng</button>
+    </div>
+  </div>
+</div>
