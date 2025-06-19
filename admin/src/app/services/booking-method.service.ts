@@ -14,4 +14,13 @@ export class BookingMethodService {
   getAll(): Observable<BookingMethod[]> {
     return this.http.get<BookingMethod[]>(this.apiUrl);
   }
+
+  create(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, data);
+  }
+
+  update(id: string, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
 }
+

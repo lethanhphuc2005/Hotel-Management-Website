@@ -15,5 +15,5 @@ export interface FeatureMapping {
     description?: string;
     status: boolean;
   };
-  feature_id: string;
+  feature_id: Feature;
 }

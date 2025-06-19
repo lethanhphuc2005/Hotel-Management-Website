@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-booking-status',
+  standalone: true,
   templateUrl: './booking-status.component.html',
   styleUrls: ['./booking-status.component.scss'],
   imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
