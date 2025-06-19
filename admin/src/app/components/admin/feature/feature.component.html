@@ -1,0 +1,228 @@
+<div class="feature-management-card">
+  <h2>Quản lý tiện nghi</h2>
+
+  <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
+    <div class="form-floating form-floating-custom mb-3" style="position: relative; flex: 1">
+      <input
+        type="text"
+        class="form-control"
+        id="searchInput"
+        placeholder="Tìm kiếm tiện nghi..."
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="onSearch()"
+      />
+      <label for="searchInput">Tìm kiếm</label>
+    </div>
+    <button class="add-room" (click)="onAdd()">+ Thêm tiện nghi</button>
+  </div>
+
+  <!-- Popup Thêm tiện nghi -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm tiện nghi</h2>
+      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
+        <div class="popup-section">
+          <div class="form-floating form-floating-custom mb-3">
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              [(ngModel)]="newFeature.name"
+              required
+            />
+            <label for="name">Tên tiện nghi</label>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea
+            class="form-control mb-3"
+            id="description"
+            name="description"
+            [(ngModel)]="newFeature.description"
+          ></textarea>
+        </div>
+
+        <div class="popup-section">
+          <label for="status">Trạng thái:</label>
+          <select
+            id="status"
+            name="status"
+            class="form-select form-control mb-3"
+            [(ngModel)]="newFeature.status"
+          >
+            <option [value]="true">Đang hoạt động</option>
+            <option [value]="false">Tạm dừng hoạt động</option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label for="image">Ảnh:</label>
+          <input
+            class="form-control mb-3"
+            type="file"
+            id="image"
+            name="image"
+            (change)="onFileSelected()"
+          />
+        </div>
+
+        <div class="popup-actions">
+          <button class="btn btn-success" type="submit" [disabled]="!addForm.form.valid">Lưu</button>
+          <button class="btn btn-danger" type="button" (click)="closeAddPopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên tiện nghi</div>
+    <div>Hình ảnh</div>
+    <div>Loại phòng sử dụng</div>
+    <div>Trạng thái</div>
+    <div>Hành động</div>
+  </div>
+
+  <div *ngFor="let feature of features; let i = index" class="table-row">
+    <div>{{ i + 1 }}</div>
+    <div (click)="onViewDetail(feature)" style="cursor: pointer">{{ feature.name }}</div>
+    <div class="image-list">
+      <img
+        *ngIf="feature.image"
+        [src]="'http://localhost:8000/' + feature.image"
+        alt="Hình ảnh"
+        width="200"
+      />
+    </div>
+    <div>
+      <ul class="room-children-list">
+        <li *ngFor="let item of feature.room_class_used_list">
+          {{ item.room_class_id?.name || '(chưa gán)' }}
+        </li>
+      </ul>
+    </div>
+    <div class="status-column">
+      <label class="switch">
+        <input
+          type="checkbox"
+          [checked]="feature.status"
+          (change)="toggleFeatureStatus(feature); $event.stopPropagation()"
+        />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="icon-button" (click)="onEdit(feature); $event.stopPropagation()">
+        <i class="fas fa-pen"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Popup chi tiết tiện nghi -->
+  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedFeature">
+    <div class="popup-content">
+      <h2>Chi tiết tiện nghi</h2>
+
+      <div class="popup-section">
+        <label>Tên:</label>
+        <span>{{ selectedFeature.name }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Mô tả:</label>
+        <span>{{ selectedFeature.description }}</span>
+      </div>
+
+      <div class="popup-section">
+        <label>Trạng thái:</label>
+        <span [ngClass]="selectedFeature.status ? 'active' : 'inactive'">
+          {{ selectedFeature.status ? "Đang hoạt động" : "Tạm dừng hoạt động" }}
+        </span>
+      </div>
+
+      <div class="popup-section">
+        <label>Loại phòng sử dụng:</label>
+        <ul>
+          <li *ngFor="let item of selectedFeature.room_class_used_list">
+            {{ item.room_class_id?.name || '(chưa gán)' }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="popup-section">
+        <label>Hình ảnh:</label>
+        <div class="image-list">
+          <img
+            *ngIf="selectedFeature.image"
+            [src]="'http://localhost:8000/' + selectedFeature.image"
+            alt="Hình ảnh"
+            width="200"
+          />
+        </div>
+      </div>
+
+      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Popup Sửa tiện nghi -->
+  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
+    <div class="popup-content">
+      <h2>Sửa tiện nghi</h2>
+
+      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
+        <div class="popup-section">
+          <div class="form-floating form-floating-custom mb-3">
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              [(ngModel)]="editFeature.name"
+              required
+            />
+            <label for="name">Tên tiện nghi</label>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea
+            class="form-control mb-3"
+            id="description"
+            name="description"
+            [(ngModel)]="editFeature.description"
+          ></textarea>
+        </div>
+
+        <div class="popup-section">
+          <label for="editImage">Ảnh:</label>
+          <input
+            type="file"
+            id="editImage"
+            class="form-control mb-3"
+            (change)="onEditFileSelected($event)"
+          />
+
+          <div class="col-6 col-sm-4" *ngIf="editFeature.image">
+            <label class="imagecheck mb-4">
+              <input type="checkbox" class="imagecheck-input" checked />
+              <figure class="imagecheck-figure">
+                <img [src]="editImageUrl" alt="title" class="imagecheck-image" />
+              </figure>
+            </label>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button class="btn btn-success" type="submit" [disabled]="!editForm.form.valid">Lưu</button>
+          <button class="btn btn-danger" type="button" (click)="isEditPopupOpen = false">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

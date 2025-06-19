@@ -268,7 +268,7 @@ export class RoomListComponent implements OnInit {
       this.editRoomData.description = selected.description;
     }
   }
-  
+
   onEditRoomSubmit() {
     if (!this.editingRoomId) return;
 

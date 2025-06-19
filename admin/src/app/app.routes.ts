@@ -1,3 +1,4 @@
+import { PaymentMethodComponent } from './components/admin/payment-method/payment-method.component';
 import { Routes } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -22,6 +23,7 @@ import { BookingMethodComponent } from './components/admin/booking-method/bookin
 import { BookingStatusComponent } from './components/admin/booking-status/booking-status.component';
 import { ReviewComponent } from './components/admin/review/review.component';
 import { MainLayoutComponent } from './components/main-layout/main-layout.component';
+import { FeatureComponent } from './components/admin/feature/feature.component';
 export const routes: Routes = [
   // Trang login riêng biệt, không có layout
   { path: 'login', component: LoginComponent },
@@ -51,6 +53,8 @@ export const routes: Routes = [
           { path: 'discount', component: DiscountComponent },
           { path: 'employee', component: EmployeeComponent },
           { path: 'review', component: ReviewComponent },
+          { path: 'feature', component: FeatureComponent },
+          { path: 'payment-method', component: PaymentMethodComponent },
           {
             path: 'comment',
             component: CommentComponent,
