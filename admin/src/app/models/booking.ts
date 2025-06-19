@@ -14,6 +14,7 @@ export interface Booking {
   }[];
   full_name?: string;
   phone_number?: string;
+  note?: string;
   email?: string;
   check_in_date?: string;
   check_out_date?: string;
