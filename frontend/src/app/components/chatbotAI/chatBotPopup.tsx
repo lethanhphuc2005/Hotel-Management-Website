@@ -12,22 +12,39 @@ interface ChatMessageHistory {
   parts: { text: string }[];
 }
 
-
 export default function ChatbotPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
+    []
+  );
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<ChatMessageHistory[]>([]);
-
+  const [hasGreeted, setHasGreeted] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Tự động cuộn xuống cuối khi có tin nhắn mới hoặc đang loading
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Gửi lời chào khi mở popup, reset trạng thái khi đóng
+  useEffect(() => {
+    if (isOpen) {
+      if (!hasGreeted) {
+        const greeting = "Xin chào! Tôi có thể giúp gì cho bạn?";
+        setMessages([{ sender: "bot", text: greeting }]);
+        setHistory([{ role: "model", parts: [{ text: greeting }] }]);
+        setHasGreeted(true);
+      }
+    } else {
+      // Reset lại trạng thái để popup luôn chào khi mở lại
+      setMessages([]);
+      setHistory([]);
+      setHasGreeted(false);
+    }
+  }, [isOpen]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -39,19 +56,24 @@ export default function ChatbotPopup() {
     setInput("");
     setLoading(true);
 
-
     // Cập nhật history phía frontend
+    // Lọc bỏ lời chào của model nếu nó nằm đầu tiên
+    const filteredHistory =
+      history[0]?.role === "model" ? history.slice(1) : history;
+
     const updatedHistory: ChatMessageHistory[] = [
-      ...history,
+      ...filteredHistory,
       { role: "user", parts: [{ text: userText }] },
     ];
 
-
     try {
-      const res = await axios.post("http://localhost:8000/v1/chat/generate-response", {
-        prompt: userText,
-        history: updatedHistory,
-      });
+      const res = await axios.post(
+        "http://localhost:8000/v1/chat/generate-response",
+        {
+          prompt: userText,
+          history: updatedHistory,
+        }
+      );
 
       const botText = res.data.response;
 
@@ -63,7 +85,6 @@ export default function ChatbotPopup() {
         ...updatedHistory,
         { role: "model", parts: [{ text: botText }] },
       ]);
-
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -91,11 +112,23 @@ export default function ChatbotPopup() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`${styles.message} ${msg.sender === "user" ? styles.user : styles.bot
-                  }`}
+                className={`${styles.message} ${
+                  msg.sender === "user" ? styles.user : styles.bot
+                }`}
               >
                 {msg.sender === "bot" ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      a: ({ node, ...props }) => (
+                        <a
+                          {...props}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      ),
+                    }}
+                  >
                     {msg.text}
                   </ReactMarkdown>
                 ) : (

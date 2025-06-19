@@ -3,7 +3,33 @@ import { useData } from "@/app/hooks/useData";
 import styles from "./roomDetail.module.css";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Thumbs, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import style from "./roomDetail.module.css"; // Đảm bảo đúng đường dẫn
+import axios from "axios";
 
+// Định nghĩa interface cho review
+interface Review {
+  author: string;
+  rating: number;
+  date: string;
+  content: string;
+  // Thêm các trường khác nếu có
+}
+
+interface FeatureItem {
+  _id: string;
+  room_class_id: string;
+  feature_id: {
+    _id: string;
+    name: string;
+    description: string;
+    image: string; // Nếu có icon, đường dẫn ảnh hoặc tên icon
+  };
+}
 const RoomDetail = () => {
   const params = useParams();
   const roomId = params.roomId as string; // roomId chính là id trên URL
@@ -11,7 +37,14 @@ const RoomDetail = () => {
   const [showFAQModal, setShowFAQModal] = useState(false);
   const [showAskModal, setShowAskModal] = useState(false);
   const [question, setQuestion] = useState("");
-  const [openFAQIndex, setOpenFAQIndex] = useState<{ col: number; idx: number } | null>(null);
+  const [openFAQIndex, setOpenFAQIndex] = useState<{
+    col: number;
+    idx: number;
+  } | null>(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+  const [roomClasses, setRoomClasses] = useState([]);
+  const [reviews, setReviews] = useState<Review[]>([]); // Thêm state cho reviews
+  const [features, setFeatures] = useState<FeatureItem[]>([]); // Thêm state cho features
 
   // Lấy room như cũ
   const room = roomclass.find((item) => item._id === roomId);
@@ -79,49 +112,105 @@ const RoomDetail = () => {
     if (e.target === e.currentTarget) setShowFAQModal(false);
   };
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/v1/room-class/user")
+      .then((res: any) => setRoomClasses(res.data.data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    // Giả sử bạn có API để lấy đánh giá của phòng
+    axios
+      .get(`http://localhost:8000/v1/reviews?roomId=${roomId}`)
+      .then((res: any) => setReviews(res.data.data))
+      .catch((err) => console.error(err));
+  }, [roomId]);
+
+  useEffect(() => {
+    // Lấy danh sách tiện ích của phòng
+    axios
+      .get(`http://localhost:8000/v1/room-class/${roomId}/features`)
+      .then((res: any) => setFeatures(res.data.data))
+      .catch((err) => console.error(err));
+  }, [roomId]);
+
+  if (!room) return <div>Room not found</div>;
+
   return (
     <div className={styles.pageContainer}>
-      {/* Header */}
-
-      {/* Main Content */}
       <div className={styles.container}>
-        <h1 className={styles.title}>{room ? room.name : "Không tìm thấy phòng"}</h1>
         <div className={styles.imageContainer}>
-          <img
-            src={images.length > 0 ? `/img/${images[0].url}` : "/img/default.jpg"}
-            alt="Main Room View"
-            className={styles.mainImage}
-          />
-          <div className={styles.smallImageGrid}>
-            {images.slice(1).map(img => (
-              <img
-                key={img._id}
-                src={`/img/${img.url}`}
-                alt="Room View"
-                className={styles.smallImage}
-              />
-            ))}
+          <div className={styles.swiperContainer}>
+            <div className={styles.thumbWrapper}>
+              <Swiper
+                onSwiper={setThumbsSwiper}
+                direction="vertical"
+                spaceBetween={10}
+                slidesPerView={5}
+                freeMode={true}
+                watchSlidesProgress={true}
+                modules={[Thumbs]}
+                className={styles.thumbSwiper}
+              >
+                {images.map((img, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      src={`/img/${img.url}`}
+                      alt={`Thumb ${index + 1}`}
+                      className={styles.thumbImage}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+            <div className={styles.mainWrapper}>
+              <Swiper
+                loop={true}
+                autoplay={{ delay: 5000 }}
+                modules={[Autoplay, Thumbs, Pagination]}
+                pagination={{ clickable: true }} // Bật cục tròn chuyển slide
+                className={styles.mainSwiper}
+                thumbs={{ swiper: thumbsSwiper }}
+              >
+                {images.map((img, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      src={`/img/${img.url}`}
+                      alt={`Room Image ${index + 1}`}
+                      className={styles.mainImage}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
           </div>
         </div>
-
+        <h1 className={styles.title}>{room.name}</h1>
         <div className={styles.details}>
           <div className={styles.leftSection}>
             {/* <p className={styles.roomNumber}>Phòng số 01</p> */}
             <p className={styles.roomInfo}>
               {room
-                ? `${room.bed_amount} giường - Sức chứa ${room.capacity} khách | View: ${room.view} | Trạng thái: ${room.status ? "Còn phòng" : "Hết phòng"}`
+                ? `${room.bed_amount} giường - Sức chứa ${
+                    room.capacity
+                  } khách | View: ${room.view} | Trạng thái: ${
+                    room.status ? "Còn phòng" : "Hết phòng"
+                  }`
                 : ""}
               <span className={styles.availableIcon}>
                 <i className="bi bi-check-circle"></i>
               </span>
+              <br />
+              {room.description}
             </p>
             <div className={styles.rating}>
               <span className={styles.ratingIcons}>
                 🌿 Được khách yêu thích 🌿
               </span>
               <span className={styles.ratingText}>
-                Khách đánh giá đây là một trong những căn phòng được yêu
-                thích nhất trên The Moon
+                Khách đánh giá đây là một trong những căn phòng được yêu thích
+                nhất trên The Moon
               </span>
               <div className={styles.ratingScoreWrapper}>
                 <span className={styles.ratingScore}>4,9/5</span>
@@ -146,9 +235,9 @@ const RoomDetail = () => {
           <div className={styles.rightSection}>
             <div className={styles.price}></div>
             <div className={styles.infoSection}>
-             <p className={styles.priceText}>
-  {room ? `${room.price.toLocaleString()} VNĐ / Đêm` : ""}
-</p>
+              <p className={styles.priceText}>
+                {room ? `${room.price.toLocaleString()} VNĐ / Đêm` : ""}
+              </p>
               <div className={styles.bookingDetails}>
                 <div className={styles.checkInOutRow}>
                   <div className={styles.bookingItem}>
@@ -179,183 +268,64 @@ const RoomDetail = () => {
         <hr className={styles.line} />
 
         <div className={styles.additionalInfo}>
-          <div className={styles.highlightsSection}>
-            <h3 className={styles.sectionTitle}>NƠI NÀY CÓ NHỮNG GÌ CHO BẠN</h3>
-            <div className={styles.iconList}>
-              <div className={styles.column}>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-lock-fill"></i>
-                  </span>
-                  Khóa ở cửa phòng ngủ
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-basket-fill"></i>
-                  </span>
-                  Bếp
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-archive-fill"></i>
-                  </span>
-                  Tủ lạnh
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-fan"></i>
-                  </span>
-                  Máy điều hòa
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-wrench-adjustable-circle"></i>
-                  </span>
-                  Máy sấy tóc
-                </div>
-              </div>
-              <div className={styles.column}>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-image"></i>
-                  </span>
-                  Hướng nhìn ra biển
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-wifi"></i>
-                  </span>
-                  Wifi
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-box2-heart-fill"></i>
-                  </span>
-                  Máy giặt
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-fire"></i>
-                  </span>
-                  Bình chữa cháy
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-mailbox"></i>
-                  </span>
-                  Lò vi sóng
-                </div>
-              </div>
-              <div className={styles.column}>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-align-top"></i>
-                  </span>
-                  Màn chắng sáng cho phòng
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-droplet-fill"></i>
-                  </span>
-                  Nước nóng
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-inbox"></i>
-                  </span>
-                  Bồn tắm
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-hourglass-split"></i>
-                  </span>
-                  Ấm đun nước
-                </div>
-                <div className={styles.iconItem}>
-                  <span className={styles.icon}>
-                    <i className="bi bi-diagram-3-fill"></i>
-                  </span>
-                  Móc và phơi đồ
-                </div>
+          <h3 className={styles.sectionTitle}>NƠI NÀY CÓ NHỮNG GÌ CHO BẠN</h3>
+
+          {room.features && room.features.length > 0 ? (
+            <div className={styles.highlightsSection}>
+              <div className={styles.iconList}>
+                {room.features.map((item) => (
+                  <div key={item._id} className={styles.iconItem}>
+                    <span className={styles.icon}>
+                      {item.feature_id?.image ? (
+                        <i className={item.feature_id.image}></i>
+                      ) : (
+                        <i></i> // icon mặc định nếu không có
+                      )}
+                    </span>
+                    {item.feature_id?.name || "Không có tên"}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          ) : (
+            <div>Chưa có tiện ích nào.</div>
+          )}
+
           <hr className={styles.line} />
           <div className={styles.reviewsSection}>
-            <h3 className={styles.sectionTitle}>NHỮNG ĐÁNH GIÁ CỦA KHÁCH HÀNG</h3>
+            <h3 className={styles.sectionTitle}>
+              NHỮNG ĐÁNH GIÁ CỦA KHÁCH HÀNG
+            </h3>
             <div className={styles.reviewContainer}>
-              <div className={styles.reviewItem}>
-                <div className={styles.reviewHeader}>
-                  <img
-                    src="/img/about.jpg"
-                    alt="avatar"
-                    className={styles.reviewAvatar}
-                  />
-                  <div>
-                    <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
-                    <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
-                  </div>
-                </div>
+              {reviews.length > 0 ? ( // Kiểm tra xem có đánh giá nào không
+                reviews.map((review, idx) => (
+                  <div key={idx} className={styles.reviewItem}>
+                    <div className={styles.reviewHeader}>
+                      <img
+                        src="/img/about.jpg"
+                        alt="avatar"
+                        className={styles.reviewAvatar}
+                      />
+                      <div>
+                        <p className={styles.reviewAuthor}>{review.author}</p>
+                        <p className={styles.reviewRating}>
+                          {"★".repeat(review.rating)}
+                          {"☆".repeat(5 - review.rating)}{" "}
+                          <span className={styles.reviewDate}>
+                            {new Date(review.date).toLocaleDateString("vi-VN")}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
 
-                <p className={styles.reviewText}>
-                  Sạch sẽ, sạch, rất sạch, view biển tuyệt vời, nhân viên nhiệt
-                  tình...
-                </p>
-              </div>
-              <div className={styles.reviewItem}>
-                <div className={styles.reviewHeader}>
-                  <img
-                    src="/img/about.jpg"
-                    alt="avatar"
-                    className={styles.reviewAvatar}
-                  />
-                  <div>
-                    <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
-                    <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
+                    <p className={styles.reviewText}>{review.content}</p>
                   </div>
-                </div>
-                <p className={styles.reviewText}>
-                  Sạch sẽ, sạch, rất sạch, view biển tuyệt vời, nhân viên nhiệt
-                  tình...
+                ))
+              ) : (
+                <p className={styles.noReviews}>
+                  Chưa có đánh giá nào cho phòng này.
                 </p>
-              </div>
-
-              <div className={styles.reviewItem}>
-                <div className={styles.reviewHeader}>
-                  <img
-                    src="/img/about.jpg"
-                    alt="avatar"
-                    className={styles.reviewAvatar}
-                  />
-                  <div>
-                    <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
-                    <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
-                  </div>
-                </div>
-
-                <p className={styles.reviewText}>
-                  Sạch sẽ, sạch, rất sạch, view biển tuyệt vời, nhân viên nhiệt
-                  tình...
-                </p>
-              </div>
-              <div className={styles.reviewItem}>
-                <div className={styles.reviewHeader}>
-                  <img
-                    src="/img/about.jpg"
-                    alt="avatar"
-                    className={styles.reviewAvatar}
-                  />
-                  <div>
-                    <p className={styles.reviewAuthor}>Nguyễn Huy Hoàng</p>
-                    <p className={styles.reviewRating}>★★★★★ 1 tuần trước</p>
-                  </div>
-                </div>
-
-                <p className={styles.reviewText}>
-                  Sạch sẽ, sạch, rất sạch, view biển tuyệt vời, nhân viên nhiệt
-                  tình...
-                </p>
-              </div>
+              )}
             </div>
           </div>
           {/* Thắc mắc của du khách - Bootstrap */}
@@ -407,7 +377,10 @@ const RoomDetail = () => {
                               className={`d-flex align-items-center py-3${
                                 idx < col.length - 1 ? " border-bottom" : ""
                               }`}
-                              style={{ flexDirection: "column", cursor: "pointer" }}
+                              style={{
+                                flexDirection: "column",
+                                cursor: "pointer",
+                              }}
                               onClick={() =>
                                 setOpenFAQIndex(
                                   openFAQIndex &&
@@ -437,7 +410,13 @@ const RoomDetail = () => {
                                 openFAQIndex.col === colIdx &&
                                 openFAQIndex.idx === idx && (
                                   <div
-                                    className={`${styles.faqAnswer} ${openFAQIndex && openFAQIndex.col === colIdx && openFAQIndex.idx === idx ? styles.open : ""} w-100 mt-2 text-secondary`}
+                                    className={`${styles.faqAnswer} ${
+                                      openFAQIndex &&
+                                      openFAQIndex.col === colIdx &&
+                                      openFAQIndex.idx === idx
+                                        ? styles.open
+                                        : ""
+                                    } w-100 mt-2 text-secondary`}
                                     style={{
                                       fontSize: 14,
                                       background: "#181818",
@@ -485,10 +464,7 @@ const RoomDetail = () => {
                         <i className="bi bi-chat-dots me-2"></i>
                         Căn này có mấy toilet v ạ
                       </div>
-                      <div
-                        className="text-secondary"
-                        style={{ fontSize: 13 }}
-                      >
+                      <div className="text-secondary" style={{ fontSize: 13 }}>
                         ngày 18 tháng 4 năm 2023
                       </div>
                       <div className="rounded p-2 mt-1 mb-1">
@@ -508,10 +484,7 @@ const RoomDetail = () => {
                         <i className="bi bi-chat-dots me-2"></i>
                         Mình hỗ trợ check in sớm k ạ
                       </div>
-                      <div
-                        className="text-secondary"
-                        style={{ fontSize: 13 }}
-                      >
+                      <div className="text-secondary" style={{ fontSize: 13 }}>
                         ngày 28 tháng 2 năm 2023
                       </div>
                       <div className="rounded p-2 mt-1 mb-1">
@@ -532,10 +505,7 @@ const RoomDetail = () => {
                         <i className="bi bi-chat-dots me-2"></i>
                         Cho mình hỏi. phòng này còn ko ạ
                       </div>
-                      <div
-                        className="text-secondary"
-                        style={{ fontSize: 13 }}
-                      >
+                      <div className="text-secondary" style={{ fontSize: 13 }}>
                         ngày 8 tháng 2 năm 2023
                       </div>
                       <div className="rounded p-2 mt-1 mb-1">
@@ -592,8 +562,7 @@ const RoomDetail = () => {
                   </div>
                   <div className="modal-body">
                     <div className="mb-2 fw-semibold">
-                      Câu hỏi của bạn{" "}
-                      <span style={{ color: "red" }}>*</span>
+                      Câu hỏi của bạn <span style={{ color: "red" }}>*</span>
                     </div>
                     <textarea
                       className={`form-control mb-2 text-white ${styles.customTextarea}`}

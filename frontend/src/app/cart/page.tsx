@@ -1,13 +1,21 @@
+"use client";
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './cart.module.css';
+import { RootState } from '../context/store';
+import { removeRoomFromCart, clearCart } from '../context/cartSlice';
 
 export default function Cart() {
+    const rooms = useSelector((state: RootState) => state.cart.rooms);
+    const dispatch = useDispatch();
+
+    const total = rooms.reduce((sum, r) => sum + r.total, 0);
 
     return (
         <div className={`container ${styles.cartContainer}`}>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <div className={styles.cartTitle}>Giỏ Hàng</div>
 
-                <button className="btn bg-black border text-white" >
+                <button className="btn bg-black border text-white" onClick={() => window.location.href = "/"}>
                     ← Tiếp tục đặt phòng
                 </button>
             </div>
@@ -16,7 +24,7 @@ export default function Cart() {
                     <thead>
                         <tr>
                             <th></th>
-                            <th  className='fw-normal'>PHÒNG</th>
+                            <th className='fw-normal'>PHÒNG</th>
                             <th className='fw-normal'>GIÁ/ĐÊM</th>
                             <th className='fw-normal'>SỐ ĐÊM</th>
                             <th className='fw-normal'>TỔNG</th>
@@ -24,69 +32,69 @@ export default function Cart() {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* Phòng 1 */}
-                        <tr>
-                            <td>
-                                <img src="/img/r1.jpg" alt="Phòng Deluxe Hướng Biển" className={styles.roomImg} />
-                            </td>
-                            <td>
-                                <div className={styles.roomName}>Phòng Deluxe - View Sea</div>
-                                <div className={styles.roomDesc}>2 người lớn, 1 trẻ em dưới 6 tuổi | 1 giường đôi</div>
-                                <div style={{ fontSize: '0.95rem', color: '#888' }}>Nhận phòng: 13-04-2005</div>
-                                <div style={{ fontSize: '0.95rem', color: '#888' }}>Trả phòng: 15-06-2025</div>
-                                <div style={{ fontSize: '0.92rem', color: '#aaa' }}>Mã phòng: DLX-SEA-001</div>
-                            </td>
-                            <td>100đ</td>
-                            <td>2 đêm</td>
-                            <td>200.000đ</td>
-                            <td>
-                                <button className={styles.removeBtn} disabled title="Xóa khỏi giỏ">×</button>
-                            </td>
-                        </tr>
-                        {/* Phòng 2 */}
-                        <tr>
-                            <td>
-                                <img src="/img/r2.jpg" alt="Phòng Gia Đình View Thành Phố" className={styles.roomImg} />
-                            </td>
-                            <td>
-                                <div className={styles.roomName}>Phòng Gia Đình - View City</div>
-                                <div className={styles.roomDesc}>4 người lớn, 2 trẻ em | 2 giường đôi</div>
-                                <div style={{ fontSize: '0.95rem', color: '#888' }}>Nhận phòng: 13-04-2005</div>
-                                <div style={{ fontSize: '0.95rem', color: '#888' }}>Trả phòng: 15-06-2025</div>
-                                <div style={{ fontSize: '0.92rem', color: '#aaa' }}>Mã phòng: FAM-CITY-002</div>
-                            </td>
-                            <td>100đ</td>
-                            <td>1 đêm</td>
-                            <td>300.000đ</td>
-                            <td>
-                                <button className={styles.removeBtn} disabled title="Xóa khỏi giỏ">×</button>
-                            </td>
-                        </tr>
+                        {rooms.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="text-center py-5 text-secondary">
+                                    Giỏ hàng của bạn đang trống.
+                                </td>
+                            </tr>
+                        ) : rooms.map(room => (
+                            <tr key={room.id}>
+                                <td>
+                                    <img src={`/img/${room.img}`} alt={room.name} className={styles.roomImg} />
+                                </td>
+                                <td>
+                                    <div className={styles.roomName}>{room.name}</div>
+                                    <div className={styles.roomDesc}>{room.desc}</div>
+                                    <div style={{ fontSize: '0.95rem', color: '#888' }}>Nhận phòng: {room.checkIn}</div>
+                                    <div style={{ fontSize: '0.95rem', color: '#888' }}>Trả phòng: {room.checkOut}</div>
+                                    <button className={`${styles.removeBtn} mt-2`} title="Xóa khỏi giỏ" onClick={() => dispatch(removeRoomFromCart(room.id))}>
+                                        Xóa
+                                    </button>
+                                </td>
+                                <td
+                                    style={{ verticalAlign: "middle" }}>{room.price.toLocaleString('vi-VN')} VNĐ
+                                    {room.hasSaturdayNight && (
+                                        <div style={{ fontSize: "0.9rem", color: "#FAB320" }}>
+                                            +50% phụ thu do có đêm Thứ 7
+                                        </div>
+                                    )}
+                                </td>
+                                <td style={{ verticalAlign: "middle" }}>{room.nights} đêm</td>
+                                <td style={{ verticalAlign: "middle" }}>{room.total.toLocaleString('vi-VN')}đ</td>
+                                <td></td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
+            <button className="btn btn-outline-danger w-100 mt-2" onClick={() => dispatch(clearCart())}>
+                Xóa toàn bộ giỏ phòng
+            </button>
 
-            <div className={styles.shippingBox + " mt-3"}>
-                <div className={styles.summaryBox}>
-                    <div className={styles.summaryRow}>
-                        <span>Tạm tính</span>
-                        <span>700.000đ</span>
+            {rooms.length > 0 && (
+                <div className={styles.shippingBox + " mt-3"}>
+                    <div className={styles.summaryBox}>
+                        <div className={styles.summaryRow}>
+                            <span>Tạm tính</span>
+                            <span>{total.toLocaleString('vi-VN')}đ</span>
+                        </div>
+                        <div className={styles.summaryRow}>
+                            <span>Phí dịch vụ</span>
+                            <span>Miễn phí</span>
+                        </div>
+                        <div className={styles.summaryRow + ' ' + styles.summaryTotal}>
+                            <span>Tổng cộng</span>
+                            <span>{total.toLocaleString('vi-VN')}đ</span>
+                        </div>
                     </div>
-                    <div className={styles.summaryRow}>
-                        <span>Phí dịch vụ</span>
-                        <span>Miễn phí</span>
-                    </div>
-                    <div className={styles.summaryRow + ' ' + styles.summaryTotal}>
-                        <span>Tổng cộng</span>
-                        <span>1200.000đ</span>
+                    <div className="text-end mt-4 mb-1">
+                        <a href='/payment' className={styles.checkoutBtn}>
+                            Đặt phòng ({total.toLocaleString('vi-VN')}đ)
+                        </a>
                     </div>
                 </div>
-                <div className="text-end mt-4 mb-1">
-                    <a href='/payment' className={styles.checkoutBtn}>
-                        Đặt phòng
-                    </a>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

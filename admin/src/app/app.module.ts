@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ToastComponent } from './components/toast/toast.component';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 @NgModule({
   imports: [
     CommonModule,  // <== Thêm dòng này
-    ToastComponent
+    ToastComponent,
+    FullCalendarModule
   ]
 })
 export class ToastModule {}

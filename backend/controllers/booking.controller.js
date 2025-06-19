@@ -17,6 +17,9 @@ const bookingController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===
   validateBooking: async (bookingData, bookingId) => {
     const {
+      full_name,
+      phone_number,
+      email,
       check_in_date,
       check_out_date,
       adult_amount,
@@ -30,6 +33,16 @@ const bookingController = {
       employee_id,
     } = bookingData;
 
+    // Kiểm tra thông tin bắt buộc
+    if (!full_name || full_name.trim() === "") {
+      return { valid: false, message: "Vui lòng nhập họ tên." };
+    }
+    if (!phone_number || phone_number.trim() === "") {
+      return { valid: false, message: "Vui lòng nhập số điện thoại." };
+    }
+    if (!email || email.trim() === "") {
+      return { valid: false, message: "Vui lòng nhập email." };
+    }
     // Kiểm tra ngày nhận phòng
     if (!check_in_date || isNaN(new Date(check_in_date).getTime())) {
       return { valid: false, message: "Vui lòng chọn ngày nhận phòng hợp lệ." };
@@ -229,10 +242,7 @@ const bookingController = {
   // === THÊM PHÒNG ĐẶT MỚI ===
   addBooking: async (req, res) => {
     try {
-      const validation = await bookingController.validateBooking(
-        req.body,
-        req.body._id
-      );
+      const validation = await bookingController.validateBooking(req.body);
 
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });

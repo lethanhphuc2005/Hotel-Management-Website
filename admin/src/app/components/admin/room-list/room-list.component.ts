@@ -11,16 +11,22 @@ import { FormsModule } from '@angular/forms';
 import { RoomClassService } from '../../../services/room-class.service';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
 
 @Component({
   selector: 'app-room-list',
   templateUrl: './room-list.component.html',
   styleUrls: ['./room-list.component.scss'],
-  imports: [RouterModule, CommonModule, HttpClientModule, FormsModule, FullCalendarModule],
-  standalone: true
+  imports: [
+    RouterModule,
+    CommonModule,
+    HttpClientModule,
+    FormsModule,
+    FullCalendarModule,
+  ],
+  standalone: true,
 })
 export class RoomListComponent implements OnInit {
-
   rooms!: Room[];
   selectedRoom: any;
   statuses: Status[] = [];
@@ -48,46 +54,35 @@ export class RoomListComponent implements OnInit {
     status?: string;
     keyword?: string;
   } = {
-      check_in_date: '',
-      check_out_date: '',
-      room_status_id: '',
-      room_class_id: '',
-      status: '',
-      keyword: ''
-    };
+    check_in_date: '',
+    check_out_date: '',
+    room_status_id: '',
+    room_class_id: '',
+    status: '',
+    keyword: '',
+  };
 
   bookingService: any;
-  calendarOptions: any = {
+  calendarOptions = {
+    plugins: [dayGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
     events: [],
     height: 'auto',
-    locale: 'vi'
+    locale: 'vi',
   };
-
 
   constructor(
     private roomService: RoomService,
     // private statusService: StatusService,
     private roomStatusService: RoomStatusService,
     private roomClassService: RoomClassService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.getAllRooms();
     this.getAllRoomStatuses();
     this.loadRoomStatuses();
     this.getAllRoomClasses();
-    this.getAvailableRooms(); // gọi hàm mới
-  }
-
-  getAvailableRooms() {
-    this.roomStatusService.getAllRoomStatuses().subscribe((statuses: any[]) => {
-      const emptyStatus = statuses.find(s => s.name === 'Đang trống');
-      if (emptyStatus) {
-        const availableRooms = emptyStatus.rooms;
-        console.log('Phòng trống:', availableRooms);
-      }
-    });
   }
 
   getAllRooms(): void {
@@ -96,12 +91,14 @@ export class RoomListComponent implements OnInit {
         this.rooms = res.data;
         this.filterRooms();
         console.log('Danh sách phòng:', this.rooms);
-        console.log('Tất cả trạng thái phòng:', this.rooms.map(room => room.room_status_id));
+        console.log(
+          'Tất cả trạng thái phòng:',
+          this.rooms.map((room) => room.room_status_id)
+        );
       },
       error: (err) => console.error('Lỗi khi lấy danh sách phòng:', err),
     });
   }
-
 
   getAllRoomClasses() {
     this.roomClassService.getAllRoomClass().subscribe({
@@ -110,7 +107,7 @@ export class RoomListComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Lỗi khi lấy loại phòng:', err);
-      }
+      },
     });
   }
 
@@ -122,16 +119,14 @@ export class RoomListComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Lỗi khi lấy room status:', err);
-      }
+      },
     });
   }
 
-
   // Hàm lấy tên trạng thái từ ID
   getStatusName(id: string): string {
-    return this.statuses.find(s => s._id === id)?.name || 'Không rõ';
+    return this.statuses.find((s) => s._id === id)?.name || 'Không rõ';
   }
-
 
   openAddPopup() {
     this.isAddRoomPopupOpen = true;
@@ -140,41 +135,64 @@ export class RoomListComponent implements OnInit {
   closeAddRoomPopup() {
     this.isAddRoomPopupOpen = false;
     this.newRoom = {};
-    this.selectedRoomClassInfo = null;  // Nếu bạn dùng selectedRoomClassInfo
+    this.selectedRoomClassInfo = null; // Nếu bạn dùng selectedRoomClassInfo
   }
   getTienNghiNames(tienNghi: any[] | null | undefined): string {
     if (!tienNghi || tienNghi.length === 0) return 'Chưa có tiện nghi';
-    return tienNghi.map(tn => tn.TenTN).join(', ');
+    return tienNghi.map((tn) => tn.TenTN).join(', ');
   }
 
   getFeatureNames(room: Room): string {
     const features = room.room_class?.[0]?.features;
     if (!features || features.length === 0) return 'Không có';
-    return features.map(f => f.feature_id).join(', ');
+    return features.map((f) => f.feature_id?.name).join(', ');
   }
-
 
   loadRooms() {
     this.getAllRooms();
+  }
+
+  loadCalendarData(roomId: string) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    this.roomService.getBookingCalendar(roomId, year, month).subscribe({
+      next: (res: any) => {
+        const events = res.events.map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          start: event.start,
+          end: event.end,
+          color: event.status?.code === 'CHECKED_IN' ? '#34d399' : '#f87171',
+          allDay: true,
+        }));
+
+        this.calendarOptions = {
+          ...this.calendarOptions,
+          events,
+        };
+      },
+      error: (err) => {
+        console.error('Lỗi khi tải lịch đặt phòng:', err);
+        this.calendarOptions = {
+          ...this.calendarOptions,
+          events: [], // fallback
+        };
+      },
+    });
   }
 
   viewRoomDetail(room: any) {
     this.selectedRoom = room;
     this.isRoomDetailOpen = true;
 
-    this.bookingService.getBookedDates(room._id).subscribe((res: { data: string[] }) => {
-      const events = res.data.map((dateStr: string) => ({
-        title: 'Đã đặt',
-        start: dateStr.split('T')[0],
-        allDay: true,
-        color: '#f87171' // đỏ
-      }));
+    this.calendarOptions = {
+      ...this.calendarOptions,
+      events: [], // reset trước khi tải mới
+    };
 
-      this.calendarOptions = {
-        ...this.calendarOptions,
-        events
-      };
-    });
+    this.loadCalendarData(room._id);
   }
 
   loadRoomStatuses() {
@@ -184,14 +202,14 @@ export class RoomListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Lỗi khi load roomStatuses:', err);
-      }
+      },
     });
-
   }
 
-
   onRoomClassChange(selectedId: string) {
-    const selected = this.roomClasses.find((rc: { _id: string; }) => rc._id === selectedId);
+    const selected = this.roomClasses.find(
+      (rc: { _id: string }) => rc._id === selectedId
+    );
     if (selected) {
       this.selectedRoomClassInfo = selected;
 
@@ -202,10 +220,9 @@ export class RoomListComponent implements OnInit {
     }
   }
 
-
   onAddRoomSubmit() {
     if (!this.newRoom.room_status_id) {
-      alert("Vui lòng chọn trạng thái phòng.");
+      alert('Vui lòng chọn trạng thái phòng.');
       return;
     }
 
@@ -213,7 +230,7 @@ export class RoomListComponent implements OnInit {
       name: this.newRoom.name,
       floor: this.newRoom.floor,
       room_class_id: this.newRoom.room_class_id,
-      room_status_id: this.newRoom.room_status_id
+      room_status_id: this.newRoom.room_status_id,
     };
 
     this.roomService.addRoom(payload).subscribe({
@@ -223,11 +240,9 @@ export class RoomListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Lỗi khi thêm phòng:', err);
-      }
+      },
     });
-
   }
-
 
   // sửa
   isEditRoomPopupOpen = false;
@@ -242,9 +257,10 @@ export class RoomListComponent implements OnInit {
     this.onEditRoomClassChange(room.room_class_id);
   }
 
-
   onEditRoomClassChange(selectedId: string) {
-    const selected = this.roomClasses.find((rc: { _id: string; }) => rc._id === selectedId);
+    const selected = this.roomClasses.find(
+      (rc: { _id: string }) => rc._id === selectedId
+    );
     if (selected) {
       this.selectedEditRoomClassInfo = selected;
       this.editRoomData.bed_amount = selected.bed_amount;
@@ -252,14 +268,16 @@ export class RoomListComponent implements OnInit {
       this.editRoomData.description = selected.description;
     }
   }
+
   onEditRoomSubmit() {
     if (!this.editingRoomId) return;
 
     const data = {
       name: this.editRoomData.name,
-      floor: Number(this.editRoomData.floor),  // Ép kiểu number tại đây
+      floor: Number(this.editRoomData.floor), // Ép kiểu number tại đây
       room_class_id: this.editRoomData.room_class_id,
-      room_status_id: this.editRoomData.room_status_id || this.editRoomData.status?.[0]?._id
+      room_status_id:
+        this.editRoomData.room_status_id || this.editRoomData.status?.[0]?._id,
     };
 
     this.roomService.updateRoom(this.editingRoomId, data).subscribe({
@@ -267,7 +285,7 @@ export class RoomListComponent implements OnInit {
         this.loadRooms();
         this.closeEditRoomPopup();
       },
-      error: (err) => console.error('Lỗi khi cập nhật phòng:', err)
+      error: (err) => console.error('Lỗi khi cập nhật phòng:', err),
     });
   }
 
@@ -279,17 +297,21 @@ export class RoomListComponent implements OnInit {
 
   // lọc
   filterRooms() {
-    this.filteredRooms = this.rooms.filter(room => {
-      const matchStatus = this.filter.room_status_id ? room.room_status_id === this.filter.room_status_id : true;
-      const matchClass = this.filter.room_class_id ? room.room_class_id === this.filter.room_class_id : true;
-      const matchKeyword = this.filter.keyword ? room.name?.toLowerCase().includes(this.filter.keyword.toLowerCase()) : true;
+    this.filteredRooms = this.rooms.filter((room) => {
+      const matchStatus = this.filter.room_status_id
+        ? room.room_status_id === this.filter.room_status_id
+        : true;
+      const matchClass = this.filter.room_class_id
+        ? room.room_class_id === this.filter.room_class_id
+        : true;
+      const matchKeyword = this.filter.keyword
+        ? room.name?.toLowerCase().includes(this.filter.keyword.toLowerCase())
+        : true;
       return matchStatus && matchClass && matchKeyword;
     });
 
     console.log('Kết quả lọc:', this.filteredRooms);
   }
-
-
 
   filterByDate() {
     const params: any = {};
@@ -298,7 +320,9 @@ export class RoomListComponent implements OnInit {
       params.check_in_date = new Date(this.filter.check_in_date).toISOString();
 
     if (this.filter.check_out_date)
-      params.check_out_date = new Date(this.filter.check_out_date).toISOString();
+      params.check_out_date = new Date(
+        this.filter.check_out_date
+      ).toISOString();
 
     if (this.filter.room_status_id)
       params.room_status_id = this.filter.room_status_id;
@@ -306,8 +330,7 @@ export class RoomListComponent implements OnInit {
     if (this.filter.room_class_id)
       params.room_class_id = this.filter.room_class_id;
 
-    if (this.filter.keyword)
-      params.keyword = this.filter.keyword;
+    if (this.filter.keyword) params.keyword = this.filter.keyword;
 
     this.roomService.getRooms(params).subscribe({
       next: (res) => {
@@ -319,7 +342,4 @@ export class RoomListComponent implements OnInit {
       },
     });
   }
-
-
 }
-

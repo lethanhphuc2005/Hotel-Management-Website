@@ -4,9 +4,13 @@ import "animate.css";
 import "./globals.css";
 import Footer from "./components/footer/footer";
 import Header from "./components/header/header";
-import "react-datepicker/dist/react-datepicker.css";  
+import "react-datepicker/dist/react-datepicker.css";
 import { AuthProvider } from "./services/AuthProvider"; // Import AuthProvider, điều chỉnh đường dẫn nếu cần
 import ChatbotPopup from "./components/chatbotAI/chatBotPopup";
+import { LoadingProvider } from "./context/LoadingContext";
+import GlobalLoading from "./components/loadingPage/GlobalLoading";
+import { store } from './context/store';
+import CartProvider from "./services/CartProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,13 +33,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>{/* _app.tsx hoặc layout.tsx */}
+        <link rel="preload" as="image" href="/img/loading-bg.jpg" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-             <AuthProvider>
-        <Header/>
-        {children}
-        <Footer/>
-        </AuthProvider>
-        <ChatbotPopup />
+        <CartProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <GlobalLoading />
+              <Header />
+              {children}
+              <Footer />
+            </AuthProvider>
+            <ChatbotPopup />
+          </LoadingProvider>
+        </CartProvider>
       </body>
     </html>
   );
