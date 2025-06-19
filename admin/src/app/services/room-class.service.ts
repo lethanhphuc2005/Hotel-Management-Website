@@ -16,7 +16,7 @@ export class RoomClassService {
   // Lấy danh sách tất cả các loại phòng
   getAllRoomClass(): Observable<{ message: string, data: RoomClass[] }> {
     return this.http.get<{ message: string, data: RoomClass[] }>(
-      `${this.apiUrl}/room-class`
+      `${this.apiUrl}/room-class?limit=1000`
     );
   }
 

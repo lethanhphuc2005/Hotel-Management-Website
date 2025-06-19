@@ -32,9 +32,6 @@ export class RoomClassListComponent implements OnInit {
     feature: [] as string[]
   };
 
-
-
-
   constructor(private http: HttpClient, private roomClassService: RoomClassService, private featureService: FeatureService, private mainRoomClassService: MainRoomClassService) { }
 
   ngOnInit(): void {
@@ -122,53 +119,58 @@ export class RoomClassListComponent implements OnInit {
 
 
   onAddRoomClassSubmit() {
-  if (!this.newRoomClass.name || !this.newRoomClass.price || !this.newRoomClass.main_room_class_id) {
-    alert('Vui lòng nhập đầy đủ thông tin.');
-    return;
-  }
-
-  const formData = new FormData();
-
-  formData.append('name', this.newRoomClass.name);
-  formData.append('description', this.newRoomClass.description);
-  formData.append('bed_amount', this.newRoomClass.bed_amount.toString());
-  formData.append('view', this.newRoomClass.view || '');
-  formData.append('capacity', this.newRoomClass.capacity.toString());
-  formData.append('price', this.newRoomClass.price.toString());
-  formData.append('main_room_class_id', this.newRoomClass.main_room_class_id);
-
-  const selectedFeatureIds = this.features
-    .filter(f => f.selected)
-    .map(f => f._id);
-  formData.append('features', JSON.stringify(selectedFeatureIds));
-
-  if (this.selectedRoomClassFiles.length === 0) {
-    alert('Vui lòng chọn ít nhất 1 ảnh.');
-    return;
-  }
-
-  this.selectedRoomClassFiles.forEach(file => {
-    formData.append('images', file);
-  });
-
-  // DEBUG
-  for (const pair of formData.entries()) {
-    console.log(pair[0], pair[1]);
-  }
-
-  this.roomClassService.addRoomClass(formData).subscribe({
-    next: () => {
-      this.loadRoomClasses();
-      this.isAddRoomPopupOpen = false;
-      this.selectedRoomClassFiles = [];
-      this.previewRoomClassImages = [];
-    },
-    error: err => {
-      console.error('❌ Lỗi server:', err);
-      alert('Thêm loại phòng thất bại: ' + (err.error?.message || err.message || err.statusText));
+    if (!this.newRoomClass.name || !this.newRoomClass.price || !this.newRoomClass.main_room_class_id) {
+      alert('Vui lòng nhập đầy đủ thông tin.');
+      return;
     }
-  });
-}
+
+    const formData = new FormData();
+
+    formData.append('name', this.newRoomClass.name);
+    formData.append('description', this.newRoomClass.description);
+    formData.append('bed_amount', this.newRoomClass.bed_amount.toString());
+    formData.append('view', this.newRoomClass.view || '');
+    formData.append('capacity', this.newRoomClass.capacity.toString());
+    formData.append('price', this.newRoomClass.price.toString());
+    formData.append('main_room_class_id', this.newRoomClass.main_room_class_id);
+
+    const selectedFeatureObjs = this.features
+      .filter(f => f.selected)
+      .map(f => ({ feature_id: f._id }));
+
+    selectedFeatureObjs.forEach((feature, index) => {
+      formData.append(`features[${index}][feature_id]`, feature.feature_id);
+    });
+
+
+
+    if (this.selectedRoomClassFiles.length === 0) {
+      alert('Vui lòng chọn ít nhất 1 ảnh.');
+      return;
+    }
+
+    this.selectedRoomClassFiles.forEach(file => {
+      formData.append('images', file);
+    });
+
+    // DEBUG
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    this.roomClassService.addRoomClass(formData).subscribe({
+      next: () => {
+        this.loadRoomClasses();
+        this.isAddRoomPopupOpen = false;
+        this.selectedRoomClassFiles = [];
+        this.previewRoomClassImages = [];
+      },
+      error: err => {
+        console.error('❌ Lỗi server:', err);
+        alert('Thêm loại phòng thất bại: ' + (err.error?.message || err.message || err.statusText));
+      }
+    });
+  }
 
 
   closeAddRoomPopup() {
@@ -228,7 +230,9 @@ export class RoomClassListComponent implements OnInit {
     formData.append('capacity', this.editRoomClass.capacity.toString());
     formData.append('price', this.editRoomClass.price.toString());
     formData.append('main_room_class_id', this.editRoomClass.main_room_class_id);
-    formData.append('features', JSON.stringify(selectedFeatures));
+    selectedFeatures.forEach((feature, index) => {
+      formData.append(`features[${index}][feature_id]`, feature.feature_id);
+    });
 
     this.editRoomClassFiles.forEach(file => {
       formData.append('images', file);
@@ -277,8 +281,5 @@ export class RoomClassListComponent implements OnInit {
 
     this.roomClasses = filtered;
   }
-
-
-
   // chọn nhiều return this.filter.feature.every((id: string) => roomFeatureIds.includes(id));
 }
