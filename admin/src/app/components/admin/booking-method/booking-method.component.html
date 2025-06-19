@@ -2,19 +2,20 @@
   <h2>Quản lý phương thức đặt phòng</h2>
 
   <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
-    <div
+       <div
       class="form-floating form-floating-custom mb-3"
       style="position: relative; flex: 1"
     >
       <input
-        type="text"
+        type="email"
         class="form-control"
-        placeholder="Tìm kiếm phương thức..."
+        id="floatingInput"
+        placeholder="name@example.com"
         style="width: 100%; padding-right: 30px"
         [(ngModel)]="searchKeyword"
         (keyup.enter)="onSearch()"
       />
-      <label>Tìm kiếm</label>
+      <label for="floatingInput">Tìm kiếm</label>
     </div>
     <button class="add-room" (click)="onAdd()">+ Thêm phương thức</button>
   </div>
