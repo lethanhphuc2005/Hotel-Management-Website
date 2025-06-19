@@ -14,6 +14,7 @@ export interface Booking {
   }[];
   full_name?: string;
   phone_number?: string;
+  note?: string;
   email?: string;
   check_in_date?: string;
   check_out_date?: string;
@@ -25,4 +26,7 @@ export interface Booking {
   total_price?: number;
   created_at?: string;
   updated_at?: string;
+  room_id?: {
+    name?: string;
+  };
 }

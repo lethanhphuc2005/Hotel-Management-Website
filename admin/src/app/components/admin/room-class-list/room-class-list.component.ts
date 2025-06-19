@@ -23,6 +23,7 @@ export class RoomClassListComponent implements OnInit {
   isAddRoomPopupOpen = false;
   newRoomClass: any = {};
   features: any[] = [];
+  searchKeyword: string = '';
   mainRoomClasses: any[] = [];
   selectedRoomClassFiles: File[] = [];
   previewRoomClassImages: string[] = [];
@@ -41,11 +42,15 @@ export class RoomClassListComponent implements OnInit {
   }
 
   loadRoomClasses() {
-    this.roomClassService.getAllRoomClass().subscribe({
-      next: (res) => this.roomClasses = res.data,
-      error: (err) => console.error('Lỗi khi load room class:', err),
-    });
-  }
+  this.roomClassService.getAllRoomClass().subscribe({
+    next: (res) => {
+      this.allRoomClasses = res.data;
+      this.roomClasses = [...this.allRoomClasses];  
+    },
+    error: (err) => console.error('Lỗi khi load room class:', err),
+  });
+}
+
 
   loadFeatures() {
     this.featureService.getAllFeatures().subscribe({
@@ -62,6 +67,10 @@ export class RoomClassListComponent implements OnInit {
       error: (err) => console.error('Lỗi khi load main room class:', err)
     });
   }
+
+  onSearch() {
+  this.applyFilters(); // Gọi lại lọc khi Enter
+}
 
 
   toggleStatus(rc: any) {
@@ -268,18 +277,28 @@ export class RoomClassListComponent implements OnInit {
   }
 
   applyFilters() {
-    let filtered = [...this.allRoomClasses];
+  let filtered = [...this.allRoomClasses];
 
-    if (this.filter.feature.length > 0) {
-      filtered = filtered.filter((room: any) => {
-        const roomFeatureIds = (room.features || [])
-          .map((f: any) => f.feature_id?._id)
-          .filter(Boolean);
-        return this.filter.feature.some((id: string) => roomFeatureIds.includes(id));
-      });
-    }
-
-    this.roomClasses = filtered;
+  // Lọc theo đặc điểm (feature)
+  if (this.filter.feature.length > 0) {
+    filtered = filtered.filter((room: any) => {
+      const roomFeatureIds = (room.features || [])
+        .map((f: any) => f.feature_id?._id)
+        .filter(Boolean);
+      return this.filter.feature.some((id: string) => roomFeatureIds.includes(id));
+    });
   }
+
+  // Lọc theo từ khóa tìm kiếm (name)
+  if (this.searchKeyword.trim()) {
+    const keyword = this.searchKeyword.trim().toLowerCase();
+    filtered = filtered.filter((room: any) =>
+      room.name?.toLowerCase().includes(keyword)
+    );
+  }
+
+  this.roomClasses = filtered;
+}
+
   // chọn nhiều return this.filter.feature.every((id: string) => roomFeatureIds.includes(id));
 }

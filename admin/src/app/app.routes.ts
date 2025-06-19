@@ -24,6 +24,7 @@ import { BookingStatusComponent } from './components/admin/booking-status/bookin
 import { ReviewComponent } from './components/admin/review/review.component';
 import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 import { FeatureComponent } from './components/admin/feature/feature.component';
+import { PaymentComponent } from './components/admin/payment/payment.component';
 export const routes: Routes = [
   // Trang login riêng biệt, không có layout
   { path: 'login', component: LoginComponent },
@@ -55,6 +56,7 @@ export const routes: Routes = [
           { path: 'review', component: ReviewComponent },
           { path: 'feature', component: FeatureComponent },
           { path: 'payment-method', component: PaymentMethodComponent },
+          { path: 'payments', component: PaymentComponent },
           {
             path: 'comment',
             component: CommentComponent,

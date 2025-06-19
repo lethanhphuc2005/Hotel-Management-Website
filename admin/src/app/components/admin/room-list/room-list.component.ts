@@ -123,6 +123,11 @@ export class RoomListComponent implements OnInit {
     });
   }
 
+  onSearch() {
+  this.filter.keyword = this.searchKeyword?.trim(); 
+  this.filterRooms();
+}
+
   // Hàm lấy tên trạng thái từ ID
   getStatusName(id: string): string {
     return this.statuses.find((s) => s._id === id)?.name || 'Không rõ';
