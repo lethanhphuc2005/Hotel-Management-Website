@@ -38,9 +38,9 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit}>
           <input
-            type="text"
+            type="email"
             className={styles.input}
-            placeholder="Tên đăng nhập"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required

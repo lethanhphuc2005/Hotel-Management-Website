@@ -93,12 +93,20 @@ const roomClassController = {
     }
 
     // Kiểm tra view
-    const validViews = ["sea", "mountain", "city", "garden", "pool"];
+    const validViews = [
+      "biển",
+      "thành phố",
+      "núi",
+      "vườn",
+      "hồ bơi",
+      "sông",
+      "hồ",
+    ];
     if (!validViews.includes(view)) {
       return {
         valid: false,
         message:
-          "View không hợp lệ. Các giá trị hợp lệ: sea, mountain, city, garden, pool.",
+          "View không hợp lệ. Các giá trị hợp lệ: biển, thành phố, núi, vườn, hồ bơi, sông, hồ",
       };
     }
 

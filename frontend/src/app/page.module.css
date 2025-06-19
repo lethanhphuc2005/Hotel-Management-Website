@@ -496,7 +496,7 @@
   display: flex;
   justify-content: space-between;
   border-radius: 15px;
-  height: 530px;
+  height: auto;
   width: 100%;
 }
 

@@ -164,7 +164,7 @@ export default function Header() {
                   <>
                     <Link
                       className={style.dropdownItem}
-                      href="/Accountmanagement"
+                      href="/profile"
                     >
                       Quản lý tài khoản
                     </Link>
