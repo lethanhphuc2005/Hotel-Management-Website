@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "animate.css";
@@ -6,7 +5,7 @@ import "./globals.css";
 import Footer from "@/components/footer/footer";
 import Header from "@/components/header/header";
 import "react-datepicker/dist/react-datepicker.css";
-import { AuthProvider } from "../contexts/AuthContext"; // Import từ AuthContext.tsx
+import { AuthProvider } from "@/services/AuthProvider";
 import ChatbotPopup from "@/components/chatbotAI/chatBotPopup";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import GlobalLoading from "@/components/loadingPage/GlobalLoading";
@@ -31,8 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-   
-      <html lang="en" suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning={true}>
       <head>
         {/* _app.tsx hoặc layout.tsx */}
         <link rel="preload" as="image" href="/img/banner1.webp" />
@@ -53,14 +51,14 @@ export default function RootLayout({
           style={{ zIndex: 9999 }}
         />
         <LoadingProvider>
-          <AuthProvider> 
+          <AuthProvider>
             <CartProvider>
-            <GlobalLoading />
-            <Header />
-            {children}
-            <Footer />
-           </CartProvider>
-          </AuthProvider> 
+              <GlobalLoading />
+              <Header />
+              {children}
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
           <ChatbotPopup />
         </LoadingProvider>
       </body>
