@@ -40,7 +40,7 @@ export default function Header() {
     const handleScroll = () => {
       const navbar = document.querySelector(".navbar");
       if (navbar) {
-        if (window.scrollY > 500) {
+        if (window.scrollY > 50) {
           navbar.classList.add(style.navbarScrollBg);
         } else {
           navbar.classList.remove(style.navbarScrollBg);
@@ -162,10 +162,7 @@ export default function Header() {
               <div className={style.dropdownMenu}>
                 {user ? (
                   <>
-                    <Link
-                      className={style.dropdownItem}
-                      href="/profile"
-                    >
+                    <Link className={style.dropdownItem} href="/profile">
                       Quản lý tài khoản
                     </Link>
                     <button

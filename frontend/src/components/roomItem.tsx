@@ -8,12 +8,7 @@ import { useState, useRef } from "react";
 import { MainRoomClass } from "@/types/mainroomclass";
 import { RoomClass } from "@/types/roomclass";
 import { Discount } from "@/types/discount";
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  animate,
-} from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { addRoomToCart } from "@/contexts/cartSlice";
@@ -241,6 +236,7 @@ export function RoomClassItem({
   numChildrenUnder6?: number;
   numAdults?: number;
   showExtraBedOver6?: boolean;
+  features?: string[];
 }) {
   const [liked, setLiked] = useState(false);
   const dispatch = useDispatch();
@@ -294,12 +290,13 @@ export function RoomClassItem({
         checkIn: startDate?.toLocaleDateString("vi-VN") || "",
         checkOut: endDate?.toLocaleDateString("vi-VN") || "",
         adults: adults ?? 1,
-        childrenUnder6,
-        childrenOver6,
+        childrenUnder6: childrenUnder6,
+        childrenOver6: childrenOver6,
         bedAmount: rci.bed_amount,
         view: rci.view,
         total: finalTotal,
         hasSaturdayNight: isSaturdayNight,
+        features: rci.features.map((f) => f.feature_id.name),
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");
@@ -390,6 +387,21 @@ export function RoomClassItem({
           <p className="mb-1">Số giường: {rci.bed_amount} giường đôi</p>
           <p className="mb-1">Sức chứa: {rci.capacity} người</p>
           <p className="mb-1">Mô tả: {rci.description}</p>
+          {rci.features && rci.features.length > 0 && (
+            <p className="mb-1">
+              Tiện nghi:
+              {rci.features.slice(0, 3).map((feature, index) => (
+                <span key={index} className="badge bg-secondary ms-1">
+                  {feature.feature_id.name}
+                </span>
+              ))}
+              {rci.features.length > 3 && (
+                <span className="badge bg-secondary ms-1">
+                  +{rci.features.length - 3}
+                </span>
+              )}
+            </p>
+          )}
           <p className="mb-1" style={{ color: "#FAB320" }}>
             <i className="bi bi-check2" style={{ color: "#FAB320" }}></i> Miễn
             phí hủy

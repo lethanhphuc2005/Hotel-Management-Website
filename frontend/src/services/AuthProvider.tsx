@@ -38,19 +38,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Tạo đối tượng user phù hợp với interface
       const userToStore: IUser = {
-        id: userData._id || userData.id,
+        id: userData._id || userData.id || undefined,
         first_name: userData.first_name || "",
-        last_name: userData.last_name || "",
-        email: userData.email,
-        address: userData.address || "",
-        phone_number: userData.phone_number || "", // ✅ sửa chỗ này
-        request: userData.request || "",
-        status: userData.status ?? true,
-        role: userData.role || "user",
+        accessToken: userData.accessToken || "",
+        refreshToken: userData.refreshToken || "",
       };
 
       setUser(userToStore);
-      localStorage.setItem("user", JSON.stringify(userToStore));
+      localStorage.setItem("login", JSON.stringify(userToStore));
 
       return true;
     } catch (error) {

@@ -9,6 +9,11 @@ const PaymentMethodSchema = new mongoose.Schema(
       trim: true,
       maxlength: 100,
     },
+    image: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     status: {
       type: Boolean,
       default: false,

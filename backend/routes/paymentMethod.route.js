@@ -6,7 +6,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 // === LẤY TẤT CẢ PHƯƠNG THỨC THANH TOÁN ===
 router.get(
   "/",
-  authMiddleware.authorizeRoles("admin", "receptionist"),
+  // authMiddleware.authorizeRoles("admin", "receptionist"),
   paymentMethodController.getAllPaymentMethods
 );
 

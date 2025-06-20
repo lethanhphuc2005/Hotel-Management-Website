@@ -10,6 +10,7 @@ import ChatbotPopup from "@/components/chatbotAI/chatBotPopup";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import GlobalLoading from "@/components/loadingPage/GlobalLoading";
 import CartProvider from "@/services/CartProvider";
+import { ToastContainer } from "react-toastify";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -38,6 +39,19 @@ export default function RootLayout({
         <link rel="preload" as="image" href="/img/logo-doc.png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          pauseOnHover
+          draggable
+          theme="colored"
+          style={{ zIndex: 9999 }}
+        />
         <LoadingProvider>
           <AuthProvider>
             <CartProvider>

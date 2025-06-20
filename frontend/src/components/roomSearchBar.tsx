@@ -6,7 +6,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useEffect } from "react";
 import { useData } from "@/hooks/useData";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface RoomSearchBarProps {
@@ -173,8 +173,6 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
 
   return (
     <>
-      {/* ToastContainer phải luôn ở trong JSX và nằm ngoài hàm onClick */}
-      <ToastContainer position="top-right" autoClose={3000} />
       <div>
         <div
           className="border mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4"

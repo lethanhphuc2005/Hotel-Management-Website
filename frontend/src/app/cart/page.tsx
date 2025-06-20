@@ -3,12 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "./cart.module.css";
 import { RootState } from "@/contexts/store";
 import { removeRoomFromCart, clearCart } from "@/contexts/cartSlice";
+import Link from "next/link";
+import { getRoomTotalPrice } from "@/contexts/cartSelector";
 
 export default function Cart() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
-
-  const total = rooms.reduce((sum, r) => sum + r.total, 0);
+  console.log("Cart rooms:", rooms);
+  const total = rooms.reduce((sum, room) => {
+    const roomTotal = getRoomTotalPrice(room);
+    return sum + roomTotal;
+  }, 0);
 
   return (
     <div className={`container ${styles.cartContainer}`}>
@@ -28,6 +33,7 @@ export default function Cart() {
             <tr>
               <th></th>
               <th className="fw-normal">PHÒNG</th>
+              <th className="fw-normal">DỊCH VỤ</th>
               <th className="fw-normal">GIÁ/ĐÊM</th>
               <th className="fw-normal">SỐ ĐÊM</th>
               <th className="fw-normal">TỔNG</th>
@@ -68,6 +74,16 @@ export default function Cart() {
                       Xóa
                     </button>
                   </td>
+                  <td>
+                    <div className={styles.roomServices}>
+                      {room.services?.map((service, index) => (
+                        <span key={index} className={styles.serviceItem}>
+                          {service.name} - {service.quantity}x <br />
+                          {service.price.toLocaleString("vi-VN")} VNĐ
+                        </span>
+                      ))}
+                    </div>
+                  </td>
                   <td style={{ verticalAlign: "middle" }}>
                     {room.price.toLocaleString("vi-VN")} VNĐ
                     {room.hasSaturdayNight && (
@@ -78,7 +94,7 @@ export default function Cart() {
                   </td>
                   <td style={{ verticalAlign: "middle" }}>{room.nights} đêm</td>
                   <td style={{ verticalAlign: "middle" }}>
-                    {room.total.toLocaleString("vi-VN")}đ
+                    {getRoomTotalPrice(room).toLocaleString("vi-VN")}đ
                   </td>
                   <td></td>
                 </tr>
@@ -111,9 +127,9 @@ export default function Cart() {
             </div>
           </div>
           <div className="text-end mt-4 mb-1">
-            <a href="/payment" className={styles.checkoutBtn}>
+            <Link href="/payment" className={styles.checkoutBtn}>
               Đặt phòng ({total.toLocaleString("vi-VN")}đ)
-            </a>
+            </Link>
           </div>
         </div>
       )}

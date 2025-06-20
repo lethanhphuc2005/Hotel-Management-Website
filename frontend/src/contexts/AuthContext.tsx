@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const data = await response.json();
       const userData: IUser = data.user; // giả sử API trả về { user: { ... } }
 
-      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("login", JSON.stringify(userData));
       setUser(userData);
       return true;
     } catch (err) {

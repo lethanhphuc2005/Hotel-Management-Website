@@ -8,6 +8,7 @@ const api = axios.create({
 // Interceptor để thêm token vào header
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("login"); // hoặc Cookies.get('accessToken')
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

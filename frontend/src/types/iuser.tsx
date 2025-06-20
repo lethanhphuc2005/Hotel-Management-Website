@@ -1,15 +1,15 @@
 // frontend/model/iuser.ts
 export interface IUser {
-  id?: number | string | undefined;
-  first_name: string;
+  id: number | string | undefined;
+  first_name?: string;
   last_name?: string;
   email?: string;
   password?: string;
   address?: string;
   phone_number?: string;
   request?: string;
-  status?: boolean;
-  role?: string | number;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface IAuthContextType {

@@ -15,7 +15,7 @@ const accountController = {
         role: user.role || "user",
       },
       process.env.ACCESS_TOKEN,
-      { expiresIn: "15m" }
+      { expiresIn: "30s" }
     );
   },
   creareRefreshToken: (user) => {

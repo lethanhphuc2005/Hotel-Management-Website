@@ -1,13 +1,31 @@
-.form input::placeholder {
-    color: #6c757d !important;
+.card-custom {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
-.form input {
-    height: 50px;
+.card-custom:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
 
-.form input:focus {
-    outline: none;
-    box-shadow: none;
-    border-color: white !important;
+.card-custom .card-title {
+  color: #fab320;
+  font-weight: bold;
+}
+
+.card-custom .badge {
+  background-color: #333;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.card-custom .btn-outline-danger {
+  border-radius: 12px;
+  font-weight: bold;
 }
