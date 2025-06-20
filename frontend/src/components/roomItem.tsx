@@ -221,7 +221,8 @@ export function RoomClassItem({
   numberOfChildren,
   startDate,
   endDate,
-  numChildrenUnder6,
+  numChildrenUnder6 = 0,
+  numchildrenOver6 = 0,
   numAdults,
   showExtraBedOver6,
 }: {
@@ -234,6 +235,7 @@ export function RoomClassItem({
   startDate?: Date;
   endDate?: Date;
   numChildrenUnder6?: number;
+  numchildrenOver6?: number;
   numAdults?: number;
   showExtraBedOver6?: boolean;
   features?: string[];
@@ -245,9 +247,9 @@ export function RoomClassItem({
     startDate: selectedStartDate,
     endDate: selectedEndDate,
   } = useRoomSearch();
-  const adults = numberOfAdults;
-  const childrenUnder6 = guests.children.age0to6;
-  const childrenOver6 = guests.children.age7to17;
+  const adults = numberOfAdults ?? 1;
+  const childrenUnder6 = numChildrenUnder6 ?? 0;
+  const childrenOver6 = numchildrenOver6 ?? 0;
   const cartRooms = useSelector((state: RootState) => state.cart.rooms);
 
   const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
@@ -255,6 +257,8 @@ export function RoomClassItem({
   const isSaturdayNight = hasSaturdayNight(startDate, endDate);
   const finalTotal = basePrice * numberOfNights * (isSaturdayNight ? 1.5 : 1);
   const handleAddToCart = () => {
+    const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
+    const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
     // Kiểm tra ngày đã chọn chưa
     if (!hasSearched || !selectedStartDate || !selectedEndDate) {
       toast.error(
@@ -262,8 +266,6 @@ export function RoomClassItem({
       );
       return;
     }
-    const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
-    const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
     // 🔍 Kiểm tra trùng phòng đã có trong giỏ hàng
     const isDuplicate = cartRooms.some(
       (room) =>
@@ -277,14 +279,25 @@ export function RoomClassItem({
       toast.error("Phòng này bạn đã thêm vào giỏ hàng rồi!");
       return;
     }
+    // ✅ Kiểm tra ngày giống nhau
+    if (cartRooms.length > 0) {
+      const firstRoom = cartRooms[0];
+      if (
+        firstRoom.checkIn !== checkInISO ||
+        firstRoom.checkOut !== checkOutISO
+      ) {
+        toast.error("Bạn chỉ có thể thêm phòng có cùng ngày nhận và trả phòng!");
+        return;
+      }
+    }
     dispatch(
       addRoomToCart({
         id: rci._id + "-" + Date.now(),
         name: rci.name,
         img: rci.images[0]?.url || "",
-        desc: `${adults ?? 1} người lớn${
-          numberOfChildren ? `, ${numberOfChildren} trẻ em` : ""
-        }, ${rci.bed_amount} giường đôi`,
+        desc: `${adults ?? 1} người lớn${childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
+          }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""
+          }, ${rci.bed_amount} giường đôi`,
         price: rci.price_discount > 0 ? rci.price_discount : rci.price,
         nights: numberOfNights,
         checkIn: startDate?.toLocaleDateString("vi-VN") || "",
@@ -360,9 +373,8 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${
-                liked ? "text-danger" : "text-dark"
-              }`}
+              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
+                }`}
             ></i>
           </button>
         </div>
@@ -425,12 +437,15 @@ export function RoomClassItem({
         </div>
         <div className="ms-auto align-self-end mb-2 text-end">
           {hasSearched && (
-            <p style={{ fontSize: "14px" }}>
-              {`${numberOfNights} đêm, ${numberOfAdults} người lớn` +
-                (numberOfChildren && numberOfChildren > 0
-                  ? `, ${numberOfChildren} trẻ em`
-                  : "")}
-            </p>
+            <div className="mb-3" style={{ fontSize: "14px", lineHeight: 1.4 }}>
+              <div className="mb-1">
+                {numberOfNights} đêm, {numberOfAdults ?? 1} người lớn
+              </div>
+              <div>
+                {numChildrenUnder6 > 0 && `${numChildrenUnder6} trẻ 0–6`}
+                {numchildrenOver6 > 0 && `, ${numchildrenOver6} trẻ 7–17`}
+              </div>
+            </div>
           )}
           <h5 style={{ color: "white", fontWeight: "bold" }}>
             VND {totalPrice.toLocaleString("vi-VN")}
