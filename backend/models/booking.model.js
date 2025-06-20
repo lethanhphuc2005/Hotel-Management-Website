@@ -6,7 +6,6 @@ const bookingSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      required: false,
       default: null,
     },
     full_name: {
@@ -104,11 +103,6 @@ const bookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "discount",
       default: null,
-    },
-    payment_method_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "payment_method",
-      required: true,
     },
     employee_id: {
       type: mongoose.Schema.Types.ObjectId,

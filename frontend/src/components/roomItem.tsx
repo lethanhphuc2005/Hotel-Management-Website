@@ -279,7 +279,7 @@ export function RoomClassItem({
     }
     dispatch(
       addRoomToCart({
-        id: rci._id + "-" + Date.now(),
+        id: rci._id,
         name: rci.name,
         img: rci.images[0]?.url || "",
         desc: `${adults ?? 1} người lớn${

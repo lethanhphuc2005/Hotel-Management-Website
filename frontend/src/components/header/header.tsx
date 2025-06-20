@@ -148,9 +148,8 @@ export default function Header() {
 
             {/* Avatar & Dropdown */}
             <div className={style.dropdown}>
-              <a
-                className="text-white d-flex align-items-center gap-2"
-                href="#"
+              <div
+                className="text-white d-flex align-items-center gap-2 cursor-pointer"
               >
                 <i className="bi bi-person-circle fs-5"></i>
                 {user && (
@@ -158,7 +157,7 @@ export default function Header() {
                     Xin chào, <strong>{user.first_name}</strong>
                   </span>
                 )}
-              </a>
+              </div>
               <div className={style.dropdownMenu}>
                 {user ? (
                   <>
@@ -168,7 +167,7 @@ export default function Header() {
                     <button
                       onClick={handleLogout}
                       className={style.dropdownItem}
-                      style={{ border: "none", background: "none" }}
+                      style={{ width: "100%", textAlign: "left", border: "none", background: "none" }}
                     >
                       Đăng xuất
                     </button>

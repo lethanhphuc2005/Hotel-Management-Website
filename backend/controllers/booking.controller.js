@@ -10,8 +10,9 @@ const Employee = require("../models/employee.model");
 const Room = require("../models/room.model");
 const RoomClass = require("../models/roomClass.model");
 const Discount = require("../models/discount.model");
-const PaymentMethod = require("../models/paymentMethod.model");
 const Service = require("../models/service.model");
+const mailSender = require("../helpers/mail.sender");
+const { notificationEmail } = require("../config/mail");
 
 const bookingController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===
@@ -24,12 +25,10 @@ const bookingController = {
       check_out_date,
       adult_amount,
       child_amount,
-      payment_method_id,
       booking_method_id,
       booking_status_id,
       details,
       discount_id,
-      user_id,
       employee_id,
     } = bookingData;
 
@@ -63,12 +62,6 @@ const bookingController = {
       return { valid: false, message: "Số lượng trẻ em không thể âm." };
     }
 
-    // Kiểm tra người dùng
-    const checkUser = await User.findById(user_id);
-    if (!checkUser) {
-      return { valid: false, message: "Người dùng không tồn tại." };
-    }
-
     // Kiểm tra nhân viên
     if (employee_id) {
       const checkEmployee = await Employee.findById(employee_id);
@@ -78,8 +71,13 @@ const bookingController = {
     }
 
     // Ngày đặt phòng lấy từ ngày hiện tại
-    const booking_date = new Date();
-
+    // Đặt booking_date là ngày hiện tại với giờ 0:00
+    const now = new Date();
+    const booking_date = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
     // Kiểm tra ngày nhận phòng không được trước ngày đặt phòng
     if (new Date(check_in_date) < new Date(booking_date)) {
       return {
@@ -131,12 +129,6 @@ const bookingController = {
       return { valid: false, message: "Trạng thái đặt phòng không tồn tại." };
     }
 
-    // Kiểm tra phương thức thanh toán
-    const paymentMethod = await PaymentMethod.findById(payment_method_id);
-    if (!paymentMethod) {
-      return { valid: false, message: "Phương thức thanh toán không tồn tại." };
-    }
-
     // Kiểm tra chi tiết đặt phòng có hợp lệ không
     let totalCapacity = 0;
 
@@ -147,8 +139,6 @@ const bookingController = {
     }
 
     const totalPeople = (adult_amount || 0) + totalChildren;
-
-    let calculatedTotalPrice = 0;
 
     for (const detail of details) {
       // Kiểm tra room_id
@@ -170,7 +160,7 @@ const bookingController = {
           message: "Số đêm trong chi tiết đặt phòng không hợp lệ.",
         };
       }
-      const room = await Room.findById(detail.room_id);
+      const room = await Room.findOne({ room_class_id: detail.room_id });
       if (!room) {
         return {
           valid: false,
@@ -187,7 +177,6 @@ const bookingController = {
       totalCapacity += roomClass.room_class_capacity;
 
       // Tính tổng tiền phòng
-      calculatedTotalPrice += detail.price_per_night * detail.nights;
 
       // Kiểm tra dịch vụ nếu có
       if (detail.services && detail.services.length > 0) {
@@ -212,8 +201,6 @@ const bookingController = {
     }
 
     // Gán lại tổng tiền vào bookingData (nếu cần)
-    bookingData.total_price = calculatedTotalPrice;
-
     if (totalPeople > totalCapacity) {
       return {
         valid: false,
@@ -222,18 +209,20 @@ const bookingController = {
     }
 
     // Kiểm tra xem user có đơn đặt nào đang chờ xử lý không
-
-    const existingBooking = await Booking.findOne({
-      user_id,
-      booking_status_id: {
-        $in: ["683fba8d351a96315d45767a", "683fba8d351a96315d45767b"],
-      },
-    });
-    if (existingBooking) {
-      return {
-        valid: false,
-        message: "Bạn đã có đơn đặt phòng đang chờ xử lý.",
-      };
+    const user_id = bookingData.user_id || null; // Lấy user_id từ bookingData
+    if (!user_id) {
+      const existingBooking = await Booking.findOne({
+        user_id,
+        booking_status_id: {
+          $in: ["683fba8d351a96315d45767a", "683fba8d351a96315d45767b"],
+        },
+      });
+      if (existingBooking) {
+        return {
+          valid: false,
+          message: "Bạn đã có đơn đặt phòng đang chờ xử lý.",
+        };
+      }
     }
 
     return { valid: true };
@@ -249,27 +238,12 @@ const bookingController = {
       }
       const { details } = req.body;
       const newBooking = new Booking(req.body);
-
       // Tính phụ phí cho trẻ em nếu có
-      let childrenFee = 0;
       if (req.body.child_amount && req.body.child_amount.length > 0) {
-        for (const child of req.body.child_amount) {
-          const age = child.age;
-
-          // Giả sử chính sách:
-          // <6 tuổi: miễn phí
-          // 6-16 tuổi: phụ phí 100k
-          if (age < 6)
-            newBooking.note += "Trẻ em dưới 6 tuổi được miễn phí. \n";
-          else if (age >= 6 && age <= 16) {
-            childrenFee += 100000; // phụ phí 100k cho trẻ em từ 6-11 tuổi
-            newBooking.note += `Trẻ em ${age} tuổi được tính phụ phí 100k.\n`;
-          }
-        }
-
+        7;
         newBooking.child_amount = req.body.child_amount.length; // lưu lại thông tin trẻ em
-        newBooking.extra_fee = (newBooking.extra_fee || 0) + childrenFee;
-        newBooking.total_price = (newBooking.total_price || 0) + childrenFee; // cộng phụ phí vào tổng tiền
+      } else {
+        newBooking.child_amount = 0; // không có trẻ em thì để 0
       }
 
       // Thêm booking details
@@ -298,6 +272,66 @@ const bookingController = {
       }
 
       await newBooking.save();
+
+      // Gửi mail thông tin đặt phòng (nếu cần)
+      try {
+        const bookingMessage = `
+            <h2>Thông tin đặt phòng</h2>
+            <p><strong>Họ tên:</strong> ${newBooking.full_name}</p>
+            <p><strong>Số điện thoại:</strong> ${newBooking.phone_number}</p>
+            <p><strong>Email:</strong> ${newBooking.email}</p>
+            <p><strong>Ngày đặt:</strong> ${newBooking.booking_date.toLocaleDateString()}</p>
+            <p><strong>Ngày nhận phòng:</strong> ${newBooking.check_in_date.toLocaleDateString()}</p>
+            <p><strong>Ngày trả phòng:</strong> ${newBooking.check_out_date.toLocaleDateString()}</p>
+            <p><strong>Số lượng người lớn:</strong> ${
+              newBooking.adult_amount
+            }</p>
+            <p><strong>Số lượng trẻ em:</strong> ${newBooking.child_amount}</p>
+            <p><strong>Thông tin chi tiết đặt phòng:</strong></p>
+            <ul>
+              ${details
+                .map(
+                  (detail) => `
+                <li>
+                  Phòng: ${
+                    detail.room_id
+                  }, Giá mỗi đêm: ${detail.price_per_night.toLocaleString(
+                    "vi-VN"
+                  )} VND, Số đêm: ${detail.nights}
+                  ${
+                    detail.services && detail.services.length > 0
+                      ? `
+                    <ul>
+                      ${detail.services
+                        .map(
+                          (service) => `
+                        <li>Dịch vụ: ${service.service_id}, Số lượng: ${service.amount}</li>
+                      `
+                        )
+                        .join("")}
+                    </ul>`
+                      : ""
+                  }
+                </li>`
+                )
+                .join("")}
+            </ul>
+            <p><strong>Tổng tiền:</strong> ${newBooking.total_price.toLocaleString(
+              "vi-VN"
+            )} VND</p>
+          `;
+        mailSender({
+          email: newBooking.email,
+          subject: notificationEmail.subject,
+          html: notificationEmail.html(bookingMessage),
+        });
+      } catch (error) {
+        console.error("Gửi email thông tin đặt phòng thất bại:", error);
+        return res.status(500).json({
+          message: "Gửi email thông tin đặt phòng thất bại",
+          error: error.message,
+        });
+      }
       res.status(201).json({
         message: "Thêm phòng đặt thành công",
         data: newBooking,

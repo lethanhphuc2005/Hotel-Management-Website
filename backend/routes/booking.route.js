@@ -5,7 +5,6 @@ const authMiddleware = require("../middlewares/auth.middleware");
 /// === THÊM MỚI ĐẶT PHÒNG ===
 router.post(
   "/",
-  authMiddleware.authorizeRoles("admin", "receptionist"),
   bookingController.addBooking
 );
 
