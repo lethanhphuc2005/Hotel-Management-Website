@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import style from "./payment.module.css";
 import { RootState } from "@/contexts/store";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
-import { removeRoomFromCart } from "@/contexts/cartSlice";
+import { clearCart, removeRoomFromCart } from "@/contexts/cartSlice";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import axios from "axios";
+import api from "@/services/axiosInstance";
+import { useRouter } from "next/navigation";
 
 const formatVietnameseDate = (dateStr: string) => {
   const [day, month, year] = dateStr.split("/").map(Number);
@@ -20,9 +21,10 @@ const formatVietnameseDate = (dateStr: string) => {
   });
 };
 
-export default async function PayMent() {
+export default function PayMent() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
+  const router = useRouter()
 
   const [selectedMethod, setSelectedMethod] = useState("");
 
@@ -62,22 +64,32 @@ export default async function PayMent() {
       toast.error("Không có phòng nào trong giỏ hàng.");
       return;
     }
-
     if (name === "" && email === "" && phone === "") {
       toast.info("Vui lòng nhập thông tin cá nhân để đặt phòng.");
+      return;
     }
     if (!selectedMethod) {
       toast.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
+
+    // format date to YYYY-MM-DD
+    const formatDate = (dateStr: string) => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return `${year}-${month.toString().padStart(2, "0")}-${day
+        .toString()
+        .padStart(2, "0")}`;
+    };
     try {
+      console.log(total);
       const payload = {
-        user_id: "683fb84f351a96315d457666", // 👈 thay bằng user thật nếu có login
+        user_id: null, // 👈 thay bằng user thật nếu có login
         full_name: name, // 👈 lấy từ form nếu có
         email: email,
         phone_number: phone,
-        check_in_date: rooms[0].checkIn,
-        check_out_date: rooms[0].checkOut,
+        booking_date: new Date().toISOString(),
+        check_in_date: formatDate(rooms[0].checkIn),
+        check_out_date: formatDate(rooms[0].checkOut),
         adult_amount: rooms.reduce((sum, r) => sum + (r.adults ?? 0), 0),
         child_amount: rooms.flatMap((r) => {
           const list = [];
@@ -87,10 +99,9 @@ export default async function PayMent() {
             list.push({ age: 10 });
           return list;
         }),
+        booking_method_id: "684126db1ce6a19c45c2ec0a",
         booking_status_id: "683fba8d351a96315d457678", // pending
-        booking_method_id: "684126db1ce6a19c45c2ec0a", // online
         request: "Không có",
-        payment_method_id: selectedMethod,
         details: rooms.map((room) => ({
           room_id: room.id || room.id,
           price_per_night: room.price,
@@ -100,13 +111,16 @@ export default async function PayMent() {
             amount: s.quantity,
           })),
         })),
+        total_price: total,
       };
 
-      const res = await axios.post("http://localhost:8000/v1/booking", payload);
+      const res = await api.post("/booking", payload);
       toast.success("Đặt phòng thành công!");
 
+      dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
       // Optional: redirect
-      // router.push("/thank-you");
+      router.push("/thank-you");
+
     } catch (err) {
       console.error(err);
       toast.error("Lỗi khi đặt phòng. Vui lòng thử lại.");

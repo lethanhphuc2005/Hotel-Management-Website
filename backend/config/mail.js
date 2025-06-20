@@ -58,13 +58,15 @@ module.exports = {
   notificationEmail: {
     subject: "Thông báo từ The Moon Hotel",
     html: (message) => `
-      <div style="font-family: Arial, sans-serif; background-color: #111; color: #eee; padding: 30px; max-width: 600px; margin: auto; border-radius: 8px;">
+      <div style="font-family: Arial, sans-serif; background-color: black; color: white; padding: 30px; max-width: 600px; margin: auto; border-radius: 8px;">
         <img src="${LOGO_URL}" alt="Logo" style="max-width: 150px; display: block; margin: 0 auto 20px;" />
-        <h1 style="color: #1abc9c; text-align: center;">Thông báo</h1>
-        <p style="text-align: center;">${message}</p>
-        <p style="text-align: center;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+        <h1 style="color: #fab320; text-align: center;">Thông báo đặt phòng</h1>
+        <div style="color: white;">
+          ${message}
+        </div>
+        <p style="text-align: center; color: #000;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
         ${FOOTER}
       </div>
-    `,
+`,
   },
 };
