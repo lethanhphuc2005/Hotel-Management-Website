@@ -341,6 +341,7 @@ export default function AllRoom() {
                   startDate={startDate}
                   endDate={endDate}
                   numChildrenUnder6={numChildrenUnder6}
+                  numchildrenOver6={numChildrenOver6}
                   numAdults={numberOfAdults}
                   showExtraBedOver6={showExtraBedOver6}
                 />

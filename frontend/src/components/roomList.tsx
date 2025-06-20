@@ -131,6 +131,7 @@ export function RoomClassList({
   startDate,
   endDate,
   numChildrenUnder6,
+  numchildrenOver6,
   numAdults,
   showExtraBedOver6,
 }: {
@@ -143,6 +144,7 @@ export function RoomClassList({
   startDate?: Date;
   endDate?: Date;
   numChildrenUnder6?: number;
+  numchildrenOver6?: number;
   numAdults?: number;
   showExtraBedOver6?: boolean;
 }) {
@@ -159,6 +161,7 @@ export function RoomClassList({
           startDate={startDate}
           endDate={endDate}
           numChildrenUnder6={numChildrenUnder6}
+          numchildrenOver6={numchildrenOver6}
           numAdults={numAdults}
           showExtraBedOver6={showExtraBedOver6}
           key={rc._id}
