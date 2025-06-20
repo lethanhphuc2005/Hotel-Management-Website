@@ -35,6 +35,7 @@ exports.verifyOtp = async (req, res) => {
   }
 };
 // GỬI LẠI OTP
+
 exports.resendOtp = async (req, res) => {
   const { email } = req.body;
 
@@ -44,32 +45,9 @@ exports.resendOtp = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.verification_code = otp;
-    await user.save();
-
-    console.log("🔁 Gửi lại OTP cho:", email);
-    console.log("OTP mới:", otp);
-    console.log("Thời gian:", new Date());
-
-    res.status(200).json({ message: "Đã gửi lại OTP thành công" });
-  } catch (err) {
-    console.error("❌ Lỗi gửi lại OTP:", err);
-    res.status(500).json({ message: "Lỗi server", error: err.message });
-  }
-};
-exports.resendOtp = async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) return res.status(400).json({ message: "Email là bắt buộc" });
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
-
-    if (user.is_verified) {
-      return res.status(400).json({ message: "Tài khoản đã được xác minh." });
-    }
+    // if (user.is_verified) {
+    //   return res.status(400).json({ message: "Tài khoản đã được xác minh." });
+    // }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.verification_code = otp;
