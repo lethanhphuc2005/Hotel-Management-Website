@@ -86,9 +86,9 @@ export default function Cart() {
                   </td>
                   <td style={{ verticalAlign: "middle" }}>
                     {room.price.toLocaleString("vi-VN")} VNĐ
-                    {room.hasSaturdayNight && (
+                    {(room.hasSaturdayNight || room.hasSundayNight) && (
                       <div style={{ fontSize: "0.9rem", color: "#FAB320" }}>
-                        +50% phụ thu do có đêm Thứ 7
+                        +50% phụ thu do có đêm cuối tuần
                       </div>
                     )}
                   </td>

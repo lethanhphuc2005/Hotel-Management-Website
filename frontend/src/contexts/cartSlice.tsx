@@ -25,6 +25,7 @@ export interface CartRoom {
   view: string;
   total: number;
   hasSaturdayNight: boolean;
+  hasSundayNight: boolean;
   features: string[];
   services?: CartService[]; // Thêm vào đây
 }

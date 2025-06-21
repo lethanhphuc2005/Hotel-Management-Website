@@ -252,10 +252,9 @@ export function RoomClassItem({
   const childrenOver6 = numchildrenOver6 ?? 0;
   const cartRooms = useSelector((state: RootState) => state.cart.rooms);
 
-  const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
+  let hasSaturday = false;
+  let hasSunday = false;
 
-  const isSaturdayNight = hasSaturdayNight(startDate, endDate);
-  const finalTotal = basePrice * numberOfNights * (isSaturdayNight ? 1.5 : 1);
   const handleAddToCart = () => {
     const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
     const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
@@ -290,6 +289,7 @@ export function RoomClassItem({
         return;
       }
     }
+
     dispatch(
       addRoomToCart({
         id: rci._id,
@@ -307,33 +307,51 @@ export function RoomClassItem({
         childrenOver6: childrenOver6,
         bedAmount: rci.bed_amount,
         view: rci.view,
-        total: finalTotal,
-        hasSaturdayNight: isSaturdayNight,
+        total: totalPrice,
+        hasSaturdayNight: hasSaturday,
+        hasSundayNight: hasSunday,
         features: rci.features.map((f) => f.feature_id.name),
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");
   };
 
-  // Hàm kiểm tra có đêm Thứ 7 không
-  function hasSaturdayNight(start?: Date, end?: Date) {
-    if (!start || !end) return false;
+  function calcTotalPricePerNight(basePrice: number, start?: Date, end?: Date) {
+    if (!start || !end) return basePrice;
+    let total = 0;
     const current = new Date(start);
     while (current < end) {
-      if (current.getDay() === 6) return true;
+      if (current.getDay() === 6 || current.getDay() === 0) {
+        // Thứ 7 hoặc Chủ nhật
+        total += basePrice * 1.5;
+      } else {
+        total += basePrice;
+      }
       current.setDate(current.getDate() + 1);
     }
-    return false;
+    return total;
   }
 
-  let totalPrice = rci.price;
-  if (numberOfNights > 0) {
-    if (hasSaturdayNight(startDate, endDate)) {
-      totalPrice = rci.price * numberOfNights * 1.5;
-    } else {
-      totalPrice = rci.price * numberOfNights;
+  const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
+  const totalPrice = calcTotalPricePerNight(basePrice, startDate, endDate);
+
+  // Thêm hàm kiểm tra có Thứ 7 hoặc Chủ nhật trong khoảng ngày
+  function getWeekendNights(start?: Date, end?: Date) {
+    let hasSaturday = false;
+    let hasSunday = false;
+    if (!start || !end) return { hasSaturday, hasSunday };
+    const current = new Date(start);
+    while (current < end) {
+      if (current.getDay() === 6) hasSaturday = true; // Thứ 7
+      if (current.getDay() === 0) hasSunday = true;   // Chủ nhật
+      current.setDate(current.getDate() + 1);
     }
+    return { hasSaturday, hasSunday };
   }
+  // ✅ Thêm dòng này để lấy thông tin cuối tuần
+  const { hasSaturday: sat, hasSunday: sun } = getWeekendNights(startDate, endDate);
+  hasSaturday = sat;
+  hasSunday = sun;
 
   const handleLikeClick = () => {
     setLiked((prev) => !prev);
@@ -448,7 +466,7 @@ export function RoomClassItem({
             </div>
           )}
           <h5 style={{ color: "white", fontWeight: "bold" }}>
-            VND {totalPrice.toLocaleString("vi-VN")}
+            VND {hasSearched ? totalPrice.toLocaleString("Vi-VN") : basePrice.toLocaleString("Vi-VN")}
           </h5>
           <p style={{ fontSize: "12px" }}>Đã bao gồm thuế và phí</p>
           <button
