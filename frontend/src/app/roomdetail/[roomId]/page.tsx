@@ -28,6 +28,8 @@ interface Comment {
   content: string;
   createdAt: string; // Ngày tạo bình luận
   updatedAt: string; // Ngày cập nhật bình luận
+  rating?: number; // thêm dòng này
+  
 }
 
 // Định nghĩa interface cho review
@@ -165,13 +167,14 @@ const RoomDetail = () => {
       .catch((err) => console.error(err));
   }, [roomId]);
 
-  const ratingCount = comments.length;
-  const avgRating =
-    ratingCount === 0
-      ? 0
-      : (
-          comments.reduce((sum, cmt) => sum + (cmt.rating || 0), 0) / ratingCount
-        ).toFixed(1);
+  const ratedComments: Comment[] = comments.filter(
+    (cmt) => cmt.rating !== undefined && cmt.rating !== null
+  );
+  const ratingCount: number = ratedComments.length;
+  const avgRating: number =
+  ratingCount === 0
+    ? 0
+    : ratedComments.reduce((sum, cmt) => sum + (cmt.rating ?? 0), 0) / ratingCount;
 
   if (!room) return <div>Room not found</div>;
 
@@ -253,7 +256,7 @@ const RoomDetail = () => {
               </span>
               <div className={styles.ratingScoreWrapper}>
                 <span className={styles.ratingScore}>
-                  {avgRating}/5
+                  {avgRating === 0 ? 0 :avgRating.toFixed(1)}/5
                 </span>
                 <span className={styles.stars}>
                   {"★★★★★".slice(0, Math.round(avgRating))}
