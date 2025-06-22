@@ -36,6 +36,16 @@ export async function getRoomClass(url: string): Promise<RoomClass[]> {
       room_class_id: img.room_class_id,
       url: img.url,
     })),
+        comments: p.comments?.map((cmt: any) => ({
+      _id: cmt._id,
+      room_class_id: cmt.room_class_id,
+      parent_id: cmt.parent_id,
+      user_id: cmt.user_id,
+      content: cmt.content,
+      createdAt: cmt.createdAt,
+      updatedAt: cmt.updatedAt,
+      rating: cmt.rating,
+    })) || [],
   }));
 
   return roomclass;
