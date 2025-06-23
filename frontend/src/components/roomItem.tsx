@@ -221,7 +221,8 @@ export function RoomClassItem({
   numberOfChildren,
   startDate,
   endDate,
-  numChildrenUnder6,
+  numChildrenUnder6 = 0,
+  numchildrenOver6 = 0,
   numAdults,
   showExtraBedOver6,
 }: {
@@ -234,6 +235,7 @@ export function RoomClassItem({
   startDate?: Date;
   endDate?: Date;
   numChildrenUnder6?: number;
+  numchildrenOver6?: number;
   numAdults?: number;
   showExtraBedOver6?: boolean;
   features?: string[];
@@ -245,16 +247,17 @@ export function RoomClassItem({
     startDate: selectedStartDate,
     endDate: selectedEndDate,
   } = useRoomSearch();
-  const adults = numberOfAdults;
-  const childrenUnder6 = guests.children.age0to6;
-  const childrenOver6 = guests.children.age7to17;
+  const adults = numberOfAdults ?? 1;
+  const childrenUnder6 = numChildrenUnder6 ?? 0;
+  const childrenOver6 = numchildrenOver6 ?? 0;
   const cartRooms = useSelector((state: RootState) => state.cart.rooms);
 
-  const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
+  let hasSaturday = false;
+  let hasSunday = false;
 
-  const isSaturdayNight = hasSaturdayNight(startDate, endDate);
-  const finalTotal = basePrice * numberOfNights * (isSaturdayNight ? 1.5 : 1);
   const handleAddToCart = () => {
+    const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
+    const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
     // Kiểm tra ngày đã chọn chưa
     if (!hasSearched || !selectedStartDate || !selectedEndDate) {
       toast.error(
@@ -262,8 +265,6 @@ export function RoomClassItem({
       );
       return;
     }
-    const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
-    const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
     // 🔍 Kiểm tra trùng phòng đã có trong giỏ hàng
     const isDuplicate = cartRooms.some(
       (room) =>
@@ -277,14 +278,26 @@ export function RoomClassItem({
       toast.error("Phòng này bạn đã thêm vào giỏ hàng rồi!");
       return;
     }
+    // ✅ Kiểm tra ngày giống nhau
+    if (cartRooms.length > 0) {
+      const firstRoom = cartRooms[0];
+      if (
+        firstRoom.checkIn !== checkInISO ||
+        firstRoom.checkOut !== checkOutISO
+      ) {
+        toast.error("Bạn chỉ có thể thêm phòng có cùng ngày nhận và trả phòng!");
+        return;
+      }
+    }
+
     dispatch(
       addRoomToCart({
         id: rci._id,
         name: rci.name,
         img: rci.images[0]?.url || "",
-        desc: `${adults ?? 1} người lớn${
-          numberOfChildren ? `, ${numberOfChildren} trẻ em` : ""
-        }, ${rci.bed_amount} giường đôi`,
+        desc: `${adults ?? 1} người lớn${childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
+          }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""
+          }, ${rci.bed_amount} giường đôi`,
         price: rci.price_discount > 0 ? rci.price_discount : rci.price,
         nights: numberOfNights,
         checkIn: startDate?.toLocaleDateString("vi-VN") || "",
@@ -294,33 +307,51 @@ export function RoomClassItem({
         childrenOver6: childrenOver6,
         bedAmount: rci.bed_amount,
         view: rci.view,
-        total: finalTotal,
-        hasSaturdayNight: isSaturdayNight,
+        total: totalPrice,
+        hasSaturdayNight: hasSaturday,
+        hasSundayNight: hasSunday,
         features: rci.features.map((f) => f.feature_id.name),
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");
   };
 
-  // Hàm kiểm tra có đêm Thứ 7 không
-  function hasSaturdayNight(start?: Date, end?: Date) {
-    if (!start || !end) return false;
+  function calcTotalPricePerNight(basePrice: number, start?: Date, end?: Date) {
+    if (!start || !end) return basePrice;
+    let total = 0;
     const current = new Date(start);
     while (current < end) {
-      if (current.getDay() === 6) return true;
+      if (current.getDay() === 6 || current.getDay() === 0) {
+        // Thứ 7 hoặc Chủ nhật
+        total += basePrice * 1.5;
+      } else {
+        total += basePrice;
+      }
       current.setDate(current.getDate() + 1);
     }
-    return false;
+    return total;
   }
 
-  let totalPrice = rci.price;
-  if (numberOfNights > 0) {
-    if (hasSaturdayNight(startDate, endDate)) {
-      totalPrice = rci.price * numberOfNights * 1.5;
-    } else {
-      totalPrice = rci.price * numberOfNights;
+  const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
+  const totalPrice = calcTotalPricePerNight(basePrice, startDate, endDate);
+
+  // Thêm hàm kiểm tra có Thứ 7 hoặc Chủ nhật trong khoảng ngày
+  function getWeekendNights(start?: Date, end?: Date) {
+    let hasSaturday = false;
+    let hasSunday = false;
+    if (!start || !end) return { hasSaturday, hasSunday };
+    const current = new Date(start);
+    while (current < end) {
+      if (current.getDay() === 6) hasSaturday = true; // Thứ 7
+      if (current.getDay() === 0) hasSunday = true;   // Chủ nhật
+      current.setDate(current.getDate() + 1);
     }
+    return { hasSaturday, hasSunday };
   }
+  // ✅ Thêm dòng này để lấy thông tin cuối tuần
+  const { hasSaturday: sat, hasSunday: sun } = getWeekendNights(startDate, endDate);
+  hasSaturday = sat;
+  hasSunday = sun;
 
   const handleLikeClick = () => {
     setLiked((prev) => !prev);
@@ -360,9 +391,8 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${
-                liked ? "text-danger" : "text-dark"
-              }`}
+              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
+                }`}
             ></i>
           </button>
         </div>
@@ -425,15 +455,18 @@ export function RoomClassItem({
         </div>
         <div className="ms-auto align-self-end mb-2 text-end">
           {hasSearched && (
-            <p style={{ fontSize: "14px" }}>
-              {`${numberOfNights} đêm, ${numberOfAdults} người lớn` +
-                (numberOfChildren && numberOfChildren > 0
-                  ? `, ${numberOfChildren} trẻ em`
-                  : "")}
-            </p>
+            <div className="mb-3" style={{ fontSize: "14px", lineHeight: 1.4 }}>
+              <div className="mb-1">
+                {numberOfNights} đêm, {numberOfAdults ?? 1} người lớn
+              </div>
+              <div>
+                {numChildrenUnder6 > 0 && `${numChildrenUnder6} trẻ 0–6`}
+                {numchildrenOver6 > 0 && `, ${numchildrenOver6} trẻ 7–17`}
+              </div>
+            </div>
           )}
           <h5 style={{ color: "white", fontWeight: "bold" }}>
-            VND {totalPrice.toLocaleString("vi-VN")}
+            VND {hasSearched ? totalPrice.toLocaleString("Vi-VN") : basePrice.toLocaleString("Vi-VN")}
           </h5>
           <p style={{ fontSize: "12px" }}>Đã bao gồm thuế và phí</p>
           <button

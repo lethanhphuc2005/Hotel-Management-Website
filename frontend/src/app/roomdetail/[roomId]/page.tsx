@@ -28,6 +28,7 @@ interface Comment {
   content: string;
   createdAt: string; // Ngày tạo bình luận
   updatedAt: string; // Ngày cập nhật bình luận
+  rating?: number; // thêm dòng này
 }
 
 // Định nghĩa interface cho review
@@ -64,12 +65,14 @@ const RoomDetail = () => {
   const [roomClasses, setRoomClasses] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]); // Thêm state cho reviews
   const [features, setFeatures] = useState<FeatureItem[]>([]); // Thêm state cho features
-  const [comments, setComments] = useState<Comment[]>([]);
+  // const [comments, setComments] = useState<Comment[]>([]);
+  // console.log(comments)
 
   // Lấy room như cũ
   const room = roomclass.find((item) => item._id === roomId);
   const images = room?.images || [];
-
+  const comments = room?.comments || []; // Lấy comments từ room
+  console.log("comments:", comments);
   const faqColumns = [
     [
       {
@@ -157,21 +160,20 @@ const RoomDetail = () => {
       .catch((err) => console.error(err));
   }, [roomId]);
 
-  useEffect(() => {
-    // Lấy danh sách bình luận của phòng
-    axios
-      .get(`http://localhost:8000/v1/comments?roomId=${roomId}`)
-      .then((res: any) => setComments(res.data.data))
-      .catch((err) => console.error(err));
-  }, [roomId]);
+ 
 
-  const ratingCount = comments.length;
-  const avgRating =
+  const ratedComments: Comment[] = comments
+  .filter((cmt) => cmt.rating !== undefined && cmt.rating !== null)
+  .map((cmt) => ({
+    ...cmt,
+    parent_id: cmt.parent_id ?? null, // đảm bảo không undefined
+  })) as Comment[];
+  const ratingCount: number = ratedComments.length;
+  const avgRating: number =
     ratingCount === 0
       ? 0
-      : (
-          comments.reduce((sum, cmt) => sum + (cmt.rating || 0), 0) / ratingCount
-        ).toFixed(1);
+      : ratedComments.reduce((sum, cmt) => sum + (cmt.rating ?? 0), 0) /
+        ratingCount;
 
   if (!room) return <div>Room not found</div>;
 
@@ -253,7 +255,7 @@ const RoomDetail = () => {
               </span>
               <div className={styles.ratingScoreWrapper}>
                 <span className={styles.ratingScore}>
-                  {avgRating}/5
+                  {avgRating === 0 ? 0 : avgRating.toFixed(1)}/5
                 </span>
                 <span className={styles.stars}>
                   {"★★★★★".slice(0, Math.round(avgRating))}
@@ -508,8 +510,6 @@ const RoomDetail = () => {
                         <b>
                           {cmt.user_id?.first_name} {cmt.user_id?.last_name}
                         </b>
-                        <div>Email: {cmt.user_id?.email}</div>
-                        <div>SĐT: {cmt.user_id?.phone_number}</div>
                         <div>Nội dung: {cmt.content}</div>
                         <div>
                           Thời gian:{" "}

@@ -34,6 +34,10 @@ export default function PayMent() {
 
   const methods = [
     {
+      label: "Thanh toán qua ZaloPay",
+      value: "684a840af512f318cb3a1193",
+      icon: <img src="/img/zalopay.png" alt="Momo" style={{ width: 32 }} />,
+    },{
       label: "Thanh toán qua Momo",
       value: "68493449bbcba4ece764db08",
       icon: <img src="/img/momo.png" alt="Momo" style={{ width: 32 }} />,
@@ -332,8 +336,8 @@ export default function PayMent() {
                   <p className="mb-1">
                     Phụ thu cuối tuần:{" "}
                     <strong>
-                      {room.hasSaturdayNight
-                        ? "+50% phụ thu do có đêm Thứ 7"
+                      {room.hasSaturdayNight || room.hasSundayNight
+                        ? "+50% phụ thu do có đêm cuối tuần"
                         : "Không có phụ thu"}
                     </strong>
                   </p>

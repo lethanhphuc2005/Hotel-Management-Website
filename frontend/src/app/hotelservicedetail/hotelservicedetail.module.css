@@ -1,0 +1,69 @@
+/* SpaServiceDetail.module.css */
+.hero {
+  background: url('/img/banner2.jpg') center/cover no-repeat;
+  padding: 200px 20px;
+  transition: background 0.3s ease-in-out;
+  color: white;
+  
+}
+.hero h1{
+  font-weight: 400;
+  text-align: left;
+
+}
+.sectionTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.serviceFeature i {
+  color: green;
+  margin-right: 8px;
+}
+
+.priceTable th,
+.priceTable td {
+  color: white !important;
+  border: 1px solid white !important;
+}
+.priceTable {
+  background-color: black !important;
+  color: white !important;
+  border: 2px solid white !important;
+}
+
+.priceTable :where(th, td) {
+  background-color: black !important;
+  color: white !important;
+  border: 1px solid white !important;
+}
+
+.priceTable th {
+  background-color: #FAB320 !important;
+  color: black !important;
+}
+
+.btnBook {
+  background-color: #FAB320;
+  color: black;
+  border: none;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  height: 40px;
+}
+
+.btnBook:hover {
+  background-color: #8d7455;
+}
+/* hotelservicedetail.module.css */
+.serviceImg {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.thumbImage img{
+  height: 200px;
+  width: 100%;
+}
