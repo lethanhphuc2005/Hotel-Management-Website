@@ -1,11 +1,27 @@
-import api from "@/services/axiosInstance";
+// api/authApi.ts
+import api from "@/lib/axiosInstance";
+
+export const login = async (email: string, password: string) => {
+  const res = await api.post("/account/login", { email, password });
+  return res.data.data; // { accessToken, refreshToken, ...user }
+};
 
 export const refreshAccessToken = async () => {
-  const loginData = JSON.parse(localStorage.getItem("login") || "{}");
-  const refreshToken = loginData?.refreshToken;
+  const login = localStorage.getItem("login");
+  if (!login) throw new Error("Chưa đăng nhập");
 
-  if (!refreshToken) throw new Error("No refresh token found");
+  const { refreshToken } = JSON.parse(login);
+  const res = await fetch("http://localhost:8000/v1/account/refresh-token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
 
-  const res = await api.post("/account/refresh", { refreshToken });
-  return res.data; // { accessToken, refreshToken }
+  if (!res.ok) throw new Error("Refresh token không hợp lệ");
+  const { data } = await res.json();
+  return data; // { accessToken, refreshToken }
+};
+
+export const logout = () => {
+  localStorage.removeItem("login");
 };

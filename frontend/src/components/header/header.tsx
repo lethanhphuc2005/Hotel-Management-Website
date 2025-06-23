@@ -15,7 +15,6 @@ export default function Header() {
   const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
   const { user, logout } = useAuth();
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
-
   useEffect(() => {
     const fetchData = async () => {
       const data = await getMainRoomClass(

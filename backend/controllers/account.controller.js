@@ -15,7 +15,7 @@ const accountController = {
         role: user.role || "user",
       },
       process.env.ACCESS_TOKEN,
-      { expiresIn: "30s" }
+      { expiresIn: "15m" }
     );
   },
   creareRefreshToken: (user) => {
@@ -190,11 +190,14 @@ const accountController = {
         const accessToken = accountController.creareToken(checkUser);
         const refreshToken = accountController.creareRefreshToken(checkUser);
 
-        const { password, ...others } = checkUser._doc;
-
+        const { address, request, createdAt, updatedAt, ...userJson } = checkUser.toJSON(); // toJSON đã xử lý sẵn
         res.status(200).json({
           message: "Đăng nhập thành công",
-          data: { ...others, accessToken, refreshToken },
+          data: {
+            ...userJson,
+            accessToken,
+            refreshToken,
+          },
         });
       }
     } catch (error) {

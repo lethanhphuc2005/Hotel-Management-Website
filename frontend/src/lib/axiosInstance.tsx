@@ -1,22 +1,35 @@
+// lib/axiosInstance.ts
 import axios from "axios";
 import { refreshAccessToken } from "@/api/authApi";
 
+// ========== Helpers ==========
+const getAccessToken = () => {
+  const loginData = localStorage.getItem("login");
+  return loginData ? JSON.parse(loginData).accessToken : null;
+};
+
+const updateAccessToken = (newToken: string) => {
+  const loginData = localStorage.getItem("login");
+  if (loginData) {
+    const updated = { ...JSON.parse(loginData), accessToken: newToken };
+    localStorage.setItem("login", JSON.stringify(updated));
+  }
+};
+
+// ========== Axios Instance ==========
 const api = axios.create({
   baseURL: "http://localhost:8000/v1",
 });
 
-// Gắn accessToken vào header
+// Gắn access token vào mọi request
 api.interceptors.request.use((config) => {
-  const loginData = localStorage.getItem("login");
-  const accessToken = loginData ? JSON.parse(loginData).accessToken : null;
-
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Gắn xử lý tự động refresh token
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
@@ -28,6 +41,7 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Tự động refresh token nếu 403
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -43,7 +57,7 @@ api.interceptors.response.use(
               originalRequest.headers.Authorization = `Bearer ${token}`;
               resolve(api(originalRequest));
             },
-            reject: (err: any) => reject(err),
+            reject,
           });
         });
       }
@@ -51,16 +65,15 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const data = await refreshAccessToken();
-
-        localStorage.setItem("login", JSON.stringify(data));
-        api.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
-        processQueue(null, data.accessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        const { accessToken } = await refreshAccessToken();
+        updateAccessToken(accessToken);
+        api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        processQueue(null, accessToken);
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
+        localStorage.removeItem("login");
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

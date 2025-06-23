@@ -86,13 +86,41 @@ const userController = {
   getUserById: async (req, res) => {
     try {
       const user = await User.findById(req.params.id)
-        .select("-password")
+        .select("-password -status")
         .populate([
           {
             path: "comments",
+            populate: [{
+              path: "room_class_id",
+              select: "-image -description -status", // Chỉ lấy các trường cần thiết, tránh l
+            },
+            {
+              path: "employee_id",
+              select: "first_name last_name",
+            },
+            {
+              path: "user_id",
+              select: "first_name last_name",
+            },
+            {
+              path: "parent_comment",
+              select: "-status",
+            }
+              
+                //     p
+                //     "room_class_id", "-image -description"
+                // "employee_id", "-password"
+                // "user_id",
+                // "parent_comment")"-password"
+                
+              ,
+            ],
           },
           {
             path: "reviews",
+            populate: {
+              path: "booking_id",
+            },
           },
           {
             path: "bookings",

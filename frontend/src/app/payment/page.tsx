@@ -7,7 +7,7 @@ import { clearCart, removeRoomFromCart } from "@/contexts/cartSlice";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import api from "@/services/axiosInstance";
+import api from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
 
 const formatVietnameseDate = (dateStr: string) => {
@@ -24,7 +24,7 @@ const formatVietnameseDate = (dateStr: string) => {
 export default function PayMent() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
-  const router = useRouter()
+  const router = useRouter();
 
   const [selectedMethod, setSelectedMethod] = useState("");
 
@@ -120,7 +120,6 @@ export default function PayMent() {
       dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
       // Optional: redirect
       router.push("/thank-you");
-
     } catch (err) {
       console.error(err);
       toast.error("Lỗi khi đặt phòng. Vui lòng thử lại.");

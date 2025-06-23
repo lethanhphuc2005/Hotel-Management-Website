@@ -4,86 +4,18 @@ import styles from "./quanly.module.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-// 👇 Tạo các component con ở đây luôn hoặc tách file nếu muốn
-const AccountSection = ({ formData }: any) => (
-  <section className={styles.section}>
-    <h3>Basic info</h3>
-    <div className={styles.profileInfo}>
-      <img
-        src="https://tse3.mm.bing.net/th/id/OIP.kUFzwD5-mfBV0PfqgI5GrAHaHa?rs=1&pid=ImgDetMain"
-        alt="Avatar"
-        className={styles.avatar}
-      />
-      <span className={styles.uploadText}>Upload new picture</span>
-      <span className={styles.removeText}>Remove</span>
-    </div>
-
-    <div className={styles.infoRow}>
-      <label>Name</label>
-      <input type="text" value={formData.first_name} readOnly />
-    </div>
-    <div className={styles.infoRow}>
-      <label>Email</label>
-      <input type="email" value={formData.email} readOnly />
-    </div>
-    <div className={styles.infoRow}>
-      <label>Phone</label>
-      <input type="tel" value={formData.phone_number} readOnly />
-    </div>
-    <div className={styles.infoRow}>
-      <label>Address</label>
-      <input type="text" value={formData.address} readOnly />
-    </div>
-  </section>
-);
-
-const RoomSection = ({ bookedRooms }: any) => (
-  <section className={styles.section}>
-    <h3>Phòng đã đặt</h3>
-    <ul className={styles.bookedList}>
-      {bookedRooms.map((room: any) => (
-        <li key={room.id}>
-          {room.name} - Ngày: {room.date}
-        </li>
-      ))}
-    </ul>
-  </section>
-);
-
-const ChangeInfoSection = () => (
-  <section className={styles.section}>
-    <h3>Chỉnh sửa thông tin</h3>
-    <p>Bạn có thể thêm form ở đây để thay đổi tên, số điện thoại,...</p>
-  </section>
-);
-
-const NotificationSection = ({ subscribed, setSubscribed }: any) => (
-  <section className={styles.section}>
-    <h3>Thông báo</h3>
-    <div className={styles.notificationRow}>
-      <input
-        type="checkbox"
-        checked={subscribed}
-        onChange={() => setSubscribed((prev: boolean) => !prev)}
-      />
-      <label style={{ marginLeft: "8px" }}>
-        Tôi muốn nhận tin tức và ưu đãi đặc biệt
-      </label>
-    </div>
-    <div style={{ marginTop: "10px" }}>
-      <button className={styles.deleteBtn}>Xóa tài khoản</button>
-      <button className={styles.editBtn}>Chỉnh sửa</button>
-    </div>
-  </section>
-);
+import { getProfile } from "@/api/profileApi";
+import AccountSection from "@/components/profile/AccountSection";
+import NotificationSection from "@/components/profile/NotificationSection";
+import RoomSection from "@/components/profile/RoomSection";
+import ChangeInfoSection from "@/components/profile/ChangeInfoSection";
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
 
+  const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("account");
-
   const [formData, setFormData] = useState({
     first_name: "",
     email: "",
@@ -91,22 +23,33 @@ const ProfilePage = () => {
     address: "",
     subscribed: true,
   });
-
-  const [bookedRooms, setBookedRooms] = useState([
-    { id: 1, name: "Phòng Deluxe", date: "2025-06-10" },
-    { id: 2, name: "Phòng VIP", date: "2025-06-12" },
-  ]);
+  const [bookedRooms, setBookedRooms] = useState([]);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        first_name: user.first_name || "",
-        email: user.email || "",
-        phone_number: user.phone_number || "",
-        address: user.address || "",
-        subscribed: true,
-      });
+    if (!user) {
+      router.replace("/login");
+      return;
     }
+
+    const fetchProfile = async () => {
+      try {
+        const res = await getProfile(user.id);
+        const data = res.data;
+        setProfile(data);
+        setFormData({
+          first_name: data.first_name || "",
+          email: data.email || "",
+          phone_number: data.phone_number || "",
+          address: data.address || "",
+          subscribed: data.subscribed ?? true,
+        });
+        setBookedRooms(data.bookedRooms || []);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+
+    fetchProfile();
   }, [user]);
 
   const handleLogout = () => {
@@ -122,8 +65,8 @@ const ProfilePage = () => {
         return (
           <NotificationSection
             subscribed={formData.subscribed}
-            setSubscribed={(value: boolean) =>
-              setFormData((prev) => ({ ...prev, subscribed: value }))
+            setSubscribed={(val: boolean) =>
+              setFormData((prev) => ({ ...prev, subscribed: val }))
             }
           />
         );
@@ -135,6 +78,9 @@ const ProfilePage = () => {
         return <AccountSection formData={formData} />;
     }
   };
+
+  if (!profile)
+    return <div className={styles.loading}>Đang tải dữ liệu...</div>;
 
   return (
     <div className={styles.container}>

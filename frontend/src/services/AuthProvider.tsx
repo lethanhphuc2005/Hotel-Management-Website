@@ -1,67 +1,53 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { login as loginApi, logout as logoutApi } from "@/api/authApi";
 import { IUser, IAuthContextType } from "@/types/iuser";
 import { AuthContext } from "@/contexts/AuthContext";
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Khôi phục user từ localStorage nếu có
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
+    try {
+      const storedUser = localStorage.getItem("login");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Lỗi khi parse localStorage:", error);
+      localStorage.removeItem("login");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const res = await fetch("http://localhost:8000/v1/account/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await loginApi(email, password);
 
-      const result = await res.json();
+      const userToStore: IUser = data;
 
-      // Trường hợp lỗi đăng nhập
-      if (!res.ok || !result.data) {
-        console.error("Đăng nhập thất bại:", result.message || result);
-        return false;
-      }
-
-      const userData = result.data;
-
-      // Tạo đối tượng user phù hợp với interface
-      const userToStore: IUser = {
-        id: userData._id || userData.id || undefined,
-        first_name: userData.first_name || "",
-        accessToken: userData.accessToken || "",
-        refreshToken: userData.refreshToken || "",
-      };
-
-      setUser(userToStore);
       localStorage.setItem("login", JSON.stringify(userToStore));
-
+      setUser(userToStore);
       return true;
-    } catch (error) {
-      console.error("Lỗi trong quá trình đăng nhập:", error);
+    } catch (err) {
+      console.error("Đăng nhập thất bại:", err);
       return false;
     }
   };
 
   const logout = () => {
+    logoutApi();
     setUser(null);
-    localStorage.removeItem("user");
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: IAuthContextType = {
+    user,
+    login,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

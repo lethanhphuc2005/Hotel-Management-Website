@@ -1,6 +1,15 @@
-// frontend/model/iuser.ts
+export interface ILoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  address?: string;
+  phone_number?: string;
+}
 export interface IUser {
-  id: number | string | undefined;
+  id: string;
   first_name?: string;
   last_name?: string;
   email?: string;
