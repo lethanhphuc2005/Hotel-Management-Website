@@ -342,15 +342,15 @@ const reviewController = {
   updateReview: async (req, res) => {
     try {
       const { id } = req.params;
-      const { content } = req.body;
+      const { rating, content } = req.body;
 
       const reviewToUpdate = await Review.findById(id);
       if (!reviewToUpdate) {
         return res.status(404).json({ message: "Đánh giá không tồn tại." });
       }
 
-      // Chỉ cho phép cập nhật trường content
-      const updatedData = { ...reviewToUpdate.toObject(), content };
+      // Chỉ cho phép cập nhật trường content và rating
+      const updatedData = { ...reviewToUpdate.toObject(), rating, content };
 
       const validation = await reviewController.validateReview(updatedData, id);
       if (!validation.valid) {
@@ -358,6 +358,7 @@ const reviewController = {
       }
 
       reviewToUpdate.content = content;
+      reviewToUpdate.rating = rating;
       const updatedReview = await reviewToUpdate.save();
 
       res.status(200).json({

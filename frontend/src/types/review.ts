@@ -4,6 +4,7 @@ export interface Review {
   parent_id: string | null;
   employee_id: string | null;
   user_id: string | null;
+  rating: number | null; // Rating can be null if not provided
   content: string;
   created_at: Date;
   updated_at: Date;

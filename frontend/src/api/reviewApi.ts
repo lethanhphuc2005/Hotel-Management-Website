@@ -30,9 +30,10 @@ export const createReview = async (roomClassId: string, content: string) => {
 export const updateReview = async (
   reviewId: string,
   user_id: string,
+  rating: number | null,
   content: string
 ) => {
-  const res = await api.put(`/review/${reviewId}`, { user_id, content });
+  const res = await api.put(`/review/${reviewId}`, { user_id, rating, content });
   if (res.status !== 200) {
     throw new Error("Failed to update review");
   }

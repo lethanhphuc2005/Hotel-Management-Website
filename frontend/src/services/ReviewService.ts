@@ -17,6 +17,7 @@ export const fetchReviews = async () => {
       parent_id: r.parent_id || null,
       employee_id: r.employee_id || null,
       user_id: r.user_id || null,
+      rating: r.rating || null, // Rating can be null if not provided
       content: r.content,
       created_at: new Date(r.createdAt || r.created_at),
       updated_at: new Date(r.updatedAt || r.updated_at),
@@ -50,6 +51,7 @@ export const fetchReviewById = async (reviewId: string) => {
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
+      rating: data.rating || null, // Rating can be null if not provided
       content: data.content,
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
@@ -71,6 +73,7 @@ export const createReview = async (roomClassId: string, content: string) => {
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
+      rating: data.rating || null,
       content: data.content,
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
@@ -85,10 +88,11 @@ export const createReview = async (roomClassId: string, content: string) => {
 export const updateReview = async (
   reviewId: string,
   userId: string,
+  rating: number | null,
   content: string
 ) => {
   try {
-    const response = await updateReviewApi(reviewId, userId, content);
+    const response = await updateReviewApi(reviewId, userId, rating, content);
     const data = response.data;
     const review: Review = {
       id: data._id || data.id,
@@ -96,6 +100,7 @@ export const updateReview = async (
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
+      rating: data.rating || null,
       content: data.content,
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),

@@ -4,11 +4,15 @@ import { motion } from "framer-motion";
 import { deleteReview, updateReview } from "@/services/ReviewService";
 import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 type Review = {
   id: string;
   content: string;
+  rating: number | null;
   createdAt: string;
+  updatedAt: string;
   user_id: { id: string; first_name: string; last_name: string };
   booking_id: {
     booking_details: [
@@ -30,6 +34,7 @@ export default function ReviewSection({
   setReviews: React.Dispatch<React.SetStateAction<Review[]>>;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editRating, setEditRating] = useState<number | null>(null);
   const [editContent, setEditContent] = useState<string>("");
 
   if (!reviews || reviews.length === 0) {
@@ -43,12 +48,13 @@ export default function ReviewSection({
       const updatedReview = await updateReview(
         review.id,
         review.user_id.id,
+        editRating ?? review.rating,
         editContent
       );
       toast.success("Cập nhật đánh giá thành công");
       setReviews((prev) =>
         prev.map((r) =>
-          r.id === review.id ? { ...r, content: updatedReview.content } : r
+          r.id === review.id ? { ...r, content: updatedReview.content, rating: updatedReview.rating } : r
         )
       );
       setEditingId(null);
@@ -84,13 +90,38 @@ export default function ReviewSection({
                 {review.user_id.last_name + " " + review.user_id.first_name ||
                   "Anonymous"}
               </h3>
+              <p className="tw-text-sm tw-text-gray-400">
+                Ngày tạo: {formatDate(review.createdAt)}
+              </p>
               <p className="tw-text-sm tw-text-gray-400 tw-mb-3">
-                {formatDate(review.createdAt)}
+                Ngày cập nhật: {formatDate(review.updatedAt)}
               </p>
               <h2 className="tw-text-base tw-font-medium tw-text-blue-400">
                 {review.booking_id.booking_details[0].room_class_id.name ||
                   "Unknown Room Type"}
               </h2>
+              <div className="tw-flex tw-items-center tw-mt-2">
+                {review.rating ? (
+                  Array.from({ length: 5 }, (_, index) => {
+                    const starValue = index + 1;
+                    return (
+                      <FontAwesomeIcon
+                        key={index}
+                        icon={faStar}
+                        className={`tw-cursor-pointer tw-text-2xl ${
+                          review.rating !== null && starValue <= review.rating
+                            ? "tw-text-yellow-400"
+                            : "tw-text-gray-500"
+                        }`}
+                      />
+                    );
+                  })
+                ) : (
+                  <span className="tw-text-gray-500 tw-text-sm">Chưa đánh giá</span>
+                )}
+              
+
+              </div>
             </div>
             <div className="tw-flex tw-space-x-2">
               {editingId === review.id ? (
@@ -141,12 +172,39 @@ export default function ReviewSection({
             </div>
           </div>
           {editingId === review.id ? (
-            <textarea
-              className="tw-mt-2 tw-w-full tw-bg-gray-800 tw-text-gray-100 tw-p-2 tw-rounded"
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              rows={3}
-            />
+            <>
+              <textarea
+                className="tw-mt-2 tw-w-full tw-bg-gray-800 tw-text-gray-100 tw-p-2 tw-rounded"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={3}
+              />
+              <div className="tw-mt-2 tw-flex tw-space-x-1">
+                {Array.from({ length: 5 }, (_, index) => {
+                  const starValue = index + 1;
+                  return (
+                    <label key={index}>
+                      <input
+                        type="radio"
+                        name="rating"
+                        value={starValue}
+                        className="tw-hidden"
+                        onChange={() => setEditRating(starValue)}
+                        checked={editRating === starValue}
+                      />
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        className={`tw-cursor-pointer tw-text-2xl ${
+                          starValue <= (editRating ?? 0)
+                            ? "tw-text-yellow-400"
+                            : "tw-text-gray-500"
+                        }`}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+            </>
           ) : (
             <p className="tw-mt-2 tw-text-gray-300">{review.content}</p>
           )}

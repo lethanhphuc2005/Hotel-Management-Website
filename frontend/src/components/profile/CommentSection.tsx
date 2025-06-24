@@ -9,6 +9,7 @@ type Comment = {
   id: string;
   content: string;
   createdAt: string;
+  updatedAt: string;
   user_id: { id: string; first_name: string; last_name: string };
   room_class_id: { name: string };
 };
@@ -75,8 +76,11 @@ export default function CommentSection({
                 {comment.user_id.last_name + " " + comment.user_id.first_name ||
                   "Anonymous"}
               </h3>
+              <p className="tw-text-sm tw-text-gray-400">
+                Ngày tạo: {formatDate(comment.createdAt)}
+              </p>
               <p className="tw-text-sm tw-text-gray-400 tw-mb-3">
-                {formatDate(comment.createdAt)}
+                Ngày cập nhật: {formatDate(comment.updatedAt)}
               </p>
               <h2 className="tw-text-base tw-font-medium tw-text-blue-400">
                 {comment.room_class_id.name || "Unknown Room Type"}
