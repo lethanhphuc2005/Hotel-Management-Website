@@ -76,9 +76,12 @@ export default function Roomclass() {
   const numChildrenUnder6 = guests.children.age0to6 ?? 0;
   // Tính số trẻ em 7-17 tuổi
   const numChildrenOver6 = guests.children.age7to17 ?? 0; // trẻ 7-17 tuổi
-
+    // Số cặp 2 người lớn
+  const adultPairs = Math.floor(numAdults / 2);
+  // Số cặp 2 trẻ 7-17
+  const teenPairs = Math.floor(numChildrenOver6 / 2);
   // Tính số trẻ ≤ 6 tuổi được ngủ chung: Math.floor(numAdults / 2)
-  const maxChildrenCanShare = Math.floor(numAdults / 2);
+  const maxChildrenCanShare = adultPairs + teenPairs;
 
   const numChildrenNeedBed = Math.max(
     0,
@@ -98,19 +101,19 @@ export default function Roomclass() {
   // Có cần giường kê không?
   const showExtraBedOver6 =
     numChildrenOver6 > 0 && totalNeedBed > minBedsNeeded * 2;
+  // Điều kiện đặc biệt:
+  // - 1 người lớn, 1 trẻ 7-17, 1 trẻ 0-6
+  // - 1 người lớn, 2 trẻ 0-6
+  const isSpecialCase =
+    (numAdults === 1 && numChildrenOver6 === 1 && numChildrenUnder6 === 1) ||
+    (numAdults === 1 && numChildrenOver6 === 0 && numChildrenUnder6 === 2);
 
   // Lọc phòng phù hợp
   let suitableRoomClass = filteredRoomClass.filter(
-    (room) => room.bed_amount * 2 >= totalNeedBed
+    (room) =>
+      room.bed_amount * 2 >= totalNeedBed ||
+      (isSpecialCase && room.bed_amount === 1) // Cho phép phòng 1 giường xuất hiện nếu là trường hợp đặc biệt
   );
-
-  // Sắp xếp phòng 1 giường lên đầu nếu có trẻ 7-17 tuổi
-  // if (numChildrenOver6 > 0) {
-  //     suitableRoomClass = [
-  //         ...suitableRoomClass.filter(room => room.bed_amount === 1),
-  //         ...suitableRoomClass.filter(room => room.bed_amount > 1),
-  //     ];
-  // }
 
   // Sắp xếp phòng theo số giường phù hợp
   const sortedRoomClass = [...filteredRoomClass].sort(
@@ -131,16 +134,21 @@ export default function Roomclass() {
 
   // Gộp lại, phòng ít giường lên đầu
   // Sắp xếp: phòng phù hợp trước, ít giường hơn lên đầu
-  const displayRoomClass = suitableRoomClass
-    .map((room) => ({
-      ...room,
-      isSuitable: room.bed_amount >= minBedsNeeded,
-    }))
-    .sort((a, b) => {
-      if (a.isSuitable && !b.isSuitable) return -1;
-      if (!a.isSuitable && b.isSuitable) return 1;
-      return a.bed_amount - b.bed_amount;
-    });
+  const displayRoomClass = isSpecialCase
+    ? [
+      ...suitableRoomClass.filter((room) => room.bed_amount === 1),
+      ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
+    ]
+    : suitableRoomClass
+      .map((room) => ({
+        ...room,
+        isSuitable: room.bed_amount >= minBedsNeeded,
+      }))
+      .sort((a, b) => {
+        if (a.isSuitable && !b.isSuitable) return -1;
+        if (!a.isSuitable && b.isSuitable) return 1;
+        return a.bed_amount - b.bed_amount;
+      });
 
   const handleChange = (e: any) => {
     setPrice(Number(e.target.value));
@@ -214,8 +222,8 @@ export default function Roomclass() {
             numAdults={numAdults}
             numChildrenUnder6={numChildrenUnder6}
             numChildrenOver6={numChildrenOver6}
-            // totalEffectiveGuests={totalEffectiveGuests}
-            // showExtraBedOver6={showExtraBedOver6}
+          // totalEffectiveGuests={totalEffectiveGuests}
+          // showExtraBedOver6={showExtraBedOver6}
           />
         </div>
         <div className="row">
