@@ -94,6 +94,42 @@ UserSchema.virtual("bookings", {
   foreignField: "user_id",
 });
 
+UserSchema.virtual("booking_details", {
+  ref: "booking_detail",
+  localField: "bookings._id",
+  foreignField: "booking_id",
+});
+
+UserSchema.virtual("rooms", {
+  ref: "room",
+  localField: "booking_details.room_id",
+  foreignField: "_id",
+});
+
+UserSchema.virtual("room_class", {
+  ref: "room_class",
+  localField: "rooms.room_class_id",
+  foreignField: "_id",
+});
+
+UserSchema.virtual("images", {
+  ref: "image",
+  localField: "room_class._id",
+  foreignField: "room_class_id",
+});
+
+UserSchema.virtual("services", {
+  ref: "service",
+  localField: "booking_details._id",
+  foreignField: "booking_detail_id",
+});
+
+UserSchema.virtual("payment", {
+  ref: "payment",
+  localField: "bookings._id",
+  foreignField: "booking_id",
+});
+
 UserSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

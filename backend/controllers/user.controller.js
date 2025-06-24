@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const accountController = require("./account.controller");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail, forgotPasswordEmail } = require("../config/mail"); // Import email template
+const { model } = require("mongoose");
 
 const userController = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
@@ -90,40 +91,91 @@ const userController = {
         .populate([
           {
             path: "comments",
-            populate: [{
-              path: "room_class_id",
-              select: "-image -description -status", // Chỉ lấy các trường cần thiết, tránh l
-            },
-            {
-              path: "employee_id",
-              select: "first_name last_name",
-            },
-            {
-              path: "user_id",
-              select: "first_name last_name",
-            },
-            {
-              path: "parent_comment",
-              select: "-status",
-            }
-              
-                //     p
-                //     "room_class_id", "-image -description"
-                // "employee_id", "-password"
-                // "user_id",
-                // "parent_comment")"-password"
-                
-              ,
+            populate: [
+              {
+                path: "room_class_id",
+                select: "-image -description -status", // Chỉ lấy các trường cần thiết, tránh l
+              },
+              {
+                path: "employee_id",
+                select: "first_name last_name",
+              },
+              {
+                path: "user_id",
+                select: "first_name last_name",
+              },
+              {
+                path: "parent_comment",
+                select: "-status",
+              },
             ],
           },
           {
             path: "reviews",
-            populate: {
-              path: "booking_id",
-            },
+            populate: [
+              {
+                path: "room_class_id",
+                select: "-image -description -status", // Chỉ lấy các trường cần thiết,
+              },
+              {
+                path: "employee_id",
+                select: "first_name last_name",
+              },
+              {
+                path: "user_id",
+                select: "first_name last_name",
+              },
+              {
+                path: "parent_review",
+                select: "-status",
+              },
+            ],
           },
           {
             path: "bookings",
+            populate: [
+              {
+                path: "booking_status_id",
+                select: "name",
+              },
+              {
+                path: "booking_method_id",
+                select: "name",
+              },
+              {
+                path: "payment",
+                select: " -metadata",
+                populate: {
+                  path: "payment_method_id",
+                  select: "name",
+                }
+              },
+              {
+                path: "booking_details",
+                populate: [
+                  {
+                    path: "room_id",
+                    select: "name floor room_class_id",
+                  },
+                  {
+                    path: "room_class_id",
+                    select:
+                      "name description view price bed_amount, price_discount",
+                    populate: {
+                      path: "images",
+                      select: "url",
+                    },
+                  },
+                  {
+                    path: "services",
+                    populate: {
+                      path: "service_id",
+                      select: "name description price",
+                    },
+                  },
+                ],
+              },
+            ],
           },
         ]);
       if (!user) {

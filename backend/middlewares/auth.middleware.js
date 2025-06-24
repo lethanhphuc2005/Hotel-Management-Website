@@ -50,7 +50,6 @@ const authMiddleware = {
         if (user.id && user.id === req.params.id) {
           next();
         } else {
-          console.log("User ID:", user.id, "Request ID:", req.params.id);
           res.status(403).json("Chỉ chủ tài khoản mới được thao tác.");
         }
       });

@@ -11,15 +11,13 @@ export const refreshAccessToken = async () => {
   if (!login) throw new Error("Chưa đăng nhập");
 
   const { refreshToken } = JSON.parse(login);
-  const res = await fetch("http://localhost:8000/v1/account/refresh-token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
-  });
+  const res = await api.post("/account/refresh", { refreshToken });
 
-  if (!res.ok) throw new Error("Refresh token không hợp lệ");
-  const { data } = await res.json();
-  return data; // { accessToken, refreshToken }
+  if (res.status !== 200) {
+    throw new Error("Lỗi làm mới token");
+  }
+
+  return res.data.data; // { accessToken }
 };
 
 export const logout = () => {

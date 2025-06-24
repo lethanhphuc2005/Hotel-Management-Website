@@ -9,8 +9,18 @@ import { MainRoomClass } from "@/types/mainroomclass";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSelector } from "react-redux";
 import { RootState } from "@/contexts/store";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import {
+  faCartShopping,
+  faUser,
+  faBell,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Header() {
+  const router = useRouter();
   const [showSearch, setShowSearch] = useState(false);
   const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
   const { user, logout } = useAuth();
@@ -32,7 +42,7 @@ export default function Header() {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
+    router.push("/login");
   };
 
   useEffect(() => {
@@ -123,9 +133,15 @@ export default function Header() {
           </ul>
 
           <div className="d-flex gap-3 align-items-center">
-            <a className="text-white" onClick={toggleSearch} href="#">
-              <i className="bi bi-search fs-5"></i>
-            </a>
+            <Link href={"#"}>
+              <motion.div
+                whileHover={{ color: "#FAB320" }}
+                style={{ fontSize: 20, color: "white" }}
+                onClick={toggleSearch}
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+              </motion.div>
+            </Link>
             {showSearch && (
               <input
                 type="text"
@@ -141,16 +157,26 @@ export default function Header() {
                 }}
               />
             )}
-            <a className="text-white" href="#">
-              <i className="bi bi-bell fs-5"></i>
-            </a>
+            <Link href={"#"}>
+              <motion.div
+                whileHover={{ color: "#FAB320" }}
+                style={{ fontSize: 20, color: "white" }}
+              >
+                <FontAwesomeIcon icon={faBell} />
+              </motion.div>
+            </Link>
 
             {/* Avatar & Dropdown */}
             <div className={style.dropdown}>
-              <div
-                className="text-white d-flex align-items-center gap-2 cursor-pointer"
-              >
-                <i className="bi bi-person-circle fs-5"></i>
+              <div className="text-white d-flex align-items-center gap-2 cursor-pointer">
+                <Link href={user ? "/profile" : "/login"}>
+                  <motion.div
+                    whileHover={{ color: "#FAB320" }}
+                    style={{ fontSize: 20, color: "white" }}
+                  >
+                    <FontAwesomeIcon icon={faUser} />
+                  </motion.div>
+                </Link>
                 {user && (
                   <span>
                     Xin chào, <strong>{user.first_name}</strong>
@@ -166,7 +192,12 @@ export default function Header() {
                     <button
                       onClick={handleLogout}
                       className={style.dropdownItem}
-                      style={{ width: "100%", textAlign: "left", border: "none", background: "none" }}
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        border: "none",
+                        background: "none",
+                      }}
                     >
                       Đăng xuất
                     </button>
@@ -186,10 +217,13 @@ export default function Header() {
 
             <Link className={`text-white`} href="/cart">
               <div style={{ position: "relative", display: "inline-block" }}>
-                <i
-                  className="bi bi-cart fs-5"
-                  style={{ fontSize: 28, color: "#fff" }}
-                ></i>
+                <motion.div
+                  whileHover={{ color: "#FAB320" }}
+                  style={{ fontSize: 20 }}
+                >
+                  <FontAwesomeIcon icon={faCartShopping} />
+                </motion.div>
+
                 {cartCount > 0 && (
                   <span
                     style={{

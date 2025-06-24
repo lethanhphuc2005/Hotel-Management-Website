@@ -141,8 +141,7 @@ const bookingController = {
     const totalPeople = (adult_amount || 0) + totalChildren;
 
     for (const detail of details) {
-      // Kiểm tra room_id
-      if (!detail.room_id) {
+      if (!detail.room_class_id) {
         return {
           valid: false,
           message: "Chi tiết đặt phòng thiếu thông tin phòng.",
@@ -160,18 +159,11 @@ const bookingController = {
           message: "Số đêm trong chi tiết đặt phòng không hợp lệ.",
         };
       }
-      const room = await Room.findOne({ room_class_id: detail.room_id });
-      if (!room) {
-        return {
-          valid: false,
-          message: `Phòng với ID ${detail.room_id} không tồn tại.`,
-        };
-      }
-      const roomClass = await RoomClass.findById(room.room_class_id);
+      const roomClass = await RoomClass.findById(detail.room_class_id);
       if (!roomClass) {
         return {
           valid: false,
-          message: `Loại phòng của phòng ${room.room_name} không tồn tại.`,
+          message: `Loại phòng ${detail.room_class_id} không tồn tại.`,
         };
       }
       totalCapacity += roomClass.room_class_capacity;
@@ -245,13 +237,12 @@ const bookingController = {
       } else {
         newBooking.child_amount = 0; // không có trẻ em thì để 0
       }
-
       // Thêm booking details
       if (details && details.length > 0) {
         for (const detail of details) {
           const bookingDetail = new BookingDetail({
             booking_id: newBooking._id,
-            room_id: detail.room_id,
+            room_class_id: detail.room_class_id,
             price_per_night: detail.price_per_night,
             nights: detail.nights,
           });
@@ -272,7 +263,6 @@ const bookingController = {
       }
 
       await newBooking.save();
-
       // Gửi mail thông tin đặt phòng (nếu cần)
       try {
         const bookingMessage = `
@@ -294,7 +284,7 @@ const bookingController = {
                   (detail) => `
                 <li>
                   Phòng: ${
-                    detail.room_id
+                    detail.room_class_id
                   }, Giá mỗi đêm: ${detail.price_per_night.toLocaleString(
                     "vi-VN"
                   )} VND, Số đêm: ${detail.nights}

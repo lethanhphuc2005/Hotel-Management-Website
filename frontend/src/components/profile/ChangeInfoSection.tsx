@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "@/app/profile/quanly.module.css";
+import styles from "@/app/profile/page.module.css";
 
 const ChangeInfoSection = () => (
   <section className={styles.section}>

@@ -1,127 +1,106 @@
 "use client";
 
-import styles from "./quanly.module.css";
-import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getProfile } from "@/api/profileApi";
-import AccountSection from "@/components/profile/AccountSection";
-import NotificationSection from "@/components/profile/NotificationSection";
-import RoomSection from "@/components/profile/RoomSection";
-import ChangeInfoSection from "@/components/profile/ChangeInfoSection";
+import styles from "./page.module.css";
+import { useState } from "react";
+import { AccountSection } from "@/components/profile/AccountSection";
+import { PasswordSection } from "@/components/profile/PasswordSection";
+import BookingSection from "@/components/profile/BookedSection";
+import { useProfile } from "@/hooks/useProfile";
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  const [profile, setProfile] = useState<any>(null);
+  const { user, profile, formData, setFormData, bookedRooms, logout } =
+    useProfile();
+    
   const [activeTab, setActiveTab] = useState("account");
-  const [formData, setFormData] = useState({
-    first_name: "",
-    email: "",
-    phone_number: "",
-    address: "",
-    subscribed: true,
-  });
-  const [bookedRooms, setBookedRooms] = useState([]);
-
-  useEffect(() => {
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-
-    const fetchProfile = async () => {
-      try {
-        const res = await getProfile(user.id);
-        const data = res.data;
-        setProfile(data);
-        setFormData({
-          first_name: data.first_name || "",
-          email: data.email || "",
-          phone_number: data.phone_number || "",
-          address: data.address || "",
-          subscribed: data.subscribed ?? true,
-        });
-        setBookedRooms(data.bookedRooms || []);
-      } catch (err) {
-        console.error("Error fetching profile:", err);
-      }
-    };
-
-    fetchProfile();
-  }, [user]);
-
   const handleLogout = () => {
     logout();
-    router.push("/");
   };
 
   const renderSection = () => {
     switch (activeTab) {
       case "account":
         return <AccountSection formData={formData} />;
-      case "notification":
-        return (
-          <NotificationSection
-            subscribed={formData.subscribed}
-            setSubscribed={(val: boolean) =>
-              setFormData((prev) => ({ ...prev, subscribed: val }))
-            }
-          />
-        );
-      case "room":
-        return <RoomSection bookedRooms={bookedRooms} />;
-      case "changeinfo":
-        return <ChangeInfoSection />;
+      case "change-password":
+        return <PasswordSection formData={formData} />;
+      case "booked-rooms":
+        return <BookingSection bookings={bookedRooms} />;
+      case "comments":
+      case "reviews":
+
       default:
         return <AccountSection formData={formData} />;
     }
   };
 
   if (!profile)
-    return <div className={styles.loading}>Đang tải dữ liệu...</div>;
+    return (
+      <div
+        className={styles.loading}
+        style={{ color: "#fab320", textAlign: "center", padding: "2rem" }}
+      >
+        Đang tải dữ liệu...
+      </div>
+    );
 
   return (
-    <div className={styles.container}>
-      <div className={styles.settingsWrapper}>
-        <aside className={styles.sidebar}>
-          <h2>Settings</h2>
-          <ul className={styles.sidebarMenu}>
+    <div
+      className={styles.container}
+      style={{ backgroundColor: "#000", color: "#fff", minHeight: "100vh" }}
+    >
+      <div className={styles.settingsWrapper} style={{ display: "flex" }}>
+        <aside
+          className={styles.sidebar}
+          style={{ backgroundColor: "#111", padding: "1.5rem", width: "250px" }}
+        >
+          <h2 style={{ color: "#fab320" }}>Settings</h2>
+          <ul
+            className={styles.sidebarMenu}
+            style={{ listStyle: "none", padding: 0 }}
+          >
+            {[
+              { tab: "account", label: "Thông tin cá nhân" },
+              { tab: "change-password", label: "Đổi mật khẩu" },
+              { tab: "booked-rooms", label: "Phòng đã đặt" },
+              { tab: "comments", label: "Bình luận" },
+              { tab: "reviews", label: "Đánh giá" },
+            ].map(({ tab, label }) => (
+              <li
+                key={tab}
+                className={activeTab === tab ? styles.active : ""}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  padding: "0.75rem 1rem",
+                  cursor: "pointer",
+                  backgroundColor:
+                    activeTab === tab ? "#fab320" : "transparent",
+                  color: activeTab === tab ? "#000" : "#fff",
+                  marginBottom: "0.5rem",
+                  borderRadius: "8px",
+                  transition: "0.3s",
+                }}
+              >
+                {label}
+              </li>
+            ))}
             <li
-              className={activeTab === "account" ? styles.active : ""}
-              onClick={() => setActiveTab("account")}
+              onClick={handleLogout}
+              className={styles.logoutItem}
+              style={{
+                color: "#fab320",
+                cursor: "pointer",
+                marginTop: "2rem",
+                padding: "0.75rem 1rem",
+              }}
             >
-              Account
-            </li>
-            <li
-              className={activeTab === "notification" ? styles.active : ""}
-              onClick={() => setActiveTab("notification")}
-            >
-              Notifications
-            </li>
-            <li
-              className={activeTab === "room" ? styles.active : ""}
-              onClick={() => setActiveTab("room")}
-            >
-              Room
-            </li>
-            <li
-              className={activeTab === "changeinfo" ? styles.active : ""}
-              onClick={() => setActiveTab("changeinfo")}
-            >
-              Changer information
-            </li>
-            <li onClick={handleLogout} className={styles.logoutItem}>
               Đăng xuất
             </li>
           </ul>
         </aside>
 
-        <main className={styles.mainContent}>
-          <div className={styles.header}>
-            <h2>Account Settings</h2>
-          </div>
+        <main
+          className={styles.mainContent}
+          style={{ flex: 1, padding: "2rem" }}
+        >
           {renderSection()}
         </main>
       </div>

@@ -1,28 +1,22 @@
-export interface ILoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  id: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  address?: string;
-  phone_number?: string;
-}
 export interface IUser {
   id: string;
   first_name?: string;
   last_name?: string;
-  email?: string;
-  password?: string;
   address?: string;
+  email: string;
   phone_number?: string;
   request?: string;
-  accessToken: string;
-  refreshToken: string;
+  status: Boolean;
+  is_verified: Boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface IAuthContextType {
   user: IUser | null;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }

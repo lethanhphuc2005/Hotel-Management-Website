@@ -6,10 +6,50 @@ export const getProfile = async (userId: string) => {
     if (response.status !== 200) {
       throw new Error("Failed to fetch profile data");
     }
-    console.log("Profile data:", response.data.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching profile:", error);
     throw error;
+  }
+};
+
+export const updateProfile = async (userId: string, data: any) => {
+  try {
+    const response = await api.put("/user/update/" + userId, data);
+    if (response.status !== 200) {
+      throw new Error("Failed to update profile");
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};
+
+export const changePassword = async (
+  userId: string,
+  password: string,
+  newPassword: string
+) => {
+  try {
+    const response = await api.put("/user/change-password/" + userId, {
+      password,
+      newPassword,
+    });
+    
+
+    return {
+      error: false,
+      message: response.data.message || "Đổi mật khẩu thành công",
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "Đã xảy ra lỗi khi đổi mật khẩu";
+    return {
+      error: true,
+      message,
+    };
   }
 };

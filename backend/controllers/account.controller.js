@@ -11,7 +11,7 @@ const accountController = {
   creareToken: (user) => {
     return jwt.sign(
       {
-        id: user._id,
+        id: user._id || user.id,
         role: user.role || "user",
       },
       process.env.ACCESS_TOKEN,
@@ -91,7 +91,7 @@ const accountController = {
 
       // 2. Gửi mã xác nhận qua email
       try {
-        await mailSender({
+        mailSender({
           email: req.body.email,
           subject: verificationEmail.subject,
           html: verificationEmail.html(verificationCode),
@@ -190,7 +190,8 @@ const accountController = {
         const accessToken = accountController.creareToken(checkUser);
         const refreshToken = accountController.creareRefreshToken(checkUser);
 
-        const { address, request, createdAt, updatedAt, ...userJson } = checkUser.toJSON(); // toJSON đã xử lý sẵn
+        const { address, createdAt, updatedAt, ...userJson } =
+          checkUser.toJSON(); // toJSON đã xử lý sẵn
         res.status(200).json({
           message: "Đăng nhập thành công",
           data: {

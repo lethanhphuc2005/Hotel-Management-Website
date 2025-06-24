@@ -6,10 +6,15 @@ const BookingDetailSchema = new mongoose.Schema({
     ref: "booking",
     required: true,
   },
+  room_class_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "room_class",
+    required: true,
+  },
   room_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "room",
-    required: true,
+    default: null,
   },
   price_per_night: {
     type: Number,

@@ -47,13 +47,17 @@ api.interceptors.response.use(
   async (err) => {
     const originalRequest = err.config;
 
-    if (err.response?.status === 403 && !originalRequest._retry) {
+    if (
+      (err.response?.status === 401 || err.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
             resolve: (token: string) => {
+              originalRequest.headers = originalRequest.headers || {};
               originalRequest.headers.Authorization = `Bearer ${token}`;
               resolve(api(originalRequest));
             },
@@ -63,12 +67,18 @@ api.interceptors.response.use(
       }
 
       isRefreshing = true;
-
       try {
         const { accessToken } = await refreshAccessToken();
-        updateAccessToken(accessToken);
+        const loginData = JSON.parse(localStorage.getItem("login") || "{}");
+        localStorage.setItem(
+          "login",
+          JSON.stringify({ ...loginData, accessToken })
+        );
+
         api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
         processQueue(null, accessToken);
+
+        originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {

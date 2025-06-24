@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { login as loginApi, logout as logoutApi } from "@/api/authApi";
-import { IUser, IAuthContextType } from "@/types/iuser";
+import { IUser, IAuthContextType } from "@/types/user";
 import { AuthContext } from "@/contexts/AuthContext";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -10,17 +10,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("login");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (error) {
-      console.error("Lỗi khi parse localStorage:", error);
-      localStorage.removeItem("login");
-    } finally {
-      setIsLoading(false);
+    const storedUser = localStorage.getItem("login");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -31,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       localStorage.setItem("login", JSON.stringify(userToStore));
       setUser(userToStore);
+      setIsLoading(false);
       return true;
     } catch (err) {
       console.error("Đăng nhập thất bại:", err);
@@ -45,6 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value: IAuthContextType = {
     user,
+    isLoading,
     login,
     logout,
   };

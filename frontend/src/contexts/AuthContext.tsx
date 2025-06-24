@@ -1,8 +1,14 @@
 import { createContext, useContext } from "react";
-import { IAuthContextType } from "@/types/iuser";
+import { IAuthContextType } from "@/types/user";
 
 // Tạo context rỗng ban đầu
-export const AuthContext = createContext<IAuthContextType | undefined>(undefined);
+export const AuthContext = createContext<IAuthContextType>({
+  user: null,
+  isLoading: true,
+  login: async () => false,
+  logout: () => {},
+});
+
 
 // Hook để sử dụng AuthContext
 export const useAuth = () => {

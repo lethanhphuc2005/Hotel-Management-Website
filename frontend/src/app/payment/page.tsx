@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import api from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const formatVietnameseDate = (dateStr: string) => {
   const [day, month, year] = dateStr.split("/").map(Number);
@@ -22,6 +23,8 @@ const formatVietnameseDate = (dateStr: string) => {
 };
 
 export default function PayMent() {
+  const { user } = useAuth();
+
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -37,7 +40,8 @@ export default function PayMent() {
       label: "Thanh toán qua ZaloPay",
       value: "684a840af512f318cb3a1193",
       icon: <img src="/img/zalopay.png" alt="Momo" style={{ width: 32 }} />,
-    },{
+    },
+    {
       label: "Thanh toán qua Momo",
       value: "68493449bbcba4ece764db08",
       icon: <img src="/img/momo.png" alt="Momo" style={{ width: 32 }} />,
@@ -59,9 +63,12 @@ export default function PayMent() {
     return sum + roomTotal;
   }, 0);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(
+    user?.last_name + " " + user?.first_name || ""
+  );
+  const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone_number || "");
+  const [request, setRequest] = useState(user?.request);
 
   const handleBooking = async () => {
     if (rooms.length === 0) {
@@ -87,7 +94,7 @@ export default function PayMent() {
     try {
       console.log(total);
       const payload = {
-        user_id: null, // 👈 thay bằng user thật nếu có login
+        user_id: user?.id || null, // 👈 thay bằng user thật nếu có login
         full_name: name, // 👈 lấy từ form nếu có
         email: email,
         phone_number: phone,
@@ -104,10 +111,10 @@ export default function PayMent() {
           return list;
         }),
         booking_method_id: "684126db1ce6a19c45c2ec0a",
-        booking_status_id: "683fba8d351a96315d457678", // pending
-        request: "Không có",
+        booking_status_id: "683fba8d351a96315d45767a", // pending
+        request: request || "Không có",
         details: rooms.map((room) => ({
-          room_id: room.id || room.id,
+          room_class_id: room.id,
           price_per_night: room.price,
           nights: room.nights,
           services: room.services?.map((s) => ({
@@ -159,6 +166,7 @@ export default function PayMent() {
                     type="text"
                     className="form-control bg-black text-white"
                     placeholder="VD: Lê Thành Phúc"
+                    autoComplete="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -186,6 +194,17 @@ export default function PayMent() {
                   placeholder="VD: example@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">
+                  Yêu cầu đặc biệt
+                </label>
+                <textarea
+                  className="form-control bg-black text-white"
+                  placeholder="VD: Tôi cần một phòng yên tĩnh, không có tiếng ồn"
+                  value={request}
+                  onChange={(e) => setRequest(e.target.value)}
                 />
               </div>
             </form>
