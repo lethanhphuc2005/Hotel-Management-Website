@@ -12,6 +12,9 @@ export interface IUser {
   updatedAt: Date;
   accessToken?: string;
   refreshToken?: string;
+  bookings?: any[]; // Assuming bookings is an array of booking objects
+  comments?: any[]; // Assuming comments is an array of comment objects
+  reviews?: any[]; // Assuming review is an object
 }
 
 export interface IAuthContextType {

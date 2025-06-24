@@ -17,6 +17,9 @@ export const fetchProfile = async (userId: string) => {
       is_verified: data.is_verified,
       createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
       updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
+      bookings: data.bookings || [],
+      comments: data.comments || [],
+      reviews: data.reviews || [],
     };
     return profile;
   } catch (error) {

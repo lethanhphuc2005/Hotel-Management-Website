@@ -66,7 +66,7 @@ const commentController = {
       // Nếu không có parent_id, đảm bảo rằng bình luận này không phải là một bình luận con
       const existingComment = await Comment.findOne({
         _id: commentId,
-        parent_id: { $exists: true },
+        parent_id: { $ne: null },
       });
       if (existingComment) {
         return {
@@ -297,7 +297,10 @@ const commentController = {
       // Tạo dữ liệu mới chỉ với content
       const updatedData = { ...commentToUpdate.toObject(), content };
 
-      const validation = await commentController.validateComment(updatedData, id);
+      const validation = await commentController.validateComment(
+        updatedData,
+        id
+      );
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }

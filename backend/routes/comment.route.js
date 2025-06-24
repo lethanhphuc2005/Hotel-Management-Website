@@ -27,7 +27,11 @@ router.post(
 );
 
 // === CẬP NHẬT BÌNH LUẬN ===
-router.put("/:id", authMiddleware.authorizeCommentAndReview(), commentController.updateComment);
+router.put(
+  "/:id",
+  authMiddleware.authorizeSelfOrRoles("admin"),
+  commentController.updateComment
+);
 
 // // === XÓA BÌNH LUẬN ===
 // router.delete(
@@ -39,7 +43,7 @@ router.put("/:id", authMiddleware.authorizeCommentAndReview(), commentController
 // === KÍCH HOẠT/ VÔ HIỆU HÓA BÌNH LUẬN ===
 router.put(
   "/toggle/:id",
-  authMiddleware.authorizeRoles("admin"),
+  authMiddleware.authorizeSelfOrRoles("admin"),
   commentController.toggleCommentStatus
 );
 

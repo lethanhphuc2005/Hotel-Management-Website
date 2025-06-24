@@ -92,7 +92,7 @@ const DiscountSchema = new mongoose.Schema(
 DiscountSchema.set("toJSON", {
   versionKey: false,
   transform: (doc, ret) => {
-    delete ret.id;
+    delete ret._id;
     return ret;
   },
 });

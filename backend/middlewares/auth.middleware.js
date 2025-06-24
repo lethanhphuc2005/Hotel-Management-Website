@@ -84,7 +84,13 @@ const authMiddleware = {
     return (req, res, next) => {
       authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
-        if (user.id === req.params.id || roles.includes(user.role)) {
+
+        if (
+          user.id === req.params.id ||
+          user.id === req.body.user_id ||
+          user.id === req.body.employee_id ||
+          roles.includes(user.role)
+        ) {
           next();
         } else {
           res.status(403).json("Bạn không có quyền thực hiện hành động này.");

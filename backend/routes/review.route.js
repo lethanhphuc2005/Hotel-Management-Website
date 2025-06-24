@@ -25,14 +25,14 @@ router.post(
 // === CẬP NHẬT ĐÁNH GIÁ ===
 router.put(
   "/:id",
-  authMiddleware.authorizeCommentAndReview(),
+  authMiddleware.authorizeSelfOrRoles("admin"),
   reviewController.updateReview
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HÓA ĐÁNH GIÁ ===
 router.put(
   "/toggle/:id",
-  authMiddleware.authorizeRoles("admin"),
+  authMiddleware.authorizeSelfOrRoles("admin"),
   reviewController.toggleReviewStatus
 );
 

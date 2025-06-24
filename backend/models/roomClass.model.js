@@ -97,7 +97,7 @@ RoomClassSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    delete ret.id;
+    delete ret._id;
     return ret;
   },
 });

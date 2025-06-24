@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "@/styles/profile/AccountSection.module.css";
-import { saveProfile } from "@/services/Profile";
+import { saveProfile } from "@/services/ProfileService";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -81,7 +81,7 @@ export function AccountSection({ formData }: Props) {
       setUser((prev) => ({
         ...prev,
         ...updatedData,
-      }));      
+      }));
       toast.success("Cập nhật thông tin thành công!");
     } catch (error) {
       toast.error("Cập nhật thông tin thất bại. Vui lòng thử lại sau.");
@@ -97,10 +97,8 @@ export function AccountSection({ formData }: Props) {
       className={styles.section}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      exit={{ opacity: 0, y: -20 }}
     >
-      <h3>Thông tin cá nhân</h3>
-
       <div className={styles.infoRow}>
         <label>Họ</label>
         <input

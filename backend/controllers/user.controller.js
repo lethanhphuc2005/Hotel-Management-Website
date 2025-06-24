@@ -91,6 +91,7 @@ const userController = {
         .populate([
           {
             path: "comments",
+            match: { status: true }, // Chỉ lấy các comment đang hoạt động
             populate: [
               {
                 path: "room_class_id",
@@ -112,10 +113,17 @@ const userController = {
           },
           {
             path: "reviews",
+            match: { status: true }, // Chỉ lấy các review đang hoạt động
             populate: [
               {
-                path: "room_class_id",
-                select: "-image -description -status", // Chỉ lấy các trường cần thiết,
+                path: "booking_id",
+                populate: {
+                  path: "booking_details",
+                  populate: {
+                    path: "room_class_id",
+                    select: "name description view price bed_amount",
+                  },
+                },
               },
               {
                 path: "employee_id",
@@ -136,7 +144,7 @@ const userController = {
             populate: [
               {
                 path: "booking_status_id",
-                select: "name",
+                select: "name code",
               },
               {
                 path: "booking_method_id",
@@ -148,7 +156,7 @@ const userController = {
                 populate: {
                   path: "payment_method_id",
                   select: "name",
-                }
+                },
               },
               {
                 path: "booking_details",
@@ -159,8 +167,7 @@ const userController = {
                   },
                   {
                     path: "room_class_id",
-                    select:
-                      "name description view price bed_amount, price_discount",
+                    select: "name description view price bed_amount, ",
                     populate: {
                       path: "images",
                       select: "url",

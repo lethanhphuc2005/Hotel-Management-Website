@@ -1,44 +1,85 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import { toast } from "react-toastify";
+import { formatDate } from "@/utils/dateUtils";
+import "@/styles/profile/BookedSection.css";
 
 export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
+  if (!bookings || bookings.length === 0) {
+    return (
+      <div className="text-center text-gray-400">Bạn chưa đặt phòng nào.</div>
+    );
+  }
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const getColorClass = (status: string) => {
+    switch (status) {
+      case "CHECKED_IN":
+        return "tw-bg-green-500 tw-text-white";
+      case "CHECKED_OUT":
+        return "tw-bg-red-500 tw-text-white";
+      case "CANCELLED":
+        return "tw-bg-gray-500 tw-text-white";
+      case "PENDING":
+        return "tw-bg-amber-500 tw-text-black";
+      case "CONFIRMED":
+        return "tw-bg-blue-600 tw-text-white";
+      default:
+        return "tw-bg-yellow-400 tw-text-black";
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="tw-space-y-4"
+    >
       {bookings?.map((booking: any) => {
-        const detail = booking.booking_details?.[0];
-        const room = detail?.room_id;
-        const roomClass = room?.room_class_id || detail?.room_class_id;
         const isCheckedOut = booking.booking_status_id?.code === "CHECKED_OUT";
         const payment = booking.payment;
 
         return (
           <div
-            key={booking._id}
-            className="p-4 rounded-xl border border-gray-700 bg-[#0f172a]"
+            key={booking.id}
+            className="tw-p-4 tw-rounded-xl tw-border tw-border-gray-700 tw-bg-black/50"
           >
             <div
-              className="flex justify-between items-center cursor-pointer"
-              style={{ display: "flex", gap: "1rem", cursor: "pointer" }}
+              className="tw-flex tw-gap-4 tw-cursor-pointer"
               onClick={() => toggleExpand(booking._id)}
             >
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-white">
-                  {roomClass?.name}
+              <div className="tw-space-y-2">
+                <h3 className="tw-text-lg tw-font-bold tw-text-white">
+                  {booking.booking_details?.[0]?.room_class_id?.name ||
+                    "Không rõ loại phòng"}
                 </h3>
-                <p className="text-sm text-gray-400">
-                  {new Date(booking.check_in_date).toLocaleDateString()} →{" "}
-                  {new Date(booking.check_out_date).toLocaleDateString()}
+                <p className="tw-text-sm tw-text-gray-400">
+                  Ngày đến: {formatDate(booking.check_in_date)} - Ngày đi:{" "}
+                  {formatDate(booking.check_out_date)}
                 </p>
-                <p className="text-sm text-gray-400">
+                <p className="tw-text-sm tw-text-gray-400">
+                  Số người lớn: {booking.adult_amount || 0} - Số trẻ em:{" "}
+                  {booking.child_amount || 0}
+                </p>
+                <p className="tw-text-sm tw-text-gray-300">
+                  Thông tin người đặt:
+                </p>
+                <ul className="tw-list-disc tw-ml-4 tw-text-gray-300">
+                  <li>Họ và tên: {booking.full_name || "Không rõ"}</li>
+                  <li>Số điện thoại: {booking.phone_number || "Không rõ"}</li>
+                  <li>Email: {booking.email || "Không rõ"}</li>
+                </ul>
+                <span
+                  className={`tw-inline-block tw-px-3 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-uppercase ${getColorClass(
+                    booking.booking_status_id?.code
+                  )}`}
+                >
                   {booking.booking_status_id?.name}
-                </p>
+                </span>
               </div>
             </div>
 
@@ -48,122 +89,120 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden mt-4 text-gray-300 text-sm"
+                  className="tw-overflow-hidden tw-mt-4 tw-text-gray-300 tw-text-sm"
                 >
-                  <div className="w-full max-w-3xl mx-auto">
-                    <div
-                      className="flex gap-4 items-start"
-                      style={{ display: "flex" }}
-                    >
-                      <div
-                        className="w-[200px] h-[140px] overflow-hidden rounded-xl flex-shrink-0 bg-gray-800 flex items-center justify-center"
-                        style={{
-                          width: "50%",
-                          height: "500px",
-                          position: "relative",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <motion.img
-                          initial={{ x: -30, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                          src={
-                            "http://localhost:8000/images/" +
-                            (roomClass?.images?.[0]?.url || "no-image.jpg")
-                          }
-                          alt="room"
-                          className="w-full h-full object-cover"
-                          style={{
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%",
-                            objectPosition: "center",
-                            position: "relative",
-                          }}
-                        />
-                      </div>
+                  <div className="tw-w-full tw-max-w-3xl tw-mx-auto tw-flex tw-flex-col tw-gap-6">
+                    {booking.booking_details?.map(
+                      (detail: any, index: number) => {
+                        const room = detail?.room_id;
+                        const roomClass =
+                          room?.room_class_id || detail?.room_class_id;
 
-                      <motion.div
-                        initial={{ x: 30, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="flex-1 space-y-2"
-                      >
-                        <p>
-                          <strong>Phòng:</strong> {room?.name || "Chưa gán"}{" "}
-                          {room?.floor && `- Tầng ${room.floor}`}
-                        </p>
-                        <p>
-                          <strong>Yêu cầu:</strong>{" "}
-                          {booking.request || "Không có"}
-                        </p>
-                        <p>
-                          <strong>Ghi chú:</strong> {booking.note || "Không có"}
-                        </p>
-
-                        <p>
-                          <strong>Thời gian đặt:</strong>{" "}
-                          {new Date(booking.booking_date).toLocaleString()}
-                        </p>
-
-                        <p>
-                          <strong>Hình thức:</strong>{" "}
-                          {booking.booking_method_id?.name || "Không xác định"}
-                        </p>
-
-                        <p>
-                          <strong>Thanh toán:</strong>{" "}
-                          {payment && payment.length > 0 ? (
-                            <ul className="list-disc ml-6">
-                              {payment.map((p: any) => (
-                                <li key={p._id}>
-                                  {p.payment_method_id.name} -{" "}
-                                  {p.amount.toLocaleString("vi-VN")} -{" "}
-                                  {p.status}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            "Chưa thanh toán"
-                          )}
-                        </p>
-
-                        <p>
-                          <strong>Dịch vụ:</strong>
-                        </p>
-                        <ul className="list-disc ml-6">
-                          {detail?.services?.length > 0 ? (
-                            detail?.services.map((s: any) => (
-                              <li key={s._id}>
-                                {s.service_id.name} -{" "}
-                                {s.service_id.price.toLocaleString("vi-VN")}₫
-                              </li>
-                            ))
-                          ) : (
-                            <li>Không sử dụng dịch vụ</li>
-                          )}
-                        </ul>
-
-                        <p>
-                          <strong>Tổng tiền:</strong>{" "}
-                          {booking.total_price.toLocaleString("vi-VN")}₫
-                        </p>
-
-                        {isCheckedOut && (
-                          <motion.button
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-3 px-4 py-2 bg-[#fab320] text-black font-semibold rounded-lg hover:opacity-90"
+                        return (
+                          <div
+                            key={index}
+                            className="tw-border-t tw-border-gray-600 tw-pt-4 tw-flex tw-gap-4 tw-items-start"
                           >
-                            Đánh giá
-                          </motion.button>
-                        )}
-                      </motion.div>
-                    </div>
+                            <div className="tw-w-[50%] tw-h-[300px] tw-relative tw-flex tw-items-center tw-justify-center">
+                              <motion.img
+                                initial={{ x: -30, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ duration: 0.3 }}
+                                src={`http://localhost:8000/images/${
+                                  roomClass?.images?.[0]?.url || "no-image.jpg"
+                                }`}
+                                alt="room"
+                                className="tw-w-full tw-h-full tw-object-cover tw-object-center"
+                              />
+                            </div>
+
+                            <motion.div
+                              initial={{ x: 30, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ duration: 0.3 }}
+                              className="tw-flex-1 tw-space-y-2"
+                            >
+                              <p>
+                                <strong>Phòng:</strong>{" "}
+                                {room?.name || "Chưa gán"}{" "}
+                                {room?.floor && `- Tầng ${room.floor}`}
+                              </p>
+                              <p>
+                                <strong>Dịch vụ:</strong>
+                              </p>
+                              <ul className="tw-list-disc tw-ml-6">
+                                {detail?.services?.length > 0 ? (
+                                  detail.services.map((s: any) => (
+                                    <li key={s._id}>
+                                      {s.service_id.name} - {s.amount}x -{" "}
+                                      {s.service_id.price.toLocaleString(
+                                        "vi-VN"
+                                      )}
+                                      ₫
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li>Không sử dụng dịch vụ</li>
+                                )}
+                              </ul>
+                            </motion.div>
+                          </div>
+                        );
+                      }
+                    )}
+
+                    <motion.div
+                      initial={{ x: 30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="tw-space-y-2 tw-border-t tw-border-gray-600 tw-pt-4"
+                    >
+                      <p>
+                        <strong>Yêu cầu:</strong>{" "}
+                        {booking.request || "Không có"}
+                      </p>
+                      <p>
+                        <strong>Ghi chú:</strong> {booking.note || "Không có"}
+                      </p>
+                      <p>
+                        <strong>Thời gian đặt:</strong>{" "}
+                        {formatDate(booking.createdAt)}
+                      </p>
+                      <p>
+                        <strong>Hình thức:</strong>{" "}
+                        {booking.booking_method_id?.name || "Không xác định"}
+                      </p>
+                      <strong>Thanh toán:</strong>{" "}
+                      {payment && payment.length > 0 ? (
+                        <ul className="tw-list-disc tw-ml-6">
+                          {payment.map((p: any) => (
+                            <li key={p._id}>
+                              {p.payment_method_id.name} -{" "}
+                              {p.amount.toLocaleString("vi-VN")}₫ - {p.status}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "Chưa thanh toán"
+                      )}
+                      <p>
+                        <strong>Tổng tiền:</strong>{" "}
+                        {booking.total_price.toLocaleString("vi-VN")}₫
+                      </p>
+                      {isCheckedOut && (
+                        <motion.button
+                          onClick={() =>
+                            toast.success("Cảm ơn bạn đã sử dụng dịch vụ!")
+                          }
+                          transition={{ delay: 0 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-full tw-border-none"
+                        >
+                          Đánh giá
+                        </motion.button>
+                      )}
+                    </motion.div>
                   </div>
                 </motion.div>
               )}
@@ -171,6 +210,6 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
           </div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

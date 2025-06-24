@@ -1,16 +1,25 @@
 "use client";
-
 import styles from "./page.module.css";
 import { useState } from "react";
 import { AccountSection } from "@/components/profile/AccountSection";
 import { PasswordSection } from "@/components/profile/PasswordSection";
 import BookingSection from "@/components/profile/BookedSection";
 import { useProfile } from "@/hooks/useProfile";
+import CommentSection from "@/components/profile/CommentSection";
+import ReviewSection from "@/components/profile/ReviewSection";
 
 const ProfilePage = () => {
-  const { user, profile, formData, setFormData, bookedRooms, logout } =
-    useProfile();
-    
+  const {
+    profile,
+    formData,
+    bookedRooms,
+    comments,
+    setComments,
+    reviews,
+    setReviews,
+    logout,
+  } = useProfile();
+
   const [activeTab, setActiveTab] = useState("account");
   const handleLogout = () => {
     logout();
@@ -25,8 +34,9 @@ const ProfilePage = () => {
       case "booked-rooms":
         return <BookingSection bookings={bookedRooms} />;
       case "comments":
+        return <CommentSection comments={comments} setComments={setComments} />;
       case "reviews":
-
+        return <ReviewSection reviews={reviews} setReviews={setReviews} />;
       default:
         return <AccountSection formData={formData} />;
     }

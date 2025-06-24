@@ -126,8 +126,6 @@ export default function PayMent() {
       };
 
       const res = await api.post("/booking", payload);
-      toast.success("Đặt phòng thành công!");
-
       dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
       // Optional: redirect
       router.push("/thank-you");

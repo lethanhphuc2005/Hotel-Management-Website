@@ -66,11 +66,17 @@ ReviewSchema.virtual("employee", {
   foreignField: "_id",
 });
 
+ReviewSchema.virtual("parent_review", {
+  ref: "review",
+  localField: "parent_id",
+  foreignField: "_id",
+});
+
 ReviewSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    delete ret.id;
+    delete ret._id;
     return ret;
   },
 });

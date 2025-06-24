@@ -4,7 +4,7 @@ import styles from "@/styles/profile/AccountSection.module.css";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { savePassword } from "@/services/Profile";
+import { savePassword } from "@/services/ProfileService";
 
 interface Props {
   formData: {
@@ -78,10 +78,8 @@ export function PasswordSection({ formData }: Props) {
       className={styles.section}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      exit={{ opacity: 0, y: -20 }}
     >
-      <h3>Đổi mật khẩu</h3>
-
       <div className={styles.infoRow}>
         <label>Mật khẩu hiện tại</label>
         <input type="password" name="password" onChange={handleChange} />
