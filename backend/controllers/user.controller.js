@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const accountController = require("./account.controller");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail, forgotPasswordEmail } = require("../config/mail"); // Import email template
-const { model } = require("mongoose");
 
 const userController = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
@@ -179,6 +178,25 @@ const userController = {
                       path: "service_id",
                       select: "name description price",
                     },
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            path: "favorites",
+            populate: [
+              {
+                path: "room_class_id",
+                select: "name description view price bed_amount",
+                populate: [
+                  {
+                    path: "images",
+                    select: "url",
+                  },
+                  {
+                    path: "main_room_class_id",
+                    select: "name description",
                   },
                 ],
               },

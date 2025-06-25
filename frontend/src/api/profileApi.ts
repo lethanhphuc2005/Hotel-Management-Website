@@ -1,4 +1,4 @@
-import api from "@/lib/axiosInstance";
+import { api } from "@/lib/axiosInstance";
 
 export const getProfile = async (userId: string) => {
   try {
@@ -36,7 +36,7 @@ export const changePassword = async (
       password,
       newPassword,
     });
-    
+
     return {
       error: false,
       message: response.data.message || "Đổi mật khẩu thành công",

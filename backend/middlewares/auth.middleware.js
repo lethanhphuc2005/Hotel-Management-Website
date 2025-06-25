@@ -47,7 +47,10 @@ const authMiddleware = {
     return (req, res, next) => {
       authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
-        if (user.id && user.id === req.params.id) {
+        if (
+          (user.id && user.id === req.params.id) ||
+          user.id === req.body.user_id
+        ) {
           next();
         } else {
           res.status(403).json("Chỉ chủ tài khoản mới được thao tác.");

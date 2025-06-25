@@ -284,7 +284,7 @@ const bookingController = {
                   (detail) => `
                 <li>
                   Phòng: ${
-                    detail.room_class_id
+                    detail.room_class_id.name
                   }, Giá mỗi đêm: ${detail.price_per_night.toLocaleString(
                     "vi-VN"
                   )} VND, Số đêm: ${detail.nights}
@@ -295,7 +295,7 @@ const bookingController = {
                       ${detail.services
                         .map(
                           (service) => `
-                        <li>Dịch vụ: ${service.service_id}, Số lượng: ${service.amount}</li>
+                        <li>Dịch vụ: ${service.service_id.name}, Số lượng: ${service.amount}, Giá: ${service.price}</li>
                       `
                         )
                         .join("")}

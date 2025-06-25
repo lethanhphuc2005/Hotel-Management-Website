@@ -3,7 +3,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-
 const roomRouter = require("./routes/room.route");
 const authRouter = require("./routes/auth.route");
 const mainRoomClassRouter = require("./routes/mainRoomClass.route");
@@ -26,6 +25,7 @@ const commentRouter = require("./routes/comment.route");
 const reviewRouter = require("./routes/review.route");
 const paymentRouter = require("./routes/payment.route");
 const chatRouter = require("./routes/chat.route");
+const userFavoriteRouter = require("./routes/userFavorite.route");
 
 dotenv.config();
 
@@ -43,7 +43,7 @@ app.use(cors());
 mongoose
   .connect(process.env.MONGOOSE_URL)
   .then(() => {
-    console.log("✅ Kết nối thành công đến MongoDB");
+    console.log("✅ Kết nối MongoDB thành công");
   })
   .catch((error) => {
     console.error("Lỗi kết nối MongoDB:", error);
@@ -72,5 +72,8 @@ app.use("/v1/comment", commentRouter);
 app.use("/v1/review", reviewRouter);
 app.use("/v1/payment", paymentRouter);
 app.use("/v1/chat", chatRouter);
+app.use("/v1/user-favorite", userFavoriteRouter);
 
-app.listen(8000, () => {});
+app.listen(8000, () => {
+  console.log("🚀 Server is running on port 8000");
+});

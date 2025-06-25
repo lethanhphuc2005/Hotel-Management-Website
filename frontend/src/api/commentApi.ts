@@ -1,7 +1,7 @@
-import api from "@/lib/axiosInstance";
+import { api, publicApi } from "@/lib/axiosInstance";
 
-export const getComments = async (postId: string) => {
-  const res = await api.get(`/comment/${postId}`);
+export const getComments = async () => {
+  const res = await publicApi.get(`/comment/user`);
   if (res.status !== 200) {
     throw new Error("Failed to fetch comments");
   }
@@ -9,7 +9,7 @@ export const getComments = async (postId: string) => {
 };
 
 export const getCommentById = async (commentId: string) => {
-  const res = await api.get(`/comment/detail/${commentId}`);
+  const res = await publicApi.get(`/comment/${commentId}`);
   if (res.status !== 200) {
     throw new Error("Failed to fetch comment");
   }

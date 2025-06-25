@@ -1,7 +1,7 @@
-import api from "@/lib/axiosInstance";
+import { api, publicApi } from "@/lib/axiosInstance";
 
 export const getReviews = async () => {
-  const res = await api.get(`/review/`);
+  const res = await publicApi.get(`/review/user`);
   if (res.status !== 200) {
     throw new Error("Failed to fetch reviews");
   }
@@ -9,7 +9,7 @@ export const getReviews = async () => {
 };
 
 export const getReviewById = async (reviewId: string) => {
-  const res = await api.get(`/review/${reviewId}`);
+  const res = await publicApi.get(`/review/${reviewId}`);
   if (res.status !== 200) {
     throw new Error("Failed to fetch review");
   }
@@ -33,7 +33,11 @@ export const updateReview = async (
   rating: number | null,
   content: string
 ) => {
-  const res = await api.put(`/review/${reviewId}`, { user_id, rating, content });
+  const res = await api.put(`/review/${reviewId}`, {
+    user_id,
+    rating,
+    content,
+  });
   if (res.status !== 200) {
     throw new Error("Failed to update review");
   }

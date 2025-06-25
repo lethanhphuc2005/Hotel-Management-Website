@@ -7,9 +7,9 @@ import {
 } from "@/api/commentApi";
 import { Comment } from "@/types/comment";
 
-export const fetchComments = async (postId: string) => {
+export const fetchComments = async () => {
   try {
-    const response = await getCommnetsApi(postId);
+    const response = await getCommnetsApi();
     const data = response.data;
     const comments: Comment[] = data.map((c: any) => ({
       id: c.id,

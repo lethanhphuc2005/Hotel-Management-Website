@@ -1,0 +1,18 @@
+
+/**
+ * Viết hoa chữ cái đầu tiên của một từ.
+ * Ví dụ: "phúc" => "Phúc"
+ */
+export const capitalizeFirst = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);
+
+/**
+ * Viết hoa chữ cái đầu của từng từ trong chuỗi.
+ * Ví dụ: "hướng núi phía tây" => "Hướng Núi Phía Tây"
+ */
+export const capitalizeWords = (str: string) =>
+  str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => capitalizeFirst(word))
+    .join(" ");

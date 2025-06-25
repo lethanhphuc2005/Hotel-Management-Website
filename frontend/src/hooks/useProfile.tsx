@@ -26,6 +26,7 @@ export const useProfile = () => {
   const [bookedRooms, setBookedRooms] = useState<any[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<any[]>([]);
 
   const refreshProfile = async () => {
     if (!user) return;
@@ -47,6 +48,7 @@ export const useProfile = () => {
       setBookedRooms(data.bookings || []);
       setComments(data.comments || []);
       setReviews(data.reviews || []);
+      setFavorites(data.favorites || []);
     } catch (err) {
       console.error("Lỗi khi refresh profile:", err);
     } finally {
@@ -58,7 +60,7 @@ export const useProfile = () => {
     if (isAuthLoading || didFetch) return;
 
     if (!user) {
-      router.replace("/login");
+      router.push("/login");
       return;
     }
 
@@ -81,6 +83,7 @@ export const useProfile = () => {
         setBookedRooms(data.bookings || []);
         setComments(data.comments || []);
         setReviews(data.reviews || []);
+        setFavorites(data.favorites || []);
       } catch (err) {
         console.error("Lỗi khi fetch profile:", err);
       } finally {
@@ -102,6 +105,8 @@ export const useProfile = () => {
     setComments,
     reviews,
     setReviews,
+    favorites,
+    setFavorites,
     logout,
     refreshProfile,
   };

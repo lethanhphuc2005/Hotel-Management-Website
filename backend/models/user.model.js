@@ -130,6 +130,12 @@ UserSchema.virtual("payment", {
   foreignField: "booking_id",
 });
 
+UserSchema.virtual("favorites", {
+  ref: "user_favorite",
+  localField: "_id",
+  foreignField: "user_id",
+});
+
 UserSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

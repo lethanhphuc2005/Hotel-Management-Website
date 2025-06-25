@@ -20,6 +20,7 @@ export const fetchProfile = async (userId: string) => {
       bookings: data.bookings || [],
       comments: data.comments || [],
       reviews: data.reviews || [],
+      favorites: data.favorites || [],
     };
     return profile;
   } catch (error) {
@@ -43,10 +44,6 @@ export const saveProfile = async (
       email: data.email,
       phone_number: data.phone_number || "",
       request: data.request || "",
-      status: data.status,
-      is_verified: data.is_verified,
-      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-      updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
     };
     return updatedProfile;
   } catch (error) {

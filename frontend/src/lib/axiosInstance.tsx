@@ -1,6 +1,7 @@
 // lib/axiosInstance.ts
 import axios from "axios";
 import { refreshAccessToken } from "@/api/authApi";
+import { toast } from "react-toastify";
 
 // ========== Helpers ==========
 const getAccessToken = () => {
@@ -21,11 +22,19 @@ const api = axios.create({
   baseURL: "http://localhost:8000/v1",
 });
 
+const publicApi = axios.create({
+  baseURL: "http://localhost:8000/v1",
+});
+
 // Gắn access token vào mọi request
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    toast.error(
+      "Chưa đăng nhập hoặc token không hợp lệ. Vui lòng đăng nhập lại."
+    );
   }
   return config;
 });
@@ -47,10 +56,7 @@ api.interceptors.response.use(
   async (err) => {
     const originalRequest = err.config;
 
-    if (
-      (err.response?.status === 401 || err.response?.status === 403) &&
-      !originalRequest._retry
-    ) {
+    if (err.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -68,7 +74,9 @@ api.interceptors.response.use(
 
       isRefreshing = true;
       try {
-        const { accessToken } = await refreshAccessToken();
+        const response = await refreshAccessToken();
+        const data = response.data;
+        const accessToken = data.accessToken;
         const loginData = JSON.parse(localStorage.getItem("login") || "{}");
         localStorage.setItem(
           "login",
@@ -94,4 +102,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export { api, publicApi };

@@ -7,6 +7,7 @@ import BookingSection from "@/components/profile/BookedSection";
 import { useProfile } from "@/hooks/useProfile";
 import CommentSection from "@/components/profile/CommentSection";
 import ReviewSection from "@/components/profile/ReviewSection";
+import FavoriteSection from "@/components/profile/FavoriteSection";
 
 const ProfilePage = () => {
   const {
@@ -17,8 +18,11 @@ const ProfilePage = () => {
     setComments,
     reviews,
     setReviews,
+    favorites,
+    setFavorites,
     logout,
   } = useProfile();
+  console.log("Profile data:", profile);
 
   const [activeTab, setActiveTab] = useState("account");
   const handleLogout = () => {
@@ -37,6 +41,10 @@ const ProfilePage = () => {
         return <CommentSection comments={comments} setComments={setComments} />;
       case "reviews":
         return <ReviewSection reviews={reviews} setReviews={setReviews} />;
+      case "favorites":
+        return (
+          <FavoriteSection favorites={favorites} setFavorites={setFavorites} />
+        );
       default:
         return <AccountSection formData={formData} />;
     }
@@ -71,6 +79,7 @@ const ProfilePage = () => {
               { tab: "account", label: "Thông tin cá nhân" },
               { tab: "change-password", label: "Đổi mật khẩu" },
               { tab: "booked-rooms", label: "Phòng đã đặt" },
+              { tab: "favorites", label: "Mục yêu thích" },
               { tab: "comments", label: "Bình luận" },
               { tab: "reviews", label: "Đánh giá" },
             ].map(({ tab, label }) => (
