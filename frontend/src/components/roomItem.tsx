@@ -4,7 +4,7 @@ import Image from "next/image";
 import style from "@/app/page.module.css";
 import roomtypeStyle from "@/app/roomtype/[parentSlug]/rcChild.module.css";
 import { Service } from "@/types/service";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Discount } from "@/types/discount";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { RootState } from "@/contexts/store";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { RoomClass } from "@/types/roomClass";
+import { createUserFavorite, deleteUserFavorite, getUserFavorites } from "@/services/UserFavoriteService";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -240,6 +241,8 @@ export function RoomClassItem({
   features?: string[];
 }) {
   const [liked, setLiked] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [favoriteId, setFavoriteId] = useState<string | null>(null);
   const dispatch = useDispatch();
   const {
     guests,
@@ -296,11 +299,9 @@ export function RoomClassItem({
         id: rci.id,
         name: rci.name,
         img: rci?.images?.[0]?.url || "",
-        desc: `${adults ?? 1} người lớn${
-          childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
-        }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${
-          rci.bed_amount
-        } giường đôi`,
+        desc: `${adults ?? 1} người lớn${childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
+          }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${rci.bed_amount
+          } giường đôi`,
         price:
           (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price,
         nights: numberOfNights,
@@ -361,8 +362,65 @@ export function RoomClassItem({
   hasSaturday = sat;
   hasSunday = sun;
 
-  const handleLikeClick = () => {
-    setLiked((prev) => !prev);
+  // 👀 Kiểm tra user đã đăng nhập chưa
+  useEffect(() => {
+    const loginData = localStorage.getItem("login");
+    if (!loginData) return;
+
+    const parsed = JSON.parse(loginData);
+    setUserId(parsed.id);
+
+    // 🔁 Kiểm tra xem phòng hiện tại đã được yêu thích chưa
+    const fetchFavorites = async () => {
+      try {
+        const favorites = await getUserFavorites(parsed.id);
+        const existing = favorites.find(
+          (fav) => fav.room_class_id === rci.id
+        );
+        if (existing) {
+          setLiked(true);
+          setFavoriteId(String(existing.id)); // dùng để xóa
+        }
+      } catch (err) {
+        console.error("Lỗi khi lấy danh sách yêu thích:", err);
+      }
+    };
+
+    fetchFavorites();
+  }, [rci.id]);
+
+  // 🖱️ Khi người dùng bấm vào icon trái tim
+  const handleLikeClick = async () => {
+    const loginData = localStorage.getItem("login");
+    if (!loginData) {
+      toast.warning("Vui lòng đăng nhập để thêm vào yêu thích!");
+      return;
+    }
+    const parsed = JSON.parse(loginData);
+    const uid = parsed.id;
+
+    try {
+      if (!liked) {
+        // ✅ Thêm yêu thích
+        const res = await createUserFavorite(uid, rci.id);
+        setLiked(true);
+        setFavoriteId(String(res.id));
+        toast.success("Đã thêm vào yêu thích!");
+      } else {
+        // ❌ Xoá yêu thích
+        if (!favoriteId) {
+          toast.error("Không tìm thấy mục yêu thích để xoá!");
+          return;
+        }
+        await deleteUserFavorite(uid, favoriteId);
+        setLiked(false);
+        setFavoriteId(null);
+        toast.success("Đã xoá khỏi yêu thích!");
+      }
+    } catch (err) {
+      toast.error("Lỗi khi xử lý yêu thích.");
+      console.error(err);
+    }
   };
 
   // Xử lý logic kê thêm giường xếp
@@ -399,9 +457,8 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${
-                liked ? "text-danger" : "text-dark"
-              }`}
+              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
+                }`}
             ></i>
           </button>
         </div>
