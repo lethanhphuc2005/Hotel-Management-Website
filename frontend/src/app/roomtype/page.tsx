@@ -1,13 +1,14 @@
 "use client";
 import { RoomClassList } from "@/components/roomList";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
 import RoomSearchBar from "@/components/roomSearchBar";
-import { useData } from "@/hooks/useData";
 import { AnimatePresence, motion } from "framer-motion";
 import AnimatedCheckbox from "@/components/checkbox";
 import 'rc-slider/assets/index.css';
 import Slider from 'rc-slider';
+import { RoomClass } from "@/types/roomClass";
+import { fetchRoomClasses } from "@/services/roomClassService";
 
 export default function AllRoom() {
   const {
@@ -51,12 +52,25 @@ export default function AllRoom() {
     // numChildrenOver6,
     // totalEffectiveGuests
   } = useRoomSearch();
-  const { roomclass } = useData();
+  const [roomclass, setRoomClass] = useState<RoomClass[]>([]); // Giả sử roomclass là mảng các đối tượng phòng
   const viewList = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
   const [amenityList] = useState(["Jacuzzi", "WiFi", "Minibar"]);
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 50000000]);
+
+  useEffect(() => {
+    try {
+      const fetchRoomClassesData = async () => {
+        const roomClassesData = await fetchRoomClasses();
+        setRoomClass(roomClassesData);
+      }
+      fetchRoomClassesData();
+    } catch (error) {
+      console.error("Error fetching room classes:", error);
+      
+    }
+  })
 
   // Lọc roomclass theo parentSlug
   const filteredRoomClass = roomclass.filter(
@@ -66,7 +80,7 @@ export default function AllRoom() {
       (views.length === 0 || views.includes(item.view)) &&
       (amenities.length === 0 ||
         amenities.every((am) =>
-          item.features.some((f) => f.feature_id.name === am)
+          item?.features?.some((f) => f.feature_id.name === am)
         ))
   );
 

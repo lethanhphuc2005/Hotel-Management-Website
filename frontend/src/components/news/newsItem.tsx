@@ -1,4 +1,4 @@
-import { WebsiteContent } from "../../types/websitecontent";
+import { WebsiteContent } from "../../types/websiteContent";
 
 export function New1({ new1 }: { new1: WebsiteContent }) {
   if (!new1) return null;
@@ -11,7 +11,7 @@ export function New1({ new1 }: { new1: WebsiteContent }) {
         <div className="col">
           <p style={{ color: "#FAB320" }}>
             {new1.content_type[0]?.name} -{" "}
-            {new1.updatedAt.toLocaleDateString("vi-VN")}
+            {new1.updated_at.toLocaleDateString("vi-VN")}
           </p>
           {/* - {new1.NgayDang.toLocaleDateString('vi-VN')} */}
           <p className="lh-lg fs-6" style={{ textAlign: "justify" }}>
@@ -41,7 +41,7 @@ export function New2({ new2 }: { new2: WebsiteContent }) {
         </h3>
         <p style={{ color: "#FAB320" }}>
           {new2.content_type[0]?.name} -{" "}
-          {new2.updatedAt.toLocaleDateString("vi-VN")}
+          {new2.updated_at.toLocaleDateString("vi-VN")}
         </p>
         <div className="col">
           <img className="w-100" src={`/img/${new2.image}`} alt="" />
@@ -66,7 +66,7 @@ export function New3({ new3 }: { new3: WebsiteContent }) {
         </h3>
         <p style={{ color: "#FAB320" }}>
           {new3.content_type[0]?.name} -{" "}
-          {new3.updatedAt.toLocaleDateString("vi-VN")}
+          {new3.updated_at.toLocaleDateString("vi-VN")}
         </p>
         <div className="col">
           <p style={{ textAlign: "justify", lineHeight: "30px" }}>
@@ -96,7 +96,7 @@ export function New4({ new4 }: { new4: WebsiteContent }) {
       </h3>
       <p style={{ color: "#FAB320" }}>
         {new4.content_type[0]?.name} -{" "}
-        {new4.updatedAt.toLocaleDateString("vi-VN")}
+        {new4.updated_at.toLocaleDateString("vi-VN")}
       </p>
       <p style={{ textAlign: "justify", lineHeight: "30px" }}>{new4.content}</p>
     </>

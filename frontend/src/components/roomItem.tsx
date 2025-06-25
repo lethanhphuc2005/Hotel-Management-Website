@@ -5,8 +5,6 @@ import style from "@/app/page.module.css";
 import roomtypeStyle from "@/app/roomtype/[parentSlug]/rcChild.module.css";
 import { Service } from "@/types/service";
 import { useState, useRef } from "react";
-import { MainRoomClass } from "@/types/mainroomclass";
-import { RoomClass } from "@/types/roomclass";
 import { Discount } from "@/types/discount";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import Link from "next/link";
@@ -15,6 +13,8 @@ import { addRoomToCart } from "@/contexts/cartSlice";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
 import { toast } from "react-toastify";
 import { RootState } from "@/contexts/store";
+import { MainRoomClass } from "@/types/mainRoomClass";
+import { RoomClass } from "@/types/roomClass";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -57,7 +57,6 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
     x.set(px);
     y.set(py);
   };
-
   return (
     <Col lg={4} md={6} style={{ perspective: 1000 }}>
       <motion.div
@@ -95,7 +94,7 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
           <div className={style.priceContainer}>
             <span className={style.priceLabel}>{mrci.description}</span>
           </div>
-          <Link href={`/roomtype/${mrci._id}`}>
+          <Link href={`/roomtype/${mrci.id}`}>
             <motion.div
               className={style.seeMore}
               whileHover={{
@@ -285,20 +284,25 @@ export function RoomClassItem({
         firstRoom.checkIn !== checkInISO ||
         firstRoom.checkOut !== checkOutISO
       ) {
-        toast.error("Bạn chỉ có thể thêm phòng có cùng ngày nhận và trả phòng!");
+        toast.error(
+          "Bạn chỉ có thể thêm phòng có cùng ngày nhận và trả phòng!"
+        );
         return;
       }
     }
 
     dispatch(
       addRoomToCart({
-        id: rci._id,
+        id: rci.id,
         name: rci.name,
-        img: rci.images[0]?.url || "",
-        desc: `${adults ?? 1} người lớn${childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
-          }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""
-          }, ${rci.bed_amount} giường đôi`,
-        price: rci.price_discount > 0 ? rci.price_discount : rci.price,
+        img: rci?.images?.[0]?.url || "",
+        desc: `${adults ?? 1} người lớn${
+          childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
+        }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${
+          rci.bed_amount
+        } giường đôi`,
+        price:
+          (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price,
         nights: numberOfNights,
         checkIn: startDate?.toLocaleDateString("vi-VN") || "",
         checkOut: endDate?.toLocaleDateString("vi-VN") || "",
@@ -310,7 +314,7 @@ export function RoomClassItem({
         total: totalPrice,
         hasSaturdayNight: hasSaturday,
         hasSundayNight: hasSunday,
-        features: rci.features.map((f) => f.feature_id.name),
+        features: rci?.features?.map((f) => f.feature_id.name) ?? [],
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");
@@ -332,7 +336,8 @@ export function RoomClassItem({
     return total;
   }
 
-  const basePrice = rci.price_discount > 0 ? rci.price_discount : rci.price;
+  const basePrice =
+    (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price;
   const totalPrice = calcTotalPricePerNight(basePrice, startDate, endDate);
 
   // Thêm hàm kiểm tra có Thứ 7 hoặc Chủ nhật trong khoảng ngày
@@ -343,13 +348,16 @@ export function RoomClassItem({
     const current = new Date(start);
     while (current < end) {
       if (current.getDay() === 6) hasSaturday = true; // Thứ 7
-      if (current.getDay() === 0) hasSunday = true;   // Chủ nhật
+      if (current.getDay() === 0) hasSunday = true; // Chủ nhật
       current.setDate(current.getDate() + 1);
     }
     return { hasSaturday, hasSunday };
   }
   // ✅ Thêm dòng này để lấy thông tin cuối tuần
-  const { hasSaturday: sat, hasSunday: sun } = getWeekendNights(startDate, endDate);
+  const { hasSaturday: sat, hasSunday: sun } = getWeekendNights(
+    startDate,
+    endDate
+  );
   hasSaturday = sat;
   hasSunday = sun;
 
@@ -366,7 +374,7 @@ export function RoomClassItem({
   return (
     <>
       <div
-        className="col border rounded-4 d-flex p-3 gap-3 position-relative"
+        className=" border rounded-4 d-flex p-3 gap-3 position-relative"
         style={{ height: "280px" }}
       >
         <button
@@ -377,9 +385,9 @@ export function RoomClassItem({
           <i className={`bi bi-bag-plus-fill ${roomtypeStyle.cartIcon}`}></i>
         </button>
         <div className="position-relative">
-          <a href={`/roomdetail/${rci._id}`}>
+          <a href={`/roomdetail/${rci.id}`}>
             <img
-              src={`/img/${rci.images[0].url}`}
+              src={`/img/${rci?.images?.[0]?.url}`}
               alt=""
               className="rounded-4 h-100"
               style={{ width: "250px" }}
@@ -391,8 +399,9 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
-                }`}
+              className={`bi bi-heart-fill ${
+                liked ? "text-danger" : "text-dark"
+              }`}
             ></i>
           </button>
         </div>
@@ -466,7 +475,10 @@ export function RoomClassItem({
             </div>
           )}
           <h5 style={{ color: "white", fontWeight: "bold" }}>
-            VND {hasSearched ? totalPrice.toLocaleString("Vi-VN") : basePrice.toLocaleString("Vi-VN")}
+            VND{" "}
+            {hasSearched
+              ? totalPrice.toLocaleString("Vi-VN")
+              : basePrice.toLocaleString("Vi-VN")}
           </h5>
           <p style={{ fontSize: "12px" }}>Đã bao gồm thuế và phí</p>
           <button

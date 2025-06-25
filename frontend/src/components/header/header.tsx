@@ -3,9 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import React, { useEffect, useState } from "react";
 import style from "./header.module.css";
-import Link from "next/link";
-import { getMainRoomClass } from "@/services/mainroomclassService";
-import { MainRoomClass } from "@/types/mainroomclass";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useSelector } from "react-redux";
 import { RootState } from "@/contexts/store";
@@ -18,6 +16,9 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { MainRoomClass } from "@/types/mainRoomClass";
+import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";
+import Link from "next/link";
 
 export default function Header() {
   const router = useRouter();
@@ -27,9 +28,7 @@ export default function Header() {
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getMainRoomClass(
-        "http://localhost:8000/v1/main-room-class/user"
-      );
+      const data = await fetchMainRoomClasses();
       setMainroomclass(data);
     };
     fetchData();
@@ -97,7 +96,7 @@ export default function Header() {
                 {mainroomclass.map((mainroom, index) => (
                   <li key={index}>
                     <Link
-                      href={`/roomtype/${mainroom._id}`}
+                      href={`/roomtype/${mainroom.id}`}
                       className={style.dropdownItem}
                     >
                       {mainroom.name}

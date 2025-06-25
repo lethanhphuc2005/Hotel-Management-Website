@@ -4,10 +4,11 @@ import { vi } from "date-fns/locale";
 import style from "@/app/roomtype/[parentSlug]/rcChild.module.css";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { useEffect } from "react";
-import { useData } from "@/hooks/useData";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { RoomClass } from "@/types/roomClass";
+import { fetchRoomClasses } from "@/services/roomClassService";
 
 interface RoomSearchBarProps {
   dateRange: any;
@@ -89,11 +90,25 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     endDate,
     setEndDate,
   } = props;
-  const { roomclass } = useData();
+  const [roomClasses, setRoomClasses] = useState<RoomClass[]>([]);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    // Hàm lấy dữ liệu loại phòng
+    const fetchRoomClassesData = async () => {
+      try {
+        const roomClassesData = await fetchRoomClasses();
+        
+        setRoomClasses(roomClassesData);
+      } catch (error) {
+        console.error("Error fetching room classes:", error);
+      }
+    };
+
+    fetchRoomClassesData();
+  }, []);
   // Đóng popup khi click ra ngoài
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

@@ -1,7 +1,7 @@
 "use client";
 
 import style from "@/app/page.module.css";
-import { WebsiteContent } from "@/types/websitecontent";
+import { WebsiteContent } from "@/types/websiteContent";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";

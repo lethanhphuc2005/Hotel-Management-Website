@@ -18,6 +18,7 @@ export const fetchComments = async () => {
       employee_id: c.employee_id || null,
       user_id: c.user_id || null,
       content: c.content,
+      status: c.status || true, // Default to true if status is not provided
       created_at: new Date(c.createdAt || c.created_at),
       updated_at: new Date(c.updatedAt || c.updated_at),
       parent_comment: c.parent_comment
@@ -51,6 +52,7 @@ export const fetchCommentById = async (commentId: string) => {
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
       content: data.content,
+      status: data.status || true, // Default to true if status is not provided
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
@@ -72,6 +74,7 @@ export const createComment = async (postId: string, content: string) => {
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
       content: data.content,
+      status: data.status || true, // Default to true if status is not provided
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
@@ -97,6 +100,7 @@ export const updateComment = async (
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
       content: data.content,
+      status: data.status || true, // Default to true if status is not provided
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };

@@ -12,13 +12,14 @@ export const fetchReviews = async () => {
     const response = await getReviewsApi();
     const data = response.data;
     const reviews: Review[] = data.map((r: any) => ({
-      id: r._id || r.id,
+      id: r.id || r.id,
       room_class_id: r.room_class_id,
       parent_id: r.parent_id || null,
       employee_id: r.employee_id || null,
       user_id: r.user_id || null,
       rating: r.rating || null, // Rating can be null if not provided
       content: r.content,
+      status: r.status || true, // Default to true if status is not provided
       created_at: new Date(r.createdAt || r.created_at),
       updated_at: new Date(r.updatedAt || r.updated_at),
       parent_review: r.parent_review
@@ -53,6 +54,7 @@ export const fetchReviewById = async (reviewId: string) => {
       user_id: data.user_id || null,
       rating: data.rating || null, // Rating can be null if not provided
       content: data.content,
+      status: data.status || true, // Default to true if status is not provided
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
@@ -75,6 +77,7 @@ export const createReview = async (roomClassId: string, content: string) => {
       user_id: data.user_id || null,
       rating: data.rating || null,
       content: data.content,
+      status: data.status || true, // Default to true if status is not provided
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
@@ -102,6 +105,7 @@ export const updateReview = async (
       user_id: data.user_id || null,
       rating: data.rating || null,
       content: data.content,
+      status: data.status || true, // Default to true if status is not provided
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };

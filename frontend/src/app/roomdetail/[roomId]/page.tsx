@@ -1,5 +1,4 @@
 "use client";
-import { useData } from "@/hooks/useData";
 import styles from "./roomDetail.module.css";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
@@ -10,18 +9,22 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import "swiper/css/pagination";
 import { Mousewheel } from "swiper/modules";
-import style from "./roomDetail.module.css"; // Đảm bảo đúng đường dẫn
 import axios from "axios";
+import { RoomClass } from "@/types/roomClass";
+import {
+  fetchRoomClassById,
+  fetchRoomClasses,
+} from "@/services/roomClassService";
 
 interface User {
-  _id: string;
+  id: string;
   first_name: string;
   last_name: string;
   email: string;
   phone_number: string;
 }
 interface Comment {
-  _id: string;
+  id: string;
   room_class_id: string;
   parent_id: string | null;
   user_id: User;
@@ -41,10 +44,10 @@ interface Review {
 }
 
 interface FeatureItem {
-  _id: string;
+  id: string;
   room_class_id: string;
   feature_id: {
-    _id: string;
+    id: string;
     name: string;
     description: string;
     image: string; // Nếu có icon, đường dẫn ảnh hoặc tên icon
@@ -53,7 +56,7 @@ interface FeatureItem {
 const RoomDetail = () => {
   const params = useParams();
   const roomId = params.roomId as string; // roomId chính là id trên URL
-  const { roomclass } = useData();
+  const [roomclass, setRoomClass] = useState<RoomClass[]>([]); // Thay any[] bằng kiểu dữ liệu phù hợp nếu có
   const [showFAQModal, setShowFAQModal] = useState(false);
   const [showAskModal, setShowAskModal] = useState(false);
   const [question, setQuestion] = useState("");
@@ -69,7 +72,7 @@ const RoomDetail = () => {
   // console.log(comments)
 
   // Lấy room như cũ
-  const room = roomclass.find((item) => item._id === roomId);
+  const room = roomclass.find((item) => item.id === roomId);
   const images = room?.images || [];
   const comments = room?.comments || []; // Lấy comments từ room
   console.log("comments:", comments);
@@ -120,6 +123,19 @@ const RoomDetail = () => {
     ],
   ];
 
+  useEffect(() => {
+    try {
+      const fetchRoomData = async () => {
+        const RoomClassData = await fetchRoomClasses();
+
+        setRoomClass(RoomClassData);
+      };
+      fetchRoomData();
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu phòng:", error);
+    }
+  });
+
   // Khóa cuộn body khi mở modal
   useEffect(() => {
     if (showFAQModal || showAskModal) {
@@ -160,20 +176,9 @@ const RoomDetail = () => {
       .catch((err) => console.error(err));
   }, [roomId]);
 
- 
-
-  const ratedComments: Comment[] = comments
-  .filter((cmt) => cmt.rating !== undefined && cmt.rating !== null)
-  .map((cmt) => ({
-    ...cmt,
-    parent_id: cmt.parent_id ?? null, // đảm bảo không undefined
-  })) as Comment[];
-  const ratingCount: number = ratedComments.length;
-  const avgRating: number =
-    ratingCount === 0
-      ? 0
-      : ratedComments.reduce((sum, cmt) => sum + (cmt.rating ?? 0), 0) /
-        ratingCount;
+  const avgRating =
+    reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+  const ratingCount = reviews.length;
 
   if (!room) return <div>Room not found</div>;
 
@@ -320,7 +325,7 @@ const RoomDetail = () => {
             <div className={styles.highlightsSection}>
               <div className={styles.iconList}>
                 {room.features.map((item) => (
-                  <div key={item._id} className={styles.iconItem}>
+                  <div key={item.id} className={styles.iconItem}>
                     <span className={styles.icon}>
                       {item.feature_id?.image ? (
                         <i className={item.feature_id.image}></i>
@@ -503,22 +508,22 @@ const RoomDetail = () => {
                       onClick={() => setShowFAQModal(false)}
                     ></button>
                   </div>
-                  <div className={`modal-body ${styles.custommodalbody}`}>
+                  {/* <div className={`modal-body ${styles.custommodalbody}`}>
                     {comments.length === 0 && <div>Chưa có bình luận nào</div>}
                     {comments.map((cmt) => (
-                      <div key={cmt._id} style={{ marginBottom: 16 }}>
+                      <div key={cmt.id} style={{ marginBottom: 16 }}>
                         <b>
-                          {cmt.user_id?.first_name} {cmt.user_id?.last_name}
+                          {cmt.user_id} {cmt.user_id}
                         </b>
                         <div>Nội dung: {cmt.content}</div>
                         <div>
                           Thời gian:{" "}
-                          {new Date(cmt.createdAt).toLocaleString("vi-VN")}
+                          {new Date(cmt).toLocaleString("vi-VN")}
                         </div>
                         <hr />
                       </div>
                     ))}
-                  </div>
+                  </div> */}
                   <div
                     className="modal-footer p-3 border-top"
                     style={{ height: "80px" }}

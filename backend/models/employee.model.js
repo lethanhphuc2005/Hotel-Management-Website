@@ -97,8 +97,9 @@ EmployeeSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: function (doc, ret) {
+    ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
     delete ret._id;
-    delete ret.password;
+    delete ret.password; // Bỏ qua trường password khi chuyển đổi sang JSON
     return ret;
   },
 });

@@ -39,6 +39,7 @@ const ServiceSchema = new mongoose.Schema(
 ServiceSchema.set("toJSON", {
   versionKey: false,
   transform: (doc, ret) => {
+     ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
     delete ret._id;
     return ret;
   },

@@ -4,9 +4,10 @@ import { RoomClassList } from "@/components/roomList";
 import React, { useEffect, useState } from "react";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
 import RoomSearchBar from "@/components/roomSearchBar";
-import { useData } from "@/hooks/useData";
 import AnimatedCheckbox from "@/components/checkbox";
 import { AnimatePresence, motion } from "framer-motion";
+import { RoomClass } from "@/types/roomClass";
+import { fetchRoomClasses } from "@/services/roomClassService";
 
 export default function Roomclass() {
   const {
@@ -50,33 +51,41 @@ export default function Roomclass() {
     // numChildrenOver6,
     // totalEffectiveGuests
   } = useRoomSearch();
-  const { roomclass } = useData();
+  const [roomClass, setRoomClass] = useState<RoomClass[]>([]);
   const viewList = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
 
-  // Sử dụng useParams để lấy parentSlug từ URL
+  useEffect(() => {
+    const fetchRoomClassesData = async () => {
+      try {
+        const roomClassesData = await fetchRoomClasses();
+        setRoomClass(roomClassesData);
+      } catch (error) {
+        console.error("Error fetching room classes:", error);
+      }
+    };
+    fetchRoomClassesData();
+  }, []);
   const params = useParams();
   const parentSlug = params.parentSlug as string;
-  // Lọc roomclass theo parentSlug
-  const filteredRoomClass = roomclass
-    .filter((item) => item.main_room_class_id === parentSlug)
+  const filteredRoomClass = roomClass
+    .filter((item) => item?.main_room_class?.[0]?.id === parentSlug)
     .filter(
       (item) =>
         item.price >= price &&
         (views.length === 0 || views.includes(item.view)) &&
         (amenities.length === 0 ||
           amenities.every((am) =>
-            item.features[0]?.feature_id.name.includes(am)
+            item?.features?.[0]?.feature_id.name.includes(am)
           ))
     );
-
   // Tính số người cần giường
   const numAdults = numberOfAdults ?? 0;
   const numChildrenUnder6 = guests.children.age0to6 ?? 0;
   // Tính số trẻ em 7-17 tuổi
   const numChildrenOver6 = guests.children.age7to17 ?? 0; // trẻ 7-17 tuổi
-    // Số cặp 2 người lớn
+  // Số cặp 2 người lớn
   const adultPairs = Math.floor(numAdults / 2);
   // Số cặp 2 trẻ 7-17
   const teenPairs = Math.floor(numChildrenOver6 / 2);
@@ -136,19 +145,19 @@ export default function Roomclass() {
   // Sắp xếp: phòng phù hợp trước, ít giường hơn lên đầu
   const displayRoomClass = isSpecialCase
     ? [
-      ...suitableRoomClass.filter((room) => room.bed_amount === 1),
-      ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
-    ]
+        ...suitableRoomClass.filter((room) => room.bed_amount === 1),
+        ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
+      ]
     : suitableRoomClass
-      .map((room) => ({
-        ...room,
-        isSuitable: room.bed_amount >= minBedsNeeded,
-      }))
-      .sort((a, b) => {
-        if (a.isSuitable && !b.isSuitable) return -1;
-        if (!a.isSuitable && b.isSuitable) return 1;
-        return a.bed_amount - b.bed_amount;
-      });
+        .map((room) => ({
+          ...room,
+          isSuitable: room.bed_amount >= minBedsNeeded,
+        }))
+        .sort((a, b) => {
+          if (a.isSuitable && !b.isSuitable) return -1;
+          if (!a.isSuitable && b.isSuitable) return 1;
+          return a.bed_amount - b.bed_amount;
+        });
 
   const handleChange = (e: any) => {
     setPrice(Number(e.target.value));
@@ -222,8 +231,8 @@ export default function Roomclass() {
             numAdults={numAdults}
             numChildrenUnder6={numChildrenUnder6}
             numChildrenOver6={numChildrenOver6}
-          // totalEffectiveGuests={totalEffectiveGuests}
-          // showExtraBedOver6={showExtraBedOver6}
+            // totalEffectiveGuests={totalEffectiveGuests}
+            // showExtraBedOver6={showExtraBedOver6}
           />
         </div>
         <div className="row">

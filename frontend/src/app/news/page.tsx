@@ -1,9 +1,23 @@
 "use client";
 import { New1, New2, New3, New4 } from "@/components/news/newsItem";
-import { useData } from "@/hooks/useData";
+import { fetchWebsiteContents } from "@/services/WebsiteContentService";
+import { WebsiteContent } from "@/types/websiteContent";
+import { useEffect, useState } from "react";
 
 export default function News() {
-  const { websitecontent } = useData();
+  const [websiteContents, setWebsiteContents] = useState<WebsiteContent[]>([]);
+
+  useEffect(() => {
+    try {
+      const fetchWebsiteContentsData = async () => {
+        const websiteContents = await fetchWebsiteContents();
+        setWebsiteContents(websiteContents);
+      };
+      fetchWebsiteContentsData();
+    } catch (error) {
+      console.error("Error fetching website contents:", error);
+    }
+  });
   return (
     <>
       <div
@@ -26,14 +40,14 @@ export default function News() {
             alt=""
           />
         </div>
-        <New1 new1={websitecontent[0]} />
+        <New1 new1={websiteContents[0]} />
         <div className="row mt-4 border-top">
           <div className="col-8 border-end">
-            <New2 new2={websitecontent[1]} />
-            <New3 new3={websitecontent[3]} />
+            <New2 new2={websiteContents[1]} />
+            <New3 new3={websiteContents[3]} />
           </div>
           <div className="col-4">
-            <New4 new4={websitecontent[4]} />
+            <New4 new4={websiteContents[4]} />
           </div>
         </div>
       </div>

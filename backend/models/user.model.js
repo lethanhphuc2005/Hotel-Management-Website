@@ -140,9 +140,10 @@ UserSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
+    ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
     delete ret._id;
-    delete ret.password;
-    delete ret.verification_code;
+    delete ret.password; // Bỏ qua trường password khi chuyển đổi sang JSON
+    delete ret.verification_code; // Bỏ qua trường verification_code khi chuyển đổi sang JSON
     return ret;
   },
 });

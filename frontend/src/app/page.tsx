@@ -9,23 +9,23 @@ import {
   ServiceList,
 } from "@/components/roomList";
 import { Banner } from "@/components/bannerItem";
-import { useData } from "@/hooks/useData";
 import { motion } from "framer-motion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useHome } from "@/hooks/useHome";
 
 export default function Home() {
-  const { websitecontent, mainroomclass, services, discount } = useData();
   const [ref, controls] = useScrollAnimation(0.2, false);
+  const { mainRoomClasses, websiteContents, services, discounts } = useHome();
   return (
     <>
-      <Banner banners={websitecontent} />
+      <Banner banners={websiteContents} />
 
       <Container fluid className={`${style.customContainer} container`}>
-        <MainRoomClassList title="Loại phòng" mrcl={mainroomclass} />
+        <MainRoomClassList title="Loại phòng" mrcl={mainRoomClasses} />
 
         <ServiceList title="Dịch vụ khách sạn" svl={services} />
 
-        <DiscountList title="Ưu đãi đặc biệt" dcl={discount.slice(0, 3)} />
+        <DiscountList title="Ưu đãi đặc biệt" dcl={discounts.slice(0, 3)} />
 
         <div className={style.headerContainer1}>
           <h2 className={style.sectionTitle1}>THÔNG TIN</h2>

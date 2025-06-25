@@ -44,8 +44,9 @@ WebsiteContentSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    delete ret._id; 
-    return ret; 
+    ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
+    delete ret._id;
+    return ret;
   },
 });
 

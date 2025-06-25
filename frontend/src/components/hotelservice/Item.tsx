@@ -75,7 +75,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
           </motion.button>
         </div>
       </div>
-      {/* === POPUP CHỌN PHÒNG === */}; ;
+      {/* === POPUP CHỌN PHÒNG === */}
       <AnimatePresence>
         {showPopup && (
           <motion.div

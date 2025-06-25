@@ -5,7 +5,8 @@ export interface Comment {
   employee_id: string | null;
   user_id: string | null;
   content: string;
-  created_at: Date;
-  updated_at: Date;
+  status?: boolean;
+  created_at?: Date;
+  updated_at?: Date;
   parent_comment?: Comment[]; // Optional field for parent comment
 }

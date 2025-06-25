@@ -93,7 +93,7 @@ export const useProfile = () => {
     };
 
     fetchProfileData();
-  }, [user, isAuthLoading, didFetch]);
+  }, [user, isAuthLoading, didFetch, setLoading]);
 
   return {
     user,
