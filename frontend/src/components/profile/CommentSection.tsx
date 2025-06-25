@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { deleteComment, updateComment } from "@/services/CommentService";
 import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
+import Pagination from "@/components/Pagination";
 
 type Comment = {
   id: string;
@@ -21,6 +22,18 @@ export default function CommentSection({
   comments: Comment[];
   setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalItems = comments.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentComments = comments.slice(startIndex, endIndex);
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState<string>("");
 
@@ -146,6 +159,13 @@ export default function CommentSection({
           )}
         </motion.div>
       ))}
+      {totalPages > 1 && (
+        <Pagination
+          pageCount={totalPages}
+          onPageChange={handlePageChange}
+          forcePage={currentPage - 1}
+        />
+      )}
     </div>
   );
 }

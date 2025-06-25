@@ -5,11 +5,11 @@ import "./globals.css";
 import Footer from "@/components/footer/footer";
 import Header from "@/components/header/header";
 import "react-datepicker/dist/react-datepicker.css";
-import { AuthProvider } from "@/services/AuthProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 import ChatbotPopup from "@/components/chatbotAI/chatBotPopup";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import GlobalLoading from "@/components/loadingPage/GlobalLoading";
-import CartProvider from "@/services/CartProvider";
+import CartProvider from "@/providers/CartProvider";
 import { ToastContainer } from "react-toastify";
 const geistSans = Geist({
   variable: "--font-geist-sans",

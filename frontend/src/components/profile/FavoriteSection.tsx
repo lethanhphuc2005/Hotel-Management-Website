@@ -5,6 +5,7 @@ import { deleteUserFavorite } from "@/services/UserFavoriteService";
 import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
 import { capitalizeFirst } from "@/utils/stringUtils";
+import Pagination from "@/components/Pagination";
 
 type Favorite = {
   id: string;
@@ -29,6 +30,18 @@ export default function FavoriteSection({
   favorites: Favorite[];
   setFavorites: React.Dispatch<React.SetStateAction<Favorite[]>>;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalItems = favorites.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentFavorites = favorites.slice(startIndex, endIndex);
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   if (!favorites || favorites.length === 0) {
@@ -54,7 +67,7 @@ export default function FavoriteSection({
 
   return (
     <div className="tw-space-y-4">
-      {favorites.map((favorite) => (
+      {currentFavorites.map((favorite) => (
         <motion.div
           key={favorite.id}
           className="tw-p-4 tw-rounded-xl tw-border tw-border-gray-700 tw-bg-black/50"
@@ -110,6 +123,13 @@ export default function FavoriteSection({
           </div>
         </motion.div>
       ))}
+      {totalPages > 1 && (
+        <Pagination
+          pageCount={totalPages}
+          onPageChange={handlePageChange}
+          forcePage={currentPage - 1}
+        />
+      )}
     </div>
   );
 }

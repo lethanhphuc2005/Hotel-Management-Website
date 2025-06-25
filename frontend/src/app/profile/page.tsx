@@ -70,7 +70,7 @@ const ProfilePage = () => {
           className={styles.sidebar}
           style={{ backgroundColor: "#111", padding: "1.5rem", width: "250px" }}
         >
-          <h2 style={{ color: "#fab320" }}>Settings</h2>
+          <h2 style={{ color: "#fab320" }}>Quản lý tài khoản</h2>
           <ul
             className={styles.sidebarMenu}
             style={{ listStyle: "none", padding: 0 }}

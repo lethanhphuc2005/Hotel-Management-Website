@@ -2,13 +2,27 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { formatDate } from "@/utils/dateUtils";
-import "@/styles/profile/BookedSection.css";
+import Pagination from "@/components/Pagination";
 
 export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+  const totalItems = bookings.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBookings = bookings.slice(startIndex, endIndex);
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  
   const [expandedId, setExpandedId] = useState<string | null>(null);
   if (!bookings || bookings.length === 0) {
     return (
-      <div className="text-center text-gray-400">Bạn chưa đặt phòng nào.</div>
+      <div className="tw-text-center tw-text-gray-400">
+        Bạn chưa đặt phòng nào.
+      </div>
     );
   }
   const toggleExpand = (id: string) => {
@@ -39,7 +53,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
       exit={{ opacity: 0, y: -20 }}
       className="tw-space-y-4"
     >
-      {bookings?.map((booking: any) => {
+      {currentBookings?.map((booking: any) => {
         const isCheckedOut = booking.booking_status_id?.code === "CHECKED_OUT";
         const payment = booking.payment;
 
@@ -50,7 +64,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
           >
             <div
               className="tw-flex tw-gap-4 tw-cursor-pointer"
-              onClick={() => toggleExpand(booking._id)}
+              onClick={() => toggleExpand(booking.id)}
             >
               <div className="tw-space-y-2">
                 <h3 className="tw-text-lg tw-font-bold tw-text-white">
@@ -68,7 +82,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                 <p className="tw-text-sm tw-text-gray-300">
                   Thông tin người đặt:
                 </p>
-                <ul className="tw-list-disc tw-ml-4 tw-text-gray-300">
+                <ul className="tw-list-disc tw-text-gray-300">
                   <li>Họ và tên: {booking.full_name || "Không rõ"}</li>
                   <li>Số điện thoại: {booking.phone_number || "Không rõ"}</li>
                   <li>Email: {booking.email || "Không rõ"}</li>
@@ -84,7 +98,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
             </div>
 
             <AnimatePresence>
-              {expandedId === booking._id && (
+              {expandedId === booking.id && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
@@ -92,64 +106,59 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                   className="tw-overflow-hidden tw-mt-4 tw-text-gray-300 tw-text-sm"
                 >
                   <div className="tw-w-full tw-max-w-3xl tw-mx-auto tw-flex tw-flex-col tw-gap-6">
-                    {booking.booking_details?.map(
-                      (detail: any, index: number) => {
-                        const room = detail?.room_id;
-                        const roomClass =
-                          room?.room_class_id || detail?.room_class_id;
+                    {booking.booking_details?.map((detail: any) => {
+                      const room = detail?.room_id;
+                      const roomClass =
+                        room?.room_class_id || detail?.room_class_id;
 
-                        return (
-                          <div
-                            key={index}
-                            className="tw-border-t tw-border-gray-600 tw-pt-4 tw-flex tw-gap-4 tw-items-start"
-                          >
-                            <div className="tw-w-[50%] tw-h-[300px] tw-relative tw-flex tw-items-center tw-justify-center">
-                              <motion.img
-                                initial={{ x: -30, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                                src={`http://localhost:8000/images/${
-                                  roomClass?.images?.[0]?.url || "no-image.jpg"
-                                }`}
-                                alt="room"
-                                className="tw-w-full tw-h-full tw-object-cover tw-object-center"
-                              />
-                            </div>
-
-                            <motion.div
-                              initial={{ x: 30, opacity: 0 }}
+                      return (
+                        <div
+                          key={roomClass.id}
+                          className="tw-border-t tw-border-gray-600 tw-pt-4 tw-flex tw-gap-4 tw-items-start"
+                        >
+                          <div className="tw-w-[50%] tw-h-[300px] tw-relative tw-flex tw-items-center tw-justify-center">
+                            <motion.img
+                              initial={{ x: -30, opacity: 0 }}
                               animate={{ x: 0, opacity: 1 }}
                               transition={{ duration: 0.3 }}
-                              className="tw-flex-1 tw-space-y-2"
-                            >
-                              <p>
-                                <strong>Phòng:</strong>{" "}
-                                {room?.name || "Chưa gán"}{" "}
-                                {room?.floor && `- Tầng ${room.floor}`}
-                              </p>
-                              <p>
-                                <strong>Dịch vụ:</strong>
-                              </p>
-                              <ul className="tw-list-disc tw-ml-6">
-                                {detail?.services?.length > 0 ? (
-                                  detail.services.map((s: any) => (
-                                    <li key={s._id}>
-                                      {s.service_id.name} - {s.amount}x -{" "}
-                                      {s.service_id.price.toLocaleString(
-                                        "vi-VN"
-                                      )}
-                                      ₫
-                                    </li>
-                                  ))
-                                ) : (
-                                  <li>Không sử dụng dịch vụ</li>
-                                )}
-                              </ul>
-                            </motion.div>
+                              src={`http://localhost:8000/images/${
+                                roomClass?.images?.[0]?.url || "no-image.jpg"
+                              }`}
+                              alt="room"
+                              className="tw-w-full tw-h-full tw-object-cover tw-object-center"
+                            />
                           </div>
-                        );
-                      }
-                    )}
+
+                          <motion.div
+                            initial={{ x: 30, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                            className="tw-flex-1 tw-space-y-2"
+                          >
+                            <p>
+                              <strong>Phòng:</strong> {room?.name || "Chưa gán"}{" "}
+                              {room?.floor && `- Tầng ${room.floor}`}
+                            </p>
+                            <p>
+                              <strong>Dịch vụ:</strong>
+                            </p>
+                            <ul className="tw-list-disc tw-ml-6">
+                              {detail?.services?.length > 0 ? (
+                                detail.services.map((s: any) => (
+                                  <li key={s._id}>
+                                    {s.service_id.name} - {s.amount}x -{" "}
+                                    {s.service_id.price.toLocaleString("vi-VN")}
+                                    ₫
+                                  </li>
+                                ))
+                              ) : (
+                                <li>Không sử dụng dịch vụ</li>
+                              )}
+                            </ul>
+                          </motion.div>
+                        </div>
+                      );
+                    })}
 
                     <motion.div
                       initial={{ x: 30, opacity: 0 }}
@@ -210,6 +219,13 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
           </div>
         );
       })}
+      {totalPages > 1 && (
+        <Pagination
+          pageCount={totalPages}
+          onPageChange={handlePageChange}
+          forcePage={currentPage - 1}
+        />
+      )}
     </motion.div>
   );
 }

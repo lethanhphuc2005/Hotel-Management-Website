@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import Pagination from "@/components/Pagination";
 
 type Review = {
   id: string;
@@ -33,6 +34,18 @@ export default function ReviewSection({
   reviews: Review[];
   setReviews: React.Dispatch<React.SetStateAction<Review[]>>;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalItems = reviews.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentReviews = reviews.slice(startIndex, endIndex);
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState<number | null>(null);
   const [editContent, setEditContent] = useState<string>("");
@@ -54,7 +67,13 @@ export default function ReviewSection({
       toast.success("Cập nhật đánh giá thành công");
       setReviews((prev) =>
         prev.map((r) =>
-          r.id === review.id ? { ...r, content: updatedReview.content, rating: updatedReview.rating } : r
+          r.id === review.id
+            ? {
+                ...r,
+                content: updatedReview.content,
+                rating: updatedReview.rating,
+              }
+            : r
         )
       );
       setEditingId(null);
@@ -76,7 +95,7 @@ export default function ReviewSection({
 
   return (
     <div className="tw-space-y-4">
-      {reviews.map((review) => (
+      {currentReviews.map((review) => (
         <motion.div
           key={review.id}
           className="tw-p-4 tw-rounded-xl tw-border tw-border-gray-700 tw-bg-black/50"
@@ -117,10 +136,10 @@ export default function ReviewSection({
                     );
                   })
                 ) : (
-                  <span className="tw-text-gray-500 tw-text-sm">Chưa đánh giá</span>
+                  <span className="tw-text-gray-500 tw-text-sm">
+                    Chưa đánh giá
+                  </span>
                 )}
-              
-
               </div>
             </div>
             <div className="tw-flex tw-space-x-2">
@@ -210,6 +229,13 @@ export default function ReviewSection({
           )}
         </motion.div>
       ))}
+      {totalPages > 1 && (
+        <Pagination
+          pageCount={totalPages}
+          onPageChange={handlePageChange}
+          forcePage={currentPage - 1}
+        />
+      )}
     </div>
   );
 }

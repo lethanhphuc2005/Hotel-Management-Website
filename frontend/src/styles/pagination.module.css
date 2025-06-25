@@ -1,0 +1,51 @@
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.pageItem {
+  border-radius: 8px;
+  background-color: black;
+  transition: all 0.2s ease;
+}
+
+.pageLink {
+  display: inline-block;
+  padding: 8px 12px;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.pageLink:hover {
+  background-color: #fab320;
+  color: black;
+}
+
+.active .pageLink {
+  background-color: #fab320;
+  font-weight: bold;
+  transform: scale(1.05);
+  color: black;
+}
+
+.disabled .pageLink {
+  background-color: #ccc;
+  color: #666;
+  opacity: 0.4;
+  pointer-events: none;
+}
