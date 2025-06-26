@@ -306,11 +306,9 @@ export function RoomClassItem({
         id: rci.id,
         name: rci.name,
         img: rci?.images?.[0]?.url || "",
-        desc: `${adults ?? 1} người lớn${
-          childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
-        }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${
-          rci.bed_amount
-        } giường đôi`,
+        desc: `${adults ?? 1} người lớn${childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
+          }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${rci.bed_amount
+          } giường đôi`,
         price:
           (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price,
         nights: numberOfNights,
@@ -412,12 +410,10 @@ export function RoomClassItem({
       console.error(err);
     }
   };
-
-  // Xử lý logic kê thêm giường xếp
+ 
   const showExtraBed =
     (numChildrenUnder6 ?? 0) > 0 &&
-    rci.bed_amount === 1 &&
-    (numAdults ?? 0) === 2;
+    (numAdults ?? 0) + (childrenOver6 ?? 0) === rci.bed_amount * 2;
 
   return (
     <>
@@ -447,9 +443,8 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${
-                liked ? "text-danger" : "text-dark"
-              }`}
+              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
+                }`}
             ></i>
           </button>
         </div>
