@@ -16,6 +16,9 @@ import style from "@/app/page.module.css";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { RoomClass } from "@/types/roomClass";
+import { useEffect, useState } from "react";
+import { getUserFavorites } from "@/services/UserFavoriteService";
+import { UserFavorite } from "@/types/userFavorite";
 
 export function MainRoomClassList({
   mrcl,
@@ -147,6 +150,16 @@ export function RoomClassList({
   numAdults?: number;
   showExtraBedOver6?: boolean;
 }) {
+  const [favorites, setFavorites] = useState<UserFavorite[]>([]);
+
+  useEffect(() => {
+      const data = localStorage.getItem("login");
+  const userId = data ? JSON.parse(data).id : null;
+    if (!userId) return;
+    getUserFavorites(userId).then((res) => {
+      if (res.success) setFavorites(res.data);
+    });
+  }, []);
   return (
     <>
       {rcl.map((rc) => (
@@ -164,6 +177,7 @@ export function RoomClassList({
           numAdults={numAdults}
           showExtraBedOver6={showExtraBedOver6}
           key={rc.id}
+          favorites={favorites}
         />
       ))}
     </>

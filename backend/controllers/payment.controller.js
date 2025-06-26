@@ -184,9 +184,15 @@ const PaymentController = {
   // === LẤY DANH SÁCH ĐƠN THANH TOÁN ===
   getAllPayments: async (req, res) => {
     try {
-      const payments = await Payment.find().populate(
-        "booking payment_method"
-      );
+      const payments = await Payment.find().populate([
+        {
+          path: "booking",
+        },
+        {
+          path: "payment_method",
+          select: "name",
+        },
+      ]);
       if (!payments || payments.length === 0) {
         return res.status(404).json({
           error: "No payments found",

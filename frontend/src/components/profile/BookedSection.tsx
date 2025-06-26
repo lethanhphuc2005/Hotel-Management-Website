@@ -110,10 +110,9 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                       const room = detail?.room_id;
                       const roomClass =
                         room?.room_class_id || detail?.room_class_id;
-
                       return (
                         <div
-                          key={roomClass.id}
+                          key={roomClass.main_room_clas_id || roomClass.id}
                           className="tw-border-t tw-border-gray-600 tw-pt-4 tw-flex tw-gap-4 tw-items-start"
                         >
                           <div className="tw-w-[50%] tw-h-[300px] tw-relative tw-flex tw-items-center tw-justify-center">
@@ -145,7 +144,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                             <ul className="tw-list-disc tw-ml-6">
                               {detail?.services?.length > 0 ? (
                                 detail.services.map((s: any) => (
-                                  <li key={s._id}>
+                                  <li key={s.id}>
                                     {s.service_id.name} - {s.amount}x -{" "}
                                     {s.service_id.price.toLocaleString("vi-VN")}
                                     ₫
@@ -185,7 +184,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                       {payment && payment.length > 0 ? (
                         <ul className="tw-list-disc tw-ml-6">
                           {payment.map((p: any) => (
-                            <li key={p._id}>
+                            <li key={p.id}>
                               {p.payment_method_id.name} -{" "}
                               {p.amount.toLocaleString("vi-VN")}₫ - {p.status}
                             </li>

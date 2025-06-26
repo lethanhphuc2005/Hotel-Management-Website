@@ -166,7 +166,7 @@ const userController = {
                   },
                   {
                     path: "room_class_id",
-                    select: "name description view price bed_amount, ",
+                    select: "name description view price bed_amount ",
                     populate: {
                       path: "images",
                       select: "url",

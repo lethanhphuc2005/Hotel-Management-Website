@@ -15,7 +15,12 @@ import { toast } from "react-toastify";
 import { RootState } from "@/contexts/store";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { RoomClass } from "@/types/roomClass";
-import { createUserFavorite, deleteUserFavorite, getUserFavorites } from "@/services/UserFavoriteService";
+import {
+  createUserFavorite,
+  deleteUserFavorite,
+  getUserFavorites,
+} from "@/services/UserFavoriteService";
+import { UserFavorite } from "@/types/userFavorite";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -225,6 +230,7 @@ export function RoomClassItem({
   numchildrenOver6 = 0,
   numAdults,
   showExtraBedOver6,
+  favorites = [],
 }: {
   rci: RoomClass;
   numberOfNights: number;
@@ -239,6 +245,7 @@ export function RoomClassItem({
   numAdults?: number;
   showExtraBedOver6?: boolean;
   features?: string[];
+  favorites?: UserFavorite[];
 }) {
   const [liked, setLiked] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -299,9 +306,11 @@ export function RoomClassItem({
         id: rci.id,
         name: rci.name,
         img: rci?.images?.[0]?.url || "",
-        desc: `${adults ?? 1} người lớn${childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
-          }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${rci.bed_amount
-          } giường đôi`,
+        desc: `${adults ?? 1} người lớn${
+          childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
+        }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${
+          rci.bed_amount
+        } giường đôi`,
         price:
           (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price,
         nights: numberOfNights,
@@ -364,36 +373,12 @@ export function RoomClassItem({
 
   // 👀 Kiểm tra user đã đăng nhập chưa
   useEffect(() => {
-    const loginData = localStorage.getItem("login");
-    if (!loginData) return;
-
-    const parsed = JSON.parse(loginData);
-    setUserId(parsed.id);
-
-    // 🔁 Kiểm tra xem phòng hiện tại đã được yêu thích chưa
-    const fetchFavorites = async () => {
-      try {
-        const response = await getUserFavorites(parsed.id);
-        if (!response.success) {
-          console.error("Không thể lấy danh sách yêu thích:", response.message);
-          return;
-        }
-        const favorites = response.data;
-
-        const existing = favorites.find(
-          (fav) => fav.room_class_id === rci.id
-        );
-        if (existing) {
-          setLiked(true);
-          setFavoriteId(String(existing.id)); // dùng để xóa
-        }
-      } catch (err) {
-        console.error("Lỗi khi lấy danh sách yêu thích:", err);
-      }
-    };
-
-    fetchFavorites();
-  }, [rci.id]);
+    const matched = favorites.find((f) => f.room_class_id === rci.id);
+    if (matched) {
+      setLiked(true);
+      setFavoriteId(matched.id.toString());
+    }
+  }, [favorites, rci.id]);
 
   // 🖱️ Khi người dùng bấm vào icon trái tim
   const handleLikeClick = async () => {
@@ -407,10 +392,9 @@ export function RoomClassItem({
 
     try {
       if (!liked) {
-        // ✅ Thêm yêu thích
         const res = await createUserFavorite(uid, rci.id);
         setLiked(true);
-        setFavoriteId(String(res.data.id)); // Lưu ID để xoá sau này
+        setFavoriteId(String(res.data.id).toString()); // Lưu ID để xoá sau này
         toast.success("Đã thêm vào yêu thích!");
       } else {
         // ❌ Xoá yêu thích
@@ -463,8 +447,9 @@ export function RoomClassItem({
             onClick={handleLikeClick}
           >
             <i
-              className={`bi bi-heart-fill ${liked ? "text-danger" : "text-dark"
-                }`}
+              className={`bi bi-heart-fill ${
+                liked ? "text-danger" : "text-dark"
+              }`}
             ></i>
           </button>
         </div>
@@ -532,8 +517,8 @@ export function RoomClassItem({
                 {numberOfNights} đêm, {numberOfAdults ?? 1} người lớn
               </div>
               <div>
-                {numChildrenUnder6 > 0 && `${numChildrenUnder6} trẻ 0–6`}
-                {numchildrenOver6 > 0 && `, ${numchildrenOver6} trẻ 7–17`}
+                {numChildrenUnder6 > 0 && `${numChildrenUnder6} trẻ 0-6`}
+                {numchildrenOver6 > 0 && `, ${numchildrenOver6} trẻ 7-17`}
               </div>
             </div>
           )}

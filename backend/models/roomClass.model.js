@@ -97,7 +97,7 @@ RoomClassSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-     ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
+    ret.id = ret._id; 
     delete ret._id;
     return ret;
   },

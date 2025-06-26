@@ -11,7 +11,7 @@ module.exports = {
     vnpayHost: process.env.VNPAY_API_URL || "https://sandbox.vnpayment.vn",
     queryDrAndRefundHost:
       process.env.VNPAY_QUERY_DR_REFUND_HOST || "https://sandbox.vnpayment.vn", // Default to sandbox URL
-    returnUrl: `${process.env.FRONTEND_URL}`,
+    returnUrl: `${process.env.FRONTEND_URL}/thank-you`,
     notifyUrl: `${process.env.NGROK_URL}/v1/payment/vnpay/callback`,
     testMode: process.env.VNPAY_TEST_MODE === "true", // true for sandbox, false for production
     endpoints: {
@@ -27,7 +27,7 @@ module.exports = {
     secretKey: process.env.MOMO_SECRET_KEY,
     apiUrl:
       process.env.MOMO_API_URL || "https://test-payment.momo.vn/v2/gateway/api",
-    returnUrl: `${process.env.FRONTEND_URL}/v1/payment/momo/callback`,
+    returnUrl: `${process.env.FRONTEND_URL}/thank-you`,
     notifyUrl: `${process.env.NGROK_URL}/v1/payment/momo/ipn`,
     requestType: "payWithMethod",
     locale: process.env.MOMO_LOCALE || "vi", // Default to Vietnamese
@@ -39,6 +39,6 @@ module.exports = {
     createUrl: `${process.env.ZALOPAY_API_URL}/create`,
     queryUrl: `${process.env.ZALOPAY_API_URL}/query`,
     callbackUrl: `${process.env.NGROK_URL}/v1/payment/zalopay/ipn`,
-    returnUrl: `${process.env.FRONTEND_URL}/v1/payment/zalopay/callback`,
+    returnUrl: `${process.env.FRONTEND_URL}/thank-you`,
   },
 };

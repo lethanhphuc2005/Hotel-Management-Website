@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { createBooking } from "@/services/BookingService";
 import { useLoading } from "@/contexts/LoadingContext";
+import { createPayment } from "@/services/PaymentService";
 
 const formatVietnameseDate = (dateStr: string) => {
   const [day, month, year] = dateStr.split("/").map(Number);
@@ -40,22 +41,22 @@ export default function PayMent() {
   const methods = [
     {
       label: "Thanh toán qua ZaloPay",
-      value: "684a840af512f318cb3a1193",
+      value: "zalopay",
       icon: <img src="/img/zalopay.png" alt="Momo" style={{ width: 32 }} />,
     },
     {
       label: "Thanh toán qua Momo",
-      value: "68493449bbcba4ece764db08",
+      value: "momo",
       icon: <img src="/img/momo.png" alt="Momo" style={{ width: 32 }} />,
     },
     {
       label: "Thanh toán qua VNPAY",
-      value: "68493455bbcba4ece764db0d",
+      value: "vnpay",
       icon: <img src="/img/vnpay.jpg" alt="VNPAY" style={{ width: 32 }} />,
     },
     {
       label: "Thanh toán tiền mặt tại nơi ở",
-      value: "683fbd98351a96315d45769b",
+      value: "cash",
       icon: <i className="bi bi-cash-coin fs-4 text-success"></i>,
     },
   ];
@@ -95,7 +96,6 @@ export default function PayMent() {
     };
     try {
       setLoading(true);
-      console.log(rooms);
       const payload = {
         user_id: user?.id || null,
         full_name: name,
@@ -124,12 +124,42 @@ export default function PayMent() {
       };
 
       const response = await createBooking(payload);
-      if (!response || !response.data) {
-        throw new Error("Không thể tạo đặt phòng. Vui lòng thử lại.");
+      if (!response.success) {
+        throw new Error(response.message || "Lỗi khi tạo đơn đặt phòng.");
       }
-      dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
+
+      if (selectedMethod === "cash") {
+        // Nếu chọn thanh toán tiền mặt, redirect về trang chủ
+        dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
+        router.push("/thank-you"); 
+        return;
+      }
+      // Sang API để tạo thanh toán
+      if (!response?.data || !response.data.id) {
+        throw new Error("Không thể xác định mã đơn đặt phòng.");
+      }
+
+      const paymentResponse = await createPayment(
+        selectedMethod,
+        response.data.id as string, // orderId
+        `Đặt phòng từ ${formatVietnameseDate(
+          rooms[0].checkIn
+        )} đến ${formatVietnameseDate(rooms[0].checkOut)}
+        - Tổng tiền: ${total.toLocaleString("vi-VN")} VNĐ
+        - Phương thức: ${selectedMethod}`,
+        total
+      );
+      if (!paymentResponse.success) {
+        throw new Error(paymentResponse.message || "Lỗi khi tạo thanh toán.");
+      }
+      // Redirect đến trang thanh toán
+      if (paymentResponse.data.payUrl) {
+        dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
+        window.location.href = paymentResponse.data.payUrl;
+        return;
+      }
+
       // Optional: redirect
-      router.push("/thank-you");
     } catch (err) {
       console.error(err);
       toast.error("Lỗi khi đặt phòng. Vui lòng thử lại.");

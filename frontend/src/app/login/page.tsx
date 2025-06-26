@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { resendVerificationEmail, verifyEmail } from "@/services/AuthService";
+import { showConfirmDialog } from "@/utils/swal";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -27,11 +28,28 @@ const LoginPage = () => {
         res.message ===
           "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để xác minh tài khoản."
       ) {
-        toast.warn("Tài khoản chưa xác minh, vui lòng kiểm tra email");
-        await resendVerificationEmail(email);
-        setStep(2);
-        setResendCooldown(60);
-        return;
+        const result = await showConfirmDialog(
+          "Tài khoản chưa được xác minh",
+          "Bạn cần xác minh tài khoản để đăng nhập. Bạn có muốn gửi lại email xác minh không?",
+          "Gửi lại",
+          "Huỷ"
+        );
+
+        if (!result) {
+          toast.error("Bạn cần xác minh tài khoản để đăng nhập.");
+          return;
+        } else {
+          const response = await resendVerificationEmail(email);
+          if (!response.success) {
+            toast.error(response.message);
+            return;
+          }
+          toast.success("Email xác minh đã được gửi lại");
+          setStep(2);
+          setOtp("");
+          setResendCooldown(60);
+          return;
+        }
       }
       if (!res.success) {
         toast.error(res.message);

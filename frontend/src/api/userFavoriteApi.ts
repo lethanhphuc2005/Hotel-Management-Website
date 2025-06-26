@@ -9,7 +9,7 @@ export const createUserFavorite = async (
       user_id: userId,
       room_class_id: roomClassId,
     });
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 201) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
@@ -40,7 +40,7 @@ export const deleteUserFavorite = async (
     const response = await api.delete(`/user-favorite/${favoriteId}`, {
       data: { user_id: userId },
     });
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 204) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
