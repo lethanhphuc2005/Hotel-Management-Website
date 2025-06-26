@@ -21,6 +21,6 @@ export interface IUser {
 export interface IAuthContextType {
   user: IUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<any>;
   logout: () => void;
 }

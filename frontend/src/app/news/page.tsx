@@ -10,8 +10,13 @@ export default function News() {
   useEffect(() => {
     try {
       const fetchWebsiteContentsData = async () => {
-        const websiteContents = await fetchWebsiteContents();
-        setWebsiteContents(websiteContents);
+        const response = await fetchWebsiteContents();
+        if (!response.success) {
+          console.error("Failed to fetch website contents:", response.message);
+          return;
+        }
+
+        setWebsiteContents(response.data);
       };
       fetchWebsiteContentsData();
     } catch (error) {

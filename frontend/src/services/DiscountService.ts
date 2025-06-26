@@ -4,7 +4,11 @@ import {
 } from "@/api/discountApi";
 import { Discount } from "@/types/discount";
 
-export const fetchDiscounts = async (): Promise<Discount[]> => {
+export const fetchDiscounts = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: Discount[];
+}>  => {
   try {
     const response = await getDiscountsApi();
     const data = response.data;
@@ -24,14 +28,29 @@ export const fetchDiscounts = async (): Promise<Discount[]> => {
       status: d.status,
     }));
 
-    return discounts;
-  } catch (error) {
-    console.error("Error fetching discounts:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Discounts fetched successfully",
+      data: discounts,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching discounts";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
-export const fetchDiscountById = async (id: string): Promise<Discount> => {
+export const fetchDiscountById = async (id: string): Promise<{
+  success: boolean;
+  message?: string;
+  data: Discount | null;
+}> => {
   try {
     const response = await getDiscountByIdApi(id);
     const data = response.data;
@@ -51,9 +70,20 @@ export const fetchDiscountById = async (id: string): Promise<Discount> => {
       status: data.status,
     };
 
-    return discount;
-  } catch (error) {
-    console.error("Error fetching discount by ID:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Discount fetched successfully",
+      data: discount,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching the discount";
+    return {
+      success: false,
+      message,
+      data: null,
+    };
   }
 };

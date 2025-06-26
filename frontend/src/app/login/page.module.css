@@ -1,0 +1,162 @@
+/* Login.module.css */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url("/img/banner1.webp") no-repeat center center / cover fixed;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  margin-top: 2%;
+}
+
+.formContainer {
+  background: linear-gradient(rgba(20, 20, 20, 0.6), rgba(20, 20, 20, 0.6));
+  padding: 40px 32px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(250, 179, 32, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.title {
+  text-align: center;
+  font-size: 28px;
+  color: #fab320;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.separator {
+  height: 3px;
+  width: 60px;
+  background-color: #fab320;
+  margin: 0 auto 20px auto;
+  border-radius: 2px;
+}
+
+.welcomeText {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #ccc;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background-color: #222;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #fab320;
+  box-shadow: 0 0 0 2px rgba(250, 179, 32, 0.4);
+}
+
+.infoText {
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.infoText a {
+  color: #fab320;
+  text-decoration: none;
+}
+
+.infoText a:hover {
+  text-decoration: underline;
+}
+
+.continueButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #fab320;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.continueButton:hover {
+  background-color: #e0a918;
+}
+
+.resendButton {
+  width: 100%;
+  background: none;
+  padding: 2%;
+  border: none;
+  color: #fab320;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.resendButton:disabled {
+  color: #888;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+
+.text {
+  text-align: center;
+  margin-top: 20px;
+  color: #ccc;
+}
+
+.text a {
+  color: #fab320;
+  text-decoration: none;
+}
+
+.text a:hover {
+  text-decoration: underline;
+}
+
+.orContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px 0 20px 0;
+}
+
+.orLine {
+  flex: 1;
+  height: 1px;
+  background-color: #333;
+}
+
+.orText {
+  margin: 0 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+.socialLogin {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.socialLogin a {
+  color: #fab320;
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.socialLogin a:hover {
+  transform: scale(1.1);
+}

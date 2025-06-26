@@ -1,9 +1,18 @@
-import { changePassword, getProfile, updateProfile } from "@/api/profileApi";
+import {
+  getProfile as getProfileApi,
+  updateProfile as updateProfileApi,
+} from "@/api/profileApi";
 import { IUser } from "@/types/user";
 
-export const fetchProfile = async (userId: string) => {
+export const fetchProfile = async (
+  userId: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: IUser;
+}> => {
   try {
-    const response = await getProfile(userId);
+    const response = await getProfileApi(userId);
     const data = response.data;
     const profile: IUser = {
       id: data.id || data._id,
@@ -22,19 +31,34 @@ export const fetchProfile = async (userId: string) => {
       reviews: data.reviews || [],
       favorites: data.favorites || [],
     };
-    return profile;
-  } catch (error) {
-    console.error("Error fetching profile:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Profile fetched successfully",
+      data: profile,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching profile";
+    return {
+      success: false,
+      message,
+      data: {} as IUser, // Return an empty IUser object on error
+    };
   }
 };
 
 export const saveProfile = async (
   userId: string,
   profileData: Partial<IUser>
-) => {
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: IUser;
+}> => {
   try {
-    const response = await updateProfile(userId, profileData);
+    const response = await updateProfileApi(userId, profileData);
     const data = response.data;
     const updatedProfile: IUser = {
       id: data.id || data._id,
@@ -45,26 +69,20 @@ export const saveProfile = async (
       phone_number: data.phone_number || "",
       request: data.request || "",
     };
-    return updatedProfile;
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    throw error;
-  }
-};
-
-export const savePassword = async (
-  userId: string,
-  currentPassword: string,
-  newPassword: string
-) => {
-  try {
-    const response = await changePassword(userId, currentPassword, newPassword);
-    if (response.error) {
-      throw new Error(response.message);
-    }
-    return response;
-  } catch (error) {
-    console.error("Error changing password:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Profile updated successfully",
+      data: updatedProfile,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while updating profile";
+    return {
+      success: false,
+      message,
+      data: {} as IUser, // Return an empty IUser object on error
+    };
   }
 };

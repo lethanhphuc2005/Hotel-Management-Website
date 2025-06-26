@@ -31,10 +31,31 @@ export const useHome = () => {
             fetchDiscounts(),
           ]);
 
-        setMainRoomClasses(roomClassesData);
-        setWebsiteContents(contentsData);
-        setServices(servicesData);
-        setDiscounts(discountsData);
+        // Check if the fetch was successful
+        if (
+          !roomClassesData.success ||
+          !contentsData.success ||
+          !servicesData.success ||
+          !discountsData.success
+        ) {
+          throw new Error(
+            "Failed to fetch one or more resources: " +
+              [
+                roomClassesData.message,
+                contentsData.message,
+                servicesData.message,
+                discountsData.message,
+              ]
+                .filter(Boolean)
+                .join(", ")
+          );
+        }
+        // Set the fetched data to state
+
+        setMainRoomClasses(roomClassesData.data);
+        setWebsiteContents(contentsData.data);
+        setServices(servicesData.data);
+        setDiscounts(discountsData.data);
       } catch (error) {
         console.error("Error fetching home data:", error);
       } finally {

@@ -62,8 +62,12 @@ export default function Roomclass() {
     const fetchRoomClassesData = async () => {
       setLoading(true);
       try {
-        const roomClassesData = await fetchRoomClasses();
-        setRoomClass(roomClassesData);
+        const response = await fetchRoomClasses();
+        if (!response.success) {
+          throw new Error(response.message || "Failed to fetch room classes");
+        }
+
+        setRoomClass(response.data);
       } catch (error) {
         console.error("Error fetching room classes:", error);
       } finally {

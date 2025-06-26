@@ -1,102 +1,206 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import styles from "./Login.module.css";
+import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { resendVerificationEmail, verifyEmail } from "@/services/AuthService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1);
+  const [resendCooldown, setResendCooldown] = useState(60);
   const { login } = useAuth();
-  const [message, setMessage] = useState<string>("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const success = await login(email, password);
-      if (!success) {
-        setMessage("❌ Email hoặc mật khẩu không đúng.");
-      } else {
-        setMessage("✅ Đăng nhập thành công!");
-        setTimeout(() => {
-          router.push("/");
-        }, 300);
+      const res = await login(email, password);
+      if (
+        !res.success &&
+        res.message ===
+          "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để xác minh tài khoản."
+      ) {
+        toast.warn("Tài khoản chưa xác minh, vui lòng kiểm tra email");
+        await resendVerificationEmail(email);
+        setStep(2);
+        setResendCooldown(60);
+        return;
       }
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+      toast.success(res.message);
+      router.push("/");
     } catch (error) {
-      setMessage("❌ Đã xảy ra lỗi khi đăng nhập.");
+      console.error("Login error:", error);
+      toast.error("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.");
     }
   };
 
+  const handleVerifyEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await verifyEmail(email, otp);
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+      toast.success("Xác minh thành công. Vui lòng đăng nhập lại.");
+      setStep(1);
+      setOtp("");
+    } catch (error) {
+      toast.error("Lỗi xác minh.");
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (resendCooldown > 0) return;
+    try {
+      const res = await resendVerificationEmail(email);
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+      toast.success("Mã OTP đã được gửi lại");
+      setResendCooldown(60);
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi gửi lại mã OTP");
+    }
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCooldown > 0) {
+      timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
   return (
     <div className={styles.container}>
-      <div className={styles.formContainer}>
-        <h2 className={styles.title}>ĐĂNG NHẬP</h2>
-        <div className={styles.separator}></div>
-        <p className={styles.welcomeText}>Chào mừng đến với The Moon</p>
+      <motion.div
+        className={styles.formContainer}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        {step === 1 && (
+          <>
+            <h2 className={styles.title}>ĐĂNG NHẬP</h2>
+            <div className={styles.separator}></div>
+            <p className={styles.welcomeText}>Chào mừng đến với The Moon</p>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            className={styles.input}
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            className={styles.input}
-            placeholder="Mật khẩu"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <p className={styles.infoText}>
-            <a href="/quenmk" style={{ color: "white" }}>
-              Quên mật khẩu? Nhấn vào đây
-            </a>
-          </p>
+            <form onSubmit={handleSubmit}>
+              <motion.input
+                type="email"
+                className={styles.input}
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+              />
+              <motion.input
+                type="password"
+                className={styles.input}
+                placeholder="Mật khẩu"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+              />
+              <p className={styles.infoText}>
+                <Link
+                  href="/forgot-password"
+                  className={styles.forgotPasswordLink}
+                >
+                  Quên mật khẩu?
+                </Link>
+              </p>
 
-          <button type="submit" className={styles.continueButton}>
-            Đăng Nhập
-          </button>
+              <motion.button
+                type="submit"
+                className={styles.continueButton}
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                Đăng Nhập
+              </motion.button>
 
-          {message && (
-            <p
-              style={{
-                color: message.includes("thành công") ? "green" : "red",
-                textAlign: "center",
-                marginTop: "1rem",
-              }}
+              <div className={styles.text}>
+                <p>
+                  Bạn chưa có tài khoản?{" "}
+                  <Link href="/register" className={styles.registerLink}>
+                    Đăng ký ngay
+                  </Link>
+                </p>
+              </div>
+            </form>
+
+            <div className={styles.orContainer}>
+              <div className={styles.orLine}></div>
+              <span className={styles.orText}>Hoặc</span>
+              <div className={styles.orLine}></div>
+            </div>
+
+            <motion.div
+              className={styles.socialLogin}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
             >
-              {message}
+              <a href="#">
+                <i className="bi bi-facebook"></i>
+              </a>
+              <a href="#">
+                <i className="bi bi-twitter"></i>
+              </a>
+            </motion.div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <h2 className={styles.title}>XÁC MINH EMAIL</h2>
+            <div className={styles.separator}></div>
+            <p className={styles.welcomeText}>
+              Nhập mã OTP đã gửi đến <strong>{email}</strong>
             </p>
-          )}
-
-          <div className={styles.text}>
-            <p>
-              Bạn chưa có tài khoản? <a href="/register">Đăng ký</a>
-            </p>
-          </div>
-        </form>
-
-        <div className={styles.orContainer}>
-          <div className={styles.orLine}></div>
-          <span className={styles.orText}>Hoặc</span>
-          <div className={styles.orLine}></div>
-        </div>
-
-        <div className={styles.socialLogin}>
-          <a href="">
-            <i className="bi bi-facebook"></i>
-          </a>
-          <a href="">
-            <i className="bi bi-twitter"></i>
-          </a>
-        </div>
-      </div>
+            <form onSubmit={handleVerifyEmail}>
+              <motion.input
+                type="text"
+                placeholder="Mã xác nhận"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className={styles.input}
+                required
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+              />
+              <button type="submit" className={styles.continueButton}>
+                Xác minh
+              </button>
+              <button
+                type="button"
+                onClick={handleResendOTP}
+                className={styles.resendButton}
+                disabled={resendCooldown > 0}
+              >
+                {resendCooldown > 0
+                  ? `Gửi lại sau ${resendCooldown}s`
+                  : "Gửi lại mã OTP"}
+              </button>
+            </form>
+          </>
+        )}
+      </motion.div>
     </div>
   );
 };

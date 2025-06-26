@@ -17,19 +17,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; message: string }> => {
+    setIsLoading(true);
     try {
-      const data = await loginApi(email, password);
+      const response = await loginApi(email, password);
+      const data = response.data;
 
-      const userToStore: IUser = data;
+      const loginData: IUser = {
+        id: data.id || data._id,
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        address: data.address || "",
+        email: data.email,
+        phone_number: data.phone_number || "",
+        status: data.status,
+        is_verified: data.is_verified,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      };
 
-      localStorage.setItem("login", JSON.stringify(userToStore));
-      setUser(userToStore);
+      localStorage.setItem("login", JSON.stringify(loginData));
+      setUser(loginData);
+
+      return {
+        success: true,
+        message: "Đăng nhập thành công!",
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err?.response?.data || "Đăng nhập thất bại. Vui lòng thử lại.",
+      };
+    } finally {
       setIsLoading(false);
-      return true;
-    } catch (err) {
-      console.error("Đăng nhập thất bại:", err);
-      return false;
     }
   };
 

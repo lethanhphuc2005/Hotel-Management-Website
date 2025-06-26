@@ -72,10 +72,6 @@ const userFavoriteController = {
         .populate("room_class")
         .populate("user");
 
-      if (!favorites || favorites.length === 0) {
-        return res.status(404).json({ message: "Không tìm thấy yêu thích" });
-      }
-
       res.status(200).json({
         message: "Lấy danh sách yêu thích thành công",
         data: favorites,

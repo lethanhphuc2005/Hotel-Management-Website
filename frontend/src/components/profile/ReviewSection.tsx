@@ -58,13 +58,18 @@ export default function ReviewSection({
 
   const handleEdit = async (review: Review) => {
     try {
-      const updatedReview = await updateReview(
+      const response = await updateReview(
         review.id,
         review.user_id.id,
         editRating ?? review.rating,
         editContent
       );
-      toast.success("Cập nhật đánh giá thành công");
+      if (!response.success) {
+        toast.error(response.message || "Cập nhật đánh giá thất bại.");
+        return;
+      }
+      const updatedReview = response.data;
+      toast.success(response.message || "Cập nhật đánh giá thành công");
       setReviews((prev) =>
         prev.map((r) =>
           r.id === review.id

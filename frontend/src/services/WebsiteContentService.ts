@@ -4,7 +4,11 @@ import {
 } from "@/api/websiteContentApi";
 import { WebsiteContent } from "@/types/websiteContent";
 
-export const fetchWebsiteContents = async (): Promise<WebsiteContent[]> => {
+export const fetchWebsiteContents = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: WebsiteContent[];
+}> => {
   try {
     const response = await getWebsiteContentsApi();
     const data = response.data;
@@ -20,16 +24,31 @@ export const fetchWebsiteContents = async (): Promise<WebsiteContent[]> => {
       updated_at: new Date(wc.updatedAt),
     }));
 
-    return websiteContents;
-  } catch (error) {
-    console.error("Error fetching website contents:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Website contents fetched successfully",
+      data: websiteContents,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching website contents";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
 export const fetchWebsiteContentById = async (
   id: string
-): Promise<WebsiteContent> => {
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: WebsiteContent;
+}> => {
   try {
     const response = await getWebsiteContentByIdApi(id);
     const data = response.data;
@@ -45,9 +64,20 @@ export const fetchWebsiteContentById = async (
       updated_at: new Date(data.updatedAt),
     };
 
-    return websiteContent;
-  } catch (error) {
-    console.error("Error fetching website content by ID:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Website content fetched successfully",
+      data: websiteContent,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching website content";
+    return {
+      success: false,
+      message,
+      data: {} as WebsiteContent, // Return an empty object on error
+    };
   }
 };

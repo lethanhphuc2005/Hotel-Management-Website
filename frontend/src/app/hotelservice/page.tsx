@@ -12,8 +12,11 @@ export default function ServicesPage() {
     const fetchServicesData = async () => {
       setLoading(true);
       try {
-        const servicesData = await fetchServices();
-        setServices(servicesData);
+        const response = await fetchServices();
+        if (!response.success) {
+          throw new Error(response.message || "Failed to fetch services");
+        }
+        setServices(response.data);
       } catch (error) {
         console.error("Error fetching services:", error);
       } finally {

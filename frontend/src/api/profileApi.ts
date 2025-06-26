@@ -25,30 +25,3 @@ export const updateProfile = async (userId: string, data: any) => {
     throw error;
   }
 };
-
-export const changePassword = async (
-  userId: string,
-  password: string,
-  newPassword: string
-) => {
-  try {
-    const response = await api.put("/user/change-password/" + userId, {
-      password,
-      newPassword,
-    });
-
-    return {
-      error: false,
-      message: response.data.message || "Đổi mật khẩu thành công",
-    };
-  } catch (error: any) {
-    const message =
-      error.response?.data?.message ||
-      error.response?.data ||
-      "Đã xảy ra lỗi khi đổi mật khẩu";
-    return {
-      error: true,
-      message,
-    };
-  }
-};

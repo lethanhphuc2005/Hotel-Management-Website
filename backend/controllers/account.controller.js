@@ -172,6 +172,11 @@ const accountController = {
           .json("Tài khoản của bạn đã bị khóa hoặc chưa kích hoạt");
       }
 
+      const isMatch = await bcrypt.compare(
+        req.body.password,
+        checkUser.password
+      );
+      if (!isMatch) return res.status(400).json("Sai mật khẩu");
       // Kiểm tra xem tài khoản đã được xác minh chưa
       if (!checkUser.is_verified) {
         return res
@@ -180,12 +185,6 @@ const accountController = {
             "Tài khoản chưa được xác minh. Vui lòng kiểm tra email để xác minh tài khoản."
           );
       }
-
-      const isMatch = await bcrypt.compare(
-        req.body.password,
-        checkUser.password
-      );
-      if (!isMatch) return res.status(400).json("Sai mật khẩu");
       if (checkUser && isMatch) {
         const accessToken = accountController.creareToken(checkUser);
         const refreshToken = accountController.creareRefreshToken(checkUser);

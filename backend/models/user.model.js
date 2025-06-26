@@ -72,6 +72,10 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    verfitication_expired: {
+      type: Date,
+      default: new Date(Date.now() + 60 * 1000),
+    },
   },
   { timestamps: true }
 );

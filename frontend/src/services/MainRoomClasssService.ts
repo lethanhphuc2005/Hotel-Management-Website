@@ -4,7 +4,11 @@ import {
 } from "@/api/mainRoomClassApi";
 import { MainRoomClass } from "@/types/mainRoomClass";
 
-export const fetchMainRoomClasses = async (): Promise<MainRoomClass[]> => {
+export const fetchMainRoomClasses = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: MainRoomClass[];
+}> => {
   try {
     const response = await getMainRoomClassesApi();
     const data = response.data;
@@ -35,16 +39,31 @@ export const fetchMainRoomClasses = async (): Promise<MainRoomClass[]> => {
           }))
         : [],
     }));
-    return mainRoomClasses;
-  } catch (error) {
-    console.error("Error fetching main room classes:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Main room classes fetched successfully",
+      data: mainRoomClasses,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching main room classes";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
 export const fetchMainRoomClassById = async (
   id: string
-): Promise<MainRoomClass> => {
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: MainRoomClass | null;
+}> => {
   try {
     const response = await getMainRoomClassByIdApi(id);
     const data = response.data;
@@ -76,9 +95,20 @@ export const fetchMainRoomClassById = async (
         : [],
     };
 
-    return mainRoomClass;
-  } catch (error) {
-    console.error(`Error fetching main room class with ID ${id}:`, error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Main room class fetched successfully",
+      data: mainRoomClass,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching main room class";
+    return {
+      success: false,
+      message,
+      data: null,
+    };
   }
 };

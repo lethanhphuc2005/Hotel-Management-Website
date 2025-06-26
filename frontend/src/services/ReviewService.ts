@@ -7,7 +7,11 @@ import {
 } from "@/api/reviewApi";
 import { Review } from "@/types/review";
 
-export const fetchReviews = async () => {
+export const fetchReviews = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: Review[];
+}> => {
   try {
     const response = await getReviewsApi();
     const data = response.data;
@@ -35,14 +39,31 @@ export const fetchReviews = async () => {
           }))
         : [],
     }));
-    return reviews;
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Reviews fetched successfully",
+      data: reviews,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching reviews";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
-export const fetchReviewById = async (reviewId: string) => {
+export const fetchReviewById = async (
+  reviewId: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Review;
+}> => {
   try {
     const response = await getReviewByIdApi(reviewId);
     const data = response.data;
@@ -58,14 +79,32 @@ export const fetchReviewById = async (reviewId: string) => {
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
-    return review;
-  } catch (error) {
-    console.error("Error fetching review by ID:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Review fetched successfully",
+      data: review,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching the review";
+    return {
+      success: false,
+      message,
+      data: {} as Review, // Return an empty Review object on error
+    };
   }
 };
 
-export const createReview = async (roomClassId: string, content: string) => {
+export const createReview = async (
+  roomClassId: string,
+  content: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Review;
+}> => {
   try {
     const response = await createReviewApi(roomClassId, content);
     const data = response.data;
@@ -81,10 +120,21 @@ export const createReview = async (roomClassId: string, content: string) => {
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
-    return review;
-  } catch (error) {
-    console.error("Error creating review:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Review created successfully",
+      data: review,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while creating the review";
+    return {
+      success: false,
+      message,
+      data: {} as Review, // Return an empty Review object on error
+    };
   }
 };
 
@@ -93,7 +143,11 @@ export const updateReview = async (
   userId: string,
   rating: number | null,
   content: string
-) => {
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Review;
+}> => {
   try {
     const response = await updateReviewApi(reviewId, userId, rating, content);
     const data = response.data;
@@ -109,19 +163,45 @@ export const updateReview = async (
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
-    return review;
-  } catch (error) {
-    console.error("Error updating review:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Review updated successfully",
+      data: review,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while updating the review";
+    return {
+      success: false,
+      message,
+      data: {} as Review, // Return an empty Review object on error
+    };
   }
 };
 
-export const deleteReview = async (reviewId: string, userId: string) => {
+export const deleteReview = async (
+  reviewId: string,
+  userId: string
+): Promise<{
+  success: boolean;
+  message?: string;
+}> => {
   try {
     const response = await deleteReviewApi(reviewId, userId);
-    return response.data; // { success: true }
-  } catch (error) {
-    console.error("Error deleting review:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Review deleted successfully",
+    }; // { success: true }
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while deleting the review";
+    return {
+      success: false,
+      message,
+    }; // { success: false, message: string
   }
 };

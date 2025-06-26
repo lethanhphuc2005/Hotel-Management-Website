@@ -77,12 +77,16 @@ export function AccountSection({ formData }: Props) {
         toast.error(errors.join(" "));
         return;
       }
-      await saveProfile(user.id, updatedData);
+      const response = await saveProfile(user.id, updatedData);
+      if (!response.success) {
+        toast.error(response.message || "Cập nhật thông tin thất bại.");
+        return;
+      }
       setUser((prev) => ({
         ...prev,
         ...updatedData,
       }));
-      toast.success("Cập nhật thông tin thành công!");
+      toast.success(response.message || "Cập nhật thông tin thành công!");
     } catch (error) {
       toast.error("Cập nhật thông tin thất bại. Vui lòng thử lại sau.");
       setUser(formData); // Reset to original data on error

@@ -4,7 +4,11 @@ import {
 } from "@/api/contentTypeApi";
 import { ContentType } from "@/types/contentType";
 
-export const fetchContentTypes = async () => {
+export const fetchContentTypes = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: ContentType[];
+}> => {
   try {
     const response = await getContentTypesApi();
     const data = response.data;
@@ -17,14 +21,31 @@ export const fetchContentTypes = async () => {
       updated_at: new Date(ct.updatedAt),
     }));
 
-    return contentTypes;
-  } catch (error) {
-    console.error("Error fetching  content types:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Content types fetched successfully",
+      data: contentTypes,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching content types";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
-export const fetchContentTypeById = async (id: string) => {
+export const fetchContentTypeById = async (
+  id: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: ContentType | null;
+}> => {
   try {
     const response = await getContentTypeByIdApi(id);
     const data = response.data;
@@ -37,9 +58,20 @@ export const fetchContentTypeById = async (id: string) => {
       updated_at: new Date(data.updatedAt),
     };
 
-    return contentType;
-  } catch (error) {
-    console.error("Error fetching content type by ID:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Content type fetched successfully",
+      data: contentType,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching content type";
+    return {
+      success: false,
+      message,
+      data: null,
+    };
   }
 };

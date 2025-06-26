@@ -1,201 +1,186 @@
 "use client";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import styles from "./page.module.css";
+import { toast } from "react-toastify";
+import { forgotPassword, resetPassword } from "@/services/AuthService";
+import { useRouter } from "next/navigation";
+import { useLoading } from "@/contexts/LoadingContext";
+import Link from "next/link";
 
-import { useState, useEffect } from "react";
-import styles from "./forgotpassword.module.css";
-
-export default function ForgotPasswordFlow() {
-  const [step, setStep] = useState(1); // 1: Nhập email, 2: OTP, 3: Reset
+export default function ResetPasswordFlow() {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [timer, setTimer] = useState(60); // Đếm ngược 60 giây
-  const [canResend, setCanResend] = useState(false);
+  const { setLoading } = useLoading();
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
-    if (step === 2 && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (timer === 0) {
-      setCanResend(true);
-      if (interval) clearInterval(interval);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [step, timer]);
-
-  const handleSendOtp = async () => {
+  const handleSendOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8000/v1/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("OTP đã gửi tới email");
-        setStep(2);
-        setTimer(60);
-        setCanResend(false);
-      } else {
-        setMessage(data.message || "Có lỗi xảy ra");
+      const res = await forgotPassword(email);
+      if (!res.success) {
+        toast.error(res.message);
+        return;
       }
-    } catch (err) {
-      setMessage("Lỗi hệ thống");
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (canResend) {
-      console.log("Đang gửi lại OTP cho:", email);
-      try {
-        const res = await fetch("http://localhost:8000/v1/auth/resend-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setMessage("Đã gửi lại OTP thành công");
-          setTimer(60);
-          setCanResend(false);
-        } else {
-          setMessage(data.message || "Gửi lại OTP thất bại");
-        }
-      } catch (err) {
-        setMessage("Lỗi hệ thống");
-      }
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    try {
-      const res = await fetch("http://localhost:8000/v1/auth/verify-reset-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("OTP hợp lệ");
-        setStep(3);
-      } else {
-        setMessage(data.message || "OTP không hợp lệ");
-      }
-    } catch (err) {
-      setMessage("Lỗi hệ thống");
-    }
-  };
-
-  const handleResetPassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setMessage("Mật khẩu nhập lại không khớp");
+    } catch (error) {
+      console.error("Lỗi khi gửi mã OTP:", error);
+      toast.error("Đã xảy ra lỗi khi gửi mã OTP. Vui lòng thử lại sau.");
       return;
     }
-    try {
-      const res = await fetch("http://localhost:8000/v1/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("Mật khẩu đã được đặt lại thành công");
-      } else {
-        setMessage(data.message || "Đặt lại mật khẩu thất bại");
+    toast.success("Mã OTP đã được gửi tới email của bạn.");
+    setStep(2);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      if (newPassword.length < 6) {
+        toast.error("Mật khẩu mới phải có ít nhất 6 ký tự.");
+        return;
       }
-    } catch (err) {
-      setMessage("Lỗi hệ thống");
+      toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+      return;
+    }
+    if (otp.length !== 6) {
+      toast.error("Mã xác nhận phải có 6 ký tự.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await resetPassword(email, otp, newPassword);
+      // console.log("Reset password response:", res);
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success("Mật khẩu đã được đặt lại thành công.");
+      setEmail("");
+      setOtp("");
+      setNewPassword("");
+      setConfirmPassword("");
+      router.push("/login");
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi đặt lại mật khẩu. Vui lòng thử lại sau.");
+      return;
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.form}>
-        <div className={styles.progressBar}>
-          <div className={`${styles.step} ${step >= 1 ? styles.completed : ""}`}>
-            {step > 1 ? "✔" : "1"}
-          </div>
-          <div className={`${styles.step} ${step >= 2 ? styles.completed : ""}`}>
-            {step > 2 ? "✔" : "2"}
-          </div>
-          <div className={`${styles.step} ${step >= 3 ? styles.completed : ""}`}>
-            {step > 3 ? "✔" : "3"}
-          </div>
-          <div
-            className={styles.progressLine}
-            style={{ width: `${(step - 1) * 50}%` }} // Di chuyển logic vào đây
-          />
-        </div>
+      <motion.div
+        className={styles.formContainer}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {step === 1 && (
           <>
-            <h2 className={styles.title}>🔑 Quên Mật Khẩu</h2>
-            <input
-              type="email"
-              className={styles.input}
-              placeholder="Nhập email của bạn..."
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <button className={styles.button} onClick={handleSendOtp}>
-              Gửi OTP
-            </button>
+            <h2 className={styles.title}>QUÊN MẬT KHẨU</h2>
+            <div className={styles.separator}></div>
+            <p className={styles.description}>
+              Nhập email bạn đã đăng ký để nhận mã xác nhận.
+            </p>
+            <form onSubmit={handleSendOTP}>
+              <motion.input
+                type="email"
+                placeholder="Nhập email của bạn"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={styles.input}
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+                required
+              />
+              <button type="submit" className={styles.submitButton}>
+                Gửi mã xác nhận
+              </button>
+            </form>
           </>
         )}
 
         {step === 2 && (
           <>
-            <h2 className={styles.title}>📩 Xác Minh OTP</h2>
-            <input
-              type="text"
-              className={styles.input}
-              placeholder="Nhập mã OTP..."
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-            />
-            <button className={styles.button} onClick={handleVerifyOtp}>
-              Xác Minh
-            </button>
-            <p className={styles.timer}>
-              Thời gian còn lại: {timer}s{" "}
-              {canResend ? (
-                <span className={styles.resend} onClick={handleResendOtp}>
-                  Gửi lại OTP
-                </span>
-              ) : null}
+            <h2 className={styles.title}>ĐẶT LẠI MẬT KHẨU</h2>
+            <div className={styles.separator}></div>
+            <p className={styles.description}>
+              Nhập mã xác nhận đã gửi tới <strong>{email}</strong> và đặt lại
+              mật khẩu mới.
             </p>
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            <h2 className={styles.title}>🔒 Đặt Lại Mật Khẩu</h2>
-            <input
-              type="password"
-              className={styles.input}
-              placeholder="Mật khẩu mới..."
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <input
-              type="password"
-              className={styles.input}
-              placeholder="Nhập lại mật khẩu..."
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <button className={styles.button} onClick={handleResetPassword}>
-              Xác Nhận
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const res = await forgotPassword(email);
+                  if (!res.success) {
+                    toast.error(res.message);
+                    return;
+                  }
+                  toast.success("Mã OTP đã được gửi lại.");
+                } catch (error) {
+                  toast.error("Gửi lại OTP thất bại. Vui lòng thử lại sau.");
+                }
+              }}
+              className={styles.resendButton}
+            >
+              Gửi lại mã
             </button>
+            <form onSubmit={handleResetPassword}>
+              <motion.input
+                type="text"
+                placeholder="Mã xác nhận"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className={styles.input}
+                required
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+              />
+              <motion.input
+                type="password"
+                placeholder="Mật khẩu mới"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className={styles.input}
+                required
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+              />
+              <motion.input
+                type="password"
+                placeholder="Nhập lại mật khẩu"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={styles.input}
+                required
+                whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
+              />
+              <button type="submit" className={styles.submitButton}>
+                Đặt lại mật khẩu
+              </button>
+            </form>
           </>
         )}
 
-        {message && <p className={styles.message}>{message}</p>}
-      </div>
+        <div className={styles.backLink}>
+          {step > 1 ? (
+            <button
+              onClick={() => setStep(1)}
+              style={{ cursor: "pointer", background: "none", border: "none" }}
+            >
+              ← Quay lại
+            </button>
+          ) : (
+            <button>
+              <Link href="/login" className={styles.backLink}>
+                ← Quay lại đăng nhập
+              </Link>
+            </button>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }

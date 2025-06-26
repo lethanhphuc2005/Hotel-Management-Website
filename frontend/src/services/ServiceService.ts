@@ -4,7 +4,11 @@ import {
 } from "@/api/serviceApi";
 import { Service } from "@/types/service";
 
-export const fetchServices = async (): Promise<Service[]> => {
+export const fetchServices = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: Service[];
+}> => {
   try {
     const response = await getServicesApi();
     const data = response.data;
@@ -19,14 +23,31 @@ export const fetchServices = async (): Promise<Service[]> => {
       updated_at: new Date(s.updatedAt),
     }));
 
-    return services;
-  } catch (error) {
-    console.error("Error fetching services:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Services fetched successfully",
+      data: services,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching services";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
-export const fetchServiceById = async (id: string): Promise<Service> => {
+export const fetchServiceById = async (
+  id: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Service;
+}> => {
   try {
     const response = await getServiceByIdApi(id);
     const data = response.data;
@@ -41,9 +62,20 @@ export const fetchServiceById = async (id: string): Promise<Service> => {
       updated_at: new Date(data.updatedAt),
     };
 
-    return service;
-  } catch (error) {
-    console.error("Error fetching service by ID:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Service fetched successfully",
+      data: service,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching the service";
+    return {
+      success: false,
+      message,
+      data: {} as Service,
+    };
   }
 };

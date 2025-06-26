@@ -22,7 +22,6 @@ const ProfilePage = () => {
     setFavorites,
     logout,
   } = useProfile();
-  console.log("Profile data:", profile);
 
   const [activeTab, setActiveTab] = useState("account");
   const handleLogout = () => {

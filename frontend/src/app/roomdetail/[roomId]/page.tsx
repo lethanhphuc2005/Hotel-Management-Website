@@ -9,12 +9,8 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import "swiper/css/pagination";
 import { Mousewheel } from "swiper/modules";
-import axios from "axios";
 import { RoomClass } from "@/types/roomClass";
-import {
-  fetchRoomClassById,
-  fetchRoomClasses,
-} from "@/services/roomClassService";
+import { fetchRoomClasses } from "@/services/roomClassService";
 
 interface User {
   id: string;
@@ -126,9 +122,12 @@ const RoomDetail = () => {
   useEffect(() => {
     try {
       const fetchRoomData = async () => {
-        const RoomClassData = await fetchRoomClasses();
+        const response = await fetchRoomClasses();
+        if (!response.success) {
+          throw new Error(response.message || "Không thể lấy dữ liệu phòng");
+        }
 
-        setRoomClass(RoomClassData);
+        setRoomClass(response.data);
       };
       fetchRoomData();
     } catch (error) {

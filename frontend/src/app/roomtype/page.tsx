@@ -67,8 +67,12 @@ export default function AllRoom() {
     const fetchRoomClassesData = async () => {
       setLoading(true);
       try {
-        const data = await fetchRoomClasses();
-        setRoomClass(data);
+        const response = await fetchRoomClasses();
+        if (!response.success) {
+          console.error("Lỗi khi tải danh sách phòng:", response.message);
+          return;
+        }
+        setRoomClass(response.data);
       } catch (error) {
         console.error("Lỗi khi tải danh sách phòng:", error);
       } finally {

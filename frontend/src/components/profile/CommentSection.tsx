@@ -45,12 +45,21 @@ export default function CommentSection({
 
   const handleEdit = async (comment: Comment) => {
     try {
-      const updatedComment = await updateComment(
+      const response = await updateComment(
         comment.id,
         comment.user_id.id,
         editContent
       );
-      toast.success("Cập nhật bình luận thành công");
+      if (!response.success) {
+        toast.error(response.message || "Cập nhật bình luận thất bại.");
+        return;
+      }
+      const updatedComment = response.data;
+      if (!updatedComment) {
+        toast.error("Không tìm thấy bình luận để cập nhật.");
+        return;
+      }
+      toast.success(response.message || "Cập nhật bình luận thành công");
       setComments((prev) =>
         prev.map((c) =>
           c.id === comment.id ? { ...c, content: updatedComment.content } : c

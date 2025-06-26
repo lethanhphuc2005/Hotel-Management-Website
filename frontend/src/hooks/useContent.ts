@@ -16,7 +16,12 @@ export const useContent = () => {
     const fetchContentTypesData = async () => {
       try {
         setLoading(true);
-        const data = await fetchContentTypes();
+        const response = await fetchContentTypes();
+        if (!response.success) {
+          console.error(response.message || "Failed to fetch content types");
+          return;
+        }
+        const data = response.data;
         setContentTypes(data);
       } catch (error) {
         console.error("Error fetching content types:", error);
@@ -33,8 +38,12 @@ export const useContent = () => {
     const fetchWebsiteContentsData = async () => {
       try {
         setLoading(true);
-        const data = await fetchWebsiteContents();
-        setWebsiteContents(data);
+        const response = await fetchWebsiteContents();
+        if (!response.success) {
+          console.error(response.message || "Failed to fetch website contents");
+          return;
+        }
+        setWebsiteContents(response.data);
       } catch (error) {
         console.error("Error fetching website contents:", error);
       } finally {

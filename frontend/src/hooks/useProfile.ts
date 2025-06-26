@@ -32,7 +32,12 @@ export const useProfile = () => {
     if (!user) return;
     try {
       setLoading(true);
-      const data = await fetchProfile(user.id);
+      const response = await fetchProfile(user.id);
+      if (!response.success) {
+        console.error("Lỗi khi refresh profile:", response.message);
+        return;
+      }
+      const data = response.data;
 
       setProfile(data);
       setFormData({
@@ -67,7 +72,12 @@ export const useProfile = () => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
-        const data = await fetchProfile(user.id);
+        const response = await fetchProfile(user.id);
+        if (!response.success) {
+          console.error("Lỗi khi fetch profile:", response.message);
+          return;
+        }
+        const data = response.data;
 
         setProfile(data);
         setFormData({

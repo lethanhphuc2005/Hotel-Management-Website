@@ -28,7 +28,12 @@ export default function Header() {
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchMainRoomClasses();
+      const response = await fetchMainRoomClasses();
+      if (!response.success) {
+        console.error("Failed to fetch main room classes:", response.message);
+        return;
+      }
+      const data = response.data;
       setMainroomclass(data);
     };
     fetchData();

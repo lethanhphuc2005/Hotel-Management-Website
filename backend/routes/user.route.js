@@ -47,7 +47,6 @@ router.post(
 // === GỬI LẠI MÃ XÁC MINH QUA EMAIL ===
 router.post(
   "/resend-verification",
-  authMiddleware.authorizeSelfOnly(),
   userController.resendEmailVerification
 );
 

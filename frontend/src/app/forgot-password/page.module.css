@@ -1,0 +1,102 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url("/img/banner1.webp") no-repeat center center / cover fixed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+}
+
+.formContainer {
+  background: linear-gradient(rgba(20, 20, 20, 0.6), rgba(20, 20, 20, 0.6));
+  padding: 40px 32px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(250, 179, 32, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.title {
+  text-align: center;
+  font-size: 26px;
+  color: #fab320;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.separator {
+  height: 3px;
+  width: 60px;
+  background-color: #fab320;
+  margin: 0 auto 20px auto;
+  border-radius: 2px;
+}
+
+.description {
+  text-align: center;
+  color: #ccc;
+  margin-bottom: 30px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background-color: #222;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #fab320;
+  box-shadow: 0 0 0 2px rgba(250, 179, 32, 0.4);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #fab320;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submitButton:hover {
+  background-color: #e0a918;
+}
+
+.backLink {
+  margin-top: 20px;
+  text-align: center;
+  color: #ccc;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: #fab320;
+}
+
+.resendButton {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #fab320;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  padding: 0;
+}
+
+.resendButton:hover {
+  text-decoration: underline;
+  color: #f9a700;
+}

@@ -4,12 +4,17 @@ import {
 } from "@/api/roomClassApi";
 import { RoomClass } from "@/types/roomClass";
 
-export const fetchRoomClasses = async (): Promise<RoomClass[]> => {
+export const fetchRoomClasses = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: RoomClass[];
+}> => {
   try {
     const response = await getRoomClassesApi();
     const data = response.data;
     const roomClasses: RoomClass[] = data.map((rc: any) => ({
       id: rc.id || rc._id,
+      main_room_class_id: rc.main_room_class_id || "",
       name: rc.name,
       bed_amount: rc.bed_amount || 0,
       capacity: rc.capacity || 0,
@@ -73,19 +78,37 @@ export const fetchRoomClasses = async (): Promise<RoomClass[]> => {
         : [],
     }));
 
-    return roomClasses;
-  } catch (error) {
-    console.error("Error fetching room classes:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Room classes fetched successfully",
+      data: roomClasses,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching room classes";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
-export const fetchRoomClassById = async (id: string): Promise<RoomClass> => {
+export const fetchRoomClassById = async (
+  id: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: RoomClass;
+}> => {
   try {
     const response = await getRoomClassByIdApi(id);
     const data = response.data;
     const roomClass: RoomClass = {
       id: data.id || data._id,
+      main_room_class_id: data.main_room_class_id || "",
       name: data.name,
       bed_amount: data.bed_amount || 0,
       capacity: data.capacity || 0,
@@ -148,9 +171,20 @@ export const fetchRoomClassById = async (id: string): Promise<RoomClass> => {
           }))
         : [],
     };
-    return roomClass;
-  } catch (error) {
-    console.error(`Error fetching room class with ID ${id}:`, error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Room class fetched successfully",
+      data: roomClass,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching the room class";
+    return {
+      success: false,
+      message,
+      data: {} as RoomClass, // Return an empty RoomClass object on error
+    };
   }
 };

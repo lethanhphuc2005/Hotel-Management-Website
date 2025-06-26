@@ -7,7 +7,11 @@ import {
 } from "@/api/commentApi";
 import { Comment } from "@/types/comment";
 
-export const fetchComments = async () => {
+export const fetchComments = async (): Promise<{
+  success: boolean;
+  message?: string;
+  data: Comment[];
+}> => {
   try {
     const response = await getCommnetsApi();
     const data = response.data;
@@ -34,14 +38,31 @@ export const fetchComments = async () => {
           }))
         : [],
     }));
-    return comments;
-  } catch (error) {
-    console.error("Error fetching comments:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Comments fetched successfully",
+      data: comments,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching comments";
+    return {
+      success: false,
+      message,
+      data: [],
+    };
   }
 };
 
-export const fetchCommentById = async (commentId: string) => {
+export const fetchCommentById = async (
+  commentId: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Comment | null;
+}> => {
   try {
     const response = await getCommentByIdApi(commentId);
     const data = response.data;
@@ -56,14 +77,32 @@ export const fetchCommentById = async (commentId: string) => {
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
-    return comment;
-  } catch (error) {
-    console.error("Error fetching comment by ID:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Comment fetched successfully",
+      data: comment,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching the comment";
+    return {
+      success: false,
+      message,
+      data: null, // Return null if fetching fails
+    };
   }
 };
 
-export const createComment = async (postId: string, content: string) => {
+export const createComment = async (
+  postId: string,
+  content: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Comment | null;
+}> => {
   try {
     const response = await createCommentApi(postId, content);
     const data = response;
@@ -78,10 +117,22 @@ export const createComment = async (postId: string, content: string) => {
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
-    return comment;
-  } catch (error) {
+    return {
+      success: true,
+      message: response.message || "Comment created successfully",
+      data: comment, // Return as an array for consistency
+    };
+  } catch (error: any) {
     console.error("Error creating comment:", error);
-    throw error;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while creating the comment";
+    return {
+      success: false,
+      message,
+      data: null, // Return null if creation fails
+    };
   }
 };
 
@@ -89,7 +140,11 @@ export const updateComment = async (
   commentId: string,
   userId: string,
   content: string
-) => {
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: Comment | null;
+}> => {
   try {
     const response = await updateCommentApi(commentId, userId, content); // Assuming this API can also handle updates
     const data = response.data;
@@ -104,20 +159,47 @@ export const updateComment = async (
       created_at: new Date(data.createdAt || data.created_at),
       updated_at: new Date(data.updatedAt || data.updated_at),
     };
-    return comment;
-  } catch (error) {
+    return {
+      success: true,
+      message: response.message || "Comment updated successfully",
+      data: comment, // Return the updated comment
+    };
+  } catch (error: any) {
     console.error("Error updating comment:", error);
-    throw error;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while updating the comment";
+    return {
+      success: false,
+      message,
+      data: null, // Return null if update fails
+    };
   }
 };
 
-export const deleteComment = async (commentId: string, userId: string) => {
+export const deleteComment = async (
+  commentId: string,
+  userId: string
+): Promise<{
+  success: boolean;
+  message: string | null;
+}> => {
   try {
     const response = await deleteCommentApi(commentId, userId);
 
-    return response.data; // Assuming the API returns some confirmation data
-  } catch (error) {
-    console.error("Error deleting comment:", error);
-    throw error;
+    return {
+      success: true,
+      message: response.message || "Comment deleted successfully",
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while deleting the comment";
+    return {
+      success: false,
+      message,
+    };
   }
 };

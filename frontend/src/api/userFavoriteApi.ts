@@ -22,9 +22,9 @@ export const createUserFavorite = async (
 export const getUserFavorites = async (userId: string) => {
   try {
     const response = await api.get(`/user-favorite/${userId}`);
-    if (response.status !== 200) {
-      throw new Error("Failed to fetch user favorites");
-    }
+    // if (response.status !== 200) {
+    //   throw new Error("Failed to fetch user favorites");
+    // }
     return response.data;
   } catch (error) {
     console.error("Error fetching user favorites:", error);

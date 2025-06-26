@@ -4,7 +4,7 @@ import styles from "@/styles/profile/AccountSection.module.css";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { savePassword } from "@/services/ProfileService";
+import { changePassword } from "@/services/AuthService";
 
 interface Props {
   formData: {
@@ -58,12 +58,12 @@ export function PasswordSection({ formData }: Props) {
         });
         return;
       }
-      const res = await savePassword(user.id, password, newPassword);
-      if (res.error) {
+      const res = await changePassword(user.id, password, newPassword);
+      if (!res.success) {
         toast.error(res.message);
         return;
       }
-      toast.success(res.message || "Đổi mật khẩu thành công!");
+      toast.success("Đổi mật khẩu thành công!");
       setPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
@@ -82,16 +82,27 @@ export function PasswordSection({ formData }: Props) {
     >
       <div className={styles.infoRow}>
         <label>Mật khẩu hiện tại</label>
-        <input type="password" name="password" onChange={handleChange} />
+        <input
+          type="password"
+          value={password}
+          name="password"
+          onChange={handleChange}
+        />
       </div>
       <div className={styles.infoRow}>
         <label>Mật khẩu mới</label>
-        <input type="password" name="newPassword" onChange={handleChange} />
+        <input
+          type="password"
+          value={newPassword}
+          name="newPassword"
+          onChange={handleChange}
+        />
       </div>
       <div className={styles.infoRow}>
         <label>Xác nhận mật khẩu mới</label>
         <input
           type="password"
+          value={confirmNewPassword}
           name="confirmNewPassword"
           onChange={handleChange}
         />

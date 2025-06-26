@@ -362,8 +362,13 @@ const userController = {
         return res.status(400).json("Mã xác nhận không chính xác");
       }
 
+      if (Date.now() > user.verfitication_expired) {
+        return res.status(400).json({ message: "Mã xác nhận đã hết hạn" });
+      }
+
       user.is_verified = true;
       user.verification_code = null; // Xoá mã xác nhận sau khi xác thực
+      user.verfitication_expired = null; // Xoá thời gian hết hạn
       await user.save();
 
       res.status(200).json({
@@ -383,7 +388,8 @@ const userController = {
         return res.status(400).json("Email không được để trống");
       }
 
-      const user = await User.find({ email });
+      const user = await User.findOne({ email });
+      console.log("User found:", user);
       if (!user || user.length === 0) {
         return res.status(404).json("Không tìm thấy tài khoản với email này");
       }
@@ -395,10 +401,12 @@ const userController = {
         100000 + Math.random() * 900000
       ).toString();
       user.verification_code = verificationCode;
+      user.verfitication_expired = new Date(Date.now() + 60 * 1000); // Đặt thời gian hết hạn là 1 phút
       await user.save();
       // Gửi mã xác nhận qua email (giả sử bạn đã có hàm gửi email)
+
       try {
-        await mailSender({
+        mailSender({
           email: user.email,
           subject: verificationEmail.subject,
           html: verificationEmail.html(verificationCode),

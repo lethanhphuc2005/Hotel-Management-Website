@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import styles from "./chatbotPopup.module.css";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ChatMessageHistory, ChatMessage } from "@/types/chatbot";
-import { generateChatResponse } from "@/api/chatbotApi";
+import { generateChatResponse } from "@/services/ChatbotService";
 
 export default function ChatbotPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +56,16 @@ export default function ChatbotPopup() {
 
     try {
       const res = await generateChatResponse(userText, updatedHistory);
-      const botText = res.response;
+      if (!res.success) {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: "⚠️ Không thể kết nối đến AI" },
+        ]);
+        setLoading(false);
+        return;
+      }
+      
+      const botText = res.data;
 
       // Cập nhật hiển thị bot
       setMessages((prev) => [...prev, { sender: "bot", text: botText }]);

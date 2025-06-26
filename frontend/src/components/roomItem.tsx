@@ -373,7 +373,13 @@ export function RoomClassItem({
     // 🔁 Kiểm tra xem phòng hiện tại đã được yêu thích chưa
     const fetchFavorites = async () => {
       try {
-        const favorites = await getUserFavorites(parsed.id);
+        const response = await getUserFavorites(parsed.id);
+        if (!response.success) {
+          console.error("Không thể lấy danh sách yêu thích:", response.message);
+          return;
+        }
+        const favorites = response.data;
+
         const existing = favorites.find(
           (fav) => fav.room_class_id === rci.id
         );
@@ -404,7 +410,7 @@ export function RoomClassItem({
         // ✅ Thêm yêu thích
         const res = await createUserFavorite(uid, rci.id);
         setLiked(true);
-        setFavoriteId(String(res.id));
+        setFavoriteId(String(res.data.id)); // Lưu ID để xoá sau này
         toast.success("Đã thêm vào yêu thích!");
       } else {
         // ❌ Xoá yêu thích
