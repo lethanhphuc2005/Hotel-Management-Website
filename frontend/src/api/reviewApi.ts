@@ -1,30 +1,30 @@
 import { api, publicApi } from "@/lib/axiosInstance";
 
 export const getReviews = async () => {
-  const res = await publicApi.get(`/review/user`);
-  if (res.status !== 200) {
-    throw new Error("Failed to fetch reviews");
+  const response = await publicApi.get(`/review/user`);
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-  return res.data; // [{ reviewId, content, createdAt, ... }, ...]
+  return response.data; // [{ reviewId, content, createdAt, ... }, ...]
 };
 
 export const getReviewById = async (reviewId: string) => {
-  const res = await publicApi.get(`/review/${reviewId}`);
-  if (res.status !== 200) {
-    throw new Error("Failed to fetch review");
+  const response = await publicApi.get(`/review/${reviewId}`);
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-  return res.data; // { reviewId, content, createdAt, ... }
+  return response.data; // { reviewId, content, createdAt, ... }
 };
 
 export const createReview = async (roomClassId: string, content: string) => {
-  const res = await api.post("/review", {
+  const response = await api.post("/review", {
     room_class_id: roomClassId,
     content,
   });
-  if (res.status !== 201) {
-    throw new Error("Failed to create review");
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-  return res.data; // { reviewId, content, createdAt, ... }
+  return response.data; // { reviewId, content, createdAt, ... }
 };
 
 export const updateReview = async (
@@ -33,21 +33,23 @@ export const updateReview = async (
   rating: number | null,
   content: string
 ) => {
-  const res = await api.put(`/review/${reviewId}`, {
+  const response = await api.put(`/review/${reviewId}`, {
     user_id,
     rating,
     content,
   });
-  if (res.status !== 200) {
-    throw new Error("Failed to update review");
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-  return res.data; // { reviewId, content, updatedAt, ... }
+  return response.data; // { reviewId, content, updatedAt, ... }
 };
 
 export const deleteReview = async (reviewId: string, userId: string) => {
-  const res = await api.put(`/review/toggle/${reviewId}`, { user_id: userId });
-  if (res.status !== 200) {
-    throw new Error("Failed to delete review");
+  const response = await api.put(`/review/toggle/${reviewId}`, {
+    user_id: userId,
+  });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-  return res.data; // { success: true }
+  return response.data; // { success: true }
 };

@@ -9,8 +9,8 @@ export const createUserFavorite = async (
       user_id: userId,
       room_class_id: roomClassId,
     });
-    if (response.status !== 201) {
-      throw new Error("Failed to create user favorite");
+    if (response.status !== 200) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
@@ -22,9 +22,9 @@ export const createUserFavorite = async (
 export const getUserFavorites = async (userId: string) => {
   try {
     const response = await api.get(`/user-favorite/${userId}`);
-    // if (response.status !== 200) {
-    //   throw new Error("Failed to fetch user favorites");
-    // }
+    if (response.status !== 200) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
     return response.data;
   } catch (error) {
     console.error("Error fetching user favorites:", error);
@@ -41,7 +41,7 @@ export const deleteUserFavorite = async (
       data: { user_id: userId },
     });
     if (response.status !== 200) {
-      throw new Error("Failed to delete user favorite");
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {

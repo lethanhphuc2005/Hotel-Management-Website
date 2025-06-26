@@ -4,7 +4,7 @@ export const getDiscounts = async () => {
   try {
     const response = await publicApi.get("/discount/user");
     if (response.status !== 200) {
-      throw new Error(`Error fetching discounts: ${response.statusText}`);
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
@@ -17,9 +17,7 @@ export const getDiscountById = async (id: string) => {
   try {
     const response = await publicApi.get(`/discount/${id}`);
     if (response.status !== 200) {
-      throw new Error(
-        `Error fetching discount with ID ${id}: ${response.statusText}`
-      );
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {

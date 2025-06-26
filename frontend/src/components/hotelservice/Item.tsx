@@ -29,7 +29,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
       addServiceToRoom({
         roomId,
         service: {
-          id: item._id,
+          id: item.id,
           name: item.name,
           image: item.image ? item.image : "default.jpg",
           description: item.description,

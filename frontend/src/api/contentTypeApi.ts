@@ -4,7 +4,7 @@ export const getContentTypes = async () => {
   try {
     const response = await publicApi.get("/content-type/user");
     if (response.status !== 200) {
-      throw new Error("Failed to fetch website content types");
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
@@ -17,7 +17,7 @@ export const getContentTypeById = async (id: string) => {
   try {
     const response = await publicApi.get(`/content-type/${id}`);
     if (response.status !== 200) {
-      throw new Error("Failed to fetch website content type");
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {

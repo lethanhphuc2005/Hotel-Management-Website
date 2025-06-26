@@ -27,7 +27,7 @@ const bookingController = {
       child_amount,
       booking_method_id,
       booking_status_id,
-      details,
+      booking_details,
       discount_id,
       employee_id,
     } = bookingData;
@@ -105,7 +105,7 @@ const bookingController = {
     }
 
     // Kiểm tra chi tiết đặt phòng
-    if (!details || details.length === 0) {
+    if (!booking_details || booking_details.length === 0) {
       return { valid: false, message: "Vui lòng thêm chi tiết đặt phòng." };
     }
 
@@ -140,7 +140,7 @@ const bookingController = {
 
     const totalPeople = (adult_amount || 0) + totalChildren;
 
-    for (const detail of details) {
+    for (const detail of booking_details) {
       if (!detail.room_class_id) {
         return {
           valid: false,
@@ -228,7 +228,7 @@ const bookingController = {
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
-      const { details } = req.body;
+      const { booking_details } = req.body;
       const newBooking = new Booking(req.body);
       // Tính phụ phí cho trẻ em nếu có
       if (req.body.child_amount && req.body.child_amount.length > 0) {
@@ -237,9 +237,9 @@ const bookingController = {
       } else {
         newBooking.child_amount = 0; // không có trẻ em thì để 0
       }
-      // Thêm booking details
-      if (details && details.length > 0) {
-        for (const detail of details) {
+      // Thêm booking booking_details
+      if (booking_details && booking_details.length > 0) {
+        for (const detail of booking_details) {
           const bookingDetail = new BookingDetail({
             booking_id: newBooking._id,
             room_class_id: detail.room_class_id,
@@ -279,7 +279,7 @@ const bookingController = {
             <p><strong>Số lượng trẻ em:</strong> ${newBooking.child_amount}</p>
             <p><strong>Thông tin chi tiết đặt phòng:</strong></p>
             <ul>
-              ${details
+              ${booking_details
                 .map(
                   (detail) => `
                 <li>
@@ -399,7 +399,7 @@ const bookingController = {
                 },
                 {
                   path: "services",
-                  select: "service_id amount -booking_detail_id",
+                  select: "service_id amount used_at -booking_detail_id",
                   populate: {
                     path: "service_id",
                     select: "name price",
@@ -502,7 +502,7 @@ const bookingController = {
                 },
                 {
                   path: "services",
-                  select: "service_id amount -booking_detail_id",
+                  select: "service_id amount used_at -booking_detail_id",
                   populate: {
                     path: "service_id",
                     select: "name price",
@@ -565,7 +565,7 @@ const bookingController = {
             },
             {
               path: "services",
-              select: "service_id amount -booking_detail_id",
+              select: "service_id amount used_at -booking_detail_id",
               populate: {
                 path: "service_id",
                 select: "name price",

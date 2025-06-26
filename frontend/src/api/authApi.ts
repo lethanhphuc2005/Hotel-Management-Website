@@ -9,7 +9,7 @@ export const register = async (
   phone_number: string,
   address: string
 ) => {
-  const res = await publicApi.post("/account/register", {
+  const response = await publicApi.post("/account/register", {
     first_name,
     last_name,
     email,
@@ -17,17 +17,20 @@ export const register = async (
     phone_number,
     address,
   });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  }
 
-  return res.data; // { success: boolean, message: string }
+  return response.data; // { success: boolean, message: string }
 };
 
 export const login = async (email: string, password: string) => {
-  const res = await publicApi.post("/account/login", { email, password });
-  if (res.status !== 200) {
-    throw new Error(res.data.message || "Đăng nhập thất bại");
+  const response = await publicApi.post("/account/login", { email, password });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
-  return res.data;
+  return response.data;
 };
 
 export const refreshAccessToken = async () => {
@@ -35,12 +38,12 @@ export const refreshAccessToken = async () => {
   if (!login) throw new Error("Chưa đăng nhập");
 
   const { refreshToken } = JSON.parse(login);
-  const res = await publicApi.post("/account/refresh", { refreshToken });
-  if (res.status !== 200) {
-    throw new Error(res.data.message || "Làm mới token thất bại");
+  const response = await publicApi.post("/account/refresh", { refreshToken });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
-  return res.data; // { accessToken }
+  return response.data; // { accessToken }
 };
 
 export const logout = () => {
@@ -57,7 +60,7 @@ export const changePassword = async (
     newPassword,
   });
   if (response.status !== 200) {
-    throw new Error(response.data.message || "Đổi mật khẩu thất bại");
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
   return response.data;
@@ -69,7 +72,7 @@ export const verifyEmail = async (email: string, verificationCode: string) => {
     verificationCode,
   });
   if (response.status !== 200) {
-    throw new Error(response.data.message || "Xác thực email thất bại");
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
   return response.data; // { success: boolean, message: string }
@@ -78,7 +81,7 @@ export const verifyEmail = async (email: string, verificationCode: string) => {
 export const forgotPassword = async (email: string) => {
   const response = await publicApi.post("/user/forgot-password", { email });
   if (response.status !== 200) {
-    throw new Error(response.data.message || "Quên mật khẩu thất bại");
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
   return response.data; // { success: boolean, message: string }
@@ -95,7 +98,7 @@ export const resetPassword = async (
     newPassword,
   });
   if (response.status !== 200) {
-    throw new Error(response.data.message || "Đặt lại mật khẩu thất bại");
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
   return response.data; // { success: boolean, message: string }
@@ -104,7 +107,7 @@ export const resetPassword = async (
 export const resendVerificationEmail = async (email: string) => {
   const response = await publicApi.post("/user/resend-verification", { email });
   if (response.status !== 200) {
-    throw new Error(response.data.message || "Gửi lại email xác thực thất bại");
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
 
   return response.data; // { success: boolean, message: string }

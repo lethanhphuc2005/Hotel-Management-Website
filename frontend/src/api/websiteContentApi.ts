@@ -4,7 +4,7 @@ export const getWebsiteContents = async () => {
   try {
     const response = await publicApi.get("/website-content/user");
     if (response.status !== 200) {
-      throw new Error("Failed to fetch website content");
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
@@ -17,7 +17,7 @@ export const getWebsiteContentById = async (id: string) => {
   try {
     const response = await publicApi.get(`/website-content/${id}`);
     if (response.status !== 200) {
-      throw new Error("Failed to fetch website content by ID");
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {

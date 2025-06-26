@@ -4,7 +4,7 @@ export const getServices = async () => {
   try {
     const response = await publicApi.get("/service/user");
     if (response.status !== 200) {
-      throw new Error(`Error fetching services: ${response.statusText}`);
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
@@ -17,9 +17,7 @@ export const getServiceById = async (id: string) => {
   try {
     const response = await publicApi.get(`/service/${id}`);
     if (response.status !== 200) {
-      throw new Error(
-        `Error fetching service with ID ${id}: ${response.statusText}`
-      );
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
     return response.data;
   } catch (error) {

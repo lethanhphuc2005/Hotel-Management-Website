@@ -1,15 +1,16 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
-import style from "./payment.module.css";
+import style from "./page.module.css";
 import { RootState } from "@/contexts/store";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
 import { clearCart, removeRoomFromCart } from "@/contexts/cartSlice";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import api from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { createBooking } from "@/services/BookingService";
+import { useLoading } from "@/contexts/LoadingContext";
 
 const formatVietnameseDate = (dateStr: string) => {
   const [day, month, year] = dateStr.split("/").map(Number);
@@ -24,6 +25,7 @@ const formatVietnameseDate = (dateStr: string) => {
 
 export default function PayMent() {
   const { user } = useAuth();
+  const { setLoading } = useLoading();
 
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
@@ -92,46 +94,47 @@ export default function PayMent() {
         .padStart(2, "0")}`;
     };
     try {
-      console.log(total);
+      setLoading(true);
+      console.log(rooms);
       const payload = {
-        user_id: user?.id || null, // 👈 thay bằng user thật nếu có login
-        full_name: name, // 👈 lấy từ form nếu có
+        user_id: user?.id || null,
+        full_name: name,
         email: email,
         phone_number: phone,
-        booking_date: new Date().toISOString(),
         check_in_date: formatDate(rooms[0].checkIn),
         check_out_date: formatDate(rooms[0].checkOut),
         adult_amount: rooms.reduce((sum, r) => sum + (r.adults ?? 0), 0),
-        child_amount: rooms.flatMap((r) => {
-          const list = [];
-          for (let i = 0; i < (r.childrenUnder6 ?? 0); i++)
-            list.push({ age: 5 });
-          for (let i = 0; i < (r.childrenOver6 ?? 0); i++)
-            list.push({ age: 10 });
-          return list;
-        }),
+        child_amount: rooms.reduce(
+          (sum, r) => sum + (r.childrenUnder6 ?? 0) + (r.childrenOver6 ?? 0),
+          0
+        ),
         booking_method_id: "684126db1ce6a19c45c2ec0a",
         booking_status_id: "683fba8d351a96315d45767a", // pending
         request: request || "Không có",
-        details: rooms.map((room) => ({
+        booking_details: rooms.map((room) => ({
           room_class_id: room.id,
           price_per_night: room.price,
           nights: room.nights,
           services: room.services?.map((s) => ({
-            service_id: s.id || s.id,
             amount: s.quantity,
+            service_id: s.id,
           })),
         })),
         total_price: total,
       };
 
-      const res = await api.post("/booking", payload);
+      const response = await createBooking(payload);
+      if (!response || !response.data) {
+        throw new Error("Không thể tạo đặt phòng. Vui lòng thử lại.");
+      }
       dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
       // Optional: redirect
       router.push("/thank-you");
     } catch (err) {
       console.error(err);
       toast.error("Lỗi khi đặt phòng. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -195,9 +198,7 @@ export default function PayMent() {
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">
-                  Yêu cầu đặc biệt
-                </label>
+                <label className="form-label">Yêu cầu đặc biệt</label>
                 <textarea
                   className="form-control bg-black text-white"
                   placeholder="VD: Tôi cần một phòng yên tĩnh, không có tiếng ồn"
