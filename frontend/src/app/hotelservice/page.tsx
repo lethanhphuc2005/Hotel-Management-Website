@@ -1,22 +1,27 @@
 "use client";
 import { HotelServiceList } from "@/components/hotelservice/List";
+import { useLoading } from "@/contexts/LoadingContext";
 import { fetchServices } from "@/services/ServiceService";
 import { Service } from "@/types/service";
 import { useEffect, useState } from "react";
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
+  const { setLoading } = useLoading();
   useEffect(() => {
     const fetchServicesData = async () => {
+      setLoading(true);
       try {
         const servicesData = await fetchServices();
         setServices(servicesData);
       } catch (error) {
         console.error("Error fetching services:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchServicesData();
-  });
+  }, []);
   return (
     <>
       <div

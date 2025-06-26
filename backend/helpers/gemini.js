@@ -168,6 +168,22 @@ function extractFiltersFromPrompt(prompt) {
   return filters;
 }
 
+async function sendMessageWithRetry(chat, prompt, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const result = await chat.sendMessage(prompt);
+      return result.response.text();
+    } catch (err) {
+      if (i < retries - 1 && err.message?.includes("503")) {
+        console.warn(`⚠️ Gemini quá tải, thử lại lần ${i + 2}...`);
+        await new Promise((res) => setTimeout(res, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 const generateResponseWithDB = async (req, res) => {
   const { prompt, history = [] } = req.body;
 
@@ -225,13 +241,12 @@ const generateResponseWithDB = async (req, res) => {
 
     // Lọc và chuẩn hoá lịch sử cũ
     const validHistory = sanitizeHistory(history).slice(-10);
-    console.log("🧾 validHistory:", JSON.stringify(validHistory, null, 2));
 
     const chat = model.startChat({ history: validHistory });
 
     // Gửi prompt + system context
-    const result = await chat.sendMessage(systemPrompt);
-    const response = result.response.text();
+    const response = await sendMessageWithRetry(chat, systemPrompt);
+
     console.log("✅ Gemini response:", response);
 
     // Cập nhật lại lịch sử hội thoại

@@ -134,7 +134,7 @@ const RoomDetail = () => {
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu phòng:", error);
     }
-  });
+  }, []);
 
   // Khóa cuộn body khi mở modal
   useEffect(() => {
@@ -151,30 +151,30 @@ const RoomDetail = () => {
     if (e.target === e.currentTarget) setShowFAQModal(false);
   };
 
-  useEffect(() => {
-    fetch("http://localhost:8000/v1/room-class/user")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data); // Xem cấu trúc dữ liệu trả về
-        // Xử lý tiếp ở bước 2
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/v1/room-class/user")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       console.log(data); // Xem cấu trúc dữ liệu trả về
+  //       // Xử lý tiếp ở bước 2
+  //     });
+  // }, []);
 
-  useEffect(() => {
-    // Giả sử bạn có API để lấy đánh giá của phòng
-    axios
-      .get(`http://localhost:8000/v1/reviews?roomId=${roomId}`)
-      .then((res: any) => setReviews(res.data.data))
-      .catch((err) => console.error(err));
-  }, [roomId]);
+  // useEffect(() => {
+  //   // Giả sử bạn có API để lấy đánh giá của phòng
+  //   axios
+  //     .get(`http://localhost:8000/v1/review?roomId=${roomId}`)
+  //     .then((res: any) => setReviews(res.data.data))
+  //     .catch((err) => console.error(err));
+  // }, [roomId]);
 
-  useEffect(() => {
-    // Lấy danh sách tiện ích của phòng
-    axios
-      .get(`http://localhost:8000/v1/room-class/${roomId}/features`)
-      .then((res: any) => setFeatures(res.data.data))
-      .catch((err) => console.error(err));
-  }, [roomId]);
+  // useEffect(() => {
+  //   // Lấy danh sách tiện ích của phòng
+  //   axios
+  //     .get(`http://localhost:8000/v1/room-class/${roomId}/features`)
+  //     .then((res: any) => setFeatures(res.data.data))
+  //     .catch((err) => console.error(err));
+  // }, [roomId]);
 
   const avgRating =
     reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;

@@ -4,19 +4,12 @@ import axios from "axios";
 import styles from "./chatbotPopup.module.css";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-type Role = "user" | "model";
-
-interface ChatMessageHistory {
-  role: Role;
-  parts: { text: string }[];
-}
+import { ChatMessageHistory, ChatMessage } from "@/types/chatbot";
+import { generateChatResponse } from "@/api/chatbotApi";
 
 export default function ChatbotPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<ChatMessageHistory[]>([]);
@@ -63,15 +56,8 @@ export default function ChatbotPopup() {
     ];
 
     try {
-      const res = await axios.post(
-        "http://localhost:8000/v1/chat/generate-response",
-        {
-          prompt: userText,
-          history: updatedHistory,
-        }
-      );
-
-      const botText = res.data.response;
+      const res = await generateChatResponse(userText, updatedHistory);
+      const botText = res.response;
 
       // Cập nhật hiển thị bot
       setMessages((prev) => [...prev, { sender: "bot", text: botText }]);

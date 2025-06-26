@@ -5,10 +5,11 @@ import { useRoomSearch } from "@/hooks/useRoomSearch";
 import RoomSearchBar from "@/components/roomSearchBar";
 import { AnimatePresence, motion } from "framer-motion";
 import AnimatedCheckbox from "@/components/checkbox";
-import 'rc-slider/assets/index.css';
-import Slider from 'rc-slider';
+import "rc-slider/assets/index.css";
+import Slider from "rc-slider";
 import { RoomClass } from "@/types/roomClass";
 import { fetchRoomClasses } from "@/services/roomClassService";
+import { useLoading } from "@/contexts/LoadingContext";
 
 export default function AllRoom() {
   const {
@@ -57,20 +58,25 @@ export default function AllRoom() {
   const [amenityList] = useState(["Jacuzzi", "WiFi", "Minibar"]);
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([500000, 50000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    500000, 50000000,
+  ]);
+  const { setLoading } = useLoading();
 
   useEffect(() => {
-    try {
-      const fetchRoomClassesData = async () => {
-        const roomClassesData = await fetchRoomClasses();
-        setRoomClass(roomClassesData);
+    const fetchRoomClassesData = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchRoomClasses();
+        setRoomClass(data);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách phòng:", error);
+      } finally {
+        setLoading(false);
       }
-      fetchRoomClassesData();
-    } catch (error) {
-      console.error("Error fetching room classes:", error);
-      
-    }
-  })
+    };
+    fetchRoomClassesData();
+  }, []);
 
   // Lọc roomclass theo parentSlug
   const filteredRoomClass = roomclass.filter(
@@ -150,19 +156,19 @@ export default function AllRoom() {
   // Sắp xếp: phòng phù hợp trước, ít giường hơn lên đầu
   const displayRoomClass = isSpecialCase
     ? [
-      ...suitableRoomClass.filter((room) => room.bed_amount === 1),
-      ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
-    ]
+        ...suitableRoomClass.filter((room) => room.bed_amount === 1),
+        ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
+      ]
     : suitableRoomClass
-      .map((room) => ({
-        ...room,
-        isSuitable: room.bed_amount >= minBedsNeeded,
-      }))
-      .sort((a, b) => {
-        if (a.isSuitable && !b.isSuitable) return -1;
-        if (!a.isSuitable && b.isSuitable) return 1;
-        return a.bed_amount - b.bed_amount;
-      });
+        .map((room) => ({
+          ...room,
+          isSuitable: room.bed_amount >= minBedsNeeded,
+        }))
+        .sort((a, b) => {
+          if (a.isSuitable && !b.isSuitable) return -1;
+          if (!a.isSuitable && b.isSuitable) return 1;
+          return a.bed_amount - b.bed_amount;
+        });
 
   const handleChange = (e: any) => {
     setPrice(Number(e.target.value));
@@ -236,8 +242,8 @@ export default function AllRoom() {
             numAdults={numAdults}
             numChildrenUnder6={numChildrenUnder6}
             numChildrenOver6={numChildrenOver6}
-          // totalEffectiveGuests={totalEffectiveGuests}
-          // showExtraBedOver6={showExtraBedOver6}
+            // totalEffectiveGuests={totalEffectiveGuests}
+            // showExtraBedOver6={showExtraBedOver6}
           />
         </div>
         <div className="row">
@@ -249,11 +255,22 @@ export default function AllRoom() {
                 </p>
               </div>
               <div className="mb-3">
-                <label className="fw-bold mb-2">Ngân sách của bạn (mỗi đêm)</label>
+                <label className="fw-bold mb-2">
+                  Ngân sách của bạn (mỗi đêm)
+                </label>
                 <div className="mb-3">
-                  <span style={{ fontSize: 13 }}>VND {priceRange[0].toLocaleString("vi-VN")}đ</span> - <span style={{ fontSize: 13 }}>VND {priceRange[1].toLocaleString("vi-VN")}đ</span>
+                  <span style={{ fontSize: 13 }}>
+                    VND {priceRange[0].toLocaleString("vi-VN")}đ
+                  </span>{" "}
+                  -{" "}
+                  <span style={{ fontSize: 13 }}>
+                    VND {priceRange[1].toLocaleString("vi-VN")}đ
+                  </span>
                 </div>
-                <div className="d-flex align-items-center mb-2" style={{ gap: 8 }}>
+                <div
+                  className="d-flex align-items-center mb-2"
+                  style={{ gap: 8 }}
+                >
                   <div style={{ flex: 1, margin: "0 8px" }}>
                     <Slider
                       min={500000}
@@ -271,7 +288,7 @@ export default function AllRoom() {
                       trackStyle={[{ backgroundColor: "#FAB320" }]}
                       handleStyle={[
                         { borderColor: "#FAB320", backgroundColor: "#FAB320" },
-                        { borderColor: "#FAB320", backgroundColor: "#FAB320" }
+                        { borderColor: "#FAB320", backgroundColor: "#FAB320" },
                       ]}
                       railStyle={{ backgroundColor: "#ccc" }}
                     />
@@ -311,7 +328,7 @@ export default function AllRoom() {
               </AnimatePresence>
 
               <p
-                className="mt-3 mb-2 fw-bold cursor-pointer"
+                className="mt-3 mb-2 fw-bold tw-cursor-pointer"
                 onClick={() => setShowFeatureFilter(!showFeatureFilter)}
                 style={{ userSelect: "none" }}
               >

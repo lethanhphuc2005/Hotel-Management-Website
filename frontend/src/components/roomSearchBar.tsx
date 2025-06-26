@@ -90,26 +90,10 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     endDate,
     setEndDate,
   } = props;
-  const [roomClasses, setRoomClasses] = useState<RoomClass[]>([]);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    // Hàm lấy dữ liệu loại phòng
-    const fetchRoomClassesData = async () => {
-      try {
-        const roomClassesData = await fetchRoomClasses();
-        
-        setRoomClasses(roomClassesData);
-      } catch (error) {
-        console.error("Error fetching room classes:", error);
-      }
-    };
-
-    fetchRoomClassesData();
-  }, []);
-  // Đóng popup khi click ra ngoài
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (

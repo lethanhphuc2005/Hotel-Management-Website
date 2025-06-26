@@ -8,6 +8,7 @@ import AnimatedCheckbox from "@/components/checkbox";
 import { AnimatePresence, motion } from "framer-motion";
 import { RoomClass } from "@/types/roomClass";
 import { fetchRoomClasses } from "@/services/roomClassService";
+import { useLoading } from "@/contexts/LoadingContext";
 
 export default function Roomclass() {
   const {
@@ -55,14 +56,18 @@ export default function Roomclass() {
   const viewList = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
+  const { setLoading } = useLoading();
 
   useEffect(() => {
     const fetchRoomClassesData = async () => {
+      setLoading(true);
       try {
         const roomClassesData = await fetchRoomClasses();
         setRoomClass(roomClassesData);
       } catch (error) {
         console.error("Error fetching room classes:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchRoomClassesData();
