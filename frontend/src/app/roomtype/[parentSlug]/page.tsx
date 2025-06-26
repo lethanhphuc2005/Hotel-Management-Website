@@ -9,6 +9,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { RoomClass } from "@/types/roomClass";
 import { fetchRoomClasses } from "@/services/roomClassService";
 import { useLoading } from "@/contexts/LoadingContext";
+import "rc-slider/assets/index.css";
+import Slider from "rc-slider";
 
 export default function Roomclass() {
   const {
@@ -54,8 +56,12 @@ export default function Roomclass() {
   } = useRoomSearch();
   const [roomClass, setRoomClass] = useState<RoomClass[]>([]);
   const viewList = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
+  const [amenityList] = useState(["Jacuzzi", "WiFi", "Minibar"]);
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    500000, 50000000,
+  ]);
   const { setLoading } = useLoading();
 
   useEffect(() => {
@@ -82,11 +88,12 @@ export default function Roomclass() {
     .filter((item) => item?.main_room_class?.[0]?.id === parentSlug)
     .filter(
       (item) =>
-        item.price >= price &&
+        item.price >= priceRange[0] &&
+        item.price <= priceRange[1] &&
         (views.length === 0 || views.includes(item.view)) &&
         (amenities.length === 0 ||
           amenities.every((am) =>
-            item?.features?.[0]?.feature_id.name.includes(am)
+            item?.features?.some((f) => f.feature_id.name === am)
           ))
     );
   // Tính số người cần giường
@@ -154,19 +161,19 @@ export default function Roomclass() {
   // Sắp xếp: phòng phù hợp trước, ít giường hơn lên đầu
   const displayRoomClass = isSpecialCase
     ? [
-        ...suitableRoomClass.filter((room) => room.bed_amount === 1),
-        ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
-      ]
+      ...suitableRoomClass.filter((room) => room.bed_amount === 1),
+      ...suitableRoomClass.filter((room) => room.bed_amount !== 1),
+    ]
     : suitableRoomClass
-        .map((room) => ({
-          ...room,
-          isSuitable: room.bed_amount >= minBedsNeeded,
-        }))
-        .sort((a, b) => {
-          if (a.isSuitable && !b.isSuitable) return -1;
-          if (!a.isSuitable && b.isSuitable) return 1;
-          return a.bed_amount - b.bed_amount;
-        });
+      .map((room) => ({
+        ...room,
+        isSuitable: room.bed_amount >= minBedsNeeded,
+      }))
+      .sort((a, b) => {
+        if (a.isSuitable && !b.isSuitable) return -1;
+        if (!a.isSuitable && b.isSuitable) return 1;
+        return a.bed_amount - b.bed_amount;
+      });
 
   const handleChange = (e: any) => {
     setPrice(Number(e.target.value));
@@ -240,8 +247,8 @@ export default function Roomclass() {
             numAdults={numAdults}
             numChildrenUnder6={numChildrenUnder6}
             numChildrenOver6={numChildrenOver6}
-            // totalEffectiveGuests={totalEffectiveGuests}
-            // showExtraBedOver6={showExtraBedOver6}
+          // totalEffectiveGuests={totalEffectiveGuests}
+          // showExtraBedOver6={showExtraBedOver6}
           />
         </div>
         <div className="row">
@@ -254,24 +261,54 @@ export default function Roomclass() {
                     "Đang tải..."}
                 </p>
               </div>
-              <p className="mt-3">LỌC THEO GIÁ</p>
-              <input
-                type="range"
-                min="500000"
-                max="5000000"
-                step="100000"
-                value={price}
-                onChange={handleChange}
-                className="w-100"
-              />
-              <p className="mt-2">Giá: {price.toLocaleString("vi-VN")}đ</p>
+              <div className="mb-3">
+                <label className="fw-bold mb-2">
+                  Ngân sách của bạn (mỗi đêm)
+                </label>
+                <div className="mb-3">
+                  <span style={{ fontSize: 13 }}>
+                    VND {priceRange[0].toLocaleString("vi-VN")}đ
+                  </span>{" "}
+                  -{" "}
+                  <span style={{ fontSize: 13 }}>
+                    VND {priceRange[1].toLocaleString("vi-VN")}đ
+                  </span>
+                </div>
+                <div
+                  className="d-flex align-items-center mb-2"
+                  style={{ gap: 8 }}
+                >
+                  <div style={{ flex: 1, margin: "0 8px" }}>
+                    <Slider
+                      min={500000}
+                      max={50000000}
+                      step={100000}
+                      range
+                      value={priceRange}
+                      onChange={(value) => {
+                        if (Array.isArray(value) && value.length === 2) {
+                          setPriceRange([value[0], value[1]]);
+                        }
+                      }}
+                      allowCross={false}
+                      pushable={1000000}
+                      trackStyle={[{ backgroundColor: "#FAB320" }]}
+                      handleStyle={[
+                        { borderColor: "#FAB320", backgroundColor: "#FAB320" },
+                        { borderColor: "#FAB320", backgroundColor: "#FAB320" },
+                      ]}
+                      railStyle={{ backgroundColor: "#ccc" }}
+                    />
+                  </div>
+                </div>
+              </div>
 
               <p
-                className="mt-3 mb-2"
+                className="mt-3 mb-2 fw-bold"
                 onClick={() => setShowViewFilter(!showViewFilter)}
                 style={{ userSelect: "none", cursor: "pointer" }}
               >
-                LỌC THEO VIEW {showViewFilter ? "▲" : "▼"}
+                Lọc theo view {showViewFilter ? "▲" : "▼"}
               </p>
 
               <AnimatePresence>
@@ -300,11 +337,11 @@ export default function Roomclass() {
               </AnimatePresence>
 
               <p
-                className="mt-3 mb-2 cursor-pointer"
+                className="mt-3 mb-2 fw-bold"
                 onClick={() => setShowFeatureFilter(!showFeatureFilter)}
-                style={{ userSelect: "none" }}
+                style={{ userSelect: "none", cursor: "pointer" }}
               >
-                LỌC THEO TIỆN NGHI {showFeatureFilter ? "▲" : "▼"}
+                Lọc theo tiện nghi {showFeatureFilter ? "▲" : "▼"}
               </p>
               <AnimatePresence>
                 {showFeatureFilter && (
@@ -316,42 +353,17 @@ export default function Roomclass() {
                     transition={{ duration: 0.3 }}
                     className="d-flex flex-column gap-3 mb-3 overflow-hidden"
                   >
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        value="Ban công"
-                        id="amenityBanCong"
-                        checked={amenities.includes("Ban công")}
+                    {amenityList.map((amenity) => (
+                      <AnimatedCheckbox
+                        key={amenity}
+                        value={amenity}
+                        checked={amenities.includes(amenity)}
                         onChange={(e) =>
                           handleCheckboxChange(e, amenities, setAmenities)
                         }
+                        label={amenity}
                       />
-                      <label
-                        className="form-check-label"
-                        htmlFor="amenityBanCong"
-                      >
-                        Ban công
-                      </label>
-                    </div>
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        value="Bồn tắm"
-                        id="amenityBonTam"
-                        checked={amenities.includes("Bồn tắm")}
-                        onChange={(e) =>
-                          handleCheckboxChange(e, amenities, setAmenities)
-                        }
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="amenityBonTam"
-                      >
-                        Bồn tắm
-                      </label>
-                    </div>
+                    ))}
                   </motion.div>
                 )}
               </AnimatePresence>
