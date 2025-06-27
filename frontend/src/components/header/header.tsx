@@ -113,7 +113,7 @@ export default function Header() {
             <li className="nav-item">
               <Link
                 className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/hotelservice"
+                href="/service"
               >
                 Dịch vụ
               </Link>

@@ -70,7 +70,7 @@ const mainRoomClassController = {
         sort = "createdAt",
         order = "asc",
         page = 1,
-        limit = 10,
+        limit,
         status,
       } = req.query;
 
@@ -139,7 +139,7 @@ const mainRoomClassController = {
         sort = "createdAt",
         order = "asc",
         page = 1,
-        limit = 10,
+        limit,
       } = req.query;
 
       // Tạo điều kiện tìm kiếm

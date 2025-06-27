@@ -11,6 +11,10 @@ import { LoadingProvider } from "@/contexts/LoadingContext";
 import GlobalLoading from "@/components/loadingPage/GlobalLoading";
 import CartProvider from "@/providers/CartProvider";
 import { ToastContainer } from "react-toastify";
+import "@fontsource/playfair-display"; // Mặc định 400
+import "@fontsource/poppins";
+import "@fontsource/lora";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -38,8 +42,15 @@ export default function RootLayout({
         {/* _app.tsx hoặc layout.tsx */}
         <link rel="preload" as="image" href="/img/banner1.webp" />
         <link rel="preload" as="image" href="/img/logo-doc.png" />
+        {/* <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&family=Lora:wght@400;600&display=swap"
+          rel="stylesheet"
+        /> */}
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable}`}
+        style={{ fontFamily: "Poppins, sans-serif" }}
+      >
         <ToastContainer
           position="top-right"
           autoClose={3000}

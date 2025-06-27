@@ -336,7 +336,7 @@ const bookingController = {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit,
         sort = "booking_status_id",
         order = "desc",
         user,
@@ -443,7 +443,7 @@ const bookingController = {
 
       const {
         page = 1,
-        limit = 10,
+        limit,
         sort = "booking_status_id",
         order = "desc",
         status,

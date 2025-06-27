@@ -45,7 +45,7 @@ const imageController = {
       // Lấy các tham số truy vấn
       const {
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
         status,
@@ -109,7 +109,7 @@ const imageController = {
       // Lấy các tham số truy vấn
       const {
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
         type,

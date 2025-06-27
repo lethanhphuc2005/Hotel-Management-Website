@@ -52,7 +52,7 @@ const websiteContentController = {
         sort = "createdAt",
         order = "desc",
         page = 1,
-        limit = 10,
+        limit,
         status,
       } = req.query;
 
@@ -119,7 +119,7 @@ const websiteContentController = {
         sort = "createdAt",
         order = "desc",
         page = 1,
-        limit = 10,
+        limit,
       } = req.query;
 
       const query = { status: true }; // Chỉ lấy nội dung đã được đăng
@@ -204,9 +204,10 @@ const websiteContentController = {
       try {
         const newWebsiteContent = new WebsiteContent(req.body);
         // Validate website content data
-        const validation = await websiteContentController.validateWebsiteContent(
-          newWebsiteContent
-        );
+        const validation =
+          await websiteContentController.validateWebsiteContent(
+            newWebsiteContent
+          );
 
         if (!validation.valid) {
           if (req.file) {
@@ -268,10 +269,11 @@ const websiteContentController = {
         }
 
         // Validate dữ liệu cập nhật
-        const validation = await websiteContentController.validateWebsiteContent(
-          updatedData,
-          req.params.id
-        );
+        const validation =
+          await websiteContentController.validateWebsiteContent(
+            updatedData,
+            req.params.id
+          );
 
         if (!validation.valid) {
           return res.status(400).json({ message: validation.message });

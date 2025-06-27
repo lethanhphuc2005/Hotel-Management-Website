@@ -49,7 +49,7 @@ const roomController = {
     try {
       const {
         search = "",
-        limit = 10,
+        limit,
         page = 1,
         sort = "createdAt",
         order = "asc",

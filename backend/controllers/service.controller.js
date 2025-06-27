@@ -54,7 +54,7 @@ const serviceController = {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit,
         search = "",
         sort = "price",
         order = "desc",
@@ -115,10 +115,10 @@ const serviceController = {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit,
         search = "",
         sort = "price",
-        order = "desc",
+        order = "asc",
       } = req.query;
 
       const query = { status: true }; // Chỉ lấy dịch vụ đang hoạt động

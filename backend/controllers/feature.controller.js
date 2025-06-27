@@ -36,7 +36,7 @@ const featureController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "asc",
         status, // Thêm tham số lọc theo trạng thái
@@ -109,7 +109,7 @@ const featureController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "price",
         order = "asc",
       } = req.query;

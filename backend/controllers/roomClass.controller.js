@@ -119,7 +119,7 @@ const roomClassController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         type,
         minBed = 1,
         maxBed = 10,
@@ -328,7 +328,7 @@ const roomClassController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         type,
         minBed = 1,
         maxBed = 10,

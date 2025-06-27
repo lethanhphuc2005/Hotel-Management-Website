@@ -79,7 +79,7 @@ const employeeController = {
         search,
         sort = "createdAt",
         order = "desc",
-        limit = 10,
+        limit,
         page = 1,
         role,
         status,

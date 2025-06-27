@@ -116,7 +116,7 @@ const discountController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
         status,
@@ -181,7 +181,7 @@ const discountController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "start_day",
         order = "desc",
         discountType,

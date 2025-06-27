@@ -111,7 +111,7 @@ const commentController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort,
         order,
         status,
@@ -180,7 +180,7 @@ const commentController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort,
         order,
         room_class,

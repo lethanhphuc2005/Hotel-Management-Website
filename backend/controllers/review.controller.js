@@ -105,7 +105,7 @@ const reviewController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
         booking_id,
@@ -192,7 +192,7 @@ const reviewController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
         booking_id,

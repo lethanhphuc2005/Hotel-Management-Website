@@ -34,7 +34,7 @@ const contentTypeController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
         status, // Thêm tham số lọc trạng thái
@@ -103,7 +103,7 @@ const contentTypeController = {
       const {
         search = "",
         page = 1,
-        limit = 10,
+        limit,
         sort = "createdAt",
         order = "desc",
       } = req.query;
