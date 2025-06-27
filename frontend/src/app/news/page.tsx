@@ -1,5 +1,5 @@
 "use client";
-import { New1, New2, New3, New4 } from "@/components/news/newsItem";
+import { New1, New2, New3, New4 } from "@/components/pages/new/newsItem";
 import { fetchWebsiteContents } from "@/services/WebsiteContentService";
 import { WebsiteContent } from "@/types/websiteContent";
 import { useEffect, useState } from "react";

@@ -10,7 +10,7 @@ import "swiper/css/thumbs";
 import "swiper/css/pagination";
 import { Mousewheel } from "swiper/modules";
 import { RoomClass } from "@/types/roomClass";
-import { fetchRoomClasses } from "@/services/roomClassService";
+import { fetchRoomClasses } from "@/services/RoomClassService";
 
 interface User {
   id: string;

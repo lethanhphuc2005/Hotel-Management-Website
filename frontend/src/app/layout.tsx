@@ -2,18 +2,20 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "animate.css";
 import "./globals.css";
-import Footer from "@/components/footer/footer";
-import Header from "@/components/header/header";
+import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header";
 import "react-datepicker/dist/react-datepicker.css";
 import { AuthProvider } from "@/providers/AuthProvider";
-import ChatbotPopup from "@/components/chatbotAI/chatBotPopup";
+import ChatbotPopup from "@/components/modals/chatBotPopup";
 import { LoadingProvider } from "@/contexts/LoadingContext";
-import GlobalLoading from "@/components/loadingPage/GlobalLoading";
+import GlobalLoading from "@/components/layout/GlobalLoading";
 import CartProvider from "@/providers/CartProvider";
 import { ToastContainer } from "react-toastify";
 import "@fontsource/playfair-display"; // Mặc định 400
 import "@fontsource/poppins";
 import "@fontsource/lora";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

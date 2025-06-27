@@ -1,13 +1,13 @@
 "use client";
 import styles from "./page.module.css";
 import { useState } from "react";
-import { AccountSection } from "@/components/profile/AccountSection";
-import { PasswordSection } from "@/components/profile/PasswordSection";
-import BookingSection from "@/components/profile/BookedSection";
+import { AccountSection } from "@/components/pages/profile/AccountSection";
+import { PasswordSection } from "@/components/pages/profile/PasswordSection";
+import BookingSection from "@/components/pages/profile/BookedSection";
 import { useProfile } from "@/hooks/useProfile";
-import CommentSection from "@/components/profile/CommentSection";
-import ReviewSection from "@/components/profile/ReviewSection";
-import FavoriteSection from "@/components/profile/FavoriteSection";
+import CommentSection from "@/components/pages/profile/CommentSection";
+import ReviewSection from "@/components/pages/profile/ReviewSection";
+import FavoriteSection from "@/components/pages/profile/FavoriteSection";
 
 const ProfilePage = () => {
   const {

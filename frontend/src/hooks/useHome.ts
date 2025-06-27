@@ -20,9 +20,8 @@ export const useHome = () => {
   useEffect(() => {
     if (didFetch) return;
     const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        // Fetch main room classes, website contents, services, and discounts
         const [roomClassesData, contentsData, servicesData, discountsData] =
           await Promise.all([
             fetchMainRoomClasses(),

@@ -3,12 +3,10 @@ import Image from "next/image";
 import { Container, Row, Col } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import style from "./page.module.css";
-import {
-  DiscountList,
-  MainRoomClassList,
-  ServiceList,
-} from "@/components/roomList";
-import { Banner } from "@/components/bannerItem";
+import Banner from "@/components/pages/home/BannerSection";
+import MainRoomClassList from "@/components/pages/home/MainRoomClassSection";
+import ServiceList from "@/components/pages/home/ServiceSection";
+import DiscountList from "@/components/pages/home/DiscountSection";
 import { motion } from "framer-motion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useHome } from "@/hooks/useHome";

@@ -1,0 +1,28 @@
+.button {
+  /* padding: 10px 24px; */
+  font-weight: bold;
+  background-color: transparent;
+  color: white;
+  border: 1px solid #fab320;
+  font-size: 16px;
+  color: #fab320;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;  
+}
+
+.button:hover {
+  transform: scale(1.05);
+  background-color: #fab320;
+  color: black;
+  box-shadow: 0 0 15px #fab320;
+  background-color: #facc15;
+  border: 1px solid #facc15;
+}
+
+.button:active {
+  transform: scale(0.95);
+  box-shadow: none;
+  background-color: #facc15;
+  border: 1px solid #facc15;
+}

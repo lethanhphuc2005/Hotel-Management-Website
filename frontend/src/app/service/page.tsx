@@ -1,5 +1,5 @@
 "use client";
-import { HotelServiceList } from "@/components/service/List";
+import { HotelServiceList } from "@/components/pages/service/List";
 import { useLoading } from "@/contexts/LoadingContext";
 import { fetchServices } from "@/services/ServiceService";
 import { Service } from "@/types/service";
@@ -23,7 +23,7 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/sections/Pagination";
 
 const features = [
   { icon: faLock, label: "Khóa cửa an toàn" },
