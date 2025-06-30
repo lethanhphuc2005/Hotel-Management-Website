@@ -1,3 +1,4 @@
+"use client";
 import { useLoading } from "@/contexts/LoadingContext";
 import { fetchDiscounts } from "@/services/DiscountService";
 import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";

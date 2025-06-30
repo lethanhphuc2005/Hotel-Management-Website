@@ -13,7 +13,6 @@ interface FilterParams {
       age7to17: number;
     };
   };
-  numberOfAdults: number;
   dateRange: { startDate: Date; endDate: Date; key: string }[];
 }
 

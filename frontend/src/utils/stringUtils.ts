@@ -1,4 +1,3 @@
-
 /**
  * Viết hoa chữ cái đầu tiên của một từ.
  * Ví dụ: "phúc" => "Phúc"
@@ -16,3 +15,9 @@ export const capitalizeWords = (str: string) =>
     .split(" ")
     .map((word) => capitalizeFirst(word))
     .join(" ");
+
+export const formantPrice = (price: number) => {
+  if (price < 1000) return `${price}₫`;
+  if (price < 1000000) return `${(price / 1000).toFixed(1)}K₫`;
+  return `${(price / 1000000).toFixed(1)}M₫`;
+};

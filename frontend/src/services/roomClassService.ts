@@ -2,6 +2,7 @@ import {
   getRoomClasses as getRoomClassesApi,
   getRoomClassById as getRoomClassByIdApi,
 } from "@/api/roomClassApi";
+import { Review } from "@/types/review";
 import { RoomClass } from "@/types/roomClass";
 
 export const fetchRoomClasses = async (): Promise<{
@@ -43,6 +44,7 @@ export const fetchRoomClasses = async (): Promise<{
               ? {
                   id: feature.feature_id.id || feature.feature_id._id,
                   name: feature.feature_id.name,
+                  icon: feature.feature_id.icon || "",
                   description: feature.feature_id.description || "",
                   image: feature.feature_id.image || "",
                 }
@@ -137,23 +139,46 @@ export const fetchRoomClassById = async (
               ? {
                   id: feature.feature_id.id || feature.feature_id._id,
                   name: feature.feature_id.name,
-                  description: feature.feature_id.description || "",
+                  icon: feature.feature_id.icon || "",
                   image: feature.feature_id.image || "",
+                  description: feature.feature_id.description || "",
                 }
               : undefined,
           }))
         : [],
       reviews: data.reviews
-        ? data.reviews.map((review: any) => ({
-            id: review.id || review._id,
-            rating: review.rating || 0,
-            comment: review.comment || "",
-            user: review.user || {},
-            created_at: review.createdAt
-              ? new Date(review.createdAt)
+        ? data.reviews.map((review: Review) => ({
+            id: review.id,
+            room_class_id: review.room_class_id || "",
+            parent_id: review.parent_id || null,
+            employee_id: review.employee_id || null,
+            user_id: review.user_id || null,
+            rating: review.rating || null,
+            content: review.content || "",
+            status: review.status || false,
+            created_at: review.created_at
+              ? new Date(review.created_at)
               : undefined,
-            updated_at: review.updatedAt
-              ? new Date(review.updatedAt)
+            updated_at: review.updated_at
+              ? new Date(review.updated_at)
+              : undefined,
+            parent_review: review.parent_review
+              ? review.parent_review.map((parent: any) => ({
+                  id: parent.id || parent._id,
+                  room_class_id: parent.room_class_id || "",
+                  parent_id: parent.parent_id || null,
+                  employee_id: parent.employee_id || null,
+                  user_id: parent.user_id || null,
+                  rating: parent.rating || null,
+                  content: parent.content || "",
+                  status: parent.status || false,
+                  created_at: parent.created_at
+                    ? new Date(parent.created_at)
+                    : undefined,
+                  updated_at: parent.updated_at
+                    ? new Date(parent.updated_at)
+                    : undefined,
+                }))
               : undefined,
           }))
         : [],

@@ -16,10 +16,7 @@ export default function AnimatedButton({
   className = "",
 }: AnimatedButtonProps) {
   return (
-    <motion.button
-      className={`${style.button} ${className}`}
-      onClick={onClick}
-    >
+    <motion.button className={`${className} ${style.button}`} onClick={onClick}>
       {children}
     </motion.button>
   );

@@ -63,7 +63,6 @@ export default function FilterSidebar({
         : prev.filter((item) => item !== value)
     );
   };
-  console.log("Selected Main Room Class IDs:", selectedMainRoomClassIds);
   return (
     <div className="sticky-top" style={{ top: "13%" }}>
       <div className="mt-3 mb-4" style={{ color: "#FAB320" }}>

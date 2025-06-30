@@ -2,6 +2,7 @@ export interface Feature {
   id: string;
   name: string;
   image: string;
+  icon: string;
   description: string;
   status?: boolean;
   created_at?: string;

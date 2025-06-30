@@ -16,6 +16,7 @@ export const fetchFeatures = async (): Promise<{
       id: feature.id,
       name: feature.name,
       image: feature.image,
+      icon: feature.icon || "", // Ensure icon is included
       description: feature.description,
       status: feature.status,
       created_at: feature.createdAt,
@@ -60,6 +61,7 @@ export const fetchFeatureById = async (
       id: featureData.id,
       name: featureData.name,
       image: featureData.image,
+      icon: featureData.icon || "", // Ensure icon is included
       description: featureData.description,
       status: featureData.status,
       created_at: featureData.createdAt,

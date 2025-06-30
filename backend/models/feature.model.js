@@ -21,6 +21,12 @@ const FeatureSchema = new mongoose.Schema(
       trim: true,
       maxlength: 255,
     },
+    icon: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: 255,
+    },
     status: {
       type: Boolean,
       default: false,

@@ -1,3 +1,4 @@
+"use client";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { useRef, useState } from "react";

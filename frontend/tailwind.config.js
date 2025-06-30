@@ -27,9 +27,10 @@ module.exports = {
         glow: "0 0 15px #FAB320",
       },
       fontFamily: {
-        playfair: ['"Playfair Display"', "serif"],
-        poppins: ['"Poppins"', "sans-serif"],
-        lora: ['"Lora"', "serif"],
+        playfair: ["var(--font-playfair-display)", "serif"],
+        lora: ["var(--font-lora)", "serif"],
+        geistMono: ["var(--font-geist-mono)", "monospace"],
+        vietnamese: ["var(--font-vietnamese)", "sans-serif"],
       },
     },
   },

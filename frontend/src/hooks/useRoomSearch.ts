@@ -17,6 +17,7 @@ export function useRoomSearch() {
     adults: 1,
     children: { age0to6: 0, age7to17: 0 },
   });
+
   const [pendingGuests, setPendingGuests] = useState(guests);
   const [pendingDateRange, setPendingDateRange] = useState<DateRange | null>(
     null
@@ -34,6 +35,21 @@ export function useRoomSearch() {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [showDateError, setShowDateError] = useState(false);
+
+  function saveSearchToLocalStorage() {
+    const searchData = {
+      dateRange,
+      guests,
+      price,
+      maxGuests,
+    };
+    localStorage.setItem("lastRoomSearch", JSON.stringify(searchData));
+  }
+
+  function handleSearch() {
+    setHasSearched(true);
+    saveSearchToLocalStorage();
+  }
 
   return {
     price,
@@ -69,5 +85,6 @@ export function useRoomSearch() {
     setEndDate,
     showDateError,
     setShowDateError,
+    handleSearch,
   };
 }

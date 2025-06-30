@@ -405,10 +405,7 @@ const roomClassController = {
               {
                 path: "employee_id",
                 select: "first_name last_name email phone_number",
-              },
-              {
-                path: "parent_id",
-              },
+              }
             ],
           },
           {
@@ -422,10 +419,7 @@ const roomClassController = {
               {
                 path: "employee_id",
                 select: "first_name last_name email phone_number",
-              },
-              {
-                path: "parent_id",
-              },
+              }
             ],
           },
         ])
@@ -554,9 +548,7 @@ const roomClassController = {
   // === LẤY LOẠI PHÒNG THEO ID ===
   getRoomClassById: async (req, res) => {
     try {
-      const roomClassData = await RoomClass.find({
-        _id: req.params.id,
-      }).populate([
+      const roomClassData = await RoomClass.findById(req.params.id).populate([
         {
           path: "main_room_class",
           select: "-status -createdAt -updatedAt",
@@ -583,10 +575,7 @@ const roomClassController = {
             {
               path: "employee_id",
               select: "first_name last_name email phone_number",
-            },
-            {
-              path: "parent_id",
-            },
+            }
           ],
         },
         {
@@ -600,10 +589,7 @@ const roomClassController = {
             {
               path: "employee_id",
               select: "-address -status -createdAt -updatedAt",
-            },
-            {
-              path: "parent_id",
-            },
+            }
           ],
         },
       ]);

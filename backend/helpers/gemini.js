@@ -232,7 +232,7 @@ const generateResponseWithDB = async (req, res) => {
         - Không hút thuốc trong phòng
         - Không mang theo thú cưng
         - Trẻ dưới 6 tuổi ở miễn phí nếu không dùng giường phụ
-        - Trẻ từ 6-16 tuổi: +200.000 VND/đêm nếu có giường phụ
+        - Trẻ từ 6-17 tuổi: +200.000 VND/đêm nếu có giường phụ
         - Giường phụ: 300.000 VND/đêm
 
         💬 Dưới đây là câu hỏi của khách:

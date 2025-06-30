@@ -8,6 +8,12 @@ const ReviewSchema = new mongoose.Schema(
       required: true,
     },
 
+    room_class_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "room_class",
+      required: true,
+    },
+
     parent_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "review",

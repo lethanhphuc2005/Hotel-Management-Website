@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Be_Vietnam_Pro,
+  Playfair_Display,
+  Lora,
+} from "next/font/google";
 import "animate.css";
 import "./globals.css";
 import Footer from "@/components/layout/Footer";
@@ -11,11 +17,26 @@ import { LoadingProvider } from "@/contexts/LoadingContext";
 import GlobalLoading from "@/components/layout/GlobalLoading";
 import CartProvider from "@/providers/CartProvider";
 import { ToastContainer } from "react-toastify";
-import "@fontsource/playfair-display"; // Mặc định 400
-import "@fontsource/poppins";
-import "@fontsource/lora";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+
+const beVietnam = Be_Vietnam_Pro({
+  weight: ["400", "600"],
+  subsets: ["vietnamese"],
+  variable: "--font-vietnam",
+});
+
+const playfairDisplay = Playfair_Display({
+  weight: ["400", "700"],
+  subsets: ["vietnamese"],
+  variable: "--font-playfair-display",
+});
+
+const lora = Lora({
+  weight: ["400", "700"],
+  subsets: ["vietnamese"],
+  variable: "--font-lora",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,13 +66,12 @@ export default function RootLayout({
         <link rel="preload" as="image" href="/img/banner1.webp" />
         <link rel="preload" as="image" href="/img/logo-doc.png" />
         {/* <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&family=Lora:wght@400;600&display=swap"
-          rel="stylesheet"
-        /> */}
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&family=Lora:wght@400;600&display=swap"
+            rel="stylesheet"
+          /> */}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
-        style={{ fontFamily: "Poppins, sans-serif" }}
+        className={`${geistSans.variable} ${geistMono.variable} ${beVietnam.variable} ${playfairDisplay.variable} ${lora.variable}`}
       >
         <ToastContainer
           position="top-right"

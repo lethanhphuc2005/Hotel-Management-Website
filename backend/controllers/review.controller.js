@@ -1,7 +1,10 @@
 const Review = require("../models/review.model");
 const Booking = require("../models/booking.model");
+const { BookingDetail } = require("../models/bookingDetail.model");
 const User = require("../models/user.model");
 const Employee = require("../models/employee.model");
+const RoomClass = require("../models/roomClass.model");
+const { BookingStatus } = require("../models/status.model");
 
 const reviewController = {
   // === XÂY DỰNG CẤU TRÚC CÂY ĐÁNH GIÁ ===
@@ -31,12 +34,36 @@ const reviewController = {
 
   // === KIỂM TRA ĐIỀU KIỆN ĐÁNH GIÁ ===
   validateReview: async (reviewData, reviewId) => {
-    const { booking_id, content, employee_id, user_id, parent_id } = reviewData;
+    const {
+      booking_id,
+      room_class_id,
+      content,
+      employee_id,
+      user_id,
+      parent_id,
+    } = reviewData;
 
     // Kiểm tra xem booking_id có tồn tại không
     const booking = await Booking.findById(booking_id);
     if (!booking) {
       return { valid: false, message: "Đơn đặt phòng không hợp lệ." };
+    }
+
+    // Kiểm tra xem room_class_id có tồn tại không
+    const roomClass = await RoomClass.findById(room_class_id);
+    if (!roomClass) {
+      return { valid: false, message: "Loại phòng không hợp lệ." };
+    }
+    // Kiểm tra xem loại phòng có thuộc về đơn đặt phòng không
+    const bookingDetails = await BookingDetail.find({ booking_id });
+    const isRoomClassValid = bookingDetails.some(
+      (detail) => detail.room_class_id.toString() === room_class_id.toString()
+    );
+    if (!isRoomClassValid) {
+      return {
+        valid: false,
+        message: "Loại phòng không thuộc về đơn đặt phòng này.",
+      };
     }
 
     // Kiểm tra xem employee_id có tồn tại không
@@ -290,7 +317,7 @@ const reviewController = {
   // === THÊM ĐÁNH GIÁ ===
   addReview: async (req, res) => {
     try {
-      const { booking_id, user_id } = req.body;
+      const { booking_id, user_id, parent_id } = req.body;
       const newReview = new Review(req.body);
       const validation = await reviewController.validateReview(newReview);
       if (!validation.valid) {
@@ -298,10 +325,14 @@ const reviewController = {
       }
 
       const booking = await Booking.findById(newReview.booking_id);
-      // 3. Kiểm tra trạng thái đặt phòng phải là "Đã hoàn tất"
-      // (Giả sử bạn có một ID cụ thể cho trạng thái này, ví dụ: statusId_success)
-      const statusId_success = "683fba8d351a96315d457678"; // <-- Thay bằng ID thực tế
-      if (booking.booking_status_id.toString() !== statusId_success) {
+      const validBookingStatus = await BookingStatus.find({
+        code: "CHECKED_OUT",
+      });
+
+      if (
+        booking.booking_status_id.toString() !==
+        validBookingStatus[0]._id.toString()
+      ) {
         return res
           .status(400)
           .json({ message: "Chỉ được đánh giá sau khi hoàn tất lưu trú." });
@@ -317,7 +348,7 @@ const reviewController = {
 
       // 5. Kiểm tra xem người dùng đã đánh giá booking này chưa
       // Nếu là user_id thì chỉ cho phép 1 review/booking/user
-      if (user_id) {
+      if (user_id && !parent_id) {
         const existingReview = await Review.findOne({ booking_id, user_id });
         if (existingReview) {
           return res

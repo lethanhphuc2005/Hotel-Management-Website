@@ -1,10 +1,10 @@
 "use client";
 import { DateRange } from "react-date-range";
 import { vi } from "date-fns/locale";
-import style from "@/app/roomtype/[parentSlug]/rcChild.module.css";
+import style from "@/styles/components/searchBar.module.css";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -57,6 +57,7 @@ interface RoomSearchBarProps {
   numChildrenOver6?: number;
   totalEffectiveGuests?: number;
   showExtraBedOver6?: boolean;
+  handleSearch?: () => void;
 }
 
 export default function RoomSearchBar(props: RoomSearchBarProps) {
@@ -87,6 +88,7 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     setStartDate,
     endDate,
     setEndDate,
+    handleSearch,
   } = props;
   const router = useRouter();
   const pathname = usePathname();
@@ -393,6 +395,7 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                 toast.warning("Vui lòng chọn ngày đến và ngày đi.");
                 return;
               }
+
               const startDate = pendingDateRange[0]?.startDate;
               const endDate = pendingDateRange[0]?.endDate;
 
@@ -435,7 +438,18 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
               setNumberOfNights(nights);
               setHasSearched(true);
 
-              // ✅ Chỉ chuyển hướng nếu đang ở trang chủ
+              // ✅ Lưu vào localStorage
+              const savedSearch = {
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                guests: pendingGuests,
+              };
+              localStorage.setItem(
+                "lastRoomSearch",
+                JSON.stringify(savedSearch)
+              );
+
+              // ✅ Điều hướng nếu ở trang chủ
               if (pathname === "/") {
                 const query = new URLSearchParams({
                   start: startDate.toISOString(),
@@ -445,7 +459,7 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                   children17: pendingChildren7to17.toString(),
                 });
 
-                router.push(`/roomtype?${query.toString()}`);
+                router.push(`/room-class?${query.toString()}`);
               } else {
                 toast.success("Tìm phòng thành công!");
               }

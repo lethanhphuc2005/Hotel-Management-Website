@@ -63,7 +63,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
               transition={{ duration: 0.4, ease: "easeOut" }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h5 className="tw-text-xl tw-font-bold tw-text-primary tw-font-playfair">
+              <h5 className="tw-text-xl tw-font-bold tw-text-primary">
                 {item.name}
               </h5>
               <Image
@@ -120,7 +120,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
           loading="lazy"
           className="tw-w-full tw-h-[240px] tw-object-cover tw-rounded-lg tw-shrink-0"
         />
-        <motion.h5 className="tw-font-playfair tw-text-lg sm:tw-text-xl tw-text-[#FAB320] tw-tracking-wide tw-line-clamp-1">
+        <motion.h5 className="tw-text-lg sm:tw-text-xl tw-text-[#FAB320] tw-tracking-wide tw-line-clamp-1">
           {item.name}
         </motion.h5>
         <p className="tw-font-lora tw-text-gray-400 tw-line-clamp-1">

@@ -78,8 +78,10 @@ export default function ServicesPage() {
   }, []);
   return (
     <div className="tw-container tw-mt-[130px] tw-mb-[100px] tw-mx-auto">
-
-      <HotelServiceList title={"CÁC DỊCH VỤ CÓ PHÍ"} services={currentServices} />
+      <HotelServiceList
+        title={"CÁC DỊCH VỤ CÓ PHÍ"}
+        services={currentServices}
+      />
 
       {totalPages > 1 && (
         <Pagination
@@ -89,7 +91,7 @@ export default function ServicesPage() {
         />
       )}
 
-      <h4 className="tw-font-playfair tw-mt-12 tw-font-bold tw-text-white tw-text-xl sm:tw-text-2xl">
+      <h4 className="tw-mt-12 tw-font-bold tw-text-white tw-text-xl sm:tw-text-2xl">
         CÁC DỊCH VỤ MIỄN PHÍ
       </h4>
 
