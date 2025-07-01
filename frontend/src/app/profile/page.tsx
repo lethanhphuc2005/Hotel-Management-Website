@@ -14,6 +14,7 @@ const ProfilePage = () => {
     profile,
     formData,
     bookedRooms,
+    setBookedRooms,
     comments,
     setComments,
     reviews,
@@ -35,7 +36,9 @@ const ProfilePage = () => {
       case "change-password":
         return <PasswordSection formData={formData} />;
       case "booked-rooms":
-        return <BookingSection bookings={bookedRooms} />;
+        return (
+          <BookingSection bookings={bookedRooms} setBookings={setBookedRooms} />
+        );
       case "comments":
         return <CommentSection comments={comments} setComments={setComments} />;
       case "reviews":

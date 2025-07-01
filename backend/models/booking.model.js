@@ -119,6 +119,11 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    cancellation_fee: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );

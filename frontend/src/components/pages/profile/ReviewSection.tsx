@@ -7,6 +7,7 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import Pagination from "@/components/sections/Pagination";
+import { showConfirmDialog } from "@/utils/swal";
 
 type Review = {
   id: string;
@@ -89,6 +90,16 @@ export default function ReviewSection({
 
   const handleDelete = async (reviewId: string, userId: string) => {
     try {
+      const result = await showConfirmDialog(
+        "Bạn có chắc muốn xóa đánh giá này?",
+        "Đánh giá này sẽ bị xóa vĩnh viễn.",
+        "Xóa",
+        "Huỷ"
+      );
+
+      if (!result) {
+        return;
+      }
       await deleteReview(reviewId, userId);
       toast.success("Xóa đánh giá thành công");
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));

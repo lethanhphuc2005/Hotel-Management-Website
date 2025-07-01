@@ -6,7 +6,7 @@ import style from "@/styles/components/button.module.css";
 
 interface AnimatedButtonProps {
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: any) => void;
   className?: string;
 }
 

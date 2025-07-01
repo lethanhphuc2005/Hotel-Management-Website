@@ -26,6 +26,7 @@ const reviewRouter = require("./routes/review.route");
 const paymentRouter = require("./routes/payment.route");
 const chatRouter = require("./routes/chat.route");
 const userFavoriteRouter = require("./routes/userFavorite.route");
+const walletRouter = require("./routes/wallet.route");
 
 dotenv.config();
 
@@ -73,6 +74,7 @@ app.use("/v1/review", reviewRouter);
 app.use("/v1/payment", paymentRouter);
 app.use("/v1/chat", chatRouter);
 app.use("/v1/user-favorite", userFavoriteRouter);
+app.use("/v1/wallet", walletRouter);
 
 app.listen(8000, () => {
   console.log("🚀 Server is running on port 8000");

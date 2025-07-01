@@ -1,46 +1,90 @@
 import { Service } from "@/types/service";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import style from "@/app/page.module.css";
 import Image from "next/image";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/contexts/store";
+import { addServiceToRoom } from "@/contexts/cartSlice";
+import ServiceDetailPopup from "@/components/modals/ServiceDetailModal";
+import SelectRoomModal from "@/components/modals/SelecteServiceModal";
+import { AnimatedButton } from "@/components/common/Button";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import Link from "next/link";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { AnimatedButton } from "@/components/common/Button";
 
 export function ServiceItem({ svi }: { svi: Service }) {
-  return (
-    <div className={style.serviceCard}>
-      <div style={{ position: "relative", width: "100%", height: 180 }}>
-        <Image
-          src={`http://localhost:8000/images/${svi.image}`}
-          alt={svi.name}
-          layout="fill"
-          objectFit="cover"
-          className={style.serviceImage}
-        />
-      </div>
-      <div className="p-3">
-        <h5 className="text-truncate" style={{ fontWeight: 600 }}>
-          {svi.name}
-        </h5>
+  const [showDetail, setShowDetail] = useState(false);
+  const [showSelectRoom, setShowSelectRoom] = useState(false);
+  const dispatch = useDispatch();
+  const cartRooms = useSelector((state: RootState) => state.cart.rooms);
 
-        <div className="mb-4 mt-3 d-flex align-items-center gap-1">
-          <span role="img" aria-label="clock">
-            <i className="bi bi-bookmark-check-fill"></i>
-          </span>
-          <span
-            className="text-truncate"
-            style={{ marginLeft: 8, color: "white" }}
-          >
-            {svi.description}
-          </span>
+  const handleAdd = () => {
+    if (cartRooms.length === 0) {
+      toast.warning("Bạn cần thêm ít nhất một phòng vào giỏ trước.");
+      return;
+    }
+    setShowSelectRoom(true);
+  };
+
+  const handleSelectRoom = (roomId: string) => {
+    dispatch(
+      addServiceToRoom({
+        roomId,
+        service: {
+          id: svi.id,
+          name: svi.name,
+          image: svi.image || "default.jpg",
+          description: svi.description,
+          price: svi.price,
+          quantity: 1,
+        },
+      })
+    );
+    toast.success(`Đã thêm dịch vụ "${svi.name}" vào phòng!`);
+    setShowSelectRoom(false);
+  };
+
+  return (
+    <>
+      {/* Card dịch vụ */}
+      <div className={style.serviceCard}>
+        <div style={{ position: "relative", width: "100%", height: 180 }}>
+          <Image
+            src={`http://localhost:8000/images/${svi.image}`}
+            alt={svi.name}
+            layout="fill"
+            objectFit="cover"
+            className={style.serviceImage}
+          />
         </div>
-        <a>
-          <AnimatedButton className="tw-w-full ">Xem thêm</AnimatedButton>
-        </a>
+        <div className="p-3">
+          <h5 className="text-truncate" style={{ fontWeight: 600 }}>
+            {svi.name}
+          </h5>
+          <div className="mb-4 mt-3 d-flex align-items-center gap-1">
+            <i className="bi bi-bookmark-check-fill" />
+            <span className="text-truncate ms-2 text-white">
+              {svi.description}
+            </span>
+          </div>
+          <div className="tw-flex tw-gap-2">
+            <AnimatedButton className="tw-w-full" onClick={handleAdd}>
+              Thêm
+            </AnimatedButton>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* === MODAL CHỌN PHÒNG === */}
+      <SelectRoomModal
+        open={showSelectRoom}
+        onClose={() => setShowSelectRoom(false)}
+        onSelect={handleSelectRoom}
+      />
+    </>
   );
 }
 

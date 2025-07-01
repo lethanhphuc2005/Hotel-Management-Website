@@ -5,6 +5,8 @@ import { deleteComment, updateComment } from "@/services/CommentService";
 import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
 import Pagination from "@/components/sections/Pagination";
+import { showConfirmDialog } from "@/utils/swal";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Comment = {
   id: string;
@@ -73,6 +75,16 @@ export default function CommentSection({
 
   const handleDelete = async (commentId: string, userId: string) => {
     try {
+      const result = await showConfirmDialog(
+        "Bạn có chắc muốn xóa bình luận này?",
+        "Bình luận này sẽ bị xóa vĩnh viễn.",
+        "Xóa",
+        "Huỷ"
+      );
+
+      if (!result) {
+        return;
+      }
       await deleteComment(commentId, userId);
       toast.success("Xóa bình luận thành công");
       setComments((prev) => prev.filter((c) => c.id !== commentId));
@@ -84,7 +96,7 @@ export default function CommentSection({
 
   return (
     <div className="tw-space-y-4">
-      {comments.map((comment) => (
+      {currentComments.map((comment) => (
         <motion.div
           key={comment.id}
           className="tw-p-4 tw-rounded-xl tw-border tw-border-gray-700 tw-bg-black/50"

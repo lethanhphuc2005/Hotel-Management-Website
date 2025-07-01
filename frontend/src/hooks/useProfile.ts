@@ -111,6 +111,7 @@ export const useProfile = () => {
     formData,
     setFormData,
     bookedRooms,
+    setBookedRooms,
     comments,
     setComments,
     reviews,

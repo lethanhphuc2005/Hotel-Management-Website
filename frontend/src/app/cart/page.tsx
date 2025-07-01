@@ -5,15 +5,49 @@ import { RootState } from "@/contexts/store";
 import { removeRoomFromCart, clearCart } from "@/contexts/cartSlice";
 import Link from "next/link";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
+import { showConfirmDialog } from "@/utils/swal";
+import { toast } from "react-toastify";
 
 export default function Cart() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
-  console.log("Cart rooms:", rooms);
   const total = rooms.reduce((sum, room) => {
     const roomTotal = getRoomTotalPrice(room);
     return sum + roomTotal;
   }, 0);
+
+  const handleDeleteRoom = async (roomId: string) => {
+    const room = rooms.find((r) => r.id === roomId);
+    if (!room) return;
+    const result = await showConfirmDialog(
+      `Bạn có chắc muốn xóa phòng "${room.name}" khỏi giỏ hàng?`,
+      "Phòng này sẽ bị xóa khỏi giỏ hàng.",
+      "Xóa",
+      "Huỷ"
+    );
+    if (!result) {
+      return;
+    } else {
+      toast.success(`Đã xóa phòng "${room.name}" khỏi giỏ hàng.`);
+    }
+    dispatch(removeRoomFromCart(roomId));
+  }
+
+  const handleDeleteCart = async () => {
+    const result = await showConfirmDialog(
+      "Bạn có chắc muốn xóa toàn bộ giỏ hàng?",
+      "Tất cả phòng và dịch vụ sẽ bị xóa khỏi giỏ hàng.",
+      "Xóa",
+      "Huỷ"
+    );
+
+    if (!result) {
+      return;
+    } else {
+      toast.success("Đã xóa toàn bộ giỏ hàng.");
+    }
+    dispatch(clearCart());
+  };
 
   return (
     <div className={`container ${styles.cartContainer}`}>
@@ -69,7 +103,7 @@ export default function Cart() {
                     <button
                       className={`${styles.removeBtn} mt-2`}
                       title="Xóa khỏi giỏ"
-                      onClick={() => dispatch(removeRoomFromCart(room.id))}
+                      onClick={() => handleDeleteRoom(room.id)}
                     >
                       Xóa
                     </button>
@@ -103,35 +137,38 @@ export default function Cart() {
           </tbody>
         </table>
       </div>
-      <button
-        className="btn btn-outline-danger w-100 mt-2"
-        onClick={() => dispatch(clearCart())}
-      >
-        Xóa toàn bộ giỏ phòng
-      </button>
 
       {rooms.length > 0 && (
-        <div className={styles.shippingBox + " mt-3"}>
-          <div className={styles.summaryBox}>
-            <div className={styles.summaryRow}>
-              <span>Tạm tính</span>
-              <span>{total.toLocaleString("vi-VN")}đ</span>
+        <>
+          {" "}
+          <button
+            className="btn btn-outline-danger w-100 mt-2"
+            onClick={() => handleDeleteCart()}
+          >
+            Xóa toàn bộ giỏ phòng
+          </button>
+          <div className={styles.shippingBox + " mt-3"}>
+            <div className={styles.summaryBox}>
+              <div className={styles.summaryRow}>
+                <span>Tạm tính</span>
+                <span>{total.toLocaleString("vi-VN")}đ</span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Phí dịch vụ</span>
+                <span>Miễn phí</span>
+              </div>
+              <div className={styles.summaryRow + " " + styles.summaryTotal}>
+                <span>Tổng cộng</span>
+                <span>{total.toLocaleString("vi-VN")}đ</span>
+              </div>
             </div>
-            <div className={styles.summaryRow}>
-              <span>Phí dịch vụ</span>
-              <span>Miễn phí</span>
-            </div>
-            <div className={styles.summaryRow + " " + styles.summaryTotal}>
-              <span>Tổng cộng</span>
-              <span>{total.toLocaleString("vi-VN")}đ</span>
+            <div className="text-end mt-4 mb-1">
+              <Link href="/payment" className={styles.checkoutBtn}>
+                Đặt phòng ({total.toLocaleString("vi-VN")}đ)
+              </Link>
             </div>
           </div>
-          <div className="text-end mt-4 mb-1">
-            <Link href="/payment" className={styles.checkoutBtn}>
-              Đặt phòng ({total.toLocaleString("vi-VN")}đ)
-            </Link>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

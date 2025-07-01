@@ -3,8 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { formatDate } from "@/utils/dateUtils";
 import Pagination from "@/components/sections/Pagination";
+import { AnimatedButtonPrimary } from "@/components/common/Button";
+import { showConfirmDialog } from "@/utils/swal";
+import { cancelBooking } from "@/services/BookingService";
 
-export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
+export default function BookedRoomSection({
+  bookings,
+  setBookings,
+}: {
+  bookings: any[];
+  setBookings: React.Dispatch<React.SetStateAction<any[]>>;
+}) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
   const totalItems = bookings.length;
@@ -46,6 +55,35 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
     }
   };
 
+  if (!currentBookings || currentBookings.length === 0) {
+    return (
+      <div className="tw-text-center tw-text-gray-400">
+        Không có đặt phòng nào trong trang này.
+      </div>
+    );
+  }
+
+  const [cancelReason, setCancelReason] = useState<string>("");
+  const handleCancelBooking = async (bookingId: string) => {
+    const confirmed = await showConfirmDialog(
+      "Xác nhận hủy đặt phòng",
+      "Bạn có chắc chắn muốn hủy đặt phòng này?"
+    );
+    if (!confirmed) return;
+    try {
+      // Call API to cancel booking
+      const response = await cancelBooking(bookingId, "", cancelReason);
+      if (response.success) {
+        toast.success("Hủy đặt phòng thành công");
+        setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+      } else {
+        toast.error(response.message || "Hủy đặt phòng thất bại");
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi hủy đặt phòng. Vui lòng thử lại sau.");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -68,7 +106,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
             >
               <div className="tw-space-y-2">
                 <h3 className="tw-text-lg tw-font-bold tw-text-white">
-                  {booking.booking_details?.[0]?.room_class_id?.name ||
+                  {booking.booking_details?.[0].room_class_id.name ||
                     "Không rõ loại phòng"}
                 </h3>
                 <p className="tw-text-sm tw-text-gray-400">
@@ -89,10 +127,10 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                 </ul>
                 <span
                   className={`tw-inline-block tw-px-3 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-uppercase ${getColorClass(
-                    booking.booking_status_id?.code
+                    booking.booking_status_id.code
                   )}`}
                 >
-                  {booking.booking_status_id?.name}
+                  {booking.booking_status_id.name}
                 </span>
               </div>
             </div>
@@ -107,9 +145,9 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                 >
                   <div className="tw-w-full tw-max-w-3xl tw-mx-auto tw-flex tw-flex-col tw-gap-6">
                     {booking.booking_details?.map((detail: any, index: any) => {
-                      const room = detail?.room_id;
+                      const room = detail.room_id;
                       const roomClass =
-                        room?.room_class_id || detail?.room_class_id;
+                        room.room_class_id || detail.room_class_id;
                       return (
                         <div
                           key={
@@ -180,7 +218,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                       </p>
                       <p>
                         <strong>Hình thức:</strong>{" "}
-                        {booking.booking_method_id?.name || "Không xác định"}
+                        {booking.booking_method_id.name || "Không xác định"}
                       </p>
                       <strong>Thanh toán:</strong>{" "}
                       {payment && payment.length > 0 ? (
@@ -200,17 +238,14 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                         {booking.total_price.toLocaleString("vi-VN")}₫
                       </p>
                       {isCheckedOut && (
-                        <motion.button
-                          onClick={() =>
-                            toast.success("Cảm ơn bạn đã sử dụng dịch vụ!")
-                          }
-                          transition={{ delay: 0 }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="tw-bg-blue-600 tw-text-white tw-px-4 tw-py-2 tw-rounded-full tw-border-none"
+                        <AnimatedButtonPrimary
+                          onClick={() => {
+                            toast.success("Cảm ơn bạn đã sử dụng dịch vụ!");
+                          }}
+                          className="tw-w-full tw-mt-4 tw-py-2 tw-text-center"
                         >
                           Đánh giá
-                        </motion.button>
+                        </AnimatedButtonPrimary>
                       )}
                     </motion.div>
                   </div>

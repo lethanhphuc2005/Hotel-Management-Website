@@ -7,7 +7,7 @@ import {
   Lora,
 } from "next/font/google";
 import "animate.css";
-import "./globals.css";
+import "@/styles/base/globals.css";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import "react-datepicker/dist/react-datepicker.css";
@@ -62,13 +62,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
-        {/* _app.tsx hoặc layout.tsx */}
         <link rel="preload" as="image" href="/img/banner1.webp" />
         <link rel="preload" as="image" href="/img/logo-doc.png" />
-        {/* <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&family=Lora:wght@400;600&display=swap"
-            rel="stylesheet"
-          /> */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${beVietnam.variable} ${playfairDisplay.variable} ${lora.variable}`}

@@ -3,10 +3,7 @@ const bookingController = require("../controllers/booking.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
 /// === THÊM MỚI ĐẶT PHÒNG ===
-router.post(
-  "/",
-  bookingController.addBooking
-);
+router.post("/", bookingController.addBooking);
 
 // === LẤY DANH SÁCH ĐẶT PHÒNG ===
 router.get(
@@ -34,6 +31,13 @@ router.put(
   "/cancel/:id",
   authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
   bookingController.cancelBooking
+);
+
+// === XEM PHÍ HỦY BỎ ĐẶT PHÒNG ===
+router.get(
+  "/cancellation-fee/:id",
+  authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
+  bookingController.previewCancellationFee
 );
 
 // === CẬP NHẬT TRẠNG THÁI ĐẶT PHÒNG ===

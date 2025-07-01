@@ -11,8 +11,10 @@ const Room = require("../models/room.model");
 const RoomClass = require("../models/roomClass.model");
 const Discount = require("../models/discount.model");
 const Service = require("../models/service.model");
+const walletController = require("./wallet.controller");
 const mailSender = require("../helpers/mail.sender");
 const { notificationEmail } = require("../config/mail");
+const { calculateCancellationFee } = require("../utils/cancellationPolicy");
 
 const bookingController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===
@@ -593,38 +595,113 @@ const bookingController = {
     try {
       const bookingId = req.params.id;
       const booking = await Booking.findById(bookingId);
+
       if (!booking) {
         return res.status(404).json({ message: "Đặt phòng không tồn tại." });
       }
-      if (booking.booking_status_id.toString() === "683fba8d351a96315d457679") {
-        return res.status(400).json({
-          message: "Đặt phòng đã được hủy, không thể hủy lại.",
-        });
-      }
 
-      // Kiểm tra trạng thái đặt phòng hiện tại
+      const cancelBookingStatus = await BookingStatus.findOne({
+        code: "CANCELLED",
+      });
+
+      // Đã hủy trước đó
       if (
-        booking.booking_status_id.toString() === "683fba8d351a96315d457677" || // Đang chờ xử lý
-        booking.booking_status_id.toString() === "683fba8d351a96315d457678" // Đã xác nhận
+        booking.booking_status_id.toString() ===
+        cancelBookingStatus._id.toString()
       ) {
         return res.status(400).json({
-          message: "Không thể hủy đặt phòng trong trạng thái này.",
+          message: "Đặt phòng đã được huỷ trước đó.",
         });
       }
 
-      // Cập nhật trạng thái đặt phòng thành "Đã hủy"
-      booking.booking_status_id = "683fba8d351a96315d457679"; // ID của trạng thái "Đã hủy"
-      booking.cancel_reason = req.body.cancel_reason || "Không có lý do";
+      const now = new Date();
+      const checkInDate = new Date(booking.check_in_date);
 
-      booking.cancel_date = new Date(); // Ngày hủy đặt phòng
+      // Tính phí hủy
+      const { feePercent, feeAmount } = calculateCancellationFee(
+        checkInDate,
+        now,
+        booking.total_price
+      );
+
+      booking.booking_status_id = cancelBookingStatus._id;
+      booking.cancel_date = now;
+      booking.cancel_reason = req.body.cancel_reason || "Không cung cấp lý do";
+      booking.cancellation_fee = feeAmount;
 
       await booking.save();
-      res.status(200).json({
-        message: "Hủy đặt phòng thành công",
-        data: booking,
-      });
+
+      // Hoàn tiền vào ví người dùng nếu có
+      if (booking.payment_status === "PAID") {
+        const refundAmount = booking.total_price - feeAmount;
+        if (refundAmount > 0) {
+          await walletController.refundInternal(
+            booking.user_id,
+            refundAmount,
+            `Hoàn tiền đặt phòng ${bookingId} sau khi huỷ`
+          );
+        }
+
+        return res.status(200).json({
+          message: `Huỷ thành công. Phí huỷ: ${feeAmount.toLocaleString(
+            "vi-VN"
+          )} VNĐ (${feePercent}%)`,
+          data: booking,
+          refund: {
+            amount: refundAmount,
+            note: "Số tiền còn lại đã được hoàn vào ví",
+          },
+        });
+      } else {
+        return res.status(200).json({
+          message: `Huỷ thành công.`,
+          data: booking,
+        });
+      }
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ message: "Lỗi khi huỷ đặt phòng", error });
+    }
+  },
+
+  // === XEM PHÍ HỦY PHÒNG ===
+  // controllers/BookingController.ts
+  previewCancellationFee: async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id);
+      if (!booking)
+        return res.status(404).json({ message: "Không tìm thấy đặt phòng" });
+
+      const cancelBookingStatus = await BookingStatus.findOne({
+        code: "CANCELLED",
+      });
+
+      if (
+        booking.booking_status_id.toString() ===
+        cancelBookingStatus._id.toString()
+      ) {
+        return res.status(400).json({ message: "Đặt phòng đã bị huỷ" });
+      }
+
+      const now = new Date();
+      const checkIn = new Date(booking.check_in_date);
+      const { feePercent, feeAmount } = calculateCancellationFee(
+        checkIn,
+        now,
+        booking.total_price
+      );
+
+      res.status(200).json({
+        message: `Nếu bạn huỷ bây giờ, bạn sẽ mất ${feeAmount.toLocaleString(
+          "vi-VN"
+        )} VNĐ (${feePercent}%)`,
+        data: {
+          can_cancel: true,
+          fee_percent: feePercent,
+          fee_amount: feeAmount,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({ message: "Lỗi khi xem phí huỷ", error: err });
     }
   },
 
