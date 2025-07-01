@@ -81,7 +81,6 @@ export default function RoomClassesPage() {
     selectedMainRoomClassIds,
     priceRange,
     guests,
-    numberOfAdults,
     dateRange,
   });
 

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Col } from "react-bootstrap";
 import style from "@/app/page.module.css";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import AnimatedButton from "@/components/common/Button";
+import { AnimatedButton } from "@/components/common/Button";
 
 export function DiscountItem({ dci }: { dci: Discount }) {
   return (
@@ -44,9 +44,7 @@ export function DiscountItem({ dci }: { dci: Discount }) {
               <strong>Giới hạn:</strong> {dci.limit}
             </li>
           </ul>
-          <AnimatedButton className="tw-px-8 tw-py-2">
-            Xem thêm
-          </AnimatedButton>
+          <AnimatedButton className="tw-px-8 tw-py-2">Xem thêm</AnimatedButton>
         </div>
       </motion.div>
     </Col>

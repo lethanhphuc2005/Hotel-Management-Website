@@ -1,11 +1,12 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useRoomClassDetail } from "@/hooks/useRoomClassDetail";
-import ImageAlbum from "@/components/pages/roomClass/detail/ImageAlbum";
-import InformationSection from "@/components/pages/roomClass/detail/InformationSection";
-import FeatureSection from "@/components/pages/roomClass/detail/FeatureSection";
-import ReviewSection from "@/components/pages/roomClass/detail/ReviewSection";
-import BookingSummarySection from "@/components/pages/roomClass/detail/BookingForm";
+import ImageAlbum from "@/components/pages/roomClassDetail/ImageAlbum";
+import InformationSection from "@/components/pages/roomClassDetail/InformationSection";
+import FeatureSection from "@/components/pages/roomClassDetail/FeatureSection";
+import ReviewSection from "@/components/pages/roomClassDetail/ReviewSection";
+import FAQSection from "@/components/pages/roomClassDetail/FaqSection";
+import ImportantInfoSection from "@/components/pages/roomClassDetail/ImportantInfoSection";
 
 const RoomDetailPage = () => {
   const params = useParams();
@@ -21,6 +22,8 @@ const RoomDetailPage = () => {
       <InformationSection roomClass={roomClass} mainRoomClass={mainRoomClass} />
       <FeatureSection features={features} />
       <ReviewSection reviews={reviews} />
+      <FAQSection roomClassId={roomClass.id} comments={comments} />
+      <ImportantInfoSection />
     </div>
   );
 };

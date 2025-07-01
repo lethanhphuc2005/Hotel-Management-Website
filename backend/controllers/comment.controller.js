@@ -266,11 +266,15 @@ const commentController = {
 
       // Lưu bình luận vào cơ sở dữ liệu
       const savedComment = await newComment.save();
+      const populatedComment = await savedComment.populate(
+        "room_class_id employee_id user_id"
+      );
+      // Cập nhật thông tin người dùng hoặc nhân viên nếu có
 
       // Trả về bình luận đã lưu
       res.status(201).json({
         message: "Bình luận đã được thêm thành công.",
-        comment: savedComment,
+        data: populatedComment,
       });
     } catch (error) {
       res.status(500).json(error);

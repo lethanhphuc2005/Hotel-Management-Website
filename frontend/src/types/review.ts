@@ -22,7 +22,6 @@ export interface Review {
     address?: string;
     is_verified?: boolean; // Optional field for user verification status
   } | null; // User can be null if the review is anonymous
-
   rating: number | null; // Rating can be null if not provided
   content: string;
   status?: boolean;

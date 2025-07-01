@@ -16,7 +16,7 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
     setCurrentPage(selected + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
   if (!bookings || bookings.length === 0) {
     return (
@@ -106,13 +106,15 @@ export default function BookedRoomSection({ bookings }: { bookings: any[] }) {
                   className="tw-overflow-hidden tw-mt-4 tw-text-gray-300 tw-text-sm"
                 >
                   <div className="tw-w-full tw-max-w-3xl tw-mx-auto tw-flex tw-flex-col tw-gap-6">
-                    {booking.booking_details?.map((detail: any) => {
+                    {booking.booking_details?.map((detail: any, index: any) => {
                       const room = detail?.room_id;
                       const roomClass =
                         room?.room_class_id || detail?.room_class_id;
                       return (
                         <div
-                          key={roomClass.main_room_clas_id || roomClass.id}
+                          key={
+                            roomClass.main_room_clas_id || roomClass.id || index
+                          }
                           className="tw-border-t tw-border-gray-600 tw-pt-4 tw-flex tw-gap-4 tw-items-start"
                         >
                           <div className="tw-w-[50%] tw-h-[300px] tw-relative tw-flex tw-items-center tw-justify-center">

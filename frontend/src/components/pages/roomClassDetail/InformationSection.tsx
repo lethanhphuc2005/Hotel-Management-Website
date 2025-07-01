@@ -22,7 +22,7 @@ const InformationSection = ({
 }) => {
   return (
     <div className="tw-flex tw-gap-6 md:tw-flex-row tw-flex-col">
-      <section className="tw-max-w-[1320px] tw-mx-auto tw-mt-4 tw-p-6 tw-rounded-2xl tw-shadow-xl">
+      <section className="tw-max-w-[1320px] tw-mx-auto tw-mt-4   tw-rounded-2xl tw-shadow-xl">
         {/* Tên phòng và mô tả */}
         <div className="tw-mb-6">
           <h2 className="tw-text-3xl tw-text-primary tw-font-bold tw-text-playfair">

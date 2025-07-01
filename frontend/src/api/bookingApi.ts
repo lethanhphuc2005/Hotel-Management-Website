@@ -1,6 +1,7 @@
 import { api, publicApi } from "@/lib/axiosInstance";
+import { Booking } from "@/types/booking";
 
-export const createBooking = async (data: any) => {
+export const createBooking = async (data: Booking) => {
   try {
     const response = await publicApi.post("/booking", data);
     if (response.status !== 200 && response.status !== 201) {

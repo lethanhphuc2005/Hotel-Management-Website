@@ -68,6 +68,7 @@ export const fetchRoomClasses = async (): Promise<{
       comments: rc.comments
         ? rc.comments.map((comment: any) => ({
             id: comment.id || comment._id,
+
             content: comment.content || "",
             user: comment.user || {},
             created_at: comment.createdAt
@@ -162,31 +163,17 @@ export const fetchRoomClassById = async (
             updated_at: review.updated_at
               ? new Date(review.updated_at)
               : undefined,
-            parent_review: review.parent_review
-              ? review.parent_review.map((parent: any) => ({
-                  id: parent.id || parent._id,
-                  room_class_id: parent.room_class_id || "",
-                  parent_id: parent.parent_id || null,
-                  employee_id: parent.employee_id || null,
-                  user_id: parent.user_id || null,
-                  rating: parent.rating || null,
-                  content: parent.content || "",
-                  status: parent.status || false,
-                  created_at: parent.created_at
-                    ? new Date(parent.created_at)
-                    : undefined,
-                  updated_at: parent.updated_at
-                    ? new Date(parent.updated_at)
-                    : undefined,
-                }))
-              : undefined,
           }))
         : [],
       comments: data.comments
         ? data.comments.map((comment: any) => ({
             id: comment.id || comment._id,
+            room_class_id: comment.room_class_id || "",
+            parent_id: comment.parent_id || null,
+            employee_id: comment.employee_id || null,
+            user_id: comment.user_id || {},
             content: comment.content || "",
-            user: comment.user || {},
+            status: comment.status || false,
             created_at: comment.createdAt
               ? new Date(comment.createdAt)
               : undefined,

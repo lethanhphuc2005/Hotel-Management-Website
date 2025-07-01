@@ -1,4 +1,5 @@
 import { api, publicApi } from "@/lib/axiosInstance";
+import { Comment } from "@/types/comment";
 
 export const getComments = async () => {
   const response = await publicApi.get(`/comment/user`);
@@ -16,9 +17,19 @@ export const getCommentById = async (commentId: string) => {
   return response.data; // { commentId, content, createdAt, ... }
 };
 
-export const createComment = async (postId: string, content: string) => {
-  const response = await api.post("/comment", { postId, content });
-  if (response.status !== 200) {
+export const createComment = async (
+  room_class_id: string,
+  parent_id: string | null,
+  user_id: string | null,
+  content: string
+) => {
+  const response = await api.post("/comment", {
+    room_class_id,
+    parent_id,
+    user_id,
+    content,
+  });
+  if (response.status !== 201) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
   return response.data; // { commentId, content, createdAt, ... }

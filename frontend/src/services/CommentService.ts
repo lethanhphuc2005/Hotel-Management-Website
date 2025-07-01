@@ -25,18 +25,6 @@ export const fetchComments = async (): Promise<{
       status: c.status || true, // Default to true if status is not provided
       created_at: new Date(c.createdAt || c.created_at),
       updated_at: new Date(c.updatedAt || c.updated_at),
-      parent_comment: c.parent_comment
-        ? c.parent_comment.map((pc: any) => ({
-            id: pc.id,
-            room_class_id: pc.room_class_id,
-            parent_id: pc.parent_id || null,
-            employee_id: pc.employee_id || null,
-            user_id: pc.user_id || null,
-            content: pc.content,
-            created_at: new Date(pc.createdAt || pc.created_at),
-            updated_at: new Date(pc.updatedAt || pc.updated_at),
-          }))
-        : [],
     }));
     return {
       success: true,
@@ -96,16 +84,24 @@ export const fetchCommentById = async (
 };
 
 export const createComment = async (
-  postId: string,
+  room_class_id: string,
+  parent_id: string | null,
+  user_id: string | null,
   content: string
 ): Promise<{
   success: boolean;
   message?: string;
-  data: Comment | null;
+  data: Comment;
 }> => {
   try {
-    const response = await createCommentApi(postId, content);
-    const data = response;
+    const response = await createCommentApi(
+      room_class_id,
+      parent_id,
+      user_id,
+      content
+    );
+    const data = response.data;
+    console.log("Comment created:", data);
     const comment: Comment = {
       id: data.id,
       room_class_id: data.room_class_id,
@@ -131,7 +127,7 @@ export const createComment = async (
     return {
       success: false,
       message,
-      data: null, // Return null if creation fails
+      data: {} as Comment, // Return null if creation fails
     };
   }
 };

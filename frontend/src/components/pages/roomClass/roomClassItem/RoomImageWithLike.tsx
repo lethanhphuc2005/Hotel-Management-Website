@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import Image from "next/image";
 export default function RoomImageWithLike({
   imageUrl,
   roomId,
@@ -12,14 +14,18 @@ export default function RoomImageWithLike({
 }) {
   return (
     <div className="position-relative">
-      <a href={`/roomdetail/${roomId}`}>
-        <img
+      <Link href={`/room-class/${roomId}`}>
+        <Image
+          width={250}
+          height={150}
           src={`/img/${imageUrl}`}
-          alt=""
+          alt={roomId}
+          quality={100}
+          loading="lazy"
           className="rounded-4 h-100"
           style={{ width: "250px" }}
         />
-      </a>
+      </Link>
       <button
         type="button"
         className="btn btn-light position-absolute top-0 end-0 m-1 rounded-circle shadow"

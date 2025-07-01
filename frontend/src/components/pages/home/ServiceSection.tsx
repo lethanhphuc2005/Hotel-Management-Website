@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import AnimatedButton from "@/components/common/Button";
+import { AnimatedButton } from "@/components/common/Button";
 
 export function ServiceItem({ svi }: { svi: Service }) {
   return (

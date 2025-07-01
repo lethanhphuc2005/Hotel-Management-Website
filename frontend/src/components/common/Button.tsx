@@ -10,13 +10,43 @@ interface AnimatedButtonProps {
   className?: string;
 }
 
-export default function AnimatedButton({
+export function AnimatedButton({
   children,
   onClick,
   className = "",
 }: AnimatedButtonProps) {
   return (
     <motion.button className={`${className} ${style.button}`} onClick={onClick}>
+      {children}
+    </motion.button>
+  );
+}
+
+export function AnimatedButtonPrimary({
+  children,
+  onClick,
+  className = "",
+}: AnimatedButtonProps) {
+  return (
+    <motion.button
+      className={`${className} ${style.buttonPrimary}`}
+      onClick={onClick}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+export function AnimatedButtonLink({
+  children,
+  onClick,
+  className = "",
+}: AnimatedButtonProps) {
+  return (
+    <motion.button
+      className={`${className} ${style.buttonLink}`}
+      onClick={onClick}
+    >
       {children}
     </motion.button>
   );

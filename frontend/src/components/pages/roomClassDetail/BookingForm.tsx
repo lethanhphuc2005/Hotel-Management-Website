@@ -4,7 +4,7 @@ import { DateRange } from "react-date-range";
 import { vi } from "date-fns/locale";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import AnimatedButton from "@/components/common/Button";
+import { AnimatedButtonPrimary, AnimatedButton } from "@/components/common/Button";
 
 export default function RoomBookingBox() {
   const [showCalendar, setShowCalendar] = useState(false);
@@ -159,14 +159,14 @@ export default function RoomBookingBox() {
 
       {/* Button */}
       <div className="tw-flex tw-justify-between tw-gap-2">
-        <AnimatedButton
-          className="tw-px-4 tw-py-2"
+        <AnimatedButtonPrimary
+          className="tw-px-5 tw-py-2"
           onClick={() => alert("Đặt phòng")}
         >
           Đặt ngay
-        </AnimatedButton>
+        </AnimatedButtonPrimary>
         <AnimatedButton
-          className="tw-px-4 tw-py-2"
+          className="tw-px-5 tw-py-2"
           onClick={() => alert("Thêm vào giỏ hàng")}
         >
           Thêm vào giỏ hàng

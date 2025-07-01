@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 // === LẤY DANH SÁCH BÌNH LUẬN ===
 router.get(
   "/",
-  authMiddleware.authorizeSelfOrRoles("admin"),
+  authMiddleware.authorizeRoles("admin"),
   commentController.getAllComments
 );
 
@@ -13,18 +13,10 @@ router.get(
 router.get("/user", commentController.getAllCommentsForUser);
 
 // === LẤY DANH SÁCH BÌNH LUẬN THEO ID ===
-router.get(
-  "/:id",
-  authMiddleware.authorizeSelfOrRoles("admin"),
-  commentController.getCommentById
-);
+router.get("/:id", commentController.getCommentById);
 
 // === THÊM BÌNH LUẬN ===
-router.post(
-  "/",
-  authMiddleware.authorizeSelfOrRoles("admin"),
-  commentController.addComment
-);
+router.post("/", commentController.addComment);
 
 // === CẬP NHẬT BÌNH LUẬN ===
 router.put(
