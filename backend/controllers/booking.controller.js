@@ -621,7 +621,8 @@ const bookingController = {
       const { feePercent, feeAmount } = calculateCancellationFee(
         checkInDate,
         now,
-        booking.total_price
+        booking.total_price,
+        booking.createdAt
       );
 
       booking.booking_status_id = cancelBookingStatus._id;
@@ -681,13 +682,24 @@ const bookingController = {
       ) {
         return res.status(400).json({ message: "Đặt phòng đã bị huỷ" });
       }
+      if (booking.payment_status === "UNPAID") {
+        return res.status(200).json({
+          message: "Đặt phòng chưa thanh toán, không có phí huỷ",
+          data: {
+            can_cancel: true,
+            fee_percent: 0,
+            fee_amount: 0,
+          },
+        });
+      }
 
       const now = new Date();
       const checkIn = new Date(booking.check_in_date);
       const { feePercent, feeAmount } = calculateCancellationFee(
         checkIn,
         now,
-        booking.total_price
+        booking.total_price,
+        booking.createdAt
       );
 
       res.status(200).json({

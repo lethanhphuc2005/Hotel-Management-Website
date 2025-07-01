@@ -2,6 +2,7 @@ import {
   createBooking as getBookingApi,
   getBookings as getBookingsApi,
   getBookingById as getBookingByIdApi,
+  previewCancellationFee as previewCancellationFeeApi,
   cancelBooking as cancelBookingApi,
 } from "@/api/bookingApi";
 import { Booking } from "@/types/booking";
@@ -441,6 +442,39 @@ export const getBookingById = async (
       success: false,
       message,
       data: null,
+    };
+  }
+};
+
+export const previewCancellationFee = async (
+  bookingId: string,
+  userId: string
+): Promise<{
+  success: boolean;
+  message?: string;
+  data: { can_cancel: boolean; fee_percent: number; fee_amount: number };
+}> => {
+  try {
+    const response = await previewCancellationFeeApi(bookingId, userId);
+    const data = response.data;
+    return {
+      success: true,
+      message: response.message || "Cancellation fee previewed successfully",
+      data: {
+        can_cancel: data.can_cancel,
+        fee_percent: data.fee_percent,
+        fee_amount: data.fee_amount,
+      },
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while previewing the cancellation fee";
+    return {
+      success: false,
+      message,
+      data: { can_cancel: false, fee_percent: 0, fee_amount: 0 },
     };
   }
 };

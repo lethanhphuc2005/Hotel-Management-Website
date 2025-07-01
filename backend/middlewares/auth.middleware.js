@@ -88,16 +88,24 @@ const authMiddleware = {
       authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
 
-        if (
-          user.id === req.params.id ||
-          user.id === req.body.user_id ||
-          user.id === req.body.employee_id ||
-          roles.includes(user.role)
-        ) {
-          next();
-        } else {
-          res.status(403).json("Bạn không có quyền thực hiện hành động này.");
+        if (!user) {
+          return res.status(401).json("Người dùng chưa được xác thực.");
         }
+
+        const isSelf =
+          user.id === req.params.id ||
+          user.id === req.body?.user_id ||
+          user.id === req.body?.employee_id ||
+          user.id === req.query?.user_id;
+        const isRoleAllowed = roles.includes(user.role);
+
+        if (isSelf || isRoleAllowed) {
+          return next();
+        }
+
+        return res
+          .status(403)
+          .json("Bạn không có quyền thực hiện hành động này.");
       });
     };
   },

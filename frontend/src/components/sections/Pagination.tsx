@@ -20,6 +20,8 @@ export default function Pagination({
       className={styles.paginationWrapper}
     >
       <ReactPaginate
+        pageRangeDisplayed={3}
+        marginPagesDisplayed={1}
         previousLabel="<"
         nextLabel=">"
         breakLabel="..."

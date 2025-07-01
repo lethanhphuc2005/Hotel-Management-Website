@@ -22,7 +22,7 @@
 .sidebar {
   padding: 20px;
   width: 250px;
-  background: linear-gradient(rgba(20, 20, 20, 0.6), rgba(20, 20, 20, 0.6));
+  background-color: black;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -33,7 +33,7 @@
 .sidebar h2 {
   font-size: 22px;
   margin-bottom: 30px;
-  color: #ffffff;
+  color: #fab320;
 }
 
 .sidebar ul {
@@ -184,4 +184,117 @@
 
 .logoutBtn:hover {
   background-color: #c0392b;
+}
+
+.loading {
+  color: #fab320;
+  text-align: center;
+  padding: 2rem;
+}
+
+.sidebarItem {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  background-color: transparent;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.sidebarItem:hover {
+  background-color: #333;
+  color: #fab320;
+}
+
+.active {
+  background-color: #fab320;
+  color: #000;
+  font-weight: bold;
+}
+
+.logoutItem {
+  color: #fab320;
+  cursor: pointer;
+  margin-top: 2rem;
+  padding: 0.75rem 1rem;
+}
+
+@media (max-width: 1024px) {
+  .settingsWrapper {
+    flex-direction: column;
+    margin: 5% auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .sidebar h2 {
+    display: none;
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .sidebar li {
+    flex: 1 1 auto;
+    min-width: 40%;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .mainContent {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar li {
+    min-width: 100%;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .mainContent {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    background-color: #111;
+    z-index: 10;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 1px solid #333;
+  }
+
+  .sidebar ul {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .sidebar li {
+    display: inline-block;
+    white-space: nowrap;
+    min-width: auto;
+    padding: 0.5rem 1rem;
+  }
 }

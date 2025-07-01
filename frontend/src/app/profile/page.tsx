@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 import CommentSection from "@/components/pages/profile/CommentSection";
 import ReviewSection from "@/components/pages/profile/ReviewSection";
 import FavoriteSection from "@/components/pages/profile/FavoriteSection";
+import WalletSection from "@/components/pages/profile/WalletSection";
 
 const ProfilePage = () => {
   const {
@@ -33,6 +34,8 @@ const ProfilePage = () => {
     switch (activeTab) {
       case "account":
         return <AccountSection formData={formData} />;
+      case "wallet":
+        return <WalletSection userId={profile.id} />;
       case "change-password":
         return <PasswordSection formData={formData} />;
       case "booked-rooms":
@@ -53,32 +56,17 @@ const ProfilePage = () => {
   };
 
   if (!profile)
-    return (
-      <div
-        className={styles.loading}
-        style={{ color: "#fab320", textAlign: "center", padding: "2rem" }}
-      >
-        Đang tải dữ liệu...
-      </div>
-    );
+    return <div className={styles.loading}>Đang tải dữ liệu...</div>;
 
   return (
-    <div
-      className={styles.container}
-      style={{ backgroundColor: "#000", color: "#fff", minHeight: "100vh" }}
-    >
-      <div className={styles.settingsWrapper} style={{ display: "flex" }}>
-        <aside
-          className={styles.sidebar}
-          style={{ backgroundColor: "#111", padding: "1.5rem", width: "250px" }}
-        >
-          <h2 style={{ color: "#fab320" }}>Quản lý tài khoản</h2>
-          <ul
-            className={styles.sidebarMenu}
-            style={{ listStyle: "none", padding: 0 }}
-          >
+    <div className={styles.container}>
+      <div className={styles.settingsWrapper}>
+        <aside className={styles.sidebar}>
+          <h2 className={styles.sidebarTitle}>Quản lý tài khoản</h2>
+          <ul className={styles.sidebarMenu}>
             {[
               { tab: "account", label: "Thông tin cá nhân" },
+              { tab: "wallet", label: "Ví của tôi" },
               { tab: "change-password", label: "Đổi mật khẩu" },
               { tab: "booked-rooms", label: "Phòng đã đặt" },
               { tab: "favorites", label: "Mục yêu thích" },
@@ -87,43 +75,21 @@ const ProfilePage = () => {
             ].map(({ tab, label }) => (
               <li
                 key={tab}
-                className={activeTab === tab ? styles.active : ""}
+                className={`${styles.sidebarItem} ${
+                  activeTab === tab ? styles.active : ""
+                }`}
                 onClick={() => setActiveTab(tab)}
-                style={{
-                  padding: "0.75rem 1rem",
-                  cursor: "pointer",
-                  backgroundColor:
-                    activeTab === tab ? "#fab320" : "transparent",
-                  color: activeTab === tab ? "#000" : "#fff",
-                  marginBottom: "0.5rem",
-                  borderRadius: "8px",
-                  transition: "0.3s",
-                }}
               >
                 {label}
               </li>
             ))}
-            <li
-              onClick={handleLogout}
-              className={styles.logoutItem}
-              style={{
-                color: "#fab320",
-                cursor: "pointer",
-                marginTop: "2rem",
-                padding: "0.75rem 1rem",
-              }}
-            >
+            <li onClick={handleLogout} className={styles.logoutItem}>
               Đăng xuất
             </li>
           </ul>
         </aside>
 
-        <main
-          className={styles.mainContent}
-          style={{ flex: 1, padding: "2rem" }}
-        >
-          {renderSection()}
-        </main>
+        <main className={styles.mainContent}>{renderSection()}</main>
       </div>
     </div>
   );

@@ -4,8 +4,11 @@ import { toast } from "react-toastify";
 import { formatDate } from "@/utils/dateUtils";
 import Pagination from "@/components/sections/Pagination";
 import { AnimatedButtonPrimary } from "@/components/common/Button";
-import { showConfirmDialog } from "@/utils/swal";
-import { cancelBooking } from "@/services/BookingService";
+import { showConfirmDialog, showTextareaInputDialog } from "@/utils/swal";
+import {
+  previewCancellationFee,
+  cancelBooking,
+} from "@/services/BookingService";
 
 export default function BookedRoomSection({
   bookings,
@@ -64,23 +67,65 @@ export default function BookedRoomSection({
   }
 
   const [cancelReason, setCancelReason] = useState<string>("");
-  const handleCancelBooking = async (bookingId: string) => {
-    const confirmed = await showConfirmDialog(
-      "Xác nhận hủy đặt phòng",
-      "Bạn có chắc chắn muốn hủy đặt phòng này?"
-    );
-    if (!confirmed) return;
+  const handleCancelBooking = async (bookingId: string, userId: string) => {
     try {
-      // Call API to cancel booking
-      const response = await cancelBooking(bookingId, "", cancelReason);
-      if (response.success) {
-        toast.success("Hủy đặt phòng thành công");
-        setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+      // Bước 1: Xem phí huỷ
+      const previewRes = await previewCancellationFee(bookingId, userId);
+      if (!previewRes.success) {
+        toast.error(previewRes.message || "Không thể xem phí huỷ.");
+        return;
+      }
+      const { can_cancel, fee_percent, fee_amount } = previewRes.data;
+
+      // Bước 2: Hiển thị xác nhận
+      if (!can_cancel) {
+        toast.error("Đặt phòng này không thể huỷ.");
+        return;
+      }
+      const confirmed = await showConfirmDialog(
+        "Xác nhận huỷ đặt phòng",
+        `Bạn sẽ bị trừ ${fee_amount.toLocaleString(
+          "vi-VN"
+        )}₫ (${fee_percent}%) nếu huỷ bây giờ.\n\n\nBạn có chắc chắn muốn huỷ không?`
+      );
+      if (!confirmed) return;
+
+      // Hiển thị hộp thoại nhập lý do huỷ
+      const reason = await showTextareaInputDialog(
+        "Lý do huỷ đặt phòng",
+        "Vui lòng nhập lý do huỷ (tùy chọn)",
+        "Ví dụ: thay đổi kế hoạch, giá cao, đặt nhầm..."
+      );
+      if (reason === null) return;
+
+      setCancelReason(reason);
+      // Nếu không nhập lý do, sử dụng lý do mặc định
+      if (!reason.trim()) {
+        setCancelReason("Không cung cấp lý do");
       } else {
-        toast.error(response.message || "Hủy đặt phòng thất bại");
+        setCancelReason(reason);
+      }
+
+      // Bước 3: Thực hiện huỷ
+      const response = await cancelBooking(bookingId, userId, cancelReason);
+      if (response.success) {
+        toast.success(response.message || "Huỷ đặt phòng thành công.");
+        setBookings((prev) =>
+          prev.map((booking) =>
+            booking.id === bookingId
+              ? {
+                  ...booking,
+                  booking_status_id: { code: "CANCELLED", name: "CANCELLED" },
+                }
+              : booking
+          )
+        );
+        setExpandedId(null); // Đóng chi tiết nếu đang mở
+      } else {
+        toast.error(response.message || "Huỷ đặt phòng thất bại.");
       }
     } catch (error) {
-      toast.error("Đã xảy ra lỗi khi hủy đặt phòng. Vui lòng thử lại sau.");
+      toast.error("Đã xảy ra lỗi khi huỷ đặt phòng. Vui lòng thử lại sau.");
     }
   };
 
@@ -120,11 +165,18 @@ export default function BookedRoomSection({
                 <p className="tw-text-sm tw-text-gray-300">
                   Thông tin người đặt:
                 </p>
-                <ul className="tw-list-disc tw-text-gray-300">
-                  <li>Họ và tên: {booking.full_name || "Không rõ"}</li>
-                  <li>Số điện thoại: {booking.phone_number || "Không rõ"}</li>
-                  <li>Email: {booking.email || "Không rõ"}</li>
+                <ul className="tw-list-disc tw-text-gray-300 tw-text-sm/3">
+                  <li>
+                    <p>Họ và tên: {booking.full_name || "Không rõ"}</p>
+                  </li>
+                  <li>
+                    <p>Số điện thoại: {booking.phone_number || "Không rõ"}</p>
+                  </li>
+                  <li>
+                    <p>Email: {booking.email || "Không rõ"}</p>
+                  </li>
                 </ul>
+
                 <span
                   className={`tw-inline-block tw-px-3 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-uppercase ${getColorClass(
                     booking.booking_status_id.code
@@ -132,6 +184,21 @@ export default function BookedRoomSection({
                 >
                   {booking.booking_status_id.name}
                 </span>
+              </div>
+              <div className="tw-flex-1 tw-text-right">
+                {booking.booking_status_id.code !== "CANCELLED" &&
+                  booking.booking_status_id.code !== "CHECKED_OUT" &&
+                  booking.booking_status_id.code !== "CHECKED_IN" && (
+                    <AnimatedButtonPrimary
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelBooking(booking.id, booking.user_id);
+                      }}
+                      className="tw-px-4 tw-py-2"
+                    >
+                      Huỷ đặt phòng
+                    </AnimatedButtonPrimary>
+                  )}
               </div>
             </div>
 
@@ -147,7 +214,7 @@ export default function BookedRoomSection({
                     {booking.booking_details?.map((detail: any, index: any) => {
                       const room = detail.room_id;
                       const roomClass =
-                        room.room_class_id || detail.room_class_id;
+                        room?.room_class_id || detail.room_class_id;
                       return (
                         <div
                           key={

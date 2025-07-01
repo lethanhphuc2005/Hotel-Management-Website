@@ -45,6 +45,22 @@ export const getBookingById = async (id: string, userId: string) => {
   }
 };
 
+export const previewCancellationFee = async (id: string, userId: string) => {
+  try {
+    const response = await api.get(`/booking/cancellation-fee/${id}`, {
+      params: { user_id: userId },
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const cancelBooking = async (
   id: string,
   userId: string,
