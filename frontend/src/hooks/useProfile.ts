@@ -27,6 +27,7 @@ export const useProfile = () => {
   const [comments, setComments] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [wallet, setWallet] = useState<any>(null);
 
   const refreshProfile = async () => {
     if (!user) return;
@@ -54,6 +55,7 @@ export const useProfile = () => {
       setComments(data.comments || []);
       setReviews(data.reviews || []);
       setFavorites(data.favorites || []);
+      setWallet(data.wallet || null);
     } catch (err) {
       console.error("Lỗi khi refresh profile:", err);
     } finally {
@@ -94,6 +96,7 @@ export const useProfile = () => {
         setComments(data.comments || []);
         setReviews(data.reviews || []);
         setFavorites(data.favorites || []);
+        setWallet(data.wallet || null);
       } catch (err) {
         console.error("Lỗi khi fetch profile:", err);
       } finally {
@@ -118,6 +121,8 @@ export const useProfile = () => {
     setReviews,
     favorites,
     setFavorites,
+    wallet,
+    setWallet,
     logout,
     refreshProfile,
   };

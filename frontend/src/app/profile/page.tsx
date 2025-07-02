@@ -1,6 +1,6 @@
 "use client";
 import styles from "./page.module.css";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { AccountSection } from "@/components/pages/profile/AccountSection";
 import { PasswordSection } from "@/components/pages/profile/PasswordSection";
 import BookingSection from "@/components/pages/profile/BookedSection";
@@ -22,6 +22,8 @@ const ProfilePage = () => {
     setReviews,
     favorites,
     setFavorites,
+    wallet,
+    setWallet,
     logout,
   } = useProfile();
 
@@ -35,7 +37,7 @@ const ProfilePage = () => {
       case "account":
         return <AccountSection formData={formData} />;
       case "wallet":
-        return <WalletSection userId={profile.id} />;
+        return <WalletSection wallet={wallet} setWallet={setWallet} />;
       case "change-password":
         return <PasswordSection formData={formData} />;
       case "booked-rooms":

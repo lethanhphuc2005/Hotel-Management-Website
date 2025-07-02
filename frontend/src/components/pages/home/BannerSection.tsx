@@ -13,13 +13,13 @@ import Link from "next/link";
 export default function Banner({ banners }: { banners: WebsiteContent[] }) {
   if (!banners || banners.length === 0) return <p>No banner</p>;
 
-  const banner = banners[2];
+  const banner = banners[0];
   const mongoImage = banner.image;
-  const titles = [banner.title, "Experience Luxury", "Relax and Enjoy"];
+  const titles = ["Experience Luxury", "Relax and Enjoy", banner.title];
 
   const defaultImages = ["banner2.jpg", "banner4.jpg"];
   // Tạo danh sách ảnh: ảnh từ Mongo + ảnh mặc định
-  const images = [mongoImage, ...defaultImages];
+  const images = [...defaultImages, mongoImage];
   const {
     dateRange,
     setDateRange,

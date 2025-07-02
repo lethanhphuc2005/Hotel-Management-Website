@@ -7,8 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createComment } from "@/services/CommentService";
 import { nestComments } from "@/utils/nestObject";
 import { toast } from "react-toastify";
-import { AnimatedButtonPrimary } from "@/components/common/Button";
-
+import { formatDate } from "@/utils/dateUtils";
 interface Props {
   roomClassId: string;
   comments: Comment[];
@@ -106,9 +105,7 @@ const QuestionModalSidebar = ({
           <button
             onClick={() => setCurrentTab("comments")}
             className={`tw-uppercase tw-font-bold tw-text-sm ${
-              currentTab === "comments"
-                ? "tw-text-primary"
-                : "tw-text-gray-500"
+              currentTab === "comments" ? "tw-text-primary" : "tw-text-gray-500"
             }`}
           >
             Bình luận ({comments.length})
@@ -147,7 +144,12 @@ const QuestionModalSidebar = ({
                         : c.employee_id
                         ? `Nhân viên: ${c.employee_id.last_name} ${c.employee_id.first_name}`
                         : "Ẩn danh"}
+                      <span className="tw-text-xs tw-text-gray-400 tw-ml-2">
+                        ( {c.created_at ? formatDate(c.created_at) : "Vừa xong"}{" "}
+                        )
+                      </span>
                     </div>
+
                     <div className="tw-text-sm">{c.content}</div>
 
                     <button
@@ -190,6 +192,13 @@ const QuestionModalSidebar = ({
                                 : reply.employee_id?.last_name
                                 ? `Nhân viên: ${reply.employee_id.last_name} ${reply.employee_id.first_name}`
                                 : "Ẩn danh"}
+                              <span className="tw-text-xs tw-text-gray-400 tw-ml-2">
+                                ({" "}
+                                {reply.created_at
+                                  ? formatDate(reply.created_at)
+                                  : "Vừa xong"}{" "}
+                                )
+                              </span>
                             </div>
 
                             <div className="tw-text-xs">{reply.content}</div>

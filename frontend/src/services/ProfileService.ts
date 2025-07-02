@@ -3,6 +3,7 @@ import {
   updateProfile as updateProfileApi,
 } from "@/api/profileApi";
 import { IUser } from "@/types/user";
+import { Wallet } from "@/types/wallet";
 
 export const fetchProfile = async (
   userId: string
@@ -14,6 +15,21 @@ export const fetchProfile = async (
   try {
     const response = await getProfileApi(userId);
     const data = response.data;
+
+    const wallets = data.wallet;
+
+    // Map qua từng ví, sort transactions bên trong
+    const sortedWallets = wallets.map((w: Wallet) => ({
+      ...w,
+      transactions: [...w.transactions].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ),
+    }));
+
+    // Nếu bạn chỉ cần ví đầu tiên:
+    const sortedWallet = sortedWallets[0];
+
     const profile: IUser = {
       id: data.id || data._id,
       first_name: data.first_name || "",
@@ -28,8 +44,9 @@ export const fetchProfile = async (
       updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
       bookings: data.bookings || [],
       comments: data.comments || [],
-      reviews: data.reviews || [],
       favorites: data.favorites || [],
+      reviews: data.reviews || [],
+      wallet: sortedWallet,
     };
     return {
       success: true,

@@ -47,10 +47,13 @@ const authMiddleware = {
     return (req, res, next) => {
       authMiddleware.verifyToken(req, res, () => {
         const user = req.user;
-        if (
-          (user.id && user.id === req.params.id) ||
-          user.id === req.body.user_id
-        ) {
+        const isSelf =
+          user.id === req.params.id ||
+          user.id === req.params.userId ||
+          user.id === req.body?.user_id ||
+          user.id === req.body?.employee_id ||
+          user.id === req.query?.user_id;
+        if (isSelf) {
           next();
         } else {
           res.status(403).json("Chỉ chủ tài khoản mới được thao tác.");
@@ -94,6 +97,7 @@ const authMiddleware = {
 
         const isSelf =
           user.id === req.params.id ||
+          user.id === req.params.userId ||
           user.id === req.body?.user_id ||
           user.id === req.body?.employee_id ||
           user.id === req.query?.user_id;

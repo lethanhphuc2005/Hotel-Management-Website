@@ -6,15 +6,15 @@ import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
 import Pagination from "@/components/sections/Pagination";
 import { showConfirmDialog } from "@/utils/swal";
-import { useAuth } from "@/contexts/AuthContext";
 
 type Comment = {
   id: string;
   content: string;
   createdAt: string;
   updatedAt: string;
-  user_id: { id: string; first_name: string; last_name: string };
-  room_class_id: { name: string };
+  user_id: string;
+  user: [{ first_name: string; last_name: string }];
+  room_class: [{ name: string }];
 };
 
 export default function CommentSection({
@@ -38,7 +38,6 @@ export default function CommentSection({
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState<string>("");
-
   if (!comments || comments.length === 0) {
     return (
       <div className="text-center text-gray-500">Không có bình luận nào.</div>
@@ -49,7 +48,7 @@ export default function CommentSection({
     try {
       const response = await updateComment(
         comment.id,
-        comment.user_id.id,
+        comment.user_id,
         editContent
       );
       if (!response.success) {
@@ -64,7 +63,13 @@ export default function CommentSection({
       toast.success(response.message || "Cập nhật bình luận thành công");
       setComments((prev) =>
         prev.map((c) =>
-          c.id === comment.id ? { ...c, content: updatedComment.content } : c
+          c.id === comment.id
+            ? {
+                ...c,
+                content: updatedComment.content,
+                update_at: updatedComment.updated_at,
+              }
+            : c
         )
       );
       setEditingId(null);
@@ -88,7 +93,6 @@ export default function CommentSection({
       await deleteComment(commentId, userId);
       toast.success("Xóa bình luận thành công");
       setComments((prev) => prev.filter((c) => c.id !== commentId));
-      console.log("Comment deleted successfully");
     } catch {
       toast.error("Xóa bình luận thất bại. Vui lòng thử lại sau.");
     }
@@ -107,7 +111,7 @@ export default function CommentSection({
           <div className="tw-flex tw-justify-between tw-items-center">
             <div>
               <h3 className="tw-text-lg tw-font-bold tw-text-white">
-                {comment.user_id.last_name + " " + comment.user_id.first_name ||
+                {comment.user[0].last_name + " " + comment.user[0].first_name ||
                   "Anonymous"}
               </h3>
               <p className="tw-text-sm tw-text-gray-400">
@@ -117,7 +121,7 @@ export default function CommentSection({
                 Ngày cập nhật: {formatDate(comment.updatedAt)}
               </p>
               <h2 className="tw-text-base tw-font-medium tw-text-blue-400">
-                {comment.room_class_id.name || "Unknown Room Type"}
+                {comment.room_class[0].name || "Unknown Room Type"}
               </h2>
             </div>
             <div className="tw-flex tw-space-x-2">
@@ -158,7 +162,7 @@ export default function CommentSection({
                     whileTap={{ scale: 0.95, opacity: 0.6 }}
                     className="tw-text-red-500 tw-border tw-border-red-500 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-sm"
                     onClick={(e) => {
-                      handleDelete(comment.id, comment.user_id.id);
+                      handleDelete(comment.id, comment.user_id);
                       e.stopPropagation();
                     }}
                   >

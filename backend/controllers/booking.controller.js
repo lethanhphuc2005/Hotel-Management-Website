@@ -15,6 +15,7 @@ const walletController = require("./wallet.controller");
 const mailSender = require("../helpers/mail.sender");
 const { notificationEmail } = require("../config/mail");
 const { calculateCancellationFee } = require("../utils/cancellationPolicy");
+const Payment = require("../models/payment.model");
 
 const bookingController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===
@@ -616,12 +617,20 @@ const bookingController = {
 
       const now = new Date();
       const checkInDate = new Date(booking.check_in_date);
+      // Kiểm tra trạng thái thanh toán
+      const pendingPayment = await Payment.findOne({
+        booking_id: bookingId,
+        status: "PENDING",
+      });
+
+      let refundAmount = booking.total_price;
+      if (pendingPayment) refundAmount = 0; // Nếu có thanh toán đang chờ, không hoàn tiền
 
       // Tính phí hủy
       const { feePercent, feeAmount } = calculateCancellationFee(
         checkInDate,
         now,
-        booking.total_price,
+        refundAmount,
         booking.createdAt
       );
 
@@ -635,6 +644,7 @@ const bookingController = {
       // Hoàn tiền vào ví người dùng nếu có
       if (booking.payment_status === "PAID") {
         const refundAmount = booking.total_price - feeAmount;
+
         if (refundAmount > 0) {
           await walletController.refundInternal(
             booking.user_id,
@@ -665,7 +675,6 @@ const bookingController = {
   },
 
   // === XEM PHÍ HỦY PHÒNG ===
-  // controllers/BookingController.ts
   previewCancellationFee: async (req, res) => {
     try {
       const booking = await Booking.findById(req.params.id);

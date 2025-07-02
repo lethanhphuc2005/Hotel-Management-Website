@@ -99,15 +99,15 @@ const userController = {
             match: { status: true }, // Chỉ lấy các comment đang hoạt động
             populate: [
               {
-                path: "room_class_id",
+                path: "room_class",
                 select: "-image -description -status", // Chỉ lấy các trường cần thiết, tránh l
               },
               {
-                path: "employee_id",
+                path: "employee",
                 select: "first_name last_name",
               },
               {
-                path: "user_id",
+                path: "user",
                 select: "first_name last_name",
               },
               {
@@ -131,11 +131,11 @@ const userController = {
                 },
               },
               {
-                path: "employee_id",
+                path: "employee",
                 select: "first_name last_name",
               },
               {
-                path: "user_id",
+                path: "user",
                 select: "first_name last_name",
               },
               {
@@ -211,7 +211,6 @@ const userController = {
           {
             path: "wallet",
             select: "balance transactions",
-            
           },
         ]);
       if (!user) {

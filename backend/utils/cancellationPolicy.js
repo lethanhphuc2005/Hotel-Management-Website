@@ -19,7 +19,6 @@ export function calculateCancellationFee(
     // Nếu quá 24h kể từ lúc đặt thì áp dụng theo khoảng cách đến check-in
     const hoursUntilCheckIn =
       (checkInDate.getTime() - cancelDate.getTime()) / (1000 * 60 * 60);
-
     if (hoursUntilCheckIn <= 24) {
       feePercent = 100;
     } else if (hoursUntilCheckIn <= 48) {

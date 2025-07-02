@@ -1,3 +1,8 @@
+import { Booking } from "./booking";
+import { Review } from "./review";
+import { UserFavorite } from "./userFavorite";
+import { Wallet } from "./wallet";
+
 export interface IUser {
   id: string;
   first_name?: string;
@@ -12,10 +17,11 @@ export interface IUser {
   updatedAt?: Date;
   accessToken?: string;
   refreshToken?: string;
-  bookings?: any[]; // Assuming bookings is an array of booking objects
-  comments?: any[]; // Assuming comments is an array of comment objects
-  reviews?: any[]; // Assuming review is an object
-  favorites?: any[]; // Assuming favorites is an array of favorite objects
+  bookings?: Booking[]; // Assuming bookings is an array of booking objects
+  comments?: Comment[]; // Assuming comments is an array of comment objects
+  reviews?: Review[]; // Assuming review is an object
+  favorites?: UserFavorite[]; // Assuming favorites is an array of favorite objects
+  wallet?: Wallet[];
 }
 
 export interface IAuthContextType {

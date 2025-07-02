@@ -59,12 +59,6 @@ export const showTextareaInputDialog = async (
     showCancelButton: true,
     confirmButtonText,
     cancelButtonText,
-    preConfirm: (value) => {
-      if (!value) {
-        CustomSwal.showValidationMessage("Vui lòng nhập thông tin");
-      }
-      return value;
-    },
   });
 
   return result.isConfirmed ? result.value : null;
@@ -77,21 +71,43 @@ export const showNumberInputDialog = async (
   confirmButtonText: string = "Xác nhận",
   cancelButtonText: string = "Huỷ"
 ) => {
+  let rawValue = "";
+
   const result = await CustomSwal.fire({
     title,
-    input: "number",
+    input: "text",
     inputLabel,
     inputPlaceholder: placeholder,
     showCancelButton: true,
     confirmButtonText,
     cancelButtonText,
-    preConfirm: (value) => {
-      if (value === null || value === "") {
-        CustomSwal.showValidationMessage("Vui lòng nhập số tiền");
-      } else if (isNaN(value) || value <= 0) {
-        CustomSwal.showValidationMessage("Số tiền phải là một số dương");
+    inputAttributes: {
+      inputmode: "numeric",
+      // pattern: "[0-9]*",
+      autocomplete: "off",
+    },
+    didOpen: () => {
+      const input = CustomSwal.getInput();
+      if (input) {
+        input.addEventListener("input", (e) => {
+          let val = (e.target as HTMLInputElement).value.replace(/[^\d]/g, ""); // chỉ giữ số
+          rawValue = val;
+          (e.target as HTMLInputElement).value =
+            Number(val).toLocaleString("vi-VN");
+        });
       }
-      return value;
+    },
+    preConfirm: () => {
+      if (!rawValue) {
+        CustomSwal.showValidationMessage("Vui lòng nhập số tiền");
+        return false;
+      }
+      const num = Number(rawValue);
+      if (isNaN(num) || num <= 0) {
+        CustomSwal.showValidationMessage("Số tiền phải là số dương");
+        return false;
+      }
+      return num;
     },
   });
 

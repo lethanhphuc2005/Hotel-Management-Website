@@ -1,41 +1,45 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { showNumberInputDialog, showPaymentMethodDialog } from "@/utils/swal"; // Giả định bạn đã có CustomSwal
+import { showNumberInputDialog, showPaymentMethodDialog } from "@/utils/swal";
 import { toast } from "react-toastify";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { formatDate } from "@/utils/dateUtils";
+import { depositToWallet } from "@/services/WalletService";
+import Pagination from "@/components/sections/Pagination";
 
 interface WalletTransaction {
-  id: string;
+  _id: string;
   amount: number;
-  type: "DEPOSIT" | "WITHDRAW";
-  description: string;
-  date: string;
+  type: "deposit" | "refund" | "bonus" | "use";
+  note: string;
+  created_at: string;
 }
 
-export default function WalletSection({ userId }: { userId: string }) {
-  const [balance, setBalance] = useState<number>(0);
-  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+interface Props {
+  wallet: {
+    id: string;
+    user_id: string;
+    balance: number;
+    transactions: WalletTransaction[];
+    createdAt: string;
+  };
+  setWallet: React.Dispatch<React.SetStateAction<any>>;
+}
 
-  useEffect(() => {
-    setBalance(4500000);
-    setTransactions([
-      {
-        id: "tx1",
-        amount: 1000000,
-        type: "DEPOSIT",
-        description: "Nạp tiền vào ví",
-        date: "2025-06-25",
-      },
-      {
-        id: "tx2",
-        amount: 200000,
-        type: "WITHDRAW",
-        description: "Thanh toán đặt phòng",
-        date: "2025-06-26",
-      },
-    ]);
-  }, [userId]);
+export default function WalletSection({ wallet, setWallet }: Props) {
+  const userId = wallet.user_id || "";
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalItems = wallet.transactions.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentTransactions = wallet.transactions.slice(startIndex, endIndex);
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleDeposit = async () => {
     const amountStr = await showNumberInputDialog(
@@ -50,21 +54,36 @@ export default function WalletSection({ userId }: { userId: string }) {
       return; // Người dùng huỷ
     }
     const method = await showPaymentMethodDialog();
-    console.log("Selected payment method:", method);
-    if (amountStr) {
-      const amount = Number(amountStr);
-      const newBalance = balance + amount;
-      const newTransaction: WalletTransaction = {
-        id: `tx_${Date.now()}`,
-        amount,
-        type: "DEPOSIT",
-        description: "Nạp tiền vào ví",
-        date: new Date().toISOString().split("T")[0],
-      };
 
-      setBalance(newBalance);
-      setTransactions((prev) => [newTransaction, ...prev]);
-      toast.success(`Nạp ${formatCurrencyVN(amount)} thành công!`);
+    if (!method) {
+      return;
+    }
+
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Số tiền nạp không hợp lệ. Vui lòng nhập lại.");
+      return;
+    }
+
+    try {
+      const response = await depositToWallet(method, userId, amount);
+      if (!response.success) {
+        toast.error(response.message || "Nạp tiền thất bại. Vui lòng thử lại.");
+        return;
+      }
+
+      const { payUrl } = response.data;
+      if (payUrl) {
+        // Mở liên kết thanh toán trong tab mới
+        window.location.href = payUrl;
+        // window.open(payUrl, "_blank");
+      } else {
+        toast.error("Không có liên kết thanh toán. Vui lòng thử lại sau.");
+        return;
+      }
+      toast.success("Đang chuyển hướng đến trang thanh toán...");
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi nạp tiền. Vui lòng thử lại sau.");
     }
   };
 
@@ -75,9 +94,7 @@ export default function WalletSection({ userId }: { userId: string }) {
       className="tw-space-y-6"
     >
       <div className="tw-flex tw-items-center tw-justify-between">
-        <h2 className="tw-text-2xl tw-font-bold tw-text-primary">
-          Ví của tôi
-        </h2>
+        <h2 className="tw-text-2xl tw-font-bold tw-text-primary">Ví của tôi</h2>
         <button
           onClick={handleDeposit}
           className="tw-bg-primary tw-text-black tw-font-semibold tw-px-4 tw-py-2 tw-rounded-lg hover:tw-bg-[#e0a918]"
@@ -91,7 +108,7 @@ export default function WalletSection({ userId }: { userId: string }) {
           Số dư hiện tại:
         </p>
         <p className="tw-text-3xl tw-font-bold tw-text-primary">
-          {formatCurrencyVN(balance)}
+          {formatCurrencyVN(wallet.balance || 0)}
         </p>
       </div>
 
@@ -100,32 +117,47 @@ export default function WalletSection({ userId }: { userId: string }) {
           Lịch sử giao dịch
         </h3>
         <ul className="tw-space-y-3">
-          {transactions.length === 0 ? (
+          {currentTransactions.length === 0 ? (
             <p className="tw-text-gray-400">Chưa có giao dịch nào.</p>
           ) : (
-            transactions.map((tx) => (
+            currentTransactions.map((tx) => (
               <li
-                key={tx.id}
+                key={tx._id}
                 className="tw-border-b tw-border-gray-600 tw-pb-3 tw-flex tw-justify-between tw-items-center"
               >
                 <div>
-                  <p className="tw-text-white">{tx.description}</p>
-                  <p className="tw-text-xs tw-text-gray-400">{tx.date}</p>
+                  <p className="tw-text-white">{tx.note}</p>
+                  <p className="tw-text-xs tw-text-gray-400">
+                    {formatDate(tx.created_at)}
+                  </p>
                 </div>
                 <p
                   className={`tw-text-sm tw-font-semibold ${
-                    tx.type === "DEPOSIT"
+                    tx.type === "deposit" ||
+                    tx.type === "bonus" ||
+                    tx.type === "refund"
                       ? "tw-text-green-400"
                       : "tw-text-red-400"
                   }`}
                 >
-                  {tx.type === "DEPOSIT" ? "+" : "-"}
+                  {tx.type === "deposit" ||
+                  tx.type === "bonus" ||
+                  tx.type === "refund"
+                    ? "+"
+                    : "-"}
                   {tx.amount.toLocaleString("vi-VN")}₫
                 </p>
               </li>
             ))
           )}
         </ul>
+        {totalPages > 1 && (
+          <Pagination
+            pageCount={totalPages}
+            onPageChange={handlePageChange}
+            forcePage={currentPage - 1}
+          />
+        )}
       </div>
     </motion.div>
   );

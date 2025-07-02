@@ -13,16 +13,14 @@ const walletController = {
       if (!wallet) {
         wallet = await Wallet.create({ user_id: userId });
       }
-
       // Populate transactions with type information
-      wallet = await wallet.populate(
-        "user_id",
-        "first_name last_name email phone_number"
-      );
+      const populatedWallet = await Wallet.findOne({
+        user_id: userId,
+      }).populate("user_id", "first_name last_name email phone_number");
 
       res.status(200).json({
         message: "Lấy thông tin ví thành công",
-        data: wallet,
+        data: populatedWallet,
       });
     } catch (error) {
       res.status(500).json(error);
