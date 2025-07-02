@@ -17,6 +17,7 @@ const { VNPayConfig } = require("../../config/payment");
 const Payment = require("../../models/payment.model");
 const Booking = require("../../models/booking.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
+const Wallet = require("../../models/wallet.model");
 
 const VNPayService = {
   // === KHỞI TẠO VNPay ===
@@ -60,38 +61,59 @@ const VNPayService = {
   // === TẠO YÊU CẦU THANH TOÁN ===
   handleCreatePayment: async (req, res) => {
     try {
-      const { orderId, orderInfo, amount } = req.body;
+      const { orderId, orderInfo, amount, paymentFor = "booking" } = req.body;
+
       if (!orderId || !orderInfo || !amount) {
         throw new Error(
           "Missing required fields: orderId, orderInfo, or amount"
         );
       }
 
-      const paymentMethod = await PaymentMethod.findOne({
-        name: { $regex: /vnpay/i },
-      });
+      const isWallet = paymentFor === "wallet";
 
-      const successfulPayment = await Payment.findOne({
-        booking_id: orderId,
-        status: "completed",
-      });
+      const notifyUrl = isWallet
+        ? VNPayConfig.walletNotifyUrl
+        : VNPayConfig.notifyUrl;
 
-      if (successfulPayment) {
-        throw new Error(
-          "This order has already been paid. Please check your payment history."
-        );
-      }
+      // Nếu là booking, kiểm tra đơn đã được thanh toán chưa
+      if (!isWallet) {
+        const paymentMethod = await PaymentMethod.findOne({
+          name: { $regex: /vnpay/i },
+        });
 
-      const pendingVNPay = await Payment.findOne({
-        booking_id: orderId,
-        status: "pending",
-        payment_method_id: paymentMethod._id,
-      });
+        const successfulPayment = await Payment.findOne({
+          booking_id: orderId,
+          status: "completed",
+        });
 
-      if (pendingVNPay) {
-        throw new Error(
-          "This order is already being processed by VNPay. Please wait for the payment to complete or cancel the order."
-        );
+        if (successfulPayment) {
+          throw new Error("This order has already been paid.");
+        }
+
+        const pendingPayment = await Payment.findOne({
+          booking_id: orderId,
+          status: "pending",
+          payment_method_id: paymentMethod._id,
+        });
+
+        if (pendingPayment) {
+          throw new Error("This order is already being processed.");
+        }
+
+        // Lưu bản ghi Payment nếu là booking
+        const paymentUrlTemp = "temp"; // placeholder để có metadata.paymentUrl sau
+        const payment = new Payment({
+          booking_id: orderId,
+          amount,
+          payment_method_id: paymentMethod._id,
+          status: "pending",
+          transaction_id: null,
+          payment_date: new Date(),
+          metadata: { paymentUrl: paymentUrlTemp },
+          type: "booking_payment",
+        });
+
+        await payment.save(); // lưu trước, lát update lại URL nếu cần
       }
 
       const tomorrow = new Date();
@@ -99,38 +121,37 @@ const VNPayService = {
 
       const paymentUrl = VNPayService.vnpay.buildPaymentUrl({
         vnp_Amount: amount,
-        vnp_IpAddr: req.ip, // Địa chỉ IP của người dùng
-        vnp_TxnRef: orderId, // Mã đơn hàng duy nhất
-        vnp_OrderInfo: orderInfo, // Thông tin mô tả đơn hàng
+        vnp_IpAddr: req.ip,
+        vnp_TxnRef: orderId,
+        vnp_OrderInfo: orderInfo,
         vnp_OrderType: ProductCode.Other,
-        vnp_ReturnUrl: VNPayConfig.notifyUrl, // URL sẽ được VNPay gọi lại sau khi thanh toán
-        vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
-        vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là thời gian hiện tại
-        vnp_ExpireDate: dateFormat(tomorrow), // tùy chọn
+        vnp_ReturnUrl: notifyUrl,
+        vnp_Locale: VnpLocale.VN,
+        vnp_CreateDate: dateFormat(new Date()),
+        vnp_ExpireDate: dateFormat(tomorrow),
       });
 
-      const payment = new Payment({
-        booking_id: orderId,
-        amount: amount,
-        payment_method_id: paymentMethod._id,
-        status: "pending",
-        transaction_id: null,
-        payment_date: new Date(),
-        metadata: { paymentUrl: paymentUrl },
-      });
-      await payment.save();
+      if (!isWallet) {
+        await Payment.findOneAndUpdate(
+          { booking_id: orderId },
+          { $set: { "metadata.paymentUrl": paymentUrl } }
+        );
+      }
 
       return {
-        orderId: orderId,
+        orderId,
         requestId: VNPayService._generateRequestId(),
-        amount: amount,
+        amount,
         responseTime: dateFormat(new Date()),
         message: "Payment created successfully",
         payUrl: paymentUrl,
       };
     } catch (error) {
-      console.error("Error creating VNPay payment:", error);
-      throw error;
+      console.error("VNPay Create Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || "VNPay payment creation failed",
+      });
     }
   },
 
@@ -161,62 +182,86 @@ const VNPayService = {
   // === XỬ LÝ IPN TỪ VNPay ===
   handleIPN: async (query) => {
     try {
-      const verify = VNPayService.vnpay.verifyReturnUrl(query);
-      if (!verify.isVerified) {
-        throw new Error("Invalid signature");
-      }
+      const isVerified = VNPayService.vnpay.verifyReturnUrl(query);
+      if (!isVerified) throw new Error("Chữ ký VNPay không hợp lệ");
 
       const {
-        vnp_TxnRef: booking_id,
+        vnp_TxnRef: orderId,
         vnp_ResponseCode,
         vnp_TransactionNo: transaction_id,
         vnp_PayDate: transaction_date,
       } = query;
 
-      const paymentMethod = await PaymentMethod.findOne({
-        name: { $regex: /vnpay/i },
-      });
+      const isWallet = orderId.startsWith("WALLET_");
+      const amount = Number(query.vnp_Amount);
+      const payDate = VNPayService.parseToUTC(transaction_date);
 
-      const payment = await Payment.findOne({
-        booking_id,
-        payment_method_id: paymentMethod._id,
-      });
-      if (!payment) {
-        throw new Error(
-          `Payment record not found for booking ID ${booking_id}`
-        );
+      if (vnp_ResponseCode !== "00") {
+        return {
+          success: false,
+          code: "01",
+          message: "Giao dịch thất bại từ phía VNPay",
+        };
       }
 
-      const booking = await Booking.findById(booking_id);
-      if (!booking) {
-        throw new Error(`Booking not found for ID ${booking_id}`);
-      }
+      if (isWallet) {
+        const userId = orderId.split("_")[1]; // WALLET_userId_timestamp
 
-      if (vnp_ResponseCode === "00") {
+        const wallet = await Wallet.findOne({ user_id: userId });
+        if (!wallet) throw new Error("Không tìm thấy ví");
+
+        wallet.balance += amount;
+        wallet.transactions.push({
+          type: "deposit",
+          amount,
+          note: "Nạp ví thành công qua VNPay",
+          created_at: payDate,
+        });
+
+        await wallet.save();
+
+        return {
+          success: true,
+          code: "00",
+          message: "Nạp ví thành công",
+        };
+      } else {
+        // TH booking
+        const paymentMethod = await PaymentMethod.findOne({
+          name: { $regex: /vnpay/i },
+        });
+
+        const payment = await Payment.findOne({
+          booking_id: orderId,
+          payment_method_id: paymentMethod._id,
+        });
+
+        if (!payment) throw new Error("Không tìm thấy thanh toán");
+
+        const booking = await Booking.findById(orderId);
+        if (!booking) throw new Error("Không tìm thấy booking");
+
         payment.status = "completed";
         payment.transaction_id = transaction_id;
-        payment.payment_date = VNPayService.parseToUTC(transaction_date);
+        payment.payment_date = payDate;
+
         booking.payment_status = "PAID";
-      } else {
-        payment.status = "failed";
-        payment.transaction_id = transaction_id;
-        payment.payment_date = VNPayService.parseToUTC(transaction_date);
-        booking.payment_status = "UNPAID";
+
+        await payment.save();
+        await booking.save();
+
+        return {
+          success: true,
+          code: "00",
+          message: "Thanh toán booking thành công",
+        };
       }
-
-      await payment.save();
-      await booking.save();
-      // console.log(
-      //   `Payment for booking ID ${booking_id} updated to status: ${payment.status}`
-      // );
-
-      return { success: true, code: "00", message: "Payment updated" };
     } catch (error) {
-      console.error("Error handling VNPay IPN:", error);
+      console.error("VNPay IPN error:", error);
       return {
         success: false,
         code: "99",
-        message: error.message || "IPN failed",
+        message: error.message || "VNPay IPN xử lý thất bại",
       };
     }
   },

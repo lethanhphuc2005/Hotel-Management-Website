@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { showNumberInputDialog } from "@/utils/swal"; // Giả định bạn đã có CustomSwal
+import { showNumberInputDialog, showPaymentMethodDialog } from "@/utils/swal"; // Giả định bạn đã có CustomSwal
 import { toast } from "react-toastify";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 interface WalletTransaction {
   id: string;
@@ -47,9 +48,9 @@ export default function WalletSection({ userId }: { userId: string }) {
 
     if (amountStr === null) {
       return; // Người dùng huỷ
-  }
-    
-
+    }
+    const method = await showPaymentMethodDialog();
+    console.log("Selected payment method:", method);
     if (amountStr) {
       const amount = Number(amountStr);
       const newBalance = balance + amount;
@@ -63,7 +64,7 @@ export default function WalletSection({ userId }: { userId: string }) {
 
       setBalance(newBalance);
       setTransactions((prev) => [newTransaction, ...prev]);
-      toast.success(`Nạp ${amount.toLocaleString("vi-VN")}₫ thành công!`);
+      toast.success(`Nạp ${formatCurrencyVN(amount)} thành công!`);
     }
   };
 
@@ -74,12 +75,12 @@ export default function WalletSection({ userId }: { userId: string }) {
       className="tw-space-y-6"
     >
       <div className="tw-flex tw-items-center tw-justify-between">
-        <h2 className="tw-text-2xl tw-font-bold tw-text-[#FAB320]">
+        <h2 className="tw-text-2xl tw-font-bold tw-text-primary">
           Ví của tôi
         </h2>
         <button
           onClick={handleDeposit}
-          className="tw-bg-[#FAB320] tw-text-black tw-font-semibold tw-px-4 tw-py-2 tw-rounded-lg hover:tw-bg-[#e0a918]"
+          className="tw-bg-primary tw-text-black tw-font-semibold tw-px-4 tw-py-2 tw-rounded-lg hover:tw-bg-[#e0a918]"
         >
           Nạp tiền
         </button>
@@ -89,8 +90,8 @@ export default function WalletSection({ userId }: { userId: string }) {
         <p className="tw-text-lg tw-font-semibold tw-text-white">
           Số dư hiện tại:
         </p>
-        <p className="tw-text-3xl tw-font-bold tw-text-[#FAB320]">
-          {balance.toLocaleString("vi-VN")}₫
+        <p className="tw-text-3xl tw-font-bold tw-text-primary">
+          {formatCurrencyVN(balance)}
         </p>
       </div>
 

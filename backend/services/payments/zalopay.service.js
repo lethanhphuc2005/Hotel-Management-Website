@@ -13,17 +13,26 @@ const { ZaloPayConfig } = require("../../config/payment");
 const Booking = require("../../models/booking.model");
 const Payment = require("../../models/payment.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
+const Wallet = require("../../models/wallet.model");
 
 const ZaloPayService = {
   // === TẠO YÊU CẦU THANH TOÁN ===
   handleCreatePayment: async (req, res) => {
-    const { orderId, amount, orderInfo } = req.body;
+    const { orderId, amount, orderInfo, paymentFor = "booking" } = req.body;
     if (!orderId || !amount || !orderInfo) {
       throw new Error("Missing required fields: orderId, amount, or orderInfo");
     }
+
+    const isWallet = paymentFor === "wallet";
+    const callbackUrl = isWallet
+      ? ZaloPayConfig.walletCallbackUrl
+      : ZaloPayConfig.callbackUrl;
+    const returnUrl = isWallet
+      ? ZaloPayConfig.walletReturnUrl
+      : ZaloPayConfig.returnUrl;
     const embed_data = {
       orderId: orderId,
-      redirecturl: ZaloPayConfig.returnUrl, // URL to redirect after payment
+      redirecturl: returnUrl, // URL to redirect after payment
     };
 
     const items = [];
@@ -39,7 +48,7 @@ const ZaloPayService = {
       amount: amount, // amount in VND
       //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
       //Chú ý: cần dùng ngrok để public url thì Zalopay Server mới call đến được
-      callback_url: ZaloPayConfig.callbackUrl,
+      callback_url: callbackUrl,
       description: orderInfo,
       bank_code: "",
     };
@@ -71,33 +80,36 @@ const ZaloPayService = {
     };
 
     try {
-      const paymentMethod = await PaymentMethod.findOne({
-        name: { $regex: /zalopay/i },
-      });
-      if (!paymentMethod) {
-        throw new Error("ZaloPay payment method not found");
-      }
+      let paymentMethod;
+      if (!isWallet) {
+        paymentMethod = await PaymentMethod.findOne({
+          name: { $regex: /zalopay/i },
+        });
+        if (!paymentMethod) {
+          throw new Error("ZaloPay payment method not found");
+        }
 
-      const successfulPayment = await Payment.findOne({
-        booking_id: orderId,
-        status: "completed",
-      });
+        const successfulPayment = await Payment.findOne({
+          booking_id: orderId,
+          status: "completed",
+        });
 
-      if (successfulPayment) {
-        throw new Error(
-          `Payment for booking ID ${orderId} has already been processed`
-        );
-      }
+        if (successfulPayment) {
+          throw new Error(
+            `Payment for booking ID ${orderId} has already been processed`
+          );
+        }
 
-      const pendingPayment = await Payment.findOne({
-        booking_id: orderId,
-        payment_method_id: paymentMethod._id,
-      });
+        const pendingPayment = await Payment.findOne({
+          booking_id: orderId,
+          payment_method_id: paymentMethod._id,
+        });
 
-      if (pendingPayment) {
-        throw new Error(
-          "This order is already being processed by ZaloPay. Please wait for the payment to complete or cancel the order."
-        );
+        if (pendingPayment) {
+          throw new Error(
+            "This order is already being processed by ZaloPay. Please wait for the payment to complete or cancel the order."
+          );
+        }
       }
 
       const response = await axios(options);
@@ -110,22 +122,25 @@ const ZaloPayService = {
         );
       }
       // Create a new payment record
-      const payment = new Payment({
-        booking_id: orderId,
-        amount: amount,
-        payment_method_id: paymentMethod._id,
-        status: "pending",
-        transaction_id: result.zp_trans_token,
-        payment_date: new Date(),
-        metadata: {
-          resultCode: result.return_code,
-          message: result.return_message,
-          appTransId: order.app_trans_id,
-          zpTransToken: result.zp_trans_token, // nếu có
-        },
-      });
+      if (!isWallet) {
+        const payment = new Payment({
+          booking_id: orderId,
+          amount: amount,
+          payment_method_id: paymentMethod._id,
+          status: "pending",
+          transaction_id: result.zp_trans_token,
+          payment_date: new Date(),
+          metadata: {
+            resultCode: result.return_code,
+            message: result.return_message,
+            appTransId: order.app_trans_id,
+            zpTransToken: result.zp_trans_token, // nếu có
+          },
+        });
 
-      await payment.save();
+        await payment.save();
+      }
+
       return result;
     } catch (error) {
       console.error("Error creating ZaloPay payment:", error);
@@ -155,45 +170,70 @@ const ZaloPayService = {
       const embedData = JSON.parse(parsedData.embed_data);
       const orderId = embedData.orderId;
 
+      const isWallet = orderId.startsWith("WALLET_");
       const { zp_trans_id, amount, app_trans_id } = parsedData;
 
-      const paymentMethod = await PaymentMethod.findOne({
-        name: { $regex: /zalopay/i },
-      });
+      if (isWallet) {
+        const userId = orderId.split("_")[1];
+        const wallet = await Wallet.findOne({ user_id: userId });
+        if (!wallet) {
+          throw new Error(`Wallet not found for user ID ${userId}`);
+        }
 
-      if (!paymentMethod) {
-        throw new Error("ZaloPay payment method not found");
-      }
+        // Update wallet balance
+        wallet.balance += Number(amount);
+        wallet.transactions.push({
+          type: "deposit",
+          amount,
+          note: "Nạp ví thành công qua ZaloPay",
+          created_at: new Date(),
+        });
 
-      const booking = await Booking.findOneAndUpdate(
-        { _id: orderId },
-        { payment_status: "PAID" },
-        { new: true }
-      );
-      if (!booking) {
-        throw new Error(`Booking not found for ID ${orderId}`);
-      }
+        await wallet.save();
 
-      const payment = await Payment.findOneAndUpdate(
-        {
-          booking_id: orderId,
-          payment_method_id: paymentMethod._id,
-        },
-        {
-          status: "completed",
-          transaction_id: app_trans_id,
-          payment_date: new Date(),
-          metadata: {
-            resultCode: parsedData.return_code,
-            message: parsedData.return_message,
-            zpTransId: zp_trans_id,
+        return {
+          success: true,
+          message: "ZaloPay wallet deposit processed successfully",
+        };
+      } else {
+        const paymentMethod = await PaymentMethod.findOne({
+          name: { $regex: /zalopay/i },
+        });
+
+        if (!paymentMethod) {
+          throw new Error("ZaloPay payment method not found");
+        }
+
+        const booking = await Booking.findOneAndUpdate(
+          { _id: orderId },
+          { payment_status: "PAID" },
+          { new: true }
+        );
+        if (!booking) {
+          throw new Error(`Booking not found for ID ${orderId}`);
+        }
+
+        const payment = await Payment.findOneAndUpdate(
+          {
+            booking_id: orderId,
+            payment_method_id: paymentMethod._id,
           },
-        },
-        { new: true }
-      );
+          {
+            status: "completed",
+            transaction_id: app_trans_id,
+            payment_date: new Date(),
+            metadata: {
+              resultCode: parsedData.return_code,
+              message: parsedData.return_message,
+              zpTransId: zp_trans_id,
+            },
+          },
+          { new: true }
+        );
 
-      if (!payment) {
-        throw new Error(`Payment record not found for booking ID ${orderId}`);
+        if (!payment) {
+          throw new Error(`Payment record not found for booking ID ${orderId}`);
+        }
       }
 
       return {
@@ -226,7 +266,6 @@ const ZaloPayService = {
     let data =
       postData.app_id + "|" + postData.app_trans_id + "|" + ZaloPayConfig.key1;
     postData.mac = CryptoJS.HmacSHA256(data, ZaloPayConfig.key1).toString();
-    console.log(ZaloPayConfig.queryUrl);
     let postConfig = {
       method: "POST",
       url: ZaloPayConfig.queryUrl,
@@ -238,7 +277,6 @@ const ZaloPayService = {
 
     try {
       const result = await axios(postConfig);
-      console.log("ZaloPay transaction status result:", result.data);
       if (result.data.return_code !== 1) {
         throw new Error(
           `ZaloPay transaction status query failed: ${result.data.return_message} (${result.data.sub_return_message})`

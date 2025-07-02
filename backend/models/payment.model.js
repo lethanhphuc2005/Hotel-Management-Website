@@ -5,7 +5,7 @@ const PaymentSchema = new mongoose.Schema(
     booking_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Booking",
-      required: true,
+      default: null,
     },
     amount: {
       type: Number,

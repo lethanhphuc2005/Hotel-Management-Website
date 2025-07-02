@@ -55,6 +55,12 @@ const userController = {
           {
             path: "bookings",
           },
+          {
+            path: "favorites",
+          },
+          {
+            path: "wallet",
+          },
         ])
         .sort(sortOption)
         .select("-password") // Loại bỏ trường password và __v
@@ -201,6 +207,11 @@ const userController = {
                 ],
               },
             ],
+          },
+          {
+            path: "wallet",
+            select: "balance transactions",
+            
           },
         ]);
       if (!user) {

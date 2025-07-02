@@ -140,6 +140,12 @@ UserSchema.virtual("favorites", {
   foreignField: "user_id",
 });
 
+UserSchema.virtual("wallet", {
+  ref: "wallet",
+  localField: "_id",
+  foreignField: "user_id",
+});
+
 UserSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

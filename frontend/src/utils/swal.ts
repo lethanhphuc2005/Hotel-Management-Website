@@ -96,4 +96,77 @@ export const showNumberInputDialog = async (
   });
 
   return result.isConfirmed ? result.value : null;
-}
+};
+
+export const showPaymentMethodDialog = async (): Promise<string | null> => {
+  const methods = [
+    {
+      label: "Thanh toán qua ZaloPay",
+      value: "zalopay",
+      icon: "/img/zalopay.png",
+    },
+    {
+      label: "Thanh toán qua Momo",
+      value: "momo",
+      icon: "/img/momo.png",
+    },
+    {
+      label: "Thanh toán qua VNPAY",
+      value: "vnpay",
+      icon: "/img/vnpay.jpg",
+    },
+  ];
+
+  return new Promise((resolve) => {
+    CustomSwal.fire({
+      title: "Chọn phương thức thanh toán",
+      html: `
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          ${methods
+            .map(
+              (m) => `
+            <button 
+              class="payment-method-btn" 
+              data-method="${m.value}" 
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 16px;
+                background: #222;
+                border: 1px solid #444;
+                border-radius: 10px;
+                cursor: pointer;
+                color: #fff;
+                font-size: 14px;
+              "
+            >
+              <img src="${m.icon}" alt="${m.label}" style="width: 32px; height: 32px;" />
+              ${m.label}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+      `,
+      showCancelButton: true,
+      showConfirmButton: false,
+      cancelButtonText: "Huỷ",
+      willOpen: () => {
+        const buttons = document.querySelectorAll<HTMLButtonElement>(
+          ".payment-method-btn"
+        );
+        buttons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const method = btn.getAttribute("data-method");
+            CustomSwal.close();
+            resolve(method); // ✅ Trả về phương thức được chọn
+          });
+        });
+      },
+      didClose: () => {
+        resolve(null); // ✅ Người dùng đóng modal hoặc bấm Huỷ
+      },
+    });
+  });
+};
