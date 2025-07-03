@@ -95,7 +95,7 @@ export default function Banner(props: BannerProps) {
   } = props;
   if (!banners || banners.length === 0) return <p>No banner</p>;
 
-  const banner = banners[0];
+  const banner = banners[1];
   const mongoImage = banner.image;
   const titles = ["Experience Luxury", "Relax and Enjoy", banner.title];
 

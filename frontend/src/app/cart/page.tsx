@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
 import { showConfirmDialog } from "@/utils/swal";
 import { toast } from "react-toastify";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 export default function Cart() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
@@ -31,7 +32,7 @@ export default function Cart() {
       toast.success(`Đã xóa phòng "${room.name}" khỏi giỏ hàng.`);
     }
     dispatch(removeRoomFromCart(roomId));
-  }
+  };
 
   const handleDeleteCart = async () => {
     const result = await showConfirmDialog(
@@ -54,12 +55,11 @@ export default function Cart() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className={styles.cartTitle}>Giỏ Hàng</div>
 
-        <button
-          className="btn bg-black border text-white"
-          onClick={() => (window.location.href = "/")}
-        >
-          ← Tiếp tục đặt phòng
-        </button>
+        <Link href="/">
+          <button className="btn bg-black border text-white">
+            ← Tiếp tục đặt phòng
+          </button>
+        </Link>
       </div>
       <div className="table-responsive">
         <table className={`table align-middle ${styles.darkTable}`}>
@@ -113,13 +113,13 @@ export default function Cart() {
                       {room.services?.map((service, index) => (
                         <span key={index} className={styles.serviceItem}>
                           {service.name} - {service.quantity}x <br />
-                          {service.price.toLocaleString("vi-VN")} VNĐ
+                          {formatCurrencyVN(service.price)}
                         </span>
                       ))}
                     </div>
                   </td>
                   <td style={{ verticalAlign: "middle" }}>
-                    {room.price.toLocaleString("vi-VN")} VNĐ
+                    {formatCurrencyVN(room.price)}
                     {(room.hasSaturdayNight || room.hasSundayNight) && (
                       <div style={{ fontSize: "0.9rem", color: "#FAB320" }}>
                         +50% phụ thu do có đêm cuối tuần
@@ -128,7 +128,7 @@ export default function Cart() {
                   </td>
                   <td style={{ verticalAlign: "middle" }}>{room.nights} đêm</td>
                   <td style={{ verticalAlign: "middle" }}>
-                    {getRoomTotalPrice(room).toLocaleString("vi-VN")}đ
+                    {formatCurrencyVN(getRoomTotalPrice(room))}
                   </td>
                   <td></td>
                 </tr>
@@ -151,7 +151,7 @@ export default function Cart() {
             <div className={styles.summaryBox}>
               <div className={styles.summaryRow}>
                 <span>Tạm tính</span>
-                <span>{total.toLocaleString("vi-VN")}đ</span>
+                <span>{formatCurrencyVN(total)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>Phí dịch vụ</span>
@@ -159,12 +159,12 @@ export default function Cart() {
               </div>
               <div className={styles.summaryRow + " " + styles.summaryTotal}>
                 <span>Tổng cộng</span>
-                <span>{total.toLocaleString("vi-VN")}đ</span>
+                <span>{formatCurrencyVN(total)}</span>
               </div>
             </div>
             <div className="text-end mt-4 mb-1">
               <Link href="/payment" className={styles.checkoutBtn}>
-                Đặt phòng ({total.toLocaleString("vi-VN")}đ)
+                Đặt phòng ({formatCurrencyVN(total)})
               </Link>
             </div>
           </div>

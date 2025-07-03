@@ -149,6 +149,20 @@ export default function Header() {
           </ul>
 
           <div className="d-flex gap-3 align-items-center">
+            {showSearch && (
+              <input
+                type="text"
+                className={`form-control bg-transparent text-white ${style.searchInput}`}
+                placeholder="Tìm kiếm..."
+                style={{
+                  top: "22px",
+                  right: "250px",
+                  width: "300px",
+                  zIndex: 1000,
+                  borderRadius: "8px",
+                }}
+              />
+            )}
             <Link href={"#"}>
               <motion.div
                 whileHover={{ color: "#FAB320" }}
@@ -158,21 +172,7 @@ export default function Header() {
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </motion.div>
             </Link>
-            {showSearch && (
-              <input
-                type="text"
-                className={`form-control bg-transparent text-white ${style.searchInput}`}
-                placeholder="Tìm kiếm..."
-                style={{
-                  position: "absolute",
-                  top: "22px",
-                  right: "250px",
-                  width: "400px",
-                  zIndex: 1000,
-                  borderRadius: "8px",
-                }}
-              />
-            )}
+
             <Link href={"#"}>
               <motion.div
                 whileHover={{ color: "#FAB320" }}
