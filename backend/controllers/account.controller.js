@@ -13,6 +13,7 @@ const accountController = {
       {
         id: user._id || user.id,
         role: user.role || "user",
+        level: user.level || "user",
       },
       process.env.ACCESS_TOKEN,
       { expiresIn: "15m" }
@@ -23,6 +24,7 @@ const accountController = {
       {
         id: user._id,
         role: user.role || "user",
+        level: user.level || "user",
       },
       process.env.REFRESH_TOKEN,
       { expiresIn: "20d" }

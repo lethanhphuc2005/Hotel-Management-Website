@@ -72,6 +72,11 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    level: {
+      type: String,
+      enum: ["normal", "vip", "company"],
+      default: "normal",
+    },
     verfitication_expired: {
       type: Date,
       default: new Date(Date.now() + 60 * 1000),
