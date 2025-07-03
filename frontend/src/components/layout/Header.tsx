@@ -17,25 +17,39 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";
 import Link from "next/link";
+import { Wallet } from "@/types/wallet";
+import { fetchWalletByUserId } from "@/services/WalletService";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 export default function Header() {
   const router = useRouter();
   const [showSearch, setShowSearch] = useState(false);
   const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
+  const [wallet, setWallet] = useState<Wallet>();
   const { user, logout } = useAuth();
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetchMainRoomClasses();
-      if (!response.success) {
-        console.error("Failed to fetch main room classes:", response.message);
+      const mainRoomClassData = await fetchMainRoomClasses();
+      if (!mainRoomClassData.success) {
+        console.error(
+          "Failed to fetch main room classes:",
+          mainRoomClassData.message
+        );
         return;
       }
-      const data = response.data;
-      setMainroomclass(data);
+      setMainroomclass(mainRoomClassData.data);
+
+      if (!user) return;
+      const walletData = await fetchWalletByUserId(user.id);
+      if (!walletData.success) {
+        console.error("Failed to fetch wallet:", walletData.message);
+        return;
+      }
+      setWallet(walletData.data);
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   const toggleSearch = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -180,9 +194,16 @@ export default function Header() {
                   </motion.div>
                 </Link>
                 {user && (
-                  <span>
-                    Xin chào, <strong>{user.first_name}</strong>
-                  </span>
+                  <>
+                    <span className="tw-text-white tw-font-medium">
+                      {user.first_name}
+                    </span>
+                    {wallet && (
+                      <span className="tw-bg-primary tw-text-black tw-text-sm tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
+                        {formatCurrencyVN(wallet.balance)}
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
               <div className={style.dropdownMenu}>

@@ -26,7 +26,6 @@ export default function BookedRoomSection({
   const currentBookings = bookings.slice(startIndex, endIndex);
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const [expandedId, setExpandedId] = useState<string | null>(null);

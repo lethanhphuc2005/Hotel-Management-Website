@@ -6,6 +6,7 @@ const { VNPayConfig } = require("../config/payment");
 const Booking = require("../models/booking.model");
 const Payment = require("../models/payment.model");
 const PaymentMethod = require("../models/paymentMethod.model");
+const walletController = require("./wallet.controller");
 
 const PaymentController = {
   // === TẠO YÊU CẦU THANH TOÁN ===
@@ -13,18 +14,14 @@ const PaymentController = {
     try {
       const { method } = req.params;
       if (!method) {
-        return res.status(400).json({
-          error: "Payment method is required",
-        });
+        return res.status(400).json("Payment method is required");
       }
 
       if (method === "cash") {
         // Handle cash payment creation
         const { orderId } = req.body;
         if (!orderId) {
-          return res.status(400).json({
-            error: "OrderId is required for cash payment",
-          });
+          return res.status(400).json("OrderId is required for cash payment");
         }
 
         const paymentMethod = await PaymentMethod.findOne({
@@ -33,18 +30,12 @@ const PaymentController = {
 
         const booking = await Booking.findById(orderId);
         if (!booking) {
-          return res.status(404).json({
-            error: "Booking not found",
-          });
+          return res.status(404).json("Booking not found");
         }
         if (booking.payment_status === "PAID") {
-          return res.status(400).json({
-            error: "Booking has already been paid",
-          });
+          return res.status(400).json("Booking has already been paid");
         } else if (booking.payment_status === "CANCELED") {
-          return res.status(400).json({
-            error: "Booking has been canceled",
-          });
+          return res.status(400).json("Booking has been canceled");
         }
 
         // Update booking payment status
@@ -56,7 +47,7 @@ const PaymentController = {
           booking_id: orderId,
           amount: booking.total_price,
           payment_method_id: paymentMethod._id,
-          status: "completed",
+          status: "pending",
           transaction_id: `cash-${orderId}-${Date.now()}`,
           payment_date: new Date(),
         });
@@ -66,6 +57,63 @@ const PaymentController = {
           success: true,
           message: "Cash payment created successfully",
           data: { orderId, method: "cash" },
+        });
+      }
+      if (method === "wallet") {
+        // Handle wallet payment creation
+        const { orderId } = req.body;
+        if (!orderId) {
+          return res.status(400).json("OrderId is required for wallet payment");
+        }
+
+        const paymentMethod = await PaymentMethod.findOne({
+          name: { $regex: /wallet/i },
+        });
+
+        const booking = await Booking.findById(orderId);
+        if (!booking) {
+          return res.status(404).json("Booking not found");
+        }
+        if (booking.payment_status === "PAID") {
+          return res.status(400).json("Booking has already been paid");
+        } else if (booking.payment_status === "CANCELED") {
+          return res.status(400).json("Booking has been canceled");
+        }
+
+        // Create a wallet payment record
+        const userId = booking.user_id;
+        const amount = booking.total_price;
+        const wallet = await walletController.useInternal(
+          userId,
+          amount,
+          `Thanh toán booking ${orderId} bằng ví`
+        );
+
+        // Check if wallet payment was successful
+        if (wallet.error) {
+          return res.status(401).json({
+            message: wallet.message || "Failed to use wallet",
+          });
+        }
+
+        // Update booking payment status
+        booking.payment_status = "PAID";
+        await booking.save();
+
+        const payment = new Payment({
+          booking_id: orderId,
+          amount: booking.total_price,
+          payment_method_id: paymentMethod._id,
+          status: "completed",
+          transaction_id: `wallet-${orderId}-${Date.now()}`,
+          payment_date: new Date(),
+        });
+        await payment.save();
+
+        return res.status(200).json({
+          success: true,
+          message: "Wallet payment created successfully",
+          data: { orderId, method: "wallet" },
         });
       }
 

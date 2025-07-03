@@ -19,7 +19,11 @@ const RoomDetailPage = () => {
   return (
     <div className="tw-mx-[15%] tw-my-[100px]">
       <ImageAlbum images={images} />
-      <InformationSection roomClass={roomClass} mainRoomClass={mainRoomClass} />
+      <InformationSection
+        roomClass={roomClass}
+        mainRoomClass={mainRoomClass}
+        images={images}
+      />
       <FeatureSection features={features} />
       <ReviewSection reviews={reviews} />
       <FAQSection roomClassId={roomClass.id} comments={comments} />

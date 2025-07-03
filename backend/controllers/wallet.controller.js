@@ -112,9 +112,29 @@ const walletController = {
       type: "refund",
       amount,
       note,
-      date: new Date(),
     });
 
+    await wallet.save();
+    return wallet;
+  },
+
+  useInternal: async (userId, amount, note = "") => {
+    let wallet = await Wallet.findOne({ user_id: userId });
+    if (!wallet) {
+      wallet = await Wallet.create({ user_id: userId, balance: 0 });
+    }
+    if (wallet.balance < amount) {
+      return {
+        error: true,
+        message: "Số dư không đủ"
+      };
+    }
+    wallet.balance -= amount;
+    wallet.transactions.push({
+      type: "use",
+      amount,
+      note,
+    });
     await wallet.save();
     return wallet;
   },

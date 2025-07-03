@@ -12,14 +12,48 @@ import { MainRoomClass } from "@/types/mainRoomClass";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import RoomBookingBox from "./BookingForm";
 import { capitalizeFirst } from "@/utils/stringUtils";
+import { useRoomSearch } from "@/hooks/useRoomSearch";
+import { Image } from "../../../types/image";
 
 const InformationSection = ({
   roomClass,
   mainRoomClass,
+  images,
 }: {
   roomClass: RoomClass;
   mainRoomClass: MainRoomClass[];
+  images: any[];
 }) => {
+  const {
+    dateRange,
+    setDateRange,
+    guests,
+    setGuests,
+    showCalendar,
+    setShowCalendar,
+    showGuestBox,
+    setShowGuestBox,
+    guestBoxRef,
+    calendarRef,
+    maxGuests,
+    setMaxGuests,
+    totalGuests,
+    numberOfNights,
+    setNumberOfNights,
+    totalPrice,
+    setTotalPrice,
+    hasSearched,
+    setHasSearched,
+    pendingGuests,
+    setPendingGuests,
+    pendingDateRange,
+    setPendingDateRange,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    setPrice,
+  } = useRoomSearch();
   return (
     <div className="tw-flex tw-gap-6 md:tw-flex-row tw-flex-col">
       <section className="tw-max-w-[1320px] tw-mx-auto tw-mt-4   tw-rounded-2xl tw-shadow-xl">
@@ -59,14 +93,16 @@ const InformationSection = ({
               <div className="tw-flex tw-items-center tw-gap-3 tw-text-gray-400">
                 <FontAwesomeIcon icon={faTag} className="tw-text-xl" />
                 <span>
-                  Giá: <del>{formatCurrencyVN(roomClass.price)}</del>
+                  Giá: <del>{formatCurrencyVN(roomClass.price)}/đêm</del>
                 </span>
               </div>
               <div className="tw-flex tw-items-center tw-gap-3 tw-text-primary">
                 <FontAwesomeIcon icon={faPercent} className="tw-text-xl" />
                 <span>
                   Ưu đãi:{" "}
-                  <strong>{formatCurrencyVN(roomClass.price_discount)}</strong>
+                  <strong>
+                    {formatCurrencyVN(roomClass.price_discount)}/đêm
+                  </strong>
                 </span>
               </div>
             </>
@@ -75,7 +111,7 @@ const InformationSection = ({
               <div className="tw-flex tw-items-center tw-gap-3 tw-text-primary">
                 <FontAwesomeIcon icon={faTag} className="tw-text-xl " />
                 <span>
-                  Giá: <strong>{formatCurrencyVN(roomClass.price)}</strong>
+                  Giá: <strong>{formatCurrencyVN(roomClass.price)}/đêm</strong>
                 </span>
               </div>
               <div className="tw-flex tw-items-center tw-gap-3">
@@ -94,7 +130,39 @@ const InformationSection = ({
       </section>
       {/* Booking Box */}
       <div className="tw-max-w-[1320px] tw-mx-auto tw-mt-6">
-        <RoomBookingBox />
+        <RoomBookingBox
+          roomClass={roomClass}
+          images={images}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          guests={guests}
+          setGuests={setGuests}
+          showCalendar={showCalendar}
+          setShowCalendar={setShowCalendar}
+          showGuestBox={showGuestBox}
+          setShowGuestBox={setShowGuestBox}
+          guestBoxRef={guestBoxRef}
+          calendarRef={calendarRef}
+          maxGuests={maxGuests}
+          setMaxGuests={setMaxGuests}
+          totalGuests={totalGuests}
+          numberOfNights={numberOfNights}
+          setNumberOfNights={setNumberOfNights}
+          totalPrice={totalPrice}
+          setTotalPrice={setTotalPrice}
+          hasSearched={hasSearched}
+          setHasSearched={setHasSearched}
+          pendingGuests={pendingGuests}
+          setPendingGuests={setPendingGuests}
+          pendingDateRange={pendingDateRange}
+          setPendingDateRange={setPendingDateRange}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          setPrice={setPrice}
+          price={roomClass.price}
+        />
       </div>
     </div>
   );

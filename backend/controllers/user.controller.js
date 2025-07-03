@@ -175,6 +175,7 @@ const userController = {
                     select: "name description view price bed_amount ",
                     populate: {
                       path: "images",
+                      match: { status: true }, // Chỉ lấy các hình ảnh đang hoạt động
                       select: "url",
                     },
                   },
@@ -343,7 +344,7 @@ const userController = {
 
       res.status(200).json({
         message: "Xóa user thành công ",
-        data: { userId: user._id },
+        data: { userId: req.params.id },
       });
     } catch (error) {
       res.status(500).json(error);

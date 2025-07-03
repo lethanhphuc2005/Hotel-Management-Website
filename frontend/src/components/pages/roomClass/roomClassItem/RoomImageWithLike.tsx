@@ -12,6 +12,7 @@ export default function RoomImageWithLike({
   liked: boolean;
   onLikeClick: () => void;
 }) {
+
   return (
     <div className="position-relative">
       <Link href={`/room-class/${roomId}`}>

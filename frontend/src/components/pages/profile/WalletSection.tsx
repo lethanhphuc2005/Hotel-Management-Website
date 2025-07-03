@@ -38,7 +38,6 @@ export default function WalletSection({ wallet, setWallet }: Props) {
   const currentTransactions = wallet.transactions.slice(startIndex, endIndex);
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeposit = async () => {
@@ -89,9 +88,10 @@ export default function WalletSection({ wallet, setWallet }: Props) {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="tw-space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="tw-space-y-4"
     >
       <div className="tw-flex tw-items-center tw-justify-between">
         <h2 className="tw-text-2xl tw-font-bold tw-text-primary">Ví của tôi</h2>

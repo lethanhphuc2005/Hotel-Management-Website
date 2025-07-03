@@ -25,7 +25,7 @@ export const createPayment = async (
   } catch (error: any) {
     const message =
       error.response?.data?.message ||
-      error.response?.message ||
+      error.response?.message || 
       "Failed to create payment";
     return {
       success: false,

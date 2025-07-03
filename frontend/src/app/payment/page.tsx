@@ -4,7 +4,7 @@ import style from "./page.module.css";
 import { RootState } from "@/contexts/store";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
 import { clearCart, removeRoomFromCart } from "@/contexts/cartSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createBooking } from "@/services/BookingService";
 import { useLoading } from "@/contexts/LoadingContext";
 import { createPayment } from "@/services/PaymentService";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWallet, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import {
+  fetchWalletByUserId,
+  useWalletByUserId,
+} from "@/services/WalletService";
 
 const formatVietnameseDate = (dateStr: string) => {
   const [day, month, year] = dateStr.split("/").map(Number);
@@ -33,10 +39,29 @@ export default function PayMent() {
   const router = useRouter();
 
   const [selectedMethod, setSelectedMethod] = useState("");
+  const [walletBalance, setWalletBalance] = useState(0);
 
   const handleSelect = (value: string) => {
     setSelectedMethod(value);
   };
+
+  useEffect(() => {
+    const fetchWallet = async () => {
+      if (!user || !user.id) return;
+      try {
+        const response = await fetchWalletByUserId(user.id);
+        if (!response.success) {
+          throw new Error(response.message || "Không thể lấy thông tin ví.");
+        }
+        const data = response.data;
+        setWalletBalance(data.balance || 0);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin ví:", error);
+        toast.error("Không thể lấy thông tin ví. Vui lòng thử lại sau.");
+      }
+    };
+    fetchWallet();
+  }, [user]);
 
   const methods = [
     {
@@ -57,14 +82,21 @@ export default function PayMent() {
     {
       label: "Thanh toán tiền mặt tại nơi ở",
       value: "cash",
-      icon: <i className="bi bi-cash-coin fs-4 text-success"></i>,
+      icon: <FontAwesomeIcon icon={faMoneyBill} className=" tw-text-2xl" />,
     },
   ];
-
   const total = rooms.reduce((sum, room) => {
     const roomTotal = getRoomTotalPrice(room);
     return sum + roomTotal;
   }, 0);
+
+  if (user && user.id && walletBalance > total) {
+    methods.push({
+      label: "Thanh toán qua ví",
+      value: "wallet",
+      icon: <FontAwesomeIcon icon={faWallet} className=" tw-text-2xl" />,
+    });
+  }
 
   const [name, setName] = useState(
     user?.last_name + " " + user?.first_name || ""
@@ -125,23 +157,20 @@ export default function PayMent() {
 
       const response = await createBooking(payload);
       if (!response.success) {
-        throw new Error(response.message || "Lỗi khi tạo đơn đặt phòng.");
-      }
-
-      if (selectedMethod === "cash") {
-        // Nếu chọn thanh toán tiền mặt, redirect về trang chủ
-        dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
-        router.push("/thank-you"); 
+        toast.error(response.message || "Lỗi khi tạo đơn đặt phòng.");
         return;
       }
+
+      const data = response.data;
+
       // Sang API để tạo thanh toán
-      if (!response?.data || !response.data.id) {
+      if (!data || !data.id) {
         throw new Error("Không thể xác định mã đơn đặt phòng.");
       }
 
       const paymentResponse = await createPayment(
         selectedMethod,
-        response.data.id as string, // orderId
+        data?.id as string, // orderId
         `Đặt phòng từ ${formatVietnameseDate(
           rooms[0].checkIn
         )} đến ${formatVietnameseDate(rooms[0].checkOut)}
@@ -150,13 +179,19 @@ export default function PayMent() {
         total
       );
       if (!paymentResponse.success) {
-        throw new Error(paymentResponse.message || "Lỗi khi tạo thanh toán.");
+        toast.error(
+          paymentResponse.message || "Lỗi khi tạo yêu cầu thanh toán."
+        );
+        return;
       }
       // Redirect đến trang thanh toán
       if (paymentResponse.data.payUrl) {
         dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
         window.location.href = paymentResponse.data.payUrl;
         return;
+      } else {
+        dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
+        window.location.href = `/thank-you?orderId=${data?.id}`;
       }
 
       // Optional: redirect
@@ -440,6 +475,11 @@ export default function PayMent() {
                   />
                   {method.icon}
                   <span className="fw-semibold">{method.label}</span>
+                  {method.value === "wallet" && (
+                    <span className="tw-text-secondary ms-auto">
+                      {walletBalance.toLocaleString("vi-VN")} VNĐ
+                    </span>
+                  )}
                 </motion.label>
               ))}
             </div>

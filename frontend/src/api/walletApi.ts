@@ -19,8 +19,9 @@ export const useWalletByUserId = async (
   note: string
 ) => {
   try {
-    const response = await api.get(`/wallet/use/${userId}`, {
-      data: { amount, note },
+    const response = await api.post(`/wallet/use/${userId}`, {
+      amount,
+      note,
     });
     if (response.status !== 200 && response.status !== 201) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);

@@ -48,7 +48,7 @@ export default function RoomClassItem({
   const adults = numberOfAdults ?? 1;
   const childrenUnder6 = numChildrenUnder6 ?? 0;
   const childrenOver6 = numchildrenOver6 ?? 0;
-  const cartRooms = useSelector((state: RootState) => state.cart.rooms);
+  const cartRooms = useSelector((state: RootState) => state?.cart.rooms);
 
   const basePrice =
     (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price;
@@ -157,7 +157,7 @@ export default function RoomClassItem({
       </button>
 
       <RoomImageWithLike
-        imageUrl={rci?.images?.[0]?.url || ""}
+        imageUrl={rci.images?.[0].url || ""}
         roomId={rci.id}
         liked={liked}
         onLikeClick={handleLikeClick}
@@ -172,6 +172,7 @@ export default function RoomClassItem({
       />
 
       <RoomPriceAndBooking
+        roomClassId={rci.id}
         hasSearched={hasSearched}
         numberOfNights={numberOfNights}
         numberOfAdults={numberOfAdults}

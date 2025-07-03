@@ -1,4 +1,10 @@
+import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+
 export default function RoomPriceAndBooking({
+  roomClassId,
   hasSearched,
   numberOfNights,
   numberOfAdults = 1,
@@ -7,6 +13,7 @@ export default function RoomPriceAndBooking({
   totalPrice,
   basePrice,
 }: {
+  roomClassId: string;
   hasSearched?: boolean;
   numberOfNights: number;
   numberOfAdults?: number;
@@ -29,22 +36,20 @@ export default function RoomPriceAndBooking({
         </div>
       )}
       <h5 className="fw-bold text-white">
-        VND{" "}
         {hasSearched
-          ? totalPrice.toLocaleString("vi-VN")
-          : basePrice.toLocaleString("vi-VN")}
+          ? formatCurrencyVN(totalPrice)
+          : formatCurrencyVN(basePrice)}
       </h5>
       <p style={{ fontSize: "12px" }}>Đã bao gồm thuế và phí</p>
-      <button
-        className="border-0 rounded text-black"
-        style={{
-          height: "40px",
-          width: "150px",
-          backgroundColor: "#FAB320",
-        }}
+      <Link
+        href={`/room-class/${roomClassId}`}
+        className=" tw-text-decoration-none tw-btn tw-btn-primary tw-px-4 tw-py-2 tw-rounded-xl tw-bg-primary tw-text-black tw-font-bold tw-align-items"
       >
-        Đặt phòng <i className="bi bi-chevron-right"></i>
-      </button>
+        <button className="">
+          Xem thêm
+          <FontAwesomeIcon icon={faChevronRight} className="tw-ml-2" />
+        </button>
+      </Link>
     </div>
   );
 }

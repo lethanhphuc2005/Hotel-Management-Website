@@ -18,7 +18,6 @@ export const createPayment = async (
 
     return response.data;
   } catch (error) {
-    console.error("Error creating payment:", error);
     throw error;
   }
 };
