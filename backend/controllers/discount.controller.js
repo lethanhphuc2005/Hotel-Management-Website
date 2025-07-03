@@ -1,23 +1,28 @@
 const Discount = require("../models/discount.model");
 const calculateBookingPrice =
   require("../services/discount.service").calculateBookingPrice;
+const {
+  upload,
+  deleteImagesOnError,
+  deleteOldImages,
+} = require("../middlewares/upload");
 
 const DiscountController = {
   validateDiscount: async (discountData, discountId) => {
-    const { type, value, valueType, promoCode } = discountData;
-    if (!type || !value || !valueType) {
+    const { type, value, value_type, promo_code } = discountData;
+    if (!type || !value || !value_type) {
       return {
         valid: false,
-        message: "Type, value, and valueType are required",
+        message: "Type, value, and value_type are required",
       };
     }
-    if (type === "promo_code" && !promoCode) {
+    if (type === "promo_code" && !promo_code) {
       return {
         valid: false,
         message: "Promo code is required for promo_code type",
       };
     }
-    if (valueType !== "percent" && valueType !== "fixed") {
+    if (value_type !== "percent" && value_type !== "fixed") {
       return {
         valid: false,
         message: "Value type must be either 'percent' or 'fixed'",
@@ -32,7 +37,7 @@ const DiscountController = {
 
     if (discountId) {
       const existingDiscount = await Discount.findOne({
-        promoCode,
+        promo_code,
         _id: { $ne: discountId },
       });
       if (existingDiscount) {
@@ -46,27 +51,40 @@ const DiscountController = {
       valid: true,
     };
   },
-  createDiscount: async (req, res) => {
-    try {
-      const discount = new Discount(req.body);
-      const validate = await DiscountController.validateDiscount(
-        discount,
-        null
-      );
-      if (!validate.valid) {
-        return res.status(400).json({ message: validate.message });
+  createDiscount: [
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const discount = new Discount(req.body);
+        const validate = await DiscountController.validateDiscount(
+          discount,
+          null
+        );
+        if (!validate.valid) {
+          if (req.file) {
+            deleteImagesOnError(req.file);
+          }
+          return res.status(400).json({ message: validate.message });
+        }
+
+        if (req.file) {
+          discount.image = req.file.filename;
+        }
+
+        await discount.save();
+
+        return res.status(201).json({
+          message: "Discount created successfully",
+          data: discount,
+        });
+      } catch (err) {
+        if (req.file) {
+          deleteImagesOnError(req.file);
+        }
+        return res.status(500).json({ message: err.message });
       }
-
-      await discount.save();
-
-      return res.status(201).json({
-        message: "Discount created successfully",
-        data: discount,
-      });
-    } catch (err) {
-      return res.status(500).json({ message: err.message });
-    }
-  },
+    },
+  ],
 
   getAllDiscounts: async (req, res) => {
     try {
@@ -88,8 +106,8 @@ const DiscountController = {
       const now = new Date();
       const list = await Discount.find({
         status: true,
-        validFrom: { $lte: now },
-        validTo: { $gte: now },
+        valid_from: { $lte: now },
+        valid_to: { $gte: now },
       }).sort({ createdAt: -1 });
       if (!list || list.length === 0) {
         return res.status(404).json({ message: "No discounts found" });
@@ -118,35 +136,55 @@ const DiscountController = {
     }
   },
 
-  updateDiscount: async (req, res) => {
-    try {
-      const updated = await Discount.findById(req.params.id);
-      if (!updated) {
-        return res.status(404).json({ message: "Discount not found" });
+  updateDiscount: [
+    upload.single("image"),
+    async (req, res) => {
+      try {
+        const updated = await Discount.findById(req.params.id);
+        if (!updated) {
+          return res.status(404).json({ message: "Discount not found" });
+        }
+        const validate = await DiscountController.validateDiscount(
+          req.body,
+          req.params.id
+        );
+
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? featureToUpdate.toObject()
+            : { ...featureToUpdate.toObject(), ...req.body };
+
+        if (!validate.valid) {
+          if (req.file) {
+            deleteImagesOnError(req.file);
+          }
+          return res.status(400).json({ message: validate.message });
+        }
+
+        if (req.file) {
+          updatedData.image = req.file.filename;
+          if (updated.image) {
+            deleteOldImages(updated.image);
+          }
+        } else {
+          updatedData.image = updated.image;
+        }
+
+        const updatedDiscount = await Discount.findByIdAndUpdate(
+          req.params.id,
+          updatedData,
+          { new: true }
+        );
+
+        return res.status(200).json({
+          message: "Discount updated successfully",
+          data: updatedDiscount,
+        });
+      } catch (err) {
+        return res.status(500).json({ message: err.message });
       }
-      const validate = await DiscountController.validateDiscount(
-        req.body,
-        req.params.id
-      );
-      if (!validate.valid) {
-        return res.status(400).json({ message: validate.message });
-      }
-
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? featureToUpdate.toObject()
-          : { ...featureToUpdate.toObject(), ...req.body };
-
-      await updated.updateOne({ $set: updatedData });
-
-      return res.status(200).json({
-        message: "Discount updated successfully",
-        data: updatedData,
-      });
-    } catch (err) {
-      return res.status(500).json({ message: err.message });
-    }
-  },
+    },
+  ],
 
   toggleDiscountStatus: async (req, res) => {
     try {

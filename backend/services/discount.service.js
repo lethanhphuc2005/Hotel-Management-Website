@@ -17,16 +17,16 @@ export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
 
   const discounts = await Discount.find({
     status: true,
-    validFrom: { $lte: now },
-    validTo: { $gte: now },
+    valid_from: { $lte: now },
+    valid_to: { $gte: now },
     $and: [
       {
-        $or: [{ promoCode: null }, { promoCode: promoCode || null }],
+        $or: [{ promo_code: null }, { promo_code: promoCode || null }],
       },
       {
         $or: [
-          { applyToRoomClassIds: [] },
-          { applyToRoomClassIds: roomClassId },
+          { apply_to_room_class_ids: [] },
+          { apply_to_room_class_ids: roomClassId },
         ],
       },
     ],
@@ -40,17 +40,17 @@ export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
     let match = true;
 
     if (d.type === "promo_code" && d.promoCode !== promoCode) match = false;
-    if (conditions?.minAdvanceDays && advanceDays < conditions.minAdvanceDays)
+    if (conditions?.min_advance_days && advanceDays < conditions.min_advance_days)
       match = false;
-    if (conditions?.maxAdvanceDays && advanceDays > conditions.maxAdvanceDays)
+    if (conditions?.max_advance_days && advanceDays > conditions.max_advance_days)
       match = false;
-    if (conditions?.minStayNights && stayNights < conditions.minStayNights)
+    if (conditions?.min_stay_nights && stayNights < conditions.min_stay_nights)
       match = false;
-    if (conditions?.maxStayNights && stayNights > conditions.maxStayNights)
+    if (conditions?.max_stay_nights && stayNights > conditions.max_stay_nights)
       match = false;
-    if (conditions?.minRooms && totalRooms < conditions.minRooms) match = false;
-    if (conditions?.userLevels?.length) {
-      if (!user || !conditions.userLevels.includes(user.level || "normal")) {
+    if (conditions?.min_rooms && totalRooms < conditions.min_rooms) match = false;
+    if (conditions?.user_levels?.length) {
+      if (!user || !conditions.user_levels.includes(user.level || "normal")) {
         match = false;
       }
     }
@@ -71,7 +71,7 @@ export const calculateBookingPrice = async (bookingInfo, user) => {
   let appliedDiscounts = [];
 
   for (const d of discounts) {
-    const amount = d.valueType === "percent" ? finalPrice * d.value : d.value;
+    const amount = d.value_type === "percent" ? finalPrice * d.value : d.value;
 
     finalPrice -= amount;
     appliedDiscounts.push({
@@ -81,7 +81,7 @@ export const calculateBookingPrice = async (bookingInfo, user) => {
       reason: d.description || "",
     });
 
-    if (!d.canBeStacked) break;
+    if (!d.can_be_stacked) break;
   }
 
   return {
