@@ -38,10 +38,9 @@ export function useRoomSearch() {
 
   function saveSearchToLocalStorage() {
     const searchData = {
-      dateRange,
-      guests,
-      price,
-      maxGuests,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      guests: pendingGuests,
     };
     localStorage.setItem("lastRoomSearch", JSON.stringify(searchData));
   }

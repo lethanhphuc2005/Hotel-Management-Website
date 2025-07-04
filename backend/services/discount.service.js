@@ -39,7 +39,7 @@ export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
     const { conditions } = d;
     let match = true;
 
-    if (d.type === "promo_code" && d.promoCode !== promoCode) match = false;
+    if (d.type === "promo_code" && d.promo_code !== promoCode) match = false;
     if (conditions?.min_advance_days && advanceDays < conditions.min_advance_days)
       match = false;
     if (conditions?.max_advance_days && advanceDays > conditions.max_advance_days)

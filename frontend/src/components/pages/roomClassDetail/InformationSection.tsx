@@ -129,7 +129,7 @@ const InformationSection = ({
         </div>
       </section>
       {/* Booking Box */}
-      <div className="tw-max-w-[1320px] tw-mx-auto tw-mt-6">
+      <div className="md:tw-max-w-[40%] tw-mx-auto tw-mt-6 tw-w-full">
         <RoomBookingBox
           roomClass={roomClass}
           images={images}

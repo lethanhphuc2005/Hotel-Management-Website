@@ -184,28 +184,31 @@ export default function Header() {
 
             {/* Avatar & Dropdown */}
             <div className={style.dropdown}>
-              <div className="text-white d-flex align-items-center gap-2 cursor-pointer">
-                <Link href={user ? "/profile" : "/login"}>
+              <Link
+                href={user ? "/profile" : "/login"}
+                className="text-decoration-none"
+              >
+                <div className="text-white d-flex align-items-center gap-2 cursor-pointer">
                   <motion.div
                     whileHover={{ color: "#FAB320" }}
                     style={{ fontSize: 20, color: "white" }}
                   >
                     <FontAwesomeIcon icon={faUser} />
                   </motion.div>
-                </Link>
-                {user && (
-                  <>
-                    <span className="tw-text-white tw-font-medium">
-                      {user.first_name}
-                    </span>
-                    {wallet && (
-                      <span className="tw-bg-primary tw-text-black tw-text-sm tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                        {formatCurrencyVN(wallet.balance)}
+                  {user && (
+                    <>
+                      <span className="tw-text-white tw-font-medium">
+                        {user.first_name}
                       </span>
-                    )}
-                  </>
-                )}
-              </div>
+                      {wallet && (
+                        <span className="tw-bg-primary tw-text-black tw-text-sm tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
+                          {formatCurrencyVN(wallet.balance)}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Link>
               <div className={style.dropdownMenu}>
                 {user ? (
                   <>

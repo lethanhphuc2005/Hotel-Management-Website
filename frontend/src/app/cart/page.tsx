@@ -8,6 +8,8 @@ import { getRoomTotalPrice } from "@/contexts/cartSelector";
 import { showConfirmDialog } from "@/utils/swal";
 import { toast } from "react-toastify";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function Cart() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
@@ -105,18 +107,34 @@ export default function Cart() {
                       title="Xóa khỏi giỏ"
                       onClick={() => handleDeleteRoom(room.id)}
                     >
+                      <FontAwesomeIcon icon={faTrash} className="tw-mx-2" />
                       Xóa
                     </button>
                   </td>
                   <td>
-                    <div className={styles.roomServices}>
-                      {room.services?.map((service, index) => (
-                        <span key={index} className={styles.serviceItem}>
-                          {service.name} - {service.quantity}x <br />
-                          {formatCurrencyVN(service.price)}
-                        </span>
-                      ))}
-                    </div>
+                    {!room.services ? (
+                      <Link
+                        href={"/service"}
+                        className="text-decoration-none tw-text-white"
+                      >
+                        <div className="hover:tw-text-primary">
+                          <span>Thêm dịch vụ</span>
+                          <FontAwesomeIcon
+                            icon={faCirclePlus}
+                            className="tw-ml-2"
+                          />
+                        </div>
+                      </Link>
+                    ) : (
+                      <div className={styles.roomServices}>
+                        {room.services?.map((service, index) => (
+                          <span key={index} className={styles.serviceItem}>
+                            {service.name} - {service.quantity}x <br />
+                            {formatCurrencyVN(service.price)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </td>
                   <td style={{ verticalAlign: "middle" }}>
                     {formatCurrencyVN(room.price)}
@@ -142,7 +160,7 @@ export default function Cart() {
         <>
           {" "}
           <button
-            className="btn btn-outline-danger w-100 mt-2"
+            className="btn btn-outline-danger tw-w-full"
             onClick={() => handleDeleteCart()}
           >
             Xóa toàn bộ giỏ phòng

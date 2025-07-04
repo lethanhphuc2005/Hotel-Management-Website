@@ -51,6 +51,11 @@ const FeatureSection = ({ features }: { features: Feature[] }) => {
         Tiện nghi phòng
       </h3>
       {/* Tiện nghi từ DB */}
+      {features.length === 0 && (
+        <div className="tw-text-gray-500 tw-text-center tw-py-4 tw-rounded-lg">
+          Hiện tại phòng này chưa có tiện nghi nào được cập nhật.
+        </div>
+      )}
       <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 md:tw-grid-cols-4 lg:tw-grid-cols-5 tw-gap-4">
         {features.map((feature: any) => {
           const iconName = feature.feature_id.icon as keyof typeof solidIcons;

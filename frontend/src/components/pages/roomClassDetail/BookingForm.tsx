@@ -211,12 +211,12 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
       ) {
         setShowCalendar(false);
       }
-    }
+    };
+
     if (showGuestBox || showCalendar) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -286,12 +286,15 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
     <>
       <div className="tw-max-w-3xl tw-mx-auto tw-bg-black/70 tw-rounded-3xl tw-p-6 tw-shadow-2xl tw-border tw-border-gray-700 tw-space-y-6">
         {/* Ngày nhận - trả + Khách */}
-        <div className="tw-gap-6 tw-flex-wrap  tw-text-center">
+        <div className="md:tw-flex md:tw-gap-4 md:tw-items-stretch tw-flex-col md:tw-flex-row tw-space-y-4 md:tw-space-y-0 tw-text-center tw-align-center">
           {/* Ngày nhận - trả */}
           <div
             className="tw-bg-white/10 tw-text-white tw-p-1 tw-rounded-lg tw-cursor-pointer hover:tw-bg-white/20 tw-transition-all
-            tw-border-gray-700 tw-border"
-            onClick={() => setShowCalendar(!showCalendar)}
+            tw-border-gray-700 tw-border tw-min-h-[70px] tw-relative"
+            onClick={(e: any) =>
+              e.stopPropagation() || // Ngăn sự kiện click lan truyền
+              setShowCalendar(!showCalendar)
+            }
           >
             <label className="tw-text-white tw-font-semibold">
               Nhận phòng - Trả phòng
@@ -319,7 +322,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
 
           {/* Khách */}
           <div
-            className="tw-flex-1 tw-relative tw-bg-white/10 tw-text-white tw-p-3 tw-rounded-lg tw-cursor-pointer hover:tw-bg-white/20 tw-transition-all tw-mt-2 tw-border tw-border-gray-700"
+            className="tw-flex-1 tw-relative tw-bg-white/10 tw-text-white tw-p-1 tw-rounded-lg tw-cursor-pointer hover:tw-bg-white/20 tw-transition-all tw-mt-2 tw-border tw-border-gray-700"
             onClick={() => setShowGuestBox(!showGuestBox)}
           >
             <label className="tw-text-white tw-font-semibold">Khách</label>
@@ -336,12 +339,12 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
             {showGuestBox && (
               <div
                 ref={guestBoxRef}
-                className="tw-absolute tw-top-full tw-mt-2 tw-bg-white tw-rounded-xl tw-shadow-lg tw-p-4 tw-z-40 tw-w-full tw-text-black tw-text-left"
+                className="tw-absolute tw-top-full tw-mt-2 tw-bg-white tw-rounded-xl tw-shadow-lg tw-p-4 tw-z-40 tw-w-full tw-text-black tw-text-left tw-w-[300px] tw-border tw-border-gray-300"
               >
                 {/* Người lớn */}
                 <div className="tw-flex tw-justify-between tw-items-center tw-mb-3">
                   <div>
-                    <p className="tw-font-semibold">Người lớn</p>
+                    <p className="tw-font-semibold tw-mb-0">Người lớn</p>
                     <p className="tw-text-sm tw-text-gray-500">
                       Từ 18 tuổi trở lên
                     </p>
@@ -380,7 +383,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
                 {/* Trẻ 7–17 */}
                 <div className="tw-flex tw-justify-between tw-items-center tw-mb-3">
                   <div>
-                    <p className="tw-font-semibold">Trẻ em</p>
+                    <p className="tw-font-semibold tw-mb-0">Trẻ em</p>
                     <p className="tw-text-sm tw-text-gray-500">7–17 tuổi</p>
                   </div>
                   <div className="tw-flex tw-items-center tw-gap-2">
@@ -423,7 +426,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
                 {/* Trẻ 0–6 */}
                 <div className="tw-flex tw-justify-between tw-items-center">
                   <div>
-                    <p className="tw-font-semibold">Trẻ em</p>
+                    <p className="tw-font-semibold tw-mb-0">Trẻ em</p>
                     <p className="tw-text-sm tw-text-gray-500">0–6 tuổi</p>
                   </div>
                   <div className="tw-flex tw-items-center tw-gap-2">
@@ -465,15 +468,17 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
               </div>
             )}
           </div>
-          <span className="tw-text-primary tw-text-center">
-            Tổng tiền: <strong>{formatCurrencyVN(totalPrice)}</strong>
-          </span>
         </div>
-
+        <div className="tw-text-primary tw-text-center tw-pt-2">
+          Tổng tiền: <strong>{formatCurrencyVN(totalPrice)}</strong>
+        </div>
         {/* Nút hành động */}
-        <div className="tw-flex tw-gap-3">
+        <div
+          className="tw-flex tw-gap-3 tw-w-full"
+          style={{ marginTop: "10px" }}
+        >
           <AnimatedButton
-            className="tw-px-4 tw-py-3"
+            className="tw-px-4 tw-py-3 tw-flex-1"
             onClick={() => {
               if (!Array.isArray(pendingDateRange) || !pendingDateRange[0]) {
                 toast.warning("Vui lòng chọn ngày đến và ngày đi.");
@@ -537,7 +542,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
             Xác nhận
           </AnimatedButton>
           <AnimatedButtonPrimary
-            className="tw-px-4 tw-py-3"
+            className="tw-px-4 tw-py-3 tw-flex-1"
             onClick={(e) => {
               e.stopPropagation(); // Ngăn sự kiện click lan truyền
               handleAddToCart();
