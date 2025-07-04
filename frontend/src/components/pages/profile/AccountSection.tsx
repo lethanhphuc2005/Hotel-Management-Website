@@ -1,10 +1,19 @@
 "use client";
 
-import styles from "@/styles/profile/AccountSection.module.css";
+import styles from "@/styles/pages/profile/AccountSection.module.css";
 import { saveProfile } from "@/services/ProfileService";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faGem,
+  faWallet,
+  faBed,
+  faCalendar,
+} from "@fortawesome/free-solid-svg-icons";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { IUser } from "@/types/user";
 
 interface Props {
   formData: {
@@ -17,6 +26,7 @@ interface Props {
     request?: string;
     is_verified?: boolean;
   };
+  profile?: IUser; // Optional profile prop for additional data
 }
 
 const validateUser = (user: any) => {
@@ -43,8 +53,9 @@ const validateUser = (user: any) => {
   return errors;
 };
 
-export function AccountSection({ formData }: Props) {
+export function AccountSection({ formData, profile }: Props) {
   const [user, setUser] = useState(formData);
+  const [information, setInformation] = useState(profile);
   const [isEditing, setIsEditing] = useState(false);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -103,6 +114,53 @@ export function AccountSection({ formData }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
     >
+      <div className="tw-bg-black tw-border tw-border-gray-700 tw-rounded-xl tw-p-5 tw-mb-6 tw-text-white">
+        <h3 className="tw-text-lg tw-font-semibold tw-mb-4 tw-flex tw-items-center tw-gap-2 tw-text-[#FAB320]">
+          <FontAwesomeIcon icon={faGem} />
+          Cấp độ của bạn:
+          <span
+            className={`tw-ml-2 tw-px-3 tw-py-1 tw-rounded-full tw-text-sm tw-font-bold
+        ${
+          information?.level === "diamond"
+            ? "tw-bg-gradient-to-r tw-from-blue-400 tw-to-cyan-400 tw-text-black"
+            : information?.level === "gold"
+            ? "tw-bg-yellow-400 tw-text-black"
+            : information?.level === "silver"
+            ? "tw-bg-gray-300 tw-text-black"
+            : information?.level === "bronze"
+            ? "tw-bg-amber-800 tw-text-white"
+            : "tw-bg-gray-600 tw-text-white"
+        }
+      `}
+          >
+            {information?.level?.toUpperCase() || "NEWBIE"}
+          </span>
+        </h3>
+
+        <ul className="tw-text-sm tw-space-y-2 tw-text-primary">
+          <li className="tw-flex tw-items-center tw-gap-2">
+            <FontAwesomeIcon icon={faWallet} />
+            <span>
+              <strong>Tổng chi tiêu:</strong>{" "}
+              {formatCurrencyVN(information?.total_spent || 0)}
+            </span>
+          </li>
+          <li className="tw-flex tw-items-center tw-gap-2">
+            <FontAwesomeIcon icon={faBed} />
+            <span>
+              <strong>Tổng số đêm:</strong> {information?.total_nights || 0}
+            </span>
+          </li>
+          <li className="tw-flex tw-items-center tw-gap-2">
+            <FontAwesomeIcon icon={faCalendar} />
+            <span>
+              <strong>Lượt đặt phòng:</strong>{" "}
+              {information?.total_bookings || 0}
+            </span>
+          </li>
+        </ul>
+      </div>
+
       <div className={styles.infoRow}>
         <label>Họ</label>
         <input

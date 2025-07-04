@@ -7,6 +7,10 @@ import { Feature } from "@/types/feature";
 import { MainRoomClass } from "@/types/mainRoomClass";
 
 interface FilterSidebarProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  sortOption: string;
+  setSortOption: React.Dispatch<React.SetStateAction<string>>; // Thêm setSortOption nếu cần
   views: string[];
   selectedViews: string[]; // 👈 danh sách được chọn
   setSelectedViews: React.Dispatch<React.SetStateAction<string[]>>;
@@ -32,6 +36,10 @@ interface FilterSidebarProps {
 }
 
 export default function FilterSidebar({
+  searchTerm,
+  setSearchTerm,
+  sortOption,
+  setSortOption,
   views,
   selectedViews,
   setSelectedViews,
@@ -67,8 +75,35 @@ export default function FilterSidebar({
     <div className="sticky-top" style={{ top: "13%" }}>
       <div className="mt-3 mb-4" style={{ color: "#FAB320" }}>
         <p className="fs-5" style={{ letterSpacing: "3px" }}>
-          Tất cả loại phòng
+          TÌM KIẾM VÀ LỌC TẤT CẢ PHÒNG
         </p>
+      </div>
+
+      <div className="tw-flex md:tw-flex-row tw-flex-col tw-gap-3">
+        <input
+          type="text"
+          className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-placeholder-gray-400 tw-border tw-border-primary focus:tw-outline-none tw-w-full tw-mb-3 tw-flex-1"
+          placeholder="Tìm kiếm phòng..."
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+        />
+        <select
+          className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-border tw-border-primary focus:tw-outline-none tw-w-full
+          tw-mb-3 tw-flex-1"
+          value={sortOption}
+          onChange={(e) => {
+            setSortOption(e.target.value);
+          }}
+        >
+          <option value="default" disabled>
+            Sắp xếp theo
+          </option>
+          <option value="price_asc">Giá tăng dần</option>
+          <option value="price_desc">Giá giảm dần</option>
+          <option value="rating_desc">Đánh giá cao nhất</option>
+          <option value="rating_asc">Đánh giá thấp nhất</option>
+        </select>
       </div>
 
       <PriceSlider priceRange={priceRange} setPriceRange={setPriceRange} />
@@ -130,7 +165,7 @@ export default function FilterSidebar({
               <AnimatedCheckbox
                 key={view}
                 value={view}
-                checked={selectedViews.includes(view)} // ✅ đúng logic
+                checked={selectedViews.includes(view)}
                 onChange={(e: any) =>
                   handleCheckboxChange(e, selectedViews, setSelectedViews)
                 }

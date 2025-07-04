@@ -57,6 +57,18 @@ const UserSchema = new mongoose.Schema(
       maxlength: 500,
       trim: true,
     },
+    total_spent: {
+      type: Number,
+      default: 0,
+    },
+    total_bookings: {
+      type: Number,
+      default: 0,
+    },
+    total_nights: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: Boolean,
       required: true,
@@ -74,7 +86,7 @@ const UserSchema = new mongoose.Schema(
     },
     level: {
       type: String,
-      enum: ["normal", "vip", "company"],
+      enum: ["bronze", "silver", "gold", "diamond", "newbie", "normal"],
       default: "normal",
     },
     verfitication_expired: {

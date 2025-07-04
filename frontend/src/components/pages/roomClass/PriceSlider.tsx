@@ -3,6 +3,7 @@
 import React from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 interface PriceSliderProps {
   priceRange: [number, number];
@@ -16,20 +17,16 @@ export default function PriceSlider({
   return (
     <div className="mb-3">
       <label className="fw-bold mb-2">Ngân sách của bạn (mỗi đêm)</label>
-      <div className="mb-3">
-        <span style={{ fontSize: 13 }}>
-          VND {priceRange[0].toLocaleString("vi-VN")} đ
-        </span>{" "}
-        -{" "}
-        <span style={{ fontSize: 13 }}>
-          VND {priceRange[1].toLocaleString("vi-VN")} đ
-        </span>
+      <div className="mb-3 tw-text-center">
+        <span style={{ fontSize: 13 }}>{formatCurrencyVN(priceRange[0])}</span>
+        <span className="mx-2">-</span>
+        <span style={{ fontSize: 13 }}>{formatCurrencyVN(priceRange[1])}</span>
       </div>
       <div className="d-flex align-items-center mb-2" style={{ gap: 8 }}>
         <div style={{ flex: 1, margin: "0 8px" }}>
           <Slider
-            min={500000}
-            max={50000000}
+            min={0}
+            max={5000000}
             step={100000}
             range
             value={priceRange}
@@ -39,7 +36,7 @@ export default function PriceSlider({
               }
             }}
             allowCross={false}
-            pushable={1000000}
+            pushable={100000}
             trackStyle={[{ backgroundColor: "#FAB320" }]}
             handleStyle={[
               {

@@ -18,6 +18,8 @@ const Payment = require("../../models/payment.model");
 const Booking = require("../../models/booking.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
 const Wallet = require("../../models/wallet.model");
+const User = require("../../models/user.model");
+const userController = require("../../controllers/user.controller");
 
 const VNPayService = {
   // === KHỞI TẠO VNPay ===
@@ -193,7 +195,7 @@ const VNPayService = {
       } = query;
 
       const isWallet = orderId.startsWith("WALLET_");
-      const amount = Number(query.vnp_Amount);
+      const amount = Number(query.vnp_Amount) / 100;
       const payDate = VNPayService.parseToUTC(transaction_date);
 
       if (vnp_ResponseCode !== "00") {
@@ -249,6 +251,25 @@ const VNPayService = {
 
         await payment.save();
         await booking.save();
+
+        if (booking.user_id) {
+          const user = await User.findById(booking.user_id);
+          if (!user) throw new Error("User not found");
+
+          user.total_spent += Number(amount);
+          user.total_bookings += 1;
+          const nights = booking.check_out_date
+            ? Math.ceil(
+                (new Date(booking.check_out_date) -
+                  new Date(booking.check_in_date)) /
+                  (1000 * 60 * 60 * 24)
+              )
+            : 1;
+          user.total_nights += nights;
+
+          await user.save();
+          await userController.handleUpdateLevel(booking.user_id);
+        }
 
         return {
           success: true,

@@ -73,3 +73,59 @@
   background-color: rgba(255, 80, 80, 0.2);
   color: #ff5c5c;
 }
+
+.levelCard {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 16px 24px;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.levelCard h4 {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.levelBadge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-left: 12px;
+}
+
+.levelStats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.levelStats li {
+  margin-bottom: 4px;
+}
+
+/* Level styles */
+.level-newbie {
+  background-color: #888;
+  color: white;
+}
+.level-bronze {
+  background-color: #cd7f32;
+  color: white;
+}
+.level-silver {
+  background-color: #c0c0c0;
+  color: black;
+}
+.level-gold {
+  background-color: #ffd700;
+  color: black;
+}
+.level-diamond {
+  background: linear-gradient(to right, #4facfe, #00f2fe);
+  color: black;
+}

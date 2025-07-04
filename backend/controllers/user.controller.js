@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const accountController = require("./account.controller");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail, forgotPasswordEmail } = require("../config/mail"); // Import email template
+const { updateUserLevel } = require("../services/userLevel.service"); // Import service to update user level
 
 const userController = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
@@ -512,6 +513,22 @@ const userController = {
       console.error("Lỗi khi reset password:", error);
 
       res.status(500).json(error);
+    }
+  },
+
+  handleUpdateLevel: async (userId) => {
+    try {
+      const level = await updateUserLevel(userId);
+      return {
+        success: true,
+        message: `Cập nhật cấp độ người dùng thành công: ${level}`,
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật cấp độ người dùng:", error);
+      return {
+        success: false,
+        message: `Cập nhật cấp độ người dùng thất bại: ${error.message}`,
+      };
     }
   },
 };

@@ -14,6 +14,8 @@ const Booking = require("../../models/booking.model");
 const Payment = require("../../models/payment.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
 const Wallet = require("../../models/wallet.model");
+const User = require("../../models/user.model");
+const userController = require("../../controllers/user.controller");
 
 const ZaloPayService = {
   // === TẠO YÊU CẦU THANH TOÁN ===
@@ -187,7 +189,7 @@ const ZaloPayService = {
           amount,
           note: "Nạp ví thành công qua ZaloPay",
           created_at: new Date(),
-        });
+        });W
 
         await wallet.save();
 
@@ -233,6 +235,25 @@ const ZaloPayService = {
 
         if (!payment) {
           throw new Error(`Payment record not found for booking ID ${orderId}`);
+        }
+        
+        if (booking.user_id) {
+          const user = await User.findById(booking.user_id);
+          if (!user) throw new Error("User not found");
+
+          user.total_spent += Number(amount);
+          user.total_bookings += 1;
+          const nights = booking.check_out_date
+            ? Math.ceil(
+                (new Date(booking.check_out_date) -
+                  new Date(booking.check_in_date)) /
+                  (1000 * 60 * 60 * 24)
+              )
+            : 1;
+          user.total_nights += nights;
+
+          await user.save();
+          await userController.handleUpdateLevel(booking.user_id);
         }
       }
 

@@ -1,4 +1,3 @@
-import { IUser } from "@/types/user";
 import {
   register as registerApi,
   changePassword as changePasswordApi,

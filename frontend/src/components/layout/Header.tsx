@@ -1,80 +1,33 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import style from "@/styles/layout/header.module.css";
-
-import { useAuth } from "@/contexts/AuthContext";
 import { useSelector } from "react-redux";
 import { RootState } from "@/contexts/store";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   faCartShopping,
   faUser,
   faBell,
   faMagnifyingGlass,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { MainRoomClass } from "@/types/mainRoomClass";
-import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";
 import Link from "next/link";
-import { Wallet } from "@/types/wallet";
-import { fetchWalletByUserId } from "@/services/WalletService";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { useHeader } from "@/hooks/useHeader";
 
 export default function Header() {
-  const router = useRouter();
   const [showSearch, setShowSearch] = useState(false);
-  const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
-  const [wallet, setWallet] = useState<Wallet>();
-  const { user, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
-  useEffect(() => {
-    const fetchData = async () => {
-      const mainRoomClassData = await fetchMainRoomClasses();
-      if (!mainRoomClassData.success) {
-        console.error(
-          "Failed to fetch main room classes:",
-          mainRoomClassData.message
-        );
-        return;
-      }
-      setMainroomclass(mainRoomClassData.data);
+  const { mainroomclass, wallet, userData, toggleSearch, handleLogout, level } =
+    useHeader({
+      showDropdown,
+      setShowDropdown,
+      showSearch,
+      setShowSearch,
+    });
 
-      if (!user) return;
-      const walletData = await fetchWalletByUserId(user.id);
-      if (!walletData.success) {
-        console.error("Failed to fetch wallet:", walletData.message);
-        return;
-      }
-      setWallet(walletData.data);
-    };
-    fetchData();
-  }, [user]);
-
-  const toggleSearch = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowSearch(!showSearch);
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const navbar = document.querySelector(".navbar");
-      if (navbar) {
-        if (window.scrollY > 50) {
-          navbar.classList.add(style.navbarScrollBg);
-        } else {
-          navbar.classList.remove(style.navbarScrollBg);
-        }
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
   return (
     <nav className="navbar navbar-expand-lg navbar-dark fixed-top">
       <div className="container">
@@ -182,65 +135,6 @@ export default function Header() {
               </motion.div>
             </Link>
 
-            {/* Avatar & Dropdown */}
-            <div className={style.dropdown}>
-              <Link
-                href={user ? "/profile" : "/login"}
-                className="text-decoration-none"
-              >
-                <div className="text-white d-flex align-items-center gap-2 cursor-pointer">
-                  <motion.div
-                    whileHover={{ color: "#FAB320" }}
-                    style={{ fontSize: 20, color: "white" }}
-                  >
-                    <FontAwesomeIcon icon={faUser} />
-                  </motion.div>
-                  {user && (
-                    <>
-                      <span className="tw-text-white tw-font-medium">
-                        {user.first_name}
-                      </span>
-                      {wallet && (
-                        <span className="tw-bg-primary tw-text-black tw-text-sm tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
-                          {formatCurrencyVN(wallet.balance)}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </Link>
-              <div className={style.dropdownMenu}>
-                {user ? (
-                  <>
-                    <Link className={style.dropdownItem} href="/profile">
-                      Quản lý tài khoản
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className={style.dropdownItem}
-                      style={{
-                        width: "100%",
-                        textAlign: "left",
-                        border: "none",
-                        background: "none",
-                      }}
-                    >
-                      Đăng xuất
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link className={style.dropdownItem} href="/login">
-                      Đăng nhập
-                    </Link>
-                    <Link className={style.dropdownItem} href="/register">
-                      Đăng ký
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
-
             <Link className={`text-white`} href="/cart">
               <div style={{ position: "relative", display: "inline-block" }}>
                 <motion.div
@@ -270,6 +164,87 @@ export default function Header() {
                 )}
               </div>
             </Link>
+
+            {/* Avatar & Dropdown */}
+            <div className="tw-relative">
+              <button
+                onClick={() => setShowDropdown((prev) => !prev)}
+                className="tw-flex tw-items-center tw-gap-2 tw-text-white tw-cursor-pointer"
+              >
+                <FontAwesomeIcon icon={faUser} className="tw-text-xl" />
+                {userData && (
+                  <div className="tw-hidden md:tw-flex tw-flex-col tw-items-start">
+                    <span className="tw-text-white tw-font-semibold tw-text-sm">
+                      {userData.last_name} {userData.first_name}
+                    </span>
+                    <div className="tw-flex tw-items-center tw-text-xs tw-font-semibold tw-rounded-md tw-overflow-hidden">
+                      <div className="tw-bg-black tw-px-2 tw-py-[2px] tw-flex tw-items-center tw-gap-1">
+                        <FontAwesomeIcon
+                          icon={faStar}
+                          className="tw-text-[#FAB320]"
+                        />
+                        <span className="tw-text-[#FAB320]">VIP</span>
+                      </div>
+                      <div
+                        className="tw-px-2 tw-py-[2px]"
+                        style={{ backgroundColor: level.color, color: "black" }}
+                      >
+                        {level.label}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {wallet && (
+                  <span className="tw-bg-[#FAB320] tw-text-black tw-text-xs tw-font-semibold tw-px-2 tw-py-1 tw-rounded-full">
+                    {formatCurrencyVN(wallet.balance)}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="tw-absolute tw-right-0 tw-z-50 tw-bg-black tw-border tw-border-gray-700 tw-rounded-md tw-mt-2 tw-shadow-lg tw-p-2 tw-w-full tw-min-w-[150px]"
+                  >
+                    {userData ? (
+                      <>
+                        <Link
+                          className="tw-block tw-text-white hover:tw-text-[#FAB320] tw-px-3 tw-py-2 tw-text-sm tw-no-underline"
+                          href="/profile"
+                        >
+                          Quản lý tài khoản
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="tw-block tw-text-white hover:tw-text-red-400 tw-px-3 tw-py-2 tw-text-sm tw-w-full tw-text-left tw-no-underline"
+                        >
+                          Đăng xuất
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          className="tw-block tw-text-white hover:tw-text-[#FAB320] tw-px-3 tw-py-2 tw-text-sm tw-no-underline"
+                          href="/login"
+                        >
+                          Đăng nhập
+                        </Link>
+                        <Link
+                          className="tw-block tw-text-white hover:tw-text-[#FAB320] tw-px-3 tw-py-2 tw-text-sm tw-no-underline"
+                          href="/register"
+                        >
+                          Đăng ký
+                        </Link>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>

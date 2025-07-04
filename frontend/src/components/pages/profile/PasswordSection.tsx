@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "@/styles/profile/AccountSection.module.css";
+import styles from "@/styles/pages/profile/AccountSection.module.css";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "react-toastify";

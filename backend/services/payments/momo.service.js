@@ -8,6 +8,8 @@ const Booking = require("../../models/booking.model");
 const Payment = require("../../models/payment.model");
 const PaymentMethod = require("../../models/paymentMethod.model");
 const Wallet = require("../../models/wallet.model");
+const User = require("../../models/user.model");
+const userController = require("../../controllers/user.controller");
 
 const MomoService = {
   validateMomoResponse: (result) => {
@@ -23,12 +25,7 @@ const MomoService = {
   },
 
   handleCreatePayment: async (req) => {
-    const {
-      orderId,
-      orderInfo,
-      amount,
-      paymentFor = "booking",
-    } = req.body;
+    const { orderId, orderInfo, amount, paymentFor = "booking" } = req.body;
 
     const isWallet = paymentFor === "wallet";
     const ipnUrl = isWallet ? MomoConfig.walletNotifyUrl : MomoConfig.notifyUrl;
@@ -144,6 +141,25 @@ const MomoService = {
       payment.payment_date = new Date(responseTime);
       payment.metadata = { resultCode, message };
       await payment.save();
+
+      if (booking.user_id) {
+        const user = await User.findById(booking.user_id);
+        if (!user) throw new Error("User not found");
+
+        user.total_spent += Number(amount);
+        user.total_bookings += 1;
+        const nights = booking.check_out_date
+          ? Math.ceil(
+              (new Date(booking.check_out_date) -
+                new Date(booking.check_in_date)) /
+                (1000 * 60 * 60 * 24)
+            )
+          : 1;
+        user.total_nights += nights;
+
+        await user.save();
+        await userController.handleUpdateLevel(booking.user_id);
+      }
 
       return {
         success: true,

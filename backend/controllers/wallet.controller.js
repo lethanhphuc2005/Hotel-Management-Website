@@ -1,5 +1,5 @@
 const Wallet = require("../models/wallet.model");
-const PaymentFactory = require("../utils/paymentFactory");
+const PaymentFactory = require("../utils/paymentFactory.js");
 const VNPAYService = require("../services/payments/vnpay.service");
 const { VNPayConfig } = require("../config/payment");
 

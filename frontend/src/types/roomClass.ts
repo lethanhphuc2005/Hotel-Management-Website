@@ -22,4 +22,5 @@ export interface RoomClass {
   features?: RoomClassFeature[];
   comments?: Comment[];
   reviews?: Review[];
+  rating?: number; // Thêm rating nếu cần
 }

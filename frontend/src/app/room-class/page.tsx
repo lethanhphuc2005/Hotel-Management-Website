@@ -56,7 +56,7 @@ export default function RoomClassesPage() {
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
   const [showMainRoomClassFilter, setShowMainRoomClassFilter] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([
-    500000, 50000000,
+    0, 5000000,
   ]);
   const params = useSearchParams();
   React.useEffect(() => {
@@ -65,7 +65,8 @@ export default function RoomClassesPage() {
       setSelectedMainRoomClassIds([mainRoomClassId]);
     }
   }, [params]);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOption, setSortOption] = useState("price_asc");
   const {
     filteredRoomClass,
     displayRoomClass,
@@ -76,6 +77,8 @@ export default function RoomClassesPage() {
     showExtraBedOver6,
   } = useRoomFilterLogic({
     roomClasses,
+    searchTerm,
+    sortOption,
     selectedViews,
     selectedFeatureIds,
     selectedMainRoomClassIds,
@@ -144,6 +147,10 @@ export default function RoomClassesPage() {
       <div className="row">
         <div className="col-3 border-end border-top h-auto">
           <FilterSidebar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            sortOption={sortOption}
+            setSortOption={setSortOption}
             views={views}
             selectedViews={selectedViews}
             setSelectedViews={setSelectedViews}
@@ -171,7 +178,7 @@ export default function RoomClassesPage() {
               hasSearched={hasSearched}
               isOverCapacity={isOverCapacity}
               filteredRoomClass={filteredRoomClass}
-              displayRoomClass={displayRoomClass}
+              displayRoomClass={filteredRoomClass}
               numberOfNights={numberOfNights}
               totalGuests={totalGuests}
               numberOfAdults={numberOfAdults}

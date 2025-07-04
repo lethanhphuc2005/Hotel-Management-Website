@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         address: data.address || "",
         email: data.email,
         phone_number: data.phone_number || "",
+        level: data.level || "newbie",
         status: data.status,
         is_verified: data.is_verified,
         accessToken: data.accessToken,

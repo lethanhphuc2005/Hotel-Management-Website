@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Col } from "react-bootstrap";
 import style from "@/app/page.module.css";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { AnimatedButton } from "@/components/common/Button";
 import { formatDate } from "@/utils/dateUtils";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { capitalizeFirst } from "@/utils/stringUtils";
@@ -50,12 +49,26 @@ function renderConditions(dci: Discount) {
       if (c.min_rooms) items.push(`Từ ${c.min_rooms} phòng trở lên`);
       break;
     case "user_level":
-      if (Array.isArray(c.user_levels) && c.user_levels.length > 0)
+      if (Array.isArray(c.user_levels) && c.user_levels.length > 0) {
         items.push(
-          `Áp dụng cho: ${c.user_levels
-            .map((level: String) => capitalizeFirst(level.toString()))
+          `Áp dụng cho thành viên hạng: ${c.user_levels
+            .map((level: String) => {
+              switch (level) {
+                case "bronze":
+                  return "Đồng";
+                case "silver":
+                  return "Bạc";
+                case "gold":
+                  return "Vàng";
+                case "diamond":
+                  return "Kim Cương";
+                default:
+                  return capitalizeFirst(level.toString());
+              }
+            })
             .join(", ")}`
         );
+      }
       break;
     default:
       break;
@@ -74,7 +87,6 @@ function renderConditions(dci: Discount) {
 }
 
 export function DiscountItem({ dci }: { dci: Discount }) {
-  console.log("DiscountItem rendered with dci:", dci);
   return (
     <Col lg={4} md={6} className="mb-4">
       <motion.div

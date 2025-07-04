@@ -35,7 +35,7 @@ const ProfilePage = () => {
   const renderSection = () => {
     switch (activeTab) {
       case "account":
-        return <AccountSection formData={formData} />;
+        return <AccountSection formData={formData} profile={profile} />;
       case "wallet":
         return <WalletSection wallet={wallet} setWallet={setWallet} />;
       case "change-password":
