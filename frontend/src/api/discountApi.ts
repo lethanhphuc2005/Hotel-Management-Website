@@ -1,4 +1,4 @@
-import { publicApi } from "@/lib/axiosInstance";
+import { publicApi, api } from "@/lib/axiosInstance";
 
 export const getDiscounts = async () => {
   try {
@@ -34,7 +34,7 @@ export const getPreviewDiscountBookingPrice = async (bookingInfo: {
   totalRooms: number;
 }) => {
   try {
-    const response = await publicApi.post(`/discount/preview`, {
+    const response = await api.post(`/discount/preview`, {
       bookingInfo,
     });
     if (response.status !== 200) {

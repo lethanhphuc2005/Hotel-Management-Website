@@ -56,7 +56,7 @@ const LoginPage = () => {
         return;
       }
       toast.success(res.message);
-      router.push("/");
+      window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.");

@@ -1,8 +1,6 @@
 import { FC } from "react";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
-import { formatDate } from "@/utils/dateUtils";
-import { useDispatch } from "react-redux";
-import { removeRoomFromCart } from "@/contexts/cartSlice"; // Adjust the import path as needed
+import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 interface RoomCartItemProps {
   room: any;
@@ -11,93 +9,71 @@ interface RoomCartItemProps {
 
 const RoomCartItem: FC<RoomCartItemProps> = ({ room, onRemove }) => {
   if (!room) return null;
-
+  console.log("RoomCartItem rendered with room:", room);
   const handleRemove = () => {
     if (onRemove) {
-      onRemove(room.id); // Gọi callback từ cha
+      onRemove(room.id);
     }
   };
 
   return (
-    <div className="card mb-4 bg-black border text-white">
-      <img
-        className="card-img-top p-3"
-        src="/img/r1.jpg"
-        alt="room"
-        style={{ height: "300px", objectFit: "cover" }}
-      />
-      <div className="card-body">
-        <h5 className="card-title mb-3" style={{ color: "#FAB320" }}>
-          {room.name} - {room.price.toLocaleString("vi-VN")} VNĐ/đêm
-        </h5>
-        <div className="mb-2">
-          {room.features && room.features.length > 0 && (
-            <p className="mb-1">
-              Tiện nghi:
-              {room.features.slice(0, 3).map((feature: any, index: number) => (
-                <span key={index} className="badge bg-secondary ms-1">
-                  {feature}
-                </span>
-              ))}
-              {room.features.length > 3 && (
-                <span className="badge bg-secondary ms-1">
-                  +{room.features.length - 3}
-                </span>
-              )}
-            </p>
-          )}
-        </div>
-        <p className="mb-1">
-          Nhận phòng: <strong>{formatDate(room.checkIn)}</strong>
-        </p>
-        <p className="mb-1">
-          Trả phòng: <strong>{formatDate(room.checkOut)}</strong>
-        </p>
-        <p className="mb-1">
-          Số đêm:{" "}
-          <strong>
-            {room.nights} đêm - {room.bedAmount} giường đôi
-          </strong>
-        </p>
-        <p className="mb-1">
-          {room.services && room.services.length > 0 && (
-            <>
-              Dịch vụ:
-              {room.services.map((service: any, index: number) => (
-                <span key={index} className="badge bg-secondary ms-1">
-                  {service.name} - {service.quantity}x -{" "}
-                  {service.price.toLocaleString("vi-VN")} VNĐ
-                </span>
-              ))}
-            </>
-          )}
-        </p>
-        <p className="mb-1">
-          Số khách:{" "}
-          <strong>
-            {room.adults} người lớn,{" "}
-            {room.childrenOver6 ? room.childrenOver6 : 0} trẻ em,{" "}
-            {room.childrenUnder6 ? room.childrenUnder6 : 0} trẻ nhỏ
-          </strong>
-        </p>
-        <p className="mb-1">
-          Tổng giá:{" "}
-          <strong>{getRoomTotalPrice(room).toLocaleString("vi-VN")} VNĐ</strong>
-        </p>
-        <p className="mb-1">
-          Phụ thu cuối tuần:{" "}
-          <strong>
-            {room.hasSaturdayNight || room.hasSundayNight
-              ? "+50% phụ thu do có đêm cuối tuần"
-              : "Không có phụ thu"}
-          </strong>
-        </p>
+    <div className="tw-bg-[#1a1a1a] tw-text-white tw-rounded-xl tw-shadow-lg tw-p-4 tw-mb-4 tw-flex tw-gap-4 tw-border tw-border-white/20">
+      {/* Thumbnail nhỏ góc trái */}
+      <div className="tw-w-28 tw-h-full tw-flex-shrink-0 tw-rounded-lg tw-overflow-hidden tw-text-center">
+        <img
+          src="/img/r1.jpg"
+          alt="room"
+          className="tw-w-full tw-h-20 tw-object-cover tw-mb-2"
+        />
         <button
-          className="btn btn-outline-danger w-100 mt-2"
           onClick={handleRemove}
+          className="tw-text-red-500 tw-border tw-border-red-500 tw-px-4 tw-py-2 tw-rounded tw-text-xs hover:tw-bg-red-500 hover:tw-text-white tw-transition-all"
         >
-          Xóa khỏi giỏ
+          Xoá khỏi giỏ
         </button>
+      </div>
+
+      {/* Nội dung */}
+      <div className="tw-flex-1 tw-space-y-1">
+        <h3 className="tw-text-primary tw-font-semibold tw-text-base">
+          {room.name} - {formatCurrencyVN(room.price)}/đêm
+        </h3>
+        <p className="tw-text-sm">
+          Nhận: <strong>{room.checkIn}</strong>
+        </p>
+        <p className="tw-text-sm">
+          Trả: <strong>{room.checkOut}</strong>
+        </p>
+        <p className="tw-text-sm">
+          Dịch vụ:{" "}
+          <strong>
+            {room.services
+              ? room.services
+                  .map((s: any) => `${s.name} - ${formatCurrencyVN(s.price)}`)
+                  .join(", ")
+              : "Không có dịch vụ"}
+          </strong>
+        </p>
+        <p className="tw-text-sm">
+          {room.nights} đêm - {room.bedAmount} giường đôi
+        </p>
+        <p className="tw-text-sm">
+          Khách:{" "}
+          <strong>
+            {room.adults} người lớn, {room.childrenOver6 || 0} trẻ em,{" "}
+            {room.childrenUnder6 || 0} trẻ nhỏ
+          </strong>
+        </p>
+
+        <p className="tw-text-sm">
+          Tổng: <strong>{formatCurrencyVN(getRoomTotalPrice(room))}</strong>
+        </p>
+
+        <p className="tw-text-sm tw-text-primary">
+          {room.hasSaturdayNight || room.hasSundayNight
+            ? "+50% phụ thu do cuối tuần"
+            : "Không phụ thu"}
+        </p>
       </div>
     </div>
   );

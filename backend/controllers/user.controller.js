@@ -4,6 +4,7 @@ const accountController = require("./account.controller");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail, forgotPasswordEmail } = require("../config/mail"); // Import email template
 const { updateUserLevel } = require("../services/userLevel.service"); // Import service to update user level
+const Wallet = require("../models/wallet.model"); // Import Wallet model
 
 const userController = {
   // ====== LẤY TẤT CẢ USER (có phân trang, sắp xếp, lọc trạng thái) =====
@@ -148,6 +149,10 @@ const userController = {
           {
             path: "bookings",
             populate: [
+              {
+                path: "discount_id",
+                select: "name value value_type code valid_from valid_to ",
+              },
               {
                 path: "booking_status_id",
                 select: "name code",
@@ -382,6 +387,17 @@ const userController = {
       user.verification_code = null; // Xoá mã xác nhận sau khi xác thực
       user.verfitication_expired = null; // Xoá thời gian hết hạn
       await user.save();
+
+      // Tạo mới ví cho người dùng nếu chưa có
+      let wallet = await Wallet.findOne({ user_id: user._id });
+      if (!wallet) {
+        wallet = new Wallet({
+          user_id: user._id,
+          balance: 0, // Khởi tạo số dư ví là 0
+        });
+        await wallet.save();
+      }
+      
 
       res.status(200).json({
         message: "Xác thực tài khoản thành công",

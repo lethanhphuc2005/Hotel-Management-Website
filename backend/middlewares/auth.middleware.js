@@ -31,30 +31,33 @@ const authMiddleware = {
 
   // === TUỲ CHỌN XÁC THỰC TOKEN ===
   optionalVerifyToken: (req, res, next) => {
-    console.log("Optional token verification started");
+    try {
       const token =
         req.headers.authorization?.split(" ")[1] ||
         req.cookies?.accessToken ||
         req.query?.token;
 
-    if (!token) {
-      req.user = null; // Không có token, không xác thực người dùng
-      return next();
-    }
-
-    jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-      if (err) {
-        if (err.name === "TokenExpiredError") {
-          return res.status(403).json("Token đã hết hạn.");
-        }
-        if (err.name === "JsonWebTokenError") {
-          return res.status(403).json("Token không hợp lệ.");
-        }
-        return res.status(403).json("Xác thực thất bại.");
+      if (!token) {
+        req.user = null;
+        return next();
       }
-      req.user = user;
-      next();
-    });
+
+      jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
+        if (err) {
+          if (err.name === "TokenExpiredError") {
+            return res.status(403).json("Token đã hết hạn.");
+          }
+          if (err.name === "JsonWebTokenError") {
+            return res.status(403).json("Token không hợp lệ.");
+          }
+          return res.status(403).json("Xác thực thất bại.");
+        }
+        req.user = user;
+        next();
+      });
+    } catch (error) {
+      res.status(500).json("Đã xảy ra lỗi khi xác thực token: " + error);
+    }
   },
 
   // === XÁC THỰC TOKEN CHO ADMIN ===

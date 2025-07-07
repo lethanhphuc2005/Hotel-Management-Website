@@ -19,6 +19,7 @@ import PriceSummary from "@/components/pages/payment/PriceSummary";
 import RoomCartItem from "@/components/pages/payment/RoomCardItem";
 import InformationSection from "@/components/pages/payment/InformationSection";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { fetchPreviewDiscountBookingPrice } from "@/services/DiscountService";
 
 export default function PayMent() {
   const { user } = useAuth();
@@ -27,8 +28,16 @@ export default function PayMent() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
 
+  const total = rooms.reduce((sum, room) => {
+    const roomTotal = getRoomTotalPrice(room);
+    return sum + roomTotal;
+  }, 0);
+
   const [selectedMethod, setSelectedMethod] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
+  const [discounts, setDiscounts] = useState<any[]>([]);
+  const [finalTotal, setFinalTotal] = useState<number>(total);
+  const [promoCode, setPromoCode] = useState("");
 
   const handleSelect = (value: string) => {
     setSelectedMethod(value);
@@ -52,6 +61,32 @@ export default function PayMent() {
     fetchWallet();
   }, [user]);
 
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      if (rooms.length === 0) return;
+
+      const bookingInfo = {
+        baseTotal: total,
+        checkInDate: formatDateForBooking(rooms[0].checkIn),
+        checkOutDate: formatDateForBooking(rooms[0].checkOut),
+        roomClassId: rooms[0].id,
+        totalRooms: rooms.length,
+      };
+
+      const response = await fetchPreviewDiscountBookingPrice(bookingInfo);
+      if (response.success) {
+        const data = response.data;
+        setDiscounts(data.appliedDiscounts || []);
+        setFinalTotal(data.finalPrice || total);
+      } else {
+        setDiscounts([]);
+        setFinalTotal(total);
+      }
+    };
+
+    fetchDiscounts();
+  }, [rooms, user]);
+
   const methods = [
     {
       label: "Thanh toán qua ZaloPay",
@@ -74,10 +109,6 @@ export default function PayMent() {
       icon: <FontAwesomeIcon icon={faMoneyBill} className=" tw-text-2xl" />,
     },
   ];
-  const total = rooms.reduce((sum, room) => {
-    const roomTotal = getRoomTotalPrice(room);
-    return sum + roomTotal;
-  }, 0);
 
   if (user && user.id && walletBalance > total) {
     methods.push({
@@ -93,6 +124,48 @@ export default function PayMent() {
   const [email, setEmail] = useState(user?.email || "");
   const [phone, setPhone] = useState(user?.phone_number || "");
   const [request, setRequest] = useState(user?.request);
+
+  const handlePromoCodeChange = async (code: string) => {
+    setPromoCode(code);
+    if (code.trim() === "") {
+      setDiscounts([]);
+      setFinalTotal(total);
+      return;
+    }
+    try {
+      const bookingInfo = {
+        baseTotal: total,
+        checkInDate: formatDateForBooking(rooms[0].checkIn),
+        checkOutDate: formatDateForBooking(rooms[0].checkOut),
+        roomClassId: rooms[0].id,
+        totalRooms: rooms.length,
+        promoCode: code.trim(),
+      };
+
+      const response = await fetchPreviewDiscountBookingPrice(bookingInfo);
+      if (response.success) {
+        const data = response.data;
+        if (!data.isPromo) {
+          toast.error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
+          setFinalTotal(total);
+          return;
+        } else {
+          toast.success("Mã giảm giá đã được áp dụng thành công.");
+        }
+        setDiscounts(data.appliedDiscounts || []);
+        setFinalTotal(data.finalPrice || total);
+      } else {
+        toast.error(response.message || "Không thể áp dụng mã giảm giá.");
+        setDiscounts([]);
+        setFinalTotal(total);
+      }
+    } catch (error) {
+      console.error("Lỗi khi áp dụng mã giảm giá:", error);
+      toast.error("Lỗi khi áp dụng mã giảm giá. Vui lòng thử lại.");
+      setDiscounts([]);
+      setFinalTotal(total);
+    }
+  };
 
   const handleBooking = async () => {
     if (rooms.length === 0) {
@@ -122,6 +195,18 @@ export default function PayMent() {
           (sum, r) => sum + (r.childrenUnder6 ?? 0) + (r.childrenOver6 ?? 0),
           0
         ),
+        note: rooms.reduce((notes, r) => {
+          let noteStr = "";
+          if (r.childrenUnder6 && r.childrenUnder6 > 0) {
+            noteStr += `Có ${r.childrenUnder6} trẻ dưới 6 tuổi. `;
+          }
+          if (r.childrenOver6 && r.childrenOver6 > 0) {
+            noteStr += `Có ${r.childrenOver6} trẻ trên 6 tuổi. `;
+          }
+          return notes + noteStr;
+        }, ""),
+        discount_id: discounts.map((d) => d.discountId),
+        discount_value: discounts.reduce((sum, d) => sum + d.amount, 0),
         booking_method_id: "684126db1ce6a19c45c2ec0a",
         booking_status_id: "683fba8d351a96315d45767a", // pending
         request: request || "Không có",
@@ -134,7 +219,8 @@ export default function PayMent() {
             service_id: s.id,
           })),
         })),
-        total_price: total,
+        original_price: total, // Giá gốc trước khi áp dụng khuyến mãi
+        total_price: finalTotal,
       };
 
       const response = await createBooking(payload);
@@ -230,6 +316,27 @@ export default function PayMent() {
               onRemove={() => dispatch(removeRoomFromCart(room.id))}
             />
           ))}
+          <div className="tw-bg-[#1a1a1a] tw-border tw-border-white/20 tw-text-white tw-rounded-2xl tw-shadow-md tw-p-6 tw-mb-4">
+            <p className="tw-font-semibold tw-mb-2 tw-text-primary">
+              Mã giảm giá
+            </p>
+
+            <div className="tw-flex tw-gap-2">
+              <input
+                type="text"
+                className="tw-flex-1 tw-bg-[#2a2a2a] tw-border tw-border-white/10 tw-rounded-xl tw-text-white tw-px-4 tw-py-2 focus:tw-outline-none focus:tw-ring-1 focus:tw-ring-primary"
+                placeholder="Nhập mã giảm giá"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+              />
+              <button
+                className="tw-bg-primary tw-text-black tw-font-semibold tw-px-4 tw-rounded-xl hover:tw-bg-[#ffc844] tw-transition-all"
+                onClick={() => handlePromoCodeChange(promoCode)}
+              >
+                Áp dụng
+              </button>
+            </div>
+          </div>
 
           <PaymentMethods
             methods={methods}
@@ -238,7 +345,11 @@ export default function PayMent() {
             walletBalance={walletBalance}
           />
 
-          <PriceSummary total={total} onSubmit={handleBooking} />
+          <PriceSummary
+            total={total}
+            discounts={discounts}
+            onSubmit={handleBooking}
+          />
         </div>
       </div>
     </div>

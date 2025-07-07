@@ -4,6 +4,7 @@ import Discount from "../models/discount.model.js";
 export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
   const { checkInDate, checkOutDate, roomClassId, totalRooms, promoCode } =
     bookingInfo;
+
   const stayNights = differenceInCalendarDays(
     new Date(checkOutDate),
     new Date(checkInDate)
@@ -32,23 +33,37 @@ export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
     ],
   });
 
-
   const applicable = [];
+  let isPromoValid = !promoCode; // nếu không nhập thì mặc định là true
 
   for (const d of discounts) {
     const { conditions } = d;
     let match = true;
 
-    if (d.type === "promo_code" && d.promo_code !== promoCode) match = false;
-    if (conditions?.min_advance_days && advanceDays < conditions.min_advance_days)
+    if (d.type === "promo_code") {
+      if (d.promo_code !== promoCode) {
+        match = false;
+      } else {
+        isPromoValid = true;
+      }
+    }
+
+    if (
+      conditions?.min_advance_days &&
+      advanceDays < conditions.min_advance_days
+    )
       match = false;
-    if (conditions?.max_advance_days && advanceDays > conditions.max_advance_days)
+    if (
+      conditions?.max_advance_days &&
+      advanceDays > conditions.max_advance_days
+    )
       match = false;
     if (conditions?.min_stay_nights && stayNights < conditions.min_stay_nights)
       match = false;
     if (conditions?.max_stay_nights && stayNights > conditions.max_stay_nights)
       match = false;
-    if (conditions?.min_rooms && totalRooms < conditions.min_rooms) match = false;
+    if (conditions?.min_rooms && totalRooms < conditions.min_rooms)
+      match = false;
     if (conditions?.user_levels?.length) {
       if (!user || !conditions.user_levels.includes(user.level || "normal")) {
         match = false;
@@ -59,13 +74,20 @@ export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
   }
 
   applicable.sort((a, b) => a.priority - b.priority);
-  return applicable;
+
+  return {
+    applicable,
+    isPromo: isPromoValid,
+  };
 };
 
 export const calculateBookingPrice = async (bookingInfo, user) => {
   const basePrice = bookingInfo.baseTotal;
 
-  const discounts = await getApplicableDiscounts({ user, bookingInfo });
+  const { applicable: discounts, isPromo } = await getApplicableDiscounts({
+    user,
+    bookingInfo,
+  });
 
   let finalPrice = basePrice;
   let appliedDiscounts = [];
@@ -88,5 +110,6 @@ export const calculateBookingPrice = async (bookingInfo, user) => {
     originalPrice: basePrice,
     finalPrice,
     appliedDiscounts,
+    isPromo,
   };
 };

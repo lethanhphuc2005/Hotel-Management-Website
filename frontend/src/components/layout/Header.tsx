@@ -86,6 +86,14 @@ export default function Header() {
             <li className="nav-item">
               <Link
                 className={`nav-link active text-white fw-bold ${style.item}`}
+                href="/discount"
+              >
+                Khuyến mãi
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link
+                className={`nav-link active text-white fw-bold ${style.item}`}
                 href="/news"
               >
                 Tin tức

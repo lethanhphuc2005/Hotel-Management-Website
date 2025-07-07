@@ -189,7 +189,7 @@ const ZaloPayService = {
           amount,
           note: "Nạp ví thành công qua ZaloPay",
           created_at: new Date(),
-        });W
+        });
 
         await wallet.save();
 
@@ -236,7 +236,7 @@ const ZaloPayService = {
         if (!payment) {
           throw new Error(`Payment record not found for booking ID ${orderId}`);
         }
-        
+
         if (booking.user_id) {
           const user = await User.findById(booking.user_id);
           if (!user) throw new Error("User not found");

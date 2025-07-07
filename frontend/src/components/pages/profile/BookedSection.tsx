@@ -9,6 +9,8 @@ import {
   previewCancellationFee,
   cancelBooking,
 } from "@/services/BookingService";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { format } from "date-fns";
 
 export default function BookedRoomSection({
   bookings,
@@ -83,9 +85,10 @@ export default function BookedRoomSection({
       }
       const confirmed = await showConfirmDialog(
         "Xác nhận huỷ đặt phòng",
-        `Bạn sẽ bị trừ ${fee_amount.toLocaleString(
-          "vi-VN"
-        )}₫ (${fee_percent}%) nếu huỷ bây giờ.\n\n\nBạn có chắc chắn muốn huỷ không?`
+        `Bạn sẽ bị trừ ${formatCurrencyVN(
+          fee_amount
+        )} (${fee_percent}%) nếu huỷ bây giờ.\n Bạn có chắc chắn muốn huỷ không? \n
+        Lưu ý: Số tiền hoàn lại sẽ được chuyển vào ví của bạn.`
       );
       if (!confirmed) return;
 
@@ -249,7 +252,7 @@ export default function BookedRoomSection({
                             </p>
                             <ul className="tw-list-disc tw-ml-6">
                               {detail?.services?.length > 0 ? (
-                                detail.services.map((s: any) => (
+                                detail.services.map((s: any, index: any) => (
                                   <li key={s.id}>
                                     {s.service_id.name} - {s.amount}x -{" "}
                                     {s.service_id.price.toLocaleString("vi-VN")}
@@ -299,22 +302,66 @@ export default function BookedRoomSection({
                       ) : (
                         "Chưa thanh toán"
                       )}
-                      <p>
-                        <strong>Tổng tiền:</strong>{" "}
-                        {booking.total_price.toLocaleString("vi-VN")}₫
-                      </p>
-                      {isCheckedOut && (
-                        <AnimatedButtonPrimary
-                          onClick={() => {
-                            toast.success("Cảm ơn bạn đã sử dụng dịch vụ!");
-                          }}
-                          className="tw-w-full tw-mt-4 tw-py-2 tw-text-center"
-                        >
-                          Đánh giá
-                        </AnimatedButtonPrimary>
-                      )}
                     </motion.div>
                   </div>
+                  {booking.discount_id?.length > 0 && (
+                    <motion.div
+                      initial={{ x: 30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="tw-space-y-2 tw-border-t tw-border-gray-600 tw-pt-4"
+                    >
+                      <p className="tw-font-semibold tw-text-primary">
+                        Giảm giá áp dụng:
+                      </p>
+                      <ul className="tw-list-disc tw-ml-6">
+                        {booking.discount_id.map((d: any, index: any) => (
+                          <li key={d.id || index} className="tw-text-sm">
+                            <p>
+                              <strong>{d.name}</strong>:{" "}
+                              {d.value_type === "percent"
+                                ? `${d.value * 100}%`
+                                : `${formatCurrencyVN(d.value)}`}
+                              <br />
+                              <span className="tw-text-gray-400">
+                                Hiệu lực từ {formatDate(d.valid_from)} đến{" "}
+                                {formatDate(d.valid_to)}
+                              </span>
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                      <motion.div
+                        initial={{ x: 30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="tw-space-y-1 tw-border-t tw-border-gray-600 tw-pt-4"
+                      >
+                        <p>
+                          <strong>Giá gốc:</strong>{" "}
+                          <span className="tw-line-through tw-text-gray-400">
+                            {formatCurrencyVN(booking.original_price)}
+                          </span>
+                        </p>
+                        <p>
+                          <strong>Giá sau giảm:</strong>{" "}
+                          <span className="tw-text-primary tw-font-semibold">
+                            {formatCurrencyVN(booking.total_price)}
+                          </span>
+                        </p>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                  {isCheckedOut && (
+                    <AnimatedButtonPrimary
+                      onClick={() => {
+                        toast.success("Cảm ơn bạn đã sử dụng dịch vụ!");
+                      }}
+                      className="tw-w-full tw-mt-4 tw-py-2 tw-text-center"
+                    >
+                      Đánh giá
+                    </AnimatedButtonPrimary>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

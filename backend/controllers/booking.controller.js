@@ -7,7 +7,6 @@ const {
 } = require("../models/bookingDetail.model");
 const User = require("../models/user.model");
 const Employee = require("../models/employee.model");
-const Room = require("../models/room.model");
 const RoomClass = require("../models/roomClass.model");
 const Discount = require("../models/discount.model");
 const Service = require("../models/service.model");
@@ -113,12 +112,26 @@ const bookingController = {
     }
 
     // Kiếm tra khuyến mãi (nếu có)
-    if (discount_id) {
-      const discount = await Discount.findById(discount_id);
-      if (!discount) {
-        return { valid: false, message: "Khuyến mãi không tồn tại." };
-      }
-    }
+  if (discount_id) {
+  const discountIds = Array.isArray(discount_id) ? discount_id : [discount_id];
+
+  // Tìm tất cả khuyến mãi hợp lệ
+  const now = new Date();
+  const validDiscounts = await Discount.find({
+    _id: { $in: discountIds },
+    status: true,
+    valid_from: { $lte: now },
+    valid_to: { $gte: now },
+  });
+
+  if (validDiscounts.length !== discountIds.length) {
+    return {
+      valid: false,
+      message: "Một hoặc nhiều mã khuyến mãi không hợp lệ hoặc đã hết hạn.",
+    };
+  }
+}
+
 
     // Kiểm tra phương thức đặt phòng có tồn tại không
     const method = await BookingMethod.findById(booking_method_id);
@@ -219,7 +232,6 @@ const bookingController = {
         };
       }
     }
-
     return { valid: true };
   },
 

@@ -35,6 +35,7 @@ export const createBooking = async (
       request: data.request || "",
       extra_fee: data.extra_fee || 0,
       note: data.note || "",
+      original_price: data.original_price, // Giá gốc trước khi áp dụng khuyến mãi
       total_price: data.total_price,
       discount_value: data.discount_value || 0,
       cancel_reason: data.cancel_reason || null,
@@ -327,6 +328,7 @@ export const getBookingById = async (
       request: data.request || "",
       extra_fee: data.extra_fee || 0,
       note: data.note || "",
+      original_price: data.original_price, // Giá gốc trước khi áp dụng khuyến mãi
       total_price: data.total_price,
       discount_value: data.discount_value || 0,
       cancel_reason: data.cancel_reason || null,

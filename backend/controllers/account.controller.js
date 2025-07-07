@@ -259,10 +259,7 @@ const accountController = {
 
   // ====== ĐĂNG XUẤT =====
   logout: async (req, res) => {
-    res.clearCookie("refreshToken");
-    refreshTokens = refreshTokens.filter(
-      (token) => token !== req.cookies.refreshToken
-    );
+    res.user = null; // Xoá thông tin người dùng khỏi request
     res.status(200).json("Đăng xuất thành công");
   },
 };

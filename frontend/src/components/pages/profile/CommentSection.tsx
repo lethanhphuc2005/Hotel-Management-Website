@@ -33,7 +33,6 @@ export default function CommentSection({
   const currentComments = comments.slice(startIndex, endIndex);
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const [editingId, setEditingId] = useState<string | null>(null);

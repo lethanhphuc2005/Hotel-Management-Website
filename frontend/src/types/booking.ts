@@ -2,7 +2,7 @@ export interface Booking {
   id?: string;
   employee_id?: string;
   user_id?: string | null;
-  discount_id?: string;
+  discount_id?: string[];
   booking_method_id: string;
   booking_status_id: string;
   full_name: string;
@@ -16,6 +16,7 @@ export interface Booking {
   request?: string;
   extra_fee?: number;
   note?: string;
+  original_price: number; // Giá gốc trước khi áp dụng khuyến mãi
   total_price: number;
   discount_value?: number;
   cancel_reason?: string;

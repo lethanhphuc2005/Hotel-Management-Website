@@ -123,9 +123,10 @@ export const fetchPreviewDiscountBookingPrice = async (bookingInfo: {
   success: boolean;
   message?: string;
   data: {
-    totalPrice: number;
-    discountAmount: number;
+    originalPrice: number;
+    finalPrice: number;
     appliedDiscounts: string[];
+    isPromo?: boolean; // Optional field to indicate if a promo code was applied
   };
 }> => {
   try {
@@ -136,9 +137,10 @@ export const fetchPreviewDiscountBookingPrice = async (bookingInfo: {
       success: true,
       message: response.message || "Preview booking price fetched successfully",
       data: {
-        totalPrice: data.totalPrice || 0,
-        discountAmount: data.discountAmount || 0,
+        originalPrice: data.originalPrice || 0,
+        finalPrice: data.finalPrice || 0,
         appliedDiscounts: data.appliedDiscounts || [],
+        isPromo: data.isPromo || false, // Include isPromo field if available
       },
     };
   } catch (error: any) {
@@ -149,7 +151,7 @@ export const fetchPreviewDiscountBookingPrice = async (bookingInfo: {
     return {
       success: false,
       message,
-      data: { totalPrice: 0, discountAmount: 0, appliedDiscounts: [] },
+      data: { originalPrice: 0, finalPrice: 0, appliedDiscounts: [] },
     };
   }
 };

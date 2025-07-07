@@ -1,4 +1,5 @@
 const Discount = require("../models/discount.model");
+const User = require("../models/user.model");
 const calculateBookingPrice =
   require("../services/discount.service").calculateBookingPrice;
 const {
@@ -217,7 +218,8 @@ const DiscountController = {
   previewBookingPrice: async (req, res) => {
     try {
       const { bookingInfo } = req.body;
-      const user = req.user;
+      const user = await User.findById(req.user.id);
+
       const result = await calculateBookingPrice(bookingInfo, user);
 
       return res.status(200).json({

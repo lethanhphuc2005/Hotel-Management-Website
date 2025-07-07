@@ -79,7 +79,7 @@ export default function RootLayout({
           pauseOnHover
           draggable
           theme="colored"
-          style={{ zIndex: 9999 }}
+          style={{ zIndex: 99999 }}
         />
         <LoadingProvider>
           <AuthProvider>

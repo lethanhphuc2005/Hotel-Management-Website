@@ -36,7 +36,7 @@ export const useHeader = ({
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [didFetch, setDidFetch] = useState(false);
   const { setLoading } = useLoading();
-  const level = levelMap[user?.level || "bronze"] || levelMap.bronze;
+  const level = levelMap[userData?.level || "bronze"] || levelMap.bronze;
 
   const toggleSearch = (e: React.MouseEvent) => {
     e.preventDefault();

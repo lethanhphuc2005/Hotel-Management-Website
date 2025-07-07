@@ -97,6 +97,7 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
 UserSchema.virtual("comments", {
   ref: "comment",
   localField: "_id",
@@ -114,6 +115,12 @@ UserSchema.virtual("bookings", {
   localField: "_id",
   foreignField: "user_id",
 });
+
+UserSchema.virtual("discounts",{
+  ref: "discount",
+  localField: "bookings.discount_id",
+  foreignField: "_id",
+})
 
 UserSchema.virtual("booking_details", {
   ref: "booking_detail",

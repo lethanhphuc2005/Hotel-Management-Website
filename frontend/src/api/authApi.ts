@@ -46,7 +46,9 @@ export const refreshAccessToken = async () => {
   return response.data; // { accessToken }
 };
 
-export const logout = () => {
+export const logout = async () => {
+  // Xoá refresh token khỏi cookie
+  await api.post("/account/logout")
   localStorage.removeItem("login");
 };
 

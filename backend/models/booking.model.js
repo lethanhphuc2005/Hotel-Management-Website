@@ -77,16 +77,16 @@ const bookingSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
-    extra_fee: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
     note: {
       type: String,
       default: "",
       trim: true,
       maxlength: 500,
+    },
+    original_price: {
+      type: Number,
+      required: true,
+      min: 0,
     },
     total_price: {
       type: Number,
@@ -99,11 +99,12 @@ const bookingSchema = new mongoose.Schema(
       default: "UNPAID",
       required: true,
     },
-    discount_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "discount",
-      default: null,
-    },
+    discount_id: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "discount",
+      },
+    ],
     employee_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "employee",
