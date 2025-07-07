@@ -1,3 +1,5 @@
+import { RoomClass } from "./roomClass";
+
 export interface Booking {
   id?: string;
   employee_id?: string;
@@ -45,6 +47,7 @@ export interface Booking {
     name: string;
     value: number;
     type: string; // e.g., 'percentage' or 'fixed'
+    value_type: string; // e.g., 'percent' or 'fixed'
     status?: boolean;
     created_at?: Date;
     updated_at?: Date;
@@ -60,11 +63,7 @@ export interface Booking {
     payment_method?: {
       id: string;
       name: string;
-      description?: string;
-      status?: boolean;
-      created_at?: Date;
-      updated_at?: Date;
-    }[];
+    };
   }[];
   employee?: {
     id: string;
@@ -76,7 +75,7 @@ export interface Booking {
   booking_details: {
     id?: string;
     booking_id?: string;
-    room_class_id: string;
+    room_class_id: string | RoomClass;
     room_id?: string;
     price_per_night: number;
     nights: number;

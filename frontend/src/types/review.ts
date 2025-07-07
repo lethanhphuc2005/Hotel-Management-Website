@@ -2,6 +2,7 @@ import { IUser } from "./user";
 
 export interface Review {
   id: string;
+  booking_id: string;
   room_class_id: string;
   parent_id: string | null;
   employee_id: {

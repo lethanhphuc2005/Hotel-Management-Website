@@ -21,6 +21,7 @@ const levelMap: Record<string, { label: string; color: string }> = {
   silver: { label: "Bạc", color: "#c0c0c0" },
   gold: { label: "Vàng", color: "#FFD700" },
   diamond: { label: "Kim Cương", color: "#b9f2ff" },
+  normal: { label: "Thường", color: "#808080" },
 };
 
 export const useHeader = ({
@@ -36,7 +37,7 @@ export const useHeader = ({
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [didFetch, setDidFetch] = useState(false);
   const { setLoading } = useLoading();
-  const level = levelMap[userData?.level || "bronze"] || levelMap.bronze;
+  const level = levelMap[userData?.level || "normal"] || levelMap.normal;
 
   const toggleSearch = (e: React.MouseEvent) => {
     e.preventDefault();

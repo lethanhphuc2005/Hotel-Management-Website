@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const Booking = require("../models/booking.model"); // Giả sử bạn có mô hình Booking
 
 const authMiddleware = {
   // === XÁC THỰC TOKEN ===
@@ -135,6 +136,42 @@ const authMiddleware = {
         const isRoleAllowed = roles.includes(user.role);
 
         if (isSelf || isRoleAllowed) {
+          return next();
+        }
+
+        return res
+          .status(403)
+          .json("Bạn không có quyền thực hiện hành động này.");
+      });
+    };
+  },
+
+  authorizeBookingOwnerOrRoles: (...roles) => {
+    return async (req, res, next) => {
+      authMiddleware.verifyToken(req, res, async () => {
+        const user = req.user;
+
+        if (!user) {
+          return res.status(401).json("Người dùng chưa được xác thực.");
+        }
+
+        const bookingId =
+          req.params.id ||
+          req.params.bookingId ||
+          req.body?.booking_id ||
+          req.query?.booking_id;
+
+        const isRoleAllowed = roles.includes(user.role);
+
+        if (isRoleAllowed) return next();
+
+        // 👇 Truy booking để kiểm tra chủ sở hữu
+        const booking = await Booking.findById(bookingId).lean();
+        if (!booking) {
+          return res.status(404).json("Không tìm thấy đơn đặt phòng.");
+        }
+
+        if (booking.user_id?.toString() === user.id) {
           return next();
         }
 

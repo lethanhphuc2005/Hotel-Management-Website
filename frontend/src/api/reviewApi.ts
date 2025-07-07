@@ -16,12 +16,23 @@ export const getReviewById = async (reviewId: string) => {
   return response.data; // { reviewId, content, createdAt, ... }
 };
 
-export const createReview = async (roomClassId: string, content: string) => {
+export const createReview = async (
+  bookingId: string,
+  roomClassId: string,
+  parentId: string | null,
+  userId: string,
+  rating: number | null,
+  content: string
+) => {
   const response = await api.post("/review", {
+    booking_id: bookingId,
     room_class_id: roomClassId,
+    parent_id: parentId,
+    user_id: userId,
+    rating,
     content,
   });
-  if (response.status !== 200) {
+  if (response.status !== 200 && response.status !== 201) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
   return response.data; // { reviewId, content, createdAt, ... }

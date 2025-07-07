@@ -112,26 +112,27 @@ const bookingController = {
     }
 
     // Kiếm tra khuyến mãi (nếu có)
-  if (discount_id) {
-  const discountIds = Array.isArray(discount_id) ? discount_id : [discount_id];
+    if (discount_id) {
+      const discountIds = Array.isArray(discount_id)
+        ? discount_id
+        : [discount_id];
 
-  // Tìm tất cả khuyến mãi hợp lệ
-  const now = new Date();
-  const validDiscounts = await Discount.find({
-    _id: { $in: discountIds },
-    status: true,
-    valid_from: { $lte: now },
-    valid_to: { $gte: now },
-  });
+      // Tìm tất cả khuyến mãi hợp lệ
+      const now = new Date();
+      const validDiscounts = await Discount.find({
+        _id: { $in: discountIds },
+        status: true,
+        valid_from: { $lte: now },
+        valid_to: { $gte: now },
+      });
 
-  if (validDiscounts.length !== discountIds.length) {
-    return {
-      valid: false,
-      message: "Một hoặc nhiều mã khuyến mãi không hợp lệ hoặc đã hết hạn.",
-    };
-  }
-}
-
+      if (validDiscounts.length !== discountIds.length) {
+        return {
+          valid: false,
+          message: "Một hoặc nhiều mã khuyến mãi không hợp lệ hoặc đã hết hạn.",
+        };
+      }
+    }
 
     // Kiểm tra phương thức đặt phòng có tồn tại không
     const method = await BookingMethod.findById(booking_method_id);
@@ -413,6 +414,9 @@ const bookingController = {
                   ],
                 },
                 {
+                  path: "room_class_id",
+                },
+                {
                   path: "services",
                   select: "service_id amount used_at -booking_detail_id",
                   populate: {
@@ -516,6 +520,11 @@ const bookingController = {
                   ],
                 },
                 {
+                  path: "room_class_id",
+                  select:
+                    "-main_room_class_id -createdAt -updatedAt -description -status",
+                },
+                {
                   path: "services",
                   select: "service_id amount used_at -booking_detail_id",
                   populate: {
@@ -562,7 +571,7 @@ const bookingController = {
           path: "payment",
           populate: { path: "payment_method", select: "name" },
         },
-        { path: "discount", select: "name type value start_date end_date" },
+        { path: "discount", select: "name type value start_date end_date value_type" },
         {
           path: "booking_details",
           populate: [
@@ -577,6 +586,17 @@ const bookingController = {
                 },
                 { path: "room_status_id", select: "name" },
               ],
+            },
+            {
+              path: "room_class_id",
+              select:
+                "-main_room_class_id -createdAt -updatedAt -description -status",
+              populate: {
+                path: "images",
+                model: "image", 
+                select: "url -_id", 
+                match: { status: true }, // Chỉ lấy ảnh hợp lệ
+              },
             },
             {
               path: "services",

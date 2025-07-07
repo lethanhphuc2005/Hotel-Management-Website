@@ -17,6 +17,7 @@ export const fetchReviews = async (): Promise<{
     const data = response.data;
     const reviews: Review[] = data.map((r: any) => ({
       id: r.id || r.id,
+      booking_id: r.booking_id || null, // booking_id may not be present in some reviews
       room_class_id: r.room_class_id,
       parent_id: r.parent_id || null,
       employee_id: r.employee_id || null,
@@ -69,6 +70,7 @@ export const fetchReviewById = async (
     const data = response.data;
     const review: Review = {
       id: data._id || data.id,
+      booking_id: data.booking_id || null, // booking_id may not be present in some reviews
       room_class_id: data.room_class_id,
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
@@ -98,7 +100,11 @@ export const fetchReviewById = async (
 };
 
 export const createReview = async (
+  bookingId: string,
   roomClassId: string,
+  parentId: string | null,
+  userId: string,
+  rating: number | null,
   content: string
 ): Promise<{
   success: boolean;
@@ -106,10 +112,18 @@ export const createReview = async (
   data: Review;
 }> => {
   try {
-    const response = await createReviewApi(roomClassId, content);
+    const response = await createReviewApi(
+      bookingId,
+      roomClassId,
+      parentId,
+      userId,
+      rating,
+      content
+    );
     const data = response.data;
     const review: Review = {
       id: data._id || data.id,
+      booking_id: data.booking_id || bookingId,
       room_class_id: data.room_class_id,
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
@@ -153,6 +167,7 @@ export const updateReview = async (
     const data = response.data;
     const review: Review = {
       id: data._id || data.id,
+      booking_id: data.booking_id || null, // booking_id may not be present in update
       room_class_id: data.room_class_id,
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,

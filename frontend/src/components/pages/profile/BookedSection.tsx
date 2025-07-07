@@ -10,7 +10,7 @@ import {
   cancelBooking,
 } from "@/services/BookingService";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
-import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 export default function BookedRoomSection({
   bookings,
@@ -19,6 +19,7 @@ export default function BookedRoomSection({
   bookings: any[];
   setBookings: React.Dispatch<React.SetStateAction<any[]>>;
 }) {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
   const totalItems = bookings.length;
@@ -355,7 +356,7 @@ export default function BookedRoomSection({
                   {isCheckedOut && (
                     <AnimatedButtonPrimary
                       onClick={() => {
-                        toast.success("Cảm ơn bạn đã sử dụng dịch vụ!");
+                        router.push(`/review/${booking.id}`);
                       }}
                       className="tw-w-full tw-mt-4 tw-py-2 tw-text-center"
                     >

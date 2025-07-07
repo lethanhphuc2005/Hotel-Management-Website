@@ -22,7 +22,7 @@ router.get(
 // === LẤY THÔNG TIN ĐẶT PHÒNG THEO ID ===
 router.get(
   "/:id",
-  authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
+  authMiddleware.authorizeBookingOwnerOrRoles("admin", "receptionist"),
   bookingController.getBookingById
 );
 

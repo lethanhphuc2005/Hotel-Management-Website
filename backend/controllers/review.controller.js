@@ -317,7 +317,7 @@ const reviewController = {
   // === THÊM ĐÁNH GIÁ ===
   addReview: async (req, res) => {
     try {
-      const { booking_id, user_id, parent_id } = req.body;
+      const { booking_id, user_id, parent_id, room_class_id } = req.body;
       const newReview = new Review(req.body);
       const validation = await reviewController.validateReview(newReview);
       if (!validation.valid) {
@@ -349,7 +349,12 @@ const reviewController = {
       // 5. Kiểm tra xem người dùng đã đánh giá booking này chưa
       // Nếu là user_id thì chỉ cho phép 1 review/booking/user
       if (user_id && !parent_id) {
-        const existingReview = await Review.findOne({ booking_id, user_id });
+        const existingReview = await Review.findOne({
+          booking_id,
+          user_id,
+          room_class_id,
+          status: true,
+        });
         if (existingReview) {
           return res
             .status(400)

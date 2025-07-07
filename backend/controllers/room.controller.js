@@ -105,7 +105,6 @@ const roomController = {
           ],
           booking_status_id: { $nin: excludedStatusIds }, // Trạng thái huỷ
         }).select("_id");
-        console.log("Bookings found:", bookings.length);
 
         const bookingIds = bookings.map((b) => b._id);
 

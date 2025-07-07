@@ -29,11 +29,9 @@ export const getBookings = async () => {
   }
 };
 
-export const getBookingById = async (id: string, userId: string) => {
+export const getBookingById = async (id: string) => {
   try {
-    const response = await api.get(`/booking/${id}`, {
-      data: { user_id: userId },
-    });
+    const response = await api.get(`/booking/${id}`);
     if (response.status !== 200) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
