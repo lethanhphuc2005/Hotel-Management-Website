@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import FilterSidebar from "@/components/pages/roomClass/FilterSidebar";
 import RoomListDisplay from "@/components/pages/roomClass/ListDisplay";
@@ -55,18 +55,21 @@ export default function RoomClassesPage() {
   const [showViewFilter, setShowViewFilter] = useState(false);
   const [showFeatureFilter, setShowFeatureFilter] = useState(false);
   const [showMainRoomClassFilter, setShowMainRoomClassFilter] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    0, 5000000,
-  ]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOption, setSortOption] = useState("price_asc");
   const params = useSearchParams();
-  React.useEffect(() => {
+  useEffect(() => {
     const mainRoomClassId = params.get("mainRoomClassId");
     if (mainRoomClassId) {
       setSelectedMainRoomClassIds([mainRoomClassId]);
     }
+    const roomClassParam = params.get("roomClass");
+    if (roomClassParam) {
+      setSearchTerm(roomClassParam);
+    }
   }, [params]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("price_asc");
+
   const {
     filteredRoomClass,
     displayRoomClass,

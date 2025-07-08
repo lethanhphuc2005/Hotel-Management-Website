@@ -84,6 +84,7 @@ export default function FilterSidebar({
           type="text"
           className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-placeholder-gray-400 tw-border tw-border-primary focus:tw-outline-none tw-w-full tw-mb-3 tw-flex-1"
           placeholder="Tìm kiếm phòng..."
+          value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
           }}

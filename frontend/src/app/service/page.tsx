@@ -25,6 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "@/components/sections/Pagination";
+import { useSearchParams } from "next/navigation";
 
 const features = [
   { icon: faLock, label: "Khóa cửa an toàn" },
@@ -72,6 +73,15 @@ export default function ServicesPage() {
     };
     fetchServicesData();
   }, []);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const serviceParam = searchParams.get("service");
+    if (serviceParam) {
+      setSearchTerm(serviceParam);
+    }
+  }, [searchParams]);
 
   const filteredAndSortedServices = useMemo(() => {
     let filtered = services.filter(

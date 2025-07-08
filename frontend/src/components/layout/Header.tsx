@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import style from "@/styles/layout/header.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "@/contexts/store";
@@ -15,10 +15,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { useHeader } from "@/hooks/useHeader";
+import SearchSuggestions from "../sections/SearchSuggestion";
+import { getSuggestions } from "@/services/SugestionService";
+import { SuggestionResponse } from "@/types/suggestion";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [suggestions, setSuggestions] = useState<SuggestionResponse[]>([]);
+
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
   const { mainroomclass, wallet, userData, toggleSearch, handleLogout, level } =
     useHeader({
@@ -27,6 +33,20 @@ export default function Header() {
       showSearch,
       setShowSearch,
     });
+
+  useEffect(() => {
+    if (!searchValue) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      const result = await getSuggestions(searchValue);
+      setSuggestions(result);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchValue]);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -111,19 +131,30 @@ export default function Header() {
 
           <div className="d-flex gap-3 align-items-center">
             {showSearch && (
-              <input
-                type="text"
-                className={`form-control bg-transparent text-white ${style.searchInput}`}
-                placeholder="Tìm kiếm..."
-                style={{
-                  top: "22px",
-                  right: "250px",
-                  width: "300px",
-                  zIndex: 1000,
-                  borderRadius: "8px",
-                }}
-              />
+              <div className="tw-relative">
+                <input
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className={`form-control bg-transparent text-white ${style.searchInput}`}
+                  placeholder="Tìm kiếm phòng, tiện nghi, dịch vụ..."
+                  style={{
+                    top: "22px",
+                    right: "250px",
+                    width: "300px",
+                    zIndex: 1000,
+                    borderRadius: "8px",
+                  }}
+                />
+                <SearchSuggestions
+                  suggestions={suggestions}
+                  onClose={() => {
+                    setSuggestions([]);
+                    setShowSearch(false);
+                  }}
+                />
+              </div>
             )}
+
             <Link href={"#"}>
               <motion.div
                 whileHover={{ color: "#FAB320" }}
