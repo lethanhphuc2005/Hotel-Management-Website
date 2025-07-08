@@ -1,0 +1,7 @@
+sentence-transformers
+scikit-learn
+pymongo
+python-dotenv
+torch
+numpy
+tqdm

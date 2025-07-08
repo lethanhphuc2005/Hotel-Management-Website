@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+require("./cron/clusterKeywordCron");
 
 const roomRouter = require("./routes/room.route");
 const authRouter = require("./routes/auth.route");
@@ -29,6 +30,7 @@ const userFavoriteRouter = require("./routes/userFavorite.route");
 const walletRouter = require("./routes/wallet.route");
 const suggestionRouter = require("./routes/suggestion.route");
 const searchLogRouter = require("./routes/searchLog.route");
+const searchClusterRouter = require("./routes/searchCluster.route");
 
 dotenv.config();
 
@@ -79,6 +81,7 @@ app.use("/v1/user-favorite", userFavoriteRouter);
 app.use("/v1/wallet", walletRouter);
 app.use("/v1/suggestion", suggestionRouter);
 app.use("/v1/search-log", searchLogRouter);
+app.use("/v1/search-cluster", searchClusterRouter);
 
 app.listen(8000, () => {
   console.log("🚀 Server is running on port 8000");
