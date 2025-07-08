@@ -1,6 +1,3 @@
-// cancelDate = thời điểm người dùng yêu cầu hủy
-// createdAt = thời điểm người dùng đặt phòng
-
 export function calculateCancellationFee(
   checkInDate,
   cancelDate,

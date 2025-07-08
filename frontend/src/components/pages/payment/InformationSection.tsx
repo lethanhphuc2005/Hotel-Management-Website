@@ -1,8 +1,26 @@
-const InformationSection = () => {
+"use client";
+
+import { formatDate } from "@/utils/dateUtils";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
+
+interface CancelItem {
+  label: string;
+  from: Date;
+  to: Date | null;
+  feePercent: number;
+  description: string;
+}
+
+interface Props {
+  cancelPolicyTimeline: CancelItem[];
+  total_price: number;
+}
+
+const InformationSection = ({ cancelPolicyTimeline, total_price }: Props) => {
   return (
     <>
       <div className="card mb-4 p-4 bg-black border text-white">
-        <h6 className="fw-bold" style={{ color: "#FAB320" }}>
+        <h6 className="fw-bold tw-text-primary">
           Mách nhỏ:
         </h6>
         <ul className="mb-0 list-unstyled">
@@ -24,23 +42,45 @@ const InformationSection = () => {
       </div>
 
       <div className="card mb-4 p-4 bg-black border text-white">
-        <h6 className="fw-bold" style={{ color: "#FAB320" }}>
-          Lưu ý:
+        <h6 className="fw-bold tw-text-primary">
+          Chính sách hủy phòng:
         </h6>
-        <p className="mb-2">
-          <i className="bi bi-check2-circle me-2"></i> Hủy miễn phí trước:{" "}
-          <strong style={{ color: "#FAB320" }}>
-            14:00, Thứ 5, 9 tháng 5, 2025
-          </strong>
-        </p>
-        <p>
-          <i className="bi bi-alarm me-2"></i> Từ 14:00 ngày 10 tháng 5:{" "}
-          <strong style={{ color: "#FAB320" }}>VND 1.417.500</strong>
-        </p>
+        <div className="tw-text-sm">
+          {cancelPolicyTimeline.map((item, idx) => (
+            <div key={idx} className="mb-2">
+              <p className="mb-1">
+                <i className="bi bi-alarm me-2"></i>
+                Từ{" "}
+                <strong className="tw-text-primary">
+                  {formatDate(item.from)}
+                </strong>{" "}
+                đến{" "}
+                <strong className="tw-text-primary">
+                  {item.to ? formatDate(item.to) : "khi nhận phòng"}
+                </strong>
+                :
+              </p>
+              <p>
+                <i className="bi bi-currency-exchange me-2"></i>
+                {item.description}
+                {item.feePercent > 0 && (
+                  <span>
+                    {" "}
+                    Số tiền huỷ:{" "}
+                    <strong className="text-danger">
+                      {formatCurrencyVN((item.feePercent / 100) * total_price)}
+                    </strong>
+                  </span>
+                )}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
+
       <div className="card p-4 bg-black border text-white">
-        <h6 className="fw-bold" style={{ color: "#FAB320" }}>
-          Xem lại quy tắc chung:
+        <h6 className="fw-bold tw-text-primary">
+          Quy tắc chung:
         </h6>
         <ul className="list-unstyled">
           <li>
@@ -50,12 +90,11 @@ const InformationSection = () => {
             <i className="bi bi-bluesky me-2"></i> Không thú cưng
           </li>
           <li>
-            <i className="bi bi-hourglass-top me-2"></i> Thời gian nhận phòng từ
-            14:00
+            <i className="bi bi-hourglass-top me-2"></i> Nhận phòng từ 14:00
           </li>
           <li>
-            <i className="bi bi-hourglass-bottom me-2"></i> Thời gian trả phòng
-            từ 12:00
+            <i className="bi bi-hourglass-bottom me-2"></i> Trả phòng trước
+            12:00
           </li>
         </ul>
       </div>

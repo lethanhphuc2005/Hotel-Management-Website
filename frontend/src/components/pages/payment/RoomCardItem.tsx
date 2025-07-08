@@ -9,7 +9,6 @@ interface RoomCartItemProps {
 
 const RoomCartItem: FC<RoomCartItemProps> = ({ room, onRemove }) => {
   if (!room) return null;
-  console.log("RoomCartItem rendered with room:", room);
   const handleRemove = () => {
     if (onRemove) {
       onRemove(room.id);

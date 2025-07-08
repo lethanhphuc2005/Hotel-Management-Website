@@ -20,6 +20,8 @@ import RoomCartItem from "@/components/pages/payment/RoomCardItem";
 import InformationSection from "@/components/pages/payment/InformationSection";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { fetchPreviewDiscountBookingPrice } from "@/services/DiscountService";
+import getCancelPolicy from "@/utils/getCancelPolicy";
+import getCancelPolicyTimeline from "@/utils/getCancelPolicy";
 
 export default function PayMent() {
   const { user } = useAuth();
@@ -285,6 +287,12 @@ export default function PayMent() {
     );
   }
 
+  const cancelPolicyTimeline = getCancelPolicyTimeline(
+    new Date(formatDateForBooking(rooms[0].checkIn)),
+    new Date(formatDateForBooking(rooms[0].checkOut)),
+    new Date() // hoặc createdAt
+  );
+
   return (
     <div
       className="container"
@@ -304,7 +312,7 @@ export default function PayMent() {
             setRequest={setRequest}
           />
 
-          <InformationSection />
+          <InformationSection cancelPolicyTimeline={cancelPolicyTimeline} total_price={finalTotal} />
         </div>
 
         {/* Right Column - Room Info & Price */}
