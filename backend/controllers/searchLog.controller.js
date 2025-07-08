@@ -36,7 +36,7 @@ const getSearchHistory = async (req, res) => {
     if (!user_id) return res.json({ success: true, data: [] });
 
     const logs = await SearchLog.find({ user_id })
-      .sort({ created_at: -1 })
+      .sort({ createdAt: -1 })
       .limit(10);
 
     const keywords = [...new Set(logs.map((log) => log.keyword))];
@@ -79,10 +79,10 @@ const getKeywordsForAI = async (req, res) => {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const logs = await SearchLog.find({
-      created_at: { $gte: thirtyDaysAgo },
-    }).select("normalized");
+      createdAt: { $gte: thirtyDaysAgo },
+    }).select("normalized_keyword");
 
-    const keywords = logs.map((log) => log.normalized);
+    const keywords = logs.map((log) => log.normalized_keyword);
 
     res.json({ success: true, data: keywords });
   } catch (err) {

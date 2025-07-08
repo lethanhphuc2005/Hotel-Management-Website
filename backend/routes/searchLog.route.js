@@ -13,5 +13,4 @@ router.get("/history", authMiddleware.verifyToken, getSearchHistory); // GET /ap
 router.get("/trending", getTrendingKeywords); // GET /api/search-log/trending
 router.get("/ai-keywords", getKeywordsForAI);
 
-
 module.exports = router;

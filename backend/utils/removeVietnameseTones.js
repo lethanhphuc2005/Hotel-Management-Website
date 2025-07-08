@@ -6,5 +6,6 @@ module.exports = function removeVietnameseTones(str) {
     .replace(/Đ/g, "D")
     .replace(/[^a-zA-Z0-9\s]/g, "")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    .toLowerCase();
 };

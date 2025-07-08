@@ -15,7 +15,7 @@ const SearchLogSchema = new mongoose.Schema(
     normalized_keyword: { type: String }, // <-- Thêm dòng này
     type: {
       type: String,
-      enum: ["room", "feature", "service", "auto"],
+      enum: ["room", "feature", "service", "auto", "keyword"],
       default: "auto",
     },
   },

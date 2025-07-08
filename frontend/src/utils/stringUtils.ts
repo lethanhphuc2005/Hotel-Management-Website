@@ -21,3 +21,12 @@ export const formantPrice = (price: number) => {
   if (price < 1000000) return `${(price / 1000).toFixed(1)}K₫`;
   return `${(price / 1000000).toFixed(1)}M₫`;
 };
+
+export function removeVietnameseTones(str: string) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+}

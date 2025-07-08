@@ -26,6 +26,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "@/components/sections/Pagination";
 import { useSearchParams } from "next/navigation";
+import { removeVietnameseTones } from "@/utils/stringUtils"; // Assuming you have this utility function
 
 const features = [
   { icon: faLock, label: "Khóa cửa an toàn" },
@@ -84,11 +85,17 @@ export default function ServicesPage() {
   }, [searchParams]);
 
   const filteredAndSortedServices = useMemo(() => {
-    let filtered = services.filter(
-      (s) =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const normalizedSearch = removeVietnameseTones(searchTerm);
+
+    let filtered = services.filter((s) => {
+      const normalizedName = removeVietnameseTones(s.name);
+      const normalizedDesc = removeVietnameseTones(s.description || "");
+
+      return (
+        normalizedName.includes(normalizedSearch) ||
+        normalizedDesc.includes(normalizedSearch)
+      );
+    });
 
     switch (sortOption) {
       case "name_asc":

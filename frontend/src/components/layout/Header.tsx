@@ -10,20 +10,49 @@ import {
   faBell,
   faMagnifyingGlass,
   faStar,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { useHeader } from "@/hooks/useHeader";
 import SearchSuggestions from "../sections/SearchSuggestion";
-import { getSuggestions } from "@/services/SugestionService";
+import {
+  fetchSuggestions,
+  fetchSearchLogsByUser,
+  fetchSearchLogsByAI,
+  fetchSearchTrending,
+} from "@/services/SearchService";
 import { SuggestionResponse } from "@/types/suggestion";
+import { AnimatedButton } from "@/components/common/Button";
+import { handleSearchClick } from "@/utils/handleSearchClick";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestionResponse[]>([]);
+  const [trending, setTrending] = useState<
+    { keyword: string; count: number }[]
+  >([]);
+  const [clusters, setClusters] = useState<{ representative: string }[]>([]);
+  const [history, setHistory] = useState<string[]>([]);
+
+  const router = useRouter();
+  const handleSearch = () => {
+    if (searchValue.trim()) {
+      const query: Record<string, string> = { q: searchValue.trim() };
+      router.push(`/search?${new URLSearchParams(query).toString()}`);
+      handleSearchClick({ label: searchValue.trim(), type: "keyword" }, router);
+      setSearchValue("");
+      setSuggestions([]);
+      setShowSearch(false);
+    } else {
+      toast.info("Vui lòng nhập từ khóa tìm kiếm");
+    }
+  };
 
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
   const { mainroomclass, wallet, userData, toggleSearch, handleLogout, level } =
@@ -36,17 +65,21 @@ export default function Header() {
 
   useEffect(() => {
     if (!searchValue) {
+      if (trending.length === 0) fetchSearchTrending().then(setTrending);
+      if (clusters.length === 0) fetchSearchLogsByAI().then(setClusters);
+      if (userData && history.length === 0)
+        fetchSearchLogsByUser().then(setHistory);
       setSuggestions([]);
       return;
     }
 
     const timeout = setTimeout(async () => {
-      const result = await getSuggestions(searchValue);
+      const result = await fetchSuggestions(searchValue);
       setSuggestions(result);
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [searchValue]);
+  }, [searchValue, userData]);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -130,30 +163,68 @@ export default function Header() {
           </ul>
 
           <div className="d-flex gap-3 align-items-center">
-            {showSearch && (
-              <div className="tw-relative">
-                <input
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  className={`form-control bg-transparent text-white ${style.searchInput}`}
-                  placeholder="Tìm kiếm phòng, tiện nghi, dịch vụ..."
-                  style={{
-                    top: "22px",
-                    right: "250px",
-                    width: "300px",
-                    zIndex: 1000,
-                    borderRadius: "8px",
-                  }}
-                />
-                <SearchSuggestions
-                  suggestions={suggestions}
-                  onClose={() => {
-                    setSuggestions([]);
-                    setShowSearch(false);
-                  }}
-                />
-              </div>
-            )}
+            <AnimatePresence>
+              {showSearch && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="tw-fixed tw-inset-0 tw-z-[999] tw-bg-black/90 tw-backdrop-blur-sm tw-flex tw-justify-center tw-items-start md:tw-items-center tw-pt-[120px] md:tw-pt-0"
+                >
+                  {/* Nút đóng */}
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.2 }}
+                    className="tw-absolute tw-top-[5%] tw-right-[5%] tw-text-white hover:tw-text-primary tw-transition-colors tw-bg-transparent tw-border-none tw-cursor-pointer"
+                    onClick={() => setShowSearch(false)}
+                  >
+                    <FontAwesomeIcon icon={faXmark} className="tw-text-2xl" />
+                  </motion.button>
+
+                  {/* Box input & suggestion */}
+                  <motion.div
+                    initial={{ y: -30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -30, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="tw-bg-black tw-rounded-xl tw-w-full md:tw-w-[600px] tw-p-4 tw-relative tw-shadow-lg"
+                  >
+                    <div className="tw-flex tw-gap-2 tw-items-center tw-mb-4">
+                      <input
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSearch();
+                        }}
+                        className="tw-flex-1 tw-px-4 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-text-white tw-bg-black"
+                        placeholder="Tìm kiếm phòng, tiện nghi, dịch vụ..."
+                        autoFocus
+                      />
+                      <AnimatedButton
+                        className=" tw-px-4 tw-py-2"
+                        onClick={() => handleSearch()}
+                      >
+                        Tìm kiếm
+                      </AnimatedButton>
+                    </div>
+
+                    <SearchSuggestions
+                      suggestions={suggestions}
+                      trending={trending}
+                      clusters={clusters}
+                      history={history}
+                      onClose={() => {
+                        setSuggestions([]);
+                        setShowSearch(false);
+                      }}
+                    />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <Link href={"#"}>
               <motion.div
