@@ -7,7 +7,16 @@ import { useEffect, useState } from "react";
 import { getUserFavorites } from "@/services/UserFavoriteService";
 import { UserFavorite } from "@/types/userFavorite";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { AnimatedButtonPrimary } from "@/components/common/Button";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import style from "@/app/page.module.css";
+import { formatCurrencyVN } from "@/utils/currencyUtils";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
 
 export function RoomClassList({
   rcl,
@@ -71,11 +80,14 @@ export function RoomClassList({
 }
 
 interface RoomClassListForSearchProps {
+  title: string;
   roomClasses: RoomClass[];
 }
 
-export const RoomClassListForSearch = ({ roomClasses }: RoomClassListForSearchProps) => {
-  console.log("Room classes for search:", roomClasses);
+export const RoomClassListForSearch = ({
+  title,
+  roomClasses,
+}: RoomClassListForSearchProps) => {
   if (roomClasses.length === 0) {
     return (
       <p className="tw-text-white tw-opacity-70 tw-mt-4">
@@ -84,42 +96,88 @@ export const RoomClassListForSearch = ({ roomClasses }: RoomClassListForSearchPr
     );
   }
 
-  return (
-    <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-6">
-      {roomClasses.map((room) => (
-        <div
-          key={room.id}
-          className="tw-bg-neutral-800 tw-rounded-2xl tw-shadow-lg tw-overflow-hidden tw-transition hover:tw-scale-[1.02] tw-duration-300"
-        >
-          {/* Ảnh loại phòng */}
-          <div className="tw-aspect-[4/3] tw-overflow-hidden">
-            <img
-              src={`http://localhost:8000/images/${room.images?.[0]?.url}` || "/images/room-default.jpg"}
-              alt={room.name}
-              className="tw-w-full tw-h-full tw-object-cover tw-transition-transform hover:tw-scale-110 tw-duration-300"
-            />
-          </div>
+  const [ref, controls] = useScrollAnimation(0.2, false);
 
-          {/* Thông tin */}
-          <div className="tw-p-4">
-            <h3 className="tw-text-lg tw-font-semibold tw-text-white">
-              {room.name}
-            </h3>
-            <p className="tw-text-sm tw-text-gray-300 tw-mt-1 tw-line-clamp-2">
-              {room.description}
-            </p>
-            <p className="tw-mt-2 tw-font-bold tw-text-yellow-400">
-              {room.price?.toLocaleString()}đ / đêm
-            </p>
-            <Link
-              href={`/room/${room.id}`}
-              className="tw-inline-block tw-mt-3 tw-text-yellow-400 hover:tw-underline tw-text-sm"
-            >
-              Xem chi tiết
-            </Link>
-          </div>
-        </div>
-      ))}
-    </div>
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={controls}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+      className="tw-w-full"
+    >
+      <h2 className={style.sectionTitle}>{title}</h2>
+
+      <Swiper
+        modules={[Navigation]}
+        navigation
+        spaceBetween={20}
+        slidesPerView={3}
+        breakpoints={{
+          640: { slidesPerView: 1 },
+          768: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+        }}
+        className="tw-mt-4"
+      >
+        {roomClasses.map((room) => (
+          <SwiperSlide key={room.id}>
+            <div className="tw-bg-neutral-800 tw-rounded-2xl tw-shadow-lg tw-overflow-hidden tw-transition hover:tw-scale-[1.02] tw-duration-300 tw-flex tw-flex-col tw-h-[500px] tw-text-center">
+              {/* Ảnh */}
+              <div className="tw-aspect-[4/3] tw-overflow-hidden">
+                <Image
+                  src={
+                    `http://localhost:8000/images/${room.images?.[0]?.url}` ||
+                    "/images/room-default.jpg"
+                  }
+                  alt={room.name}
+                  width={400}
+                  height={260}
+                  className="tw-w-full tw-h-full tw-object-cover tw-transition-transform hover:tw-scale-110 tw-duration-300"
+                />
+              </div>
+
+              {/* Nội dung */}
+              <div className="tw-p-4 tw-text-left tw-flex-1">
+                <h3 className="tw-text-lg tw-font-semibold tw-text-white">
+                  {room.name}
+                </h3>
+                <p className="tw-text-sm tw-text-gray-300 tw-mt-1 tw-line-clamp-1">
+                  {room.description}
+                </p>
+
+                {room.features && room.features.length > 0 && (
+                  <p className="tw-mt-2">
+                    Tiện nghi:
+                    {room.features.slice(0, 3).map((feature, index) => (
+                      <span key={index} className="badge bg-secondary ms-1">
+                        {feature.feature_id.name}
+                      </span>
+                    ))}
+                    {room.features.length > 3 && (
+                      <span className="badge bg-secondary ms-1">
+                        +{room.features.length - 3}
+                      </span>
+                    )}
+                  </p>
+                )}
+
+                <p className="tw-mt-2 tw-font-bold tw-text-yellow-400">
+                  Chỉ từ: {formatCurrencyVN(room.price)}/ đêm
+                </p>
+              </div>
+              <Link
+                href={`/room-class/${room.id}`}
+                className="tw-mt-4 tw-flex-1 tw-w-full"
+              >
+                <AnimatedButtonPrimary className="tw-py-2 tw-px-20 tw-m-4">
+                  Xem chi tiết
+                </AnimatedButtonPrimary>
+              </Link>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </motion.div>
   );
 };

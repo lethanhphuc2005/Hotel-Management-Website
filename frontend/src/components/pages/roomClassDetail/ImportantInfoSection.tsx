@@ -40,7 +40,7 @@ const ImportantInfoSection = () => {
             Chính sách hủy
           </h3>
           <ul className="tw-space-y-1 tw-list-disc tw-pl-5">
-            <li>Miễn phí hủy trong vòng 48 giờ sau khi đặt</li>
+            <li>Miễn phí hủy trong vòng 24 giờ sau khi đặt</li>
           </ul>
         </div>
       </div>

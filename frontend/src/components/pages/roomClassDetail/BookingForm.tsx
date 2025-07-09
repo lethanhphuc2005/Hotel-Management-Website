@@ -222,9 +222,10 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
     };
   }, [showGuestBox, showCalendar]);
 
-  // Lấy dữ liệu từ URL
+  // Lấy dữ liệu từ localStorage khi component mount
   useEffect(() => {
     const searchHistory = localStorage.getItem("lastRoomSearch");
+    if (!searchHistory) return;
     const { startDate, endDate, guests } = searchHistory
       ? JSON.parse(searchHistory)
       : {
@@ -237,8 +238,8 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
     const end = endDate;
 
     const adults = Number(guests.adults || 1);
-    const children6 = Number(guests.age0to6 || 0);
-    const children17 = Number(guests.age7to17 || 0);
+    const children6 = Number(guests.children.age0to6 || 0);
+    const children17 = Number(guests.children.age7to17 || 0);
 
     // Luôn set guests (nếu muốn)
     setGuests({

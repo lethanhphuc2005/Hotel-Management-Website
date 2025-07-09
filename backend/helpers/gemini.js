@@ -4,8 +4,16 @@ const RoomClass = require("../models/roomClass.model");
 const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 const Room = require("../models/room.model");
+const { Feature } = require("../models/feature.model");
+const Service = require("../models/service.model");
+const SearchLog = require("../models/searchLog.model");
+const removeVietnameseTones = require("../utils/removeVietnameseTones");
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash",
+  generationConfig: { temperature: 0, topK: 1, topP: 1, maxOutputTokens: 512 },
+});
 
 const getFilteredRooms = async (filters) => {
   const { check_in_date, check_out_date } = filters;
@@ -223,7 +231,7 @@ const generateResponseWithDB = async (req, res) => {
             - Giường: ${room.bed_amount}
             - Sức chứa: ${room.capacity}
             - View: ${room.view}
-            - Xem thêm: http://localhost:3000/roomdetail/${room._id}`
+            - Xem thêm: http://localhost:3000/room-class/${room._id}`
         )
         .join("\n\n")}
 
@@ -247,8 +255,6 @@ const generateResponseWithDB = async (req, res) => {
     // Gửi prompt + system context
     const response = await sendMessageWithRetry(chat, systemPrompt);
 
-    console.log("✅ Gemini response:", response);
-
     // Cập nhật lại lịch sử hội thoại
     const updatedHistory = [
       ...validHistory,
@@ -270,6 +276,108 @@ const generateResponseWithDB = async (req, res) => {
   }
 };
 
+const normalizeArray = (arr) =>
+  arr.map((str) => removeVietnameseTones(str).toLowerCase().trim());
+
+const fetchSuggestionsFromGemini = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Bạn chưa đăng nhập" });
+    }
+
+    // 1. Lấy các từ khóa tìm kiếm gần đây (đã chuẩn hóa)
+    const logs = await SearchLog.find({ user_id: userId })
+      .sort({ createdAt: -1 })
+      .limit(30);
+
+    const keywords = [...new Set(logs.map((log) => log.normalized_keyword))];
+    if (keywords.length === 0) {
+      return res.status(200).json({ message: "Không có từ khóa để gợi ý." });
+    }
+
+    // 2. Lấy danh sách tên/description của phòng
+    const rooms = await RoomClass.find({ status: true }).select(
+      "name description"
+    );
+    const roomNames = rooms.map((room) => `${room.name} - ${room.description}`);
+
+    // 3. Prompt gửi Gemini
+    const prompt = `
+    📌 Dưới đây là danh sách từ khóa người dùng đã tìm kiếm gần đây:
+    ${keywords.map((kw, i) => `${i + 1}. ${kw}`).join("\n")}
+
+    📂 Dữ liệu hệ thống hiện có (tên + mô tả các loại phòng):
+    ${roomNames.map((r, i) => `- ${r}`).join("\n")}
+
+    🎯 Nhiệm vụ của bạn:
+    Phân tích các từ khóa và đưa ra gợi ý các loại phòng phù hợp với sở thích người dùng.
+
+    ❗Yêu cầu:
+    - Trả về ÍT NHẤT 3 loại phòng.
+    - Mỗi tên phòng là 1 chuỗi từ danh sách hệ thống.
+    - Trả kết quả DƯỚI DẠNG JSON THUẦN theo định dạng sau:
+
+    {
+      "rooms": ["Deluxe hướng biển", "Suite cao cấp", "Phòng gia đình"]
+    }
+    `;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    // 4. Parse JSON từ response
+    const match =
+      text.match(/```json([\s\S]*?)```/) || text.match(/\{[\s\S]*\}/);
+    const rawJson = match ? (match[1] || match[0]).trim() : text;
+    const parsed = JSON.parse(rawJson);
+
+    // 5. Chuẩn hóa kết quả gợi ý
+    const normalizedRooms = normalizeArray(parsed.rooms || []);
+
+    // 6. Tìm các phòng khớp với từ gợi ý (gần đúng)
+    const roomClasses = rooms.filter((room) => {
+      const name = removeVietnameseTones(room.name).toLowerCase();
+      const desc = removeVietnameseTones(room.description).toLowerCase();
+      return normalizedRooms.some(
+        (kw) => name.includes(kw) || desc.includes(kw)
+      );
+    });
+
+    // 7. Lấy chi tiết phòng có `images`, `features`
+    const fullRoomClasses = await RoomClass.find({
+      _id: { $in: roomClasses.map((r) => r._id) },
+    }).populate([
+      {
+        path: "images",
+        select: "url",
+        match: { status: true },
+      },
+      {
+        path: "features",
+        populate: {
+          path: "feature_id",
+          model: "feature",
+          select: "-status -createdAt -updatedAt",
+          match: { status: true },
+        },
+      },
+    ]);
+
+    return res.json({
+      roomClasses: fullRoomClasses,
+      rawResponse: text,
+    });
+  } catch (err) {
+    console.error("Gemini suggestion error:", err);
+    res.status(500).json({
+      error: "Lỗi khi lấy gợi ý AI",
+      message: err.message,
+    });
+  }
+};
+
 module.exports = {
   generateResponseWithDB,
+  fetchSuggestionsFromGemini,
 };

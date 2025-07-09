@@ -57,6 +57,8 @@ interface RoomSearchBarProps {
   numChildrenOver6?: number;
   totalEffectiveGuests?: number;
   showExtraBedOver6?: boolean;
+  price: number;
+  setPrice: React.Dispatch<React.SetStateAction<number>>;
   handleSearch?: () => void;
 }
 
@@ -89,6 +91,8 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     endDate,
     setEndDate,
     handleSearch,
+    price,
+    setPrice,
   } = props;
   const router = useRouter();
   const pathname = usePathname();
@@ -121,10 +125,69 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     };
   }, [showGuestBox, showCalendar]);
 
-  // Lấy dữ liệu từ URL
+  useEffect(() => {
+    const searchHistory = localStorage.getItem("lastRoomSearch");
+    if (!searchHistory) return;
+    const { startDate, endDate, guests } = searchHistory
+      ? JSON.parse(searchHistory)
+      : {
+          startDate: new Date(),
+          endDate: new Date(),
+          guests: { adults: 1, children: { age0to6: 0, age7to17: 0 } },
+        };
+
+    const start = startDate;
+    const end = endDate;
+
+    const adults = Number(guests.adults || 1);
+    const children6 = Number(guests.children.age0to6 || 0);
+    const children17 = Number(guests.children.age7to17 || 0);
+
+    // Luôn set guests (nếu muốn)
+    setGuests({
+      adults,
+      children: {
+        age0to6: children6,
+        age7to17: children17,
+      },
+    });
+
+    setPendingGuests({
+      adults,
+      children: {
+        age0to6: children6,
+        age7to17: children17,
+      },
+    });
+
+    // ✅ Chỉ khi có ngày thì mới set các giá trị liên quan đến tìm kiếm
+    if (start && end) {
+      const startD = new Date(start);
+      const endD = new Date(end);
+
+      if (!isNaN(startD.getTime()) && !isNaN(endD.getTime())) {
+        setStartDate(startD);
+        setEndDate(endD);
+        setDateRange([{ startDate: startD, endDate: endD, key: "selection" }]);
+        setPendingDateRange([
+          { startDate: startD, endDate: endD, key: "selection" },
+        ]);
+
+        const nights = Math.ceil(
+          (endD.getTime() - startD.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        setNumberOfNights(nights);
+        if (setPrice) setPrice(price);
+
+        // Cập nhật giá dựa trên số đêm và giá phòng
+        setHasSearched(true); // ✅ Chỉ gọi khi dữ liệu hợp lệ
+      }
+    }
+  }, []);
   useEffect(() => {
     const start = searchParams.get("start");
     const end = searchParams.get("end");
+    if (!start || !end) return;
 
     const adults = Number(searchParams.get("adults") || 1);
     const children6 = Number(searchParams.get("children6") || 0);

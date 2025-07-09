@@ -11,7 +11,6 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { createSearchLog } from "@/services/SearchService";
 import { handleSearchClick } from "@/utils/handleSearchClick";
 
 type Props = {

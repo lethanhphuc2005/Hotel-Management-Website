@@ -60,6 +60,8 @@ interface BannerProps {
   totalEffectiveGuests?: number;
   showExtraBedOver6?: boolean;
   handleSearch?: () => void;
+  price: number;
+  setPrice: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function Banner(props: BannerProps) {
@@ -92,6 +94,8 @@ export default function Banner(props: BannerProps) {
     setStartDate,
     endDate,
     setEndDate,
+    price,
+    setPrice,
   } = props;
   if (!banners || banners.length === 0) return <p>No banner</p>;
 
@@ -143,6 +147,8 @@ export default function Banner(props: BannerProps) {
           setStartDate={setStartDate}
           endDate={endDate}
           setEndDate={setEndDate}
+          price={price}
+          setPrice={setPrice}
         />
       </div>
       <Swiper

@@ -143,6 +143,8 @@ export default function RoomClassesPage() {
             numAdults,
             numChildrenUnder6,
             numChildrenOver6,
+            price,
+            setPrice,
           }}
         />
       </div>

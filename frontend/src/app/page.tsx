@@ -9,6 +9,7 @@ import DiscountList from "@/components/pages/home/DiscountSection";
 import { useHome } from "@/hooks/useHome";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
 import InformationSection from "@/components/pages/home/InfomationSection";
+import GeminiSuggestionsSection from "@/components/pages/home/RecommendSection";
 
 export default function Home() {
   const {
@@ -39,8 +40,11 @@ export default function Home() {
     setStartDate,
     endDate,
     setEndDate,
+    price,
+    setPrice,
   } = useRoomSearch();
-  const { mainRoomClasses, websiteContents, services, discounts } = useHome();
+  const { mainRoomClasses, websiteContents, services, discounts, recommends } =
+    useHome();
   return (
     <>
       <Banner
@@ -72,9 +76,13 @@ export default function Home() {
         setStartDate={setStartDate}
         endDate={endDate}
         setEndDate={setEndDate}
+        price={price}
+        setPrice={setPrice}
       />
 
       <Container fluid className={`${style.customContainer} container`}>
+        {recommends && <GeminiSuggestionsSection roomClasses={recommends} />}
+
         <MainRoomClassList title="Loại phòng" mrcl={mainRoomClasses} />
 
         <ServiceList title="Dịch vụ khách sạn" svl={services} />

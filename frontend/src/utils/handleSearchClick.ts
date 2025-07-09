@@ -14,23 +14,20 @@ export const handleSearchClick = async (
   switch (item.type) {
     case "room":
       query.roomClass = item.label;
-      router.push(`/room-class?${new URLSearchParams(query).toString()}`);
+      window.location.href = `/room-class/?${new URLSearchParams(query).toString()}`;
       break;
     case "feature":
       query.feature = item.id || item.label;
-      router.push(`/room-class?${new URLSearchParams(query).toString()}`);
+      window.location.href = `/room-class?${new URLSearchParams(query).toString()}`;
       break;
     case "service":
       query.service = item.label;
-      router.push(`/service?${new URLSearchParams(query).toString()}`);
+      window.location.href = `/service?${new URLSearchParams(query).toString()}`;
       break;
     default:
       query.q = item.label;
-      router.push(`/search?${new URLSearchParams(query).toString()}`);
+      window.location.href = `/search?${new URLSearchParams(query).toString()}`;
   }
 
   await createSearchLog(item.label, item.type || "keyword");
-
-  window.location.reload();
-  onClose?.();
 };
