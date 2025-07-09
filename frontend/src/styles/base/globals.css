@@ -3,6 +3,13 @@
   font-family: var(--font-vietnam), sans-serif;
 }
 
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 1.8rem;
+  color: #fab320;
+}
+
+
 /* Font cho tiêu đề: Playfair Display */
 h1,
 h2,

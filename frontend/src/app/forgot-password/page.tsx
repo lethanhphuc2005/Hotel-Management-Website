@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import styles from "./page.module.css";
+import styles from "@/styles/pages/forgot-password.module.css";
 import { toast } from "react-toastify";
 import { forgotPassword, resetPassword } from "@/services/AuthService";
 import { useRouter } from "next/navigation";

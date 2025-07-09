@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "@/styles/pages/profile/AccountSection.module.css";
+import styles from "@/styles/pages/profile.module.css";
 import { saveProfile } from "@/services/ProfileService";
 import { motion } from "framer-motion";
 import { useState } from "react";

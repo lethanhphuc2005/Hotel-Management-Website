@@ -11,7 +11,7 @@ import { AnimatedButtonPrimary } from "@/components/common/Button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import style from "@/app/page.module.css";
+import style from "@/styles/base/page.module.css";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";

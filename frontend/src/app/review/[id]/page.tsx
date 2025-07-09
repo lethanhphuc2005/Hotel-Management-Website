@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { AnimatedButtonPrimary } from "@/components/common/Button";
 import { formatDate } from "@/utils/dateUtils"; // nếu có
-import { RoomClass } from "@/types/roomClass";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import styles from "./page.module.css";
+import styles from "@/styles/pages/login.module.css";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";

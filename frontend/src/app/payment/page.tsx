@@ -20,7 +20,6 @@ import RoomCartItem from "@/components/pages/payment/RoomCardItem";
 import InformationSection from "@/components/pages/payment/InformationSection";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { fetchPreviewDiscountBookingPrice } from "@/services/DiscountService";
-import getCancelPolicy from "@/utils/getCancelPolicy";
 import getCancelPolicyTimeline from "@/utils/getCancelPolicy";
 
 export default function PayMent() {

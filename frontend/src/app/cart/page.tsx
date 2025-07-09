@@ -1,6 +1,6 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
-import styles from "./cart.module.css";
+import styles from "@/styles/pages/cart.module.css";
 import { RootState } from "@/contexts/store";
 import { removeRoomFromCart, clearCart } from "@/contexts/cartSlice";
 import Link from "next/link";

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import styles from "./page.module.css";
+import styles from "@/styles/pages/register.module.css";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Link from "next/link";

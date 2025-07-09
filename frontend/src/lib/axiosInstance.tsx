@@ -2,7 +2,6 @@
 import axios from "axios";
 import { refreshAccessToken } from "@/api/authApi";
 import { toast } from "react-toastify";
-
 // ========== Helpers ==========
 const getAccessToken = () => {
   const loginData = localStorage.getItem("login");
@@ -19,11 +18,11 @@ const updateAccessToken = (newToken: string) => {
 
 // ========== Axios Instance ==========
 const api = axios.create({
-  baseURL: "http://localhost:8000/v1",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
 const publicApi = axios.create({
-  baseURL: "http://localhost:8000/v1",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
 // Gắn access token vào mọi request

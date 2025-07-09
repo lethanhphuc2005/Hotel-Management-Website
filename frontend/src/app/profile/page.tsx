@@ -1,6 +1,6 @@
 "use client";
-import styles from "./page.module.css";
-import { use, useEffect, useState } from "react";
+import styles from "@/styles/pages/profile.module.css";
+import { useState } from "react";
 import { AccountSection } from "@/components/pages/profile/AccountSection";
 import { PasswordSection } from "@/components/pages/profile/PasswordSection";
 import BookingSection from "@/components/pages/profile/BookedSection";

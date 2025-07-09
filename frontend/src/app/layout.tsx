@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import {
   Geist,
@@ -8,17 +9,10 @@ import {
 } from "next/font/google";
 import "animate.css";
 import "@/styles/base/globals.css";
-import Footer from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
 import "react-datepicker/dist/react-datepicker.css";
-import { AuthProvider } from "@/providers/AuthProvider";
-import ChatbotPopup from "@/components/modals/chatBotPopup";
-import { LoadingProvider } from "@/contexts/LoadingContext";
-import GlobalLoading from "@/components/layout/GlobalLoading";
-import CartProvider from "@/providers/CartProvider";
-import { ToastContainer } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import ClientWrapper from "./ClientWrapper";
 
 const beVietnam = Be_Vietnam_Pro({
   weight: ["400", "600"],
@@ -47,18 +41,20 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 export const metadata: Metadata = {
   title: "The Moon Hotel",
   description: "Khách sạn The Moon - Nơi nghỉ dưỡng lý tưởng",
   icons: {
-    icon: "@public/favicon.ico",
+    icon: "/favicon.ico",
   },
 };
+
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
@@ -68,30 +64,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${beVietnam.variable} ${playfairDisplay.variable} ${lora.variable}`}
       >
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          pauseOnHover
-          draggable
-          theme="colored"
-          style={{ zIndex: 99999 }}
-        />
-        <LoadingProvider>
-          <AuthProvider>
-            <CartProvider>
-              <GlobalLoading />
-              <Header />
-              {children}
-              <Footer />
-            </CartProvider>
-          </AuthProvider>
-          <ChatbotPopup />
-        </LoadingProvider>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );

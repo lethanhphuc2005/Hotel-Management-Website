@@ -1,13 +1,12 @@
 import { Service } from "@/types/service";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import style from "@/app/page.module.css";
+import style from "@/styles/base/page.module.css";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/contexts/store";
 import { addServiceToRoom } from "@/contexts/cartSlice";
-import ServiceDetailPopup from "@/components/modals/ServiceDetailModal";
 import SelectRoomModal from "@/components/modals/SelecteServiceModal";
 import { AnimatedButton } from "@/components/common/Button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";

@@ -1,7 +1,7 @@
 import { Discount } from "@/types/discount";
 import { motion } from "framer-motion";
 import { Col } from "react-bootstrap";
-import style from "@/app/page.module.css";
+import style from "@/styles/base/page.module.css";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { formatDate } from "@/utils/dateUtils";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
