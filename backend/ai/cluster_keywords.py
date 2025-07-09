@@ -9,7 +9,7 @@ from collections import defaultdict
 
 # === Load biến môi trường ===
 load_dotenv()
-MONGO_URI = os.getenv("MONGODB_URI")
+MONGO_URI = os.getenv("MONGOOSE_URL")
 
 # === Kết nối MongoDB ===
 client = MongoClient(MONGO_URI)

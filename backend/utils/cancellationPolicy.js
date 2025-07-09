@@ -1,4 +1,4 @@
-export function calculateCancellationFee(
+module.exports = function calculateCancellationFee(
   checkInDate,
   cancelDate,
   totalPrice,

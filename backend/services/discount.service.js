@@ -1,7 +1,6 @@
-import { differenceInCalendarDays } from "date-fns";
-import Discount from "../models/discount.model.js";
-
-export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
+const { differenceInCalendarDays } = require("date-fns");
+const Discount = require("../models/discount.model");
+const getApplicableDiscounts = async ({ user, bookingInfo }) => {
   const { checkInDate, checkOutDate, roomClassId, totalRooms, promoCode } =
     bookingInfo;
 
@@ -81,7 +80,7 @@ export const getApplicableDiscounts = async ({ user, bookingInfo }) => {
   };
 };
 
-export const calculateBookingPrice = async (bookingInfo, user) => {
+const calculateBookingPrice = async (bookingInfo, user) => {
   const basePrice = bookingInfo.baseTotal;
 
   const { applicable: discounts, isPromo } = await getApplicableDiscounts({
@@ -112,4 +111,9 @@ export const calculateBookingPrice = async (bookingInfo, user) => {
     appliedDiscounts,
     isPromo,
   };
+};
+
+module.exports = {
+  getApplicableDiscounts,
+  calculateBookingPrice,
 };
