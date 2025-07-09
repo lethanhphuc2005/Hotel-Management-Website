@@ -17,7 +17,7 @@ module.exports = {
     notifyUrl: `${process.env.NGROK_URL}/v1/payment/vnpay/callback`,
 
     // Trả về cho ví
-    walletReturnUrl: `${process.env.FRONTEND_URL}/profile?tab=wallet`,
+    walletReturnUrl: `${process.env.FRONTEND_URL}/profile`,
     walletNotifyUrl: `${process.env.NGROK_URL}/v1/wallet/deposit/vnpay/callback`,
 
     testMode: process.env.VNPAY_TEST_MODE === "true",
@@ -41,7 +41,7 @@ module.exports = {
     notifyUrl: `${process.env.NGROK_URL}/v1/payment/momo/ipn`,
 
     // Trả về cho ví
-    walletReturnUrl: `${process.env.FRONTEND_URL}/profile?tab=wallet`,
+    walletReturnUrl: `${process.env.FRONTEND_URL}/profile`,
     walletNotifyUrl: `${process.env.NGROK_URL}/v1/wallet/deposit/momo/ipn`,
 
     requestType: "payWithMethod",
@@ -61,6 +61,6 @@ module.exports = {
 
     // Trả về cho ví
     walletCallbackUrl: `${process.env.NGROK_URL}/v1/wallet/deposit/zalopay/ipn`,
-    walletReturnUrl: `${process.env.FRONTEND_URL}/profile?tab=wallet`,
+    walletReturnUrl: `${process.env.FRONTEND_URL}/profile`,
   },
 };
