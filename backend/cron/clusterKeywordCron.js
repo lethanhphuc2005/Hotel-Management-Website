@@ -19,5 +19,5 @@ function runScript() {
 cron.schedule("0 2 * * *", runScript);
 
 // 👉 Gọi ngay để test
-runScript();
+// runScript();
 
