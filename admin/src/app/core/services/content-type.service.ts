@@ -3,31 +3,30 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ContentType, ContentTypeResponse } from '../../types/content-type';
-
-
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContentTypeService {
-  private apiUrl = 'http://127.0.0.1:8000/v1/content-type';
+  private readonly baseUrl = `${environment.apiUrl}/content-type`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<ContentTypeResponse> {
-    return this.http.get<ContentTypeResponse>(this.apiUrl);
+    return this.http.get<ContentTypeResponse>(this.baseUrl);
   }
 
 
   create(data: any) {
-    return this.http.post(this.apiUrl, data);
+    return this.http.post(this.baseUrl, data);
   }
 
   update(id: string, data: any) {
-    return this.http.put(`${this.apiUrl}/${id}`, data);
+    return this.http.put(`${this.baseUrl}/${id}`, data);
   }
 
   delete(id: string) {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 }

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentMethod } from '../../types/payment-method';
+import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
   providedIn: 'root',
 })
 export class PaymentMethodService {
-  private baseUrl = 'http://localhost:8000/v1/payment-method';
+  private readonly baseUrl = `${environment.apiUrl}/payment-method`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 

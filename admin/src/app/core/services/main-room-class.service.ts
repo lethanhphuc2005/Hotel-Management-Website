@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MainRoomClass } from '../../types/main-room-class';
+import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
   providedIn: 'root'
 })
 export class MainRoomClassService {
-  private url = 'http://127.0.0.1:8000/v1';
+  private readonly baseUrl = `${environment.apiUrl}/main-room-class`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private httpClient: HttpClient) { }
 
@@ -24,36 +25,34 @@ getAllMainRoomClasses(
   }
 
   return this.httpClient.get<{ message: string, data: MainRoomClass[] }>(
-    `${this.url}/main-room-class`,
+    `${this.baseUrl}`,
     { params }
   );
 }
 
-
-
   getMainRoomClassById(id: string): Observable<{ message: string, data: MainRoomClass }> {
     return this.httpClient.get<{ message: string, data: MainRoomClass }>(
-      `${this.url}/main-room-class/${id}`
+      `${this.baseUrl}/${id}`
     );
   }
   addMainRoomClass(data: any): Observable<any> {
     return this.httpClient.post(
-      `${this.url}/main-room-class`,
+      `${this.baseUrl}`,
       data
     );
   }
   toggleMainRoomClassStatus(id: string, body: { status: boolean }): Observable<any> {
-    return this.httpClient.put(`${this.url}/main-room-class/toggle/${id}`, body);
+    return this.httpClient.put(`${this.baseUrl}/toggle/${id}`, body);
   }
   // sửa
   updateMainRoomClass(id: string, data: any): Observable<any> {
-    return this.httpClient.put(`${this.url}/main-room-class/${id}`, data);
+    return this.httpClient.put(`${this.baseUrl}/${id}`, data);
   }
   uploadImage(mainRoomClassId: string, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('image', file);
     return this.httpClient.post(
-      `${this.url}/main-room-class/${mainRoomClassId}/image`,
+      `${this.baseUrl}/${mainRoomClassId}/image`,
       formData
     );
   }

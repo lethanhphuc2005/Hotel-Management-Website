@@ -2,18 +2,19 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Room } from '../../types/room';
+import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoomService {
-  private apiUrl = 'http://127.0.0.1:8000/v1';
+  private readonly baseUrl = `${environment.apiUrl}/room`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 
   // Lấy tất cả phòng (không lọc)
   getAllRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiUrl}/room`);
+    return this.http.get<Room[]>(`${this.baseUrl}`);
   }
 
   // Lọc phòng (trống, trạng thái, loại phòng, tìm kiếm, phân trang...)
@@ -35,22 +36,22 @@ export class RoomService {
       }
     });
 
-    return this.http.get<any>(`${this.apiUrl}/room`, { params: httpParams });
+    return this.http.get<any>(`${this.baseUrl}`, { params: httpParams });
   }
 
   getBookingCalendar(roomId: string, year: number, month: number) {
-    return this.http.get<any>(`${this.apiUrl}/room/booking-calendar`, {
+    return this.http.get<any>(`${this.baseUrl}/booking-calendar`, {
       params: { room_id: roomId, year, month },
     });
   }
 
   // Thêm phòng
   addRoom(roomData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/room`, roomData);
+    return this.http.post(`${this.baseUrl}`, roomData);
   }
 
   // Cập nhật phòng
   updateRoom(id: string, roomData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/room/${id}`, roomData);
+    return this.http.put(`${this.baseUrl}/${id}`, roomData);
   }
 }

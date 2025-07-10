@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private url = `http://127.0.0.1:8000/v1`;
+  private readonly baseUrl = environment.apiUrl; // Lấy URL từ file cấu hình môi trường
 
   constructor(private httpClient: HttpClient) {}
 
@@ -14,8 +15,8 @@ export class AuthService {
    * @param body Dữ liệu đăng nhập (name và password)
    */
   login(body: any) {
-    console.log(this.httpClient.post(`${this.url}/auth/login`, body))
-    return this.httpClient.post(`${this.url}/auth/login`, body);
+    console.log(this.httpClient.post(`${this.baseUrl}/auth/login`, body))
+    return this.httpClient.post(`${this.baseUrl}/auth/login`, body);
 
   }
 
@@ -24,7 +25,7 @@ export class AuthService {
    * @param body Dữ liệu đăng ký
    */
   register(body: any) {
-    return this.httpClient.post(`${this.url}/auth/register`, body);
+    return this.httpClient.post(`${this.baseUrl}/auth/register`, body);
   }
 
   /**
@@ -67,7 +68,7 @@ export class AuthService {
 
    // Đăng xuất người dùng
     logout() {
-      this.httpClient.post(`${this.url}/account/logout`, {}, { withCredentials: true })
+      this.httpClient.post(`${this.baseUrl}/account/logout`, {}, { withCredentials: true })
         .subscribe({
           next: (res) => {
             console.log('Đăng xuất backend:', res);

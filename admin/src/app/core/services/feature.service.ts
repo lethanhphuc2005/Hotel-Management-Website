@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Feature } from '../../types/feature';
+import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
   providedIn: 'root'
 })
 export class FeatureService {
-  private url = 'http://127.0.0.1:8000/v1/feature';
+  private readonly baseUrl = `${environment.apiUrl}/feature`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 
@@ -31,32 +32,32 @@ export class FeatureService {
       params = params.set('status', status.toString());
     }
 
-    return this.http.get<{ message: string; data: Feature[] }>(this.url, { params });
+    return this.http.get<{ message: string; data: Feature[] }>(this.baseUrl, { params });
   }
 
   // Lấy tiện nghi theo ID
   getFeatureById(id: string): Observable<{ message: string; data: Feature }> {
-    return this.http.get<{ message: string; data: Feature }>(`${this.url}/${id}`);
+    return this.http.get<{ message: string; data: Feature }>(`${this.baseUrl}/${id}`);
   }
 
   // Tạo tiện nghi mới (dùng FormData)
   createFeature(formData: FormData): Observable<any> {
-    return this.http.post(`${this.url}`, formData);
+    return this.http.post(`${this.baseUrl}`, formData);
   }
 
   // Cập nhật tiện nghi (dùng FormData)
   updateFeature(id: string, formData: FormData): Observable<any> {
-    return this.http.put(`${this.url}/${id}`, formData);
+    return this.http.put(`${this.baseUrl}/${id}`, formData);
   }
 
   // Cập nhật trạng thái (kích hoạt / vô hiệu hóa)
  updateStatus(id: string, newStatus: boolean): Observable<any> {
-  return this.http.put(`${this.url}/status/${id}`, { status: newStatus });
+  return this.http.put(`${this.baseUrl}/status/${id}`, { status: newStatus });
 }
 
 
   // Xóa tiện nghi
   deleteFeature(id: string): Observable<any> {
-    return this.http.delete(`${this.url}/${id}`);
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 }

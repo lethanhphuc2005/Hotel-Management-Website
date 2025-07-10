@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ export class BookingService {
   getAllBookingMethods() {
     throw new Error('Method not implemented.');
   }
-  private baseUrl = 'http://127.0.0.1:8000/v1/booking';
+
+  private readonly baseUrl = `${environment.apiUrl}/booking`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 

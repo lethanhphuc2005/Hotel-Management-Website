@@ -9,6 +9,9 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, EMPTY } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+
+const baseUrl = environment.apiUrl;
 
 export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
@@ -16,7 +19,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<any>> => {
   const isAuthApi =
     req.url.includes('/auth/login') || req.url.includes('/auth/register');
-  const isProtectedAPI = req.url.includes('/v1/') && !isAuthApi;
+  const isProtectedAPI = req.url.includes('/api/') && !isAuthApi;
 
   const http = inject(HttpClient);
 
@@ -34,8 +37,6 @@ export const AuthInterceptor: HttpInterceptorFn = (
 
   const accessToken = loginData?.data?.accessToken;
   const refreshToken = loginData?.data?.refreshToken;
-  console.log('Access Token:', accessToken);
-  console.log('Refresh Token:', refreshToken);
   if (isProtectedAPI && !accessToken) {
     location.assign('/login');
     return EMPTY;
@@ -55,7 +56,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
       // 👉 Nếu token hết hạn, thử refresh
       if (err.status === 403 && isProtectedAPI && refreshToken) {
         return http
-          .post('http://127.0.0.1:8000/v1/account/refresh', {
+          .post(`${baseUrl}/account/refresh`, {
             refreshToken,
           })
           .pipe(
@@ -64,16 +65,11 @@ export const AuthInterceptor: HttpInterceptorFn = (
               const newRefreshToken = res.data.refreshToken;
 
               const updatedLoginData = {
-                ...loginData,
-                data: {
-                  ...loginData.data,
-                  accessToken: newAccessToken,
-                  refreshToken: newRefreshToken,
-                },
+                ...loginData.data,
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
               };
-
               localStorage.setItem('login', JSON.stringify(updatedLoginData));
-              console.log('Lưu localStorage thành công');
               // 👉 Gửi lại request với token mới
               const retryReq = req.clone({
                 setHeaders: {

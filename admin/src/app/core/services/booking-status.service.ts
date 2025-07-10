@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({ providedIn: 'root' })
 export class BookingStatusService {
-  private baseUrl = 'http://localhost:8000/v1/booking-status';
+  private readonly baseUrl = `${environment.apiUrl}/booking-status`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 
