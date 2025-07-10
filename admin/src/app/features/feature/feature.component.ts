@@ -101,7 +101,7 @@ export class FeatureComponent implements OnInit {
       formData.append('image', this.editFeature.image);
     }
 
-    this.featureService.updateFeature(this.editFeature._id, formData).subscribe({
+    this.featureService.updateFeature(this.editFeature.id, formData).subscribe({
       next: () => {
         this.getAllFeatures();
         this.isEditPopupOpen = false;
@@ -116,7 +116,7 @@ export class FeatureComponent implements OnInit {
   }
 
   toggleFeatureStatus(feature: Feature) {
-    this.featureService.updateStatus(feature._id, !feature.status).subscribe({
+    this.featureService.updateStatus(feature.id, !feature.status).subscribe({
       next: () => feature.status = !feature.status,
       error: err => alert(err.error.message || '❌ Không thể cập nhật trạng thái.')
     });
@@ -124,7 +124,7 @@ export class FeatureComponent implements OnInit {
   onFileSelected(){}
   onDelete(feature: Feature) {
     if (confirm(`Bạn có chắc chắn muốn xoá tiện nghi "${feature.name}"?`)) {
-      this.featureService.deleteFeature(feature._id).subscribe({
+      this.featureService.deleteFeature(feature.id).subscribe({
         next: () => this.getAllFeatures(),
         error: err => alert(err.error.message || '❌ Không thể xoá tiện nghi.')
       });

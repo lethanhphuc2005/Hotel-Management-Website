@@ -39,11 +39,9 @@ export class PaymentComponent implements OnInit {
   filteredPayments(): Payment[] {
     if (!this.searchKeyword.trim()) return this.payments;
     const keyword = this.searchKeyword.toLowerCase();
-    return this.payments.filter((p) => {
-      const name = p.booking[0]?.full_name?.toLowerCase() || '';
-      const phone = p.booking[0]?.phone_number?.toLowerCase() || '';
-      return name.includes(keyword) || phone.includes(keyword);
-    });
+    return this.payments.filter(payment =>
+      payment.status.toString().toLowerCase().includes(keyword)
+    );
   }
 
   onSearch(): void {

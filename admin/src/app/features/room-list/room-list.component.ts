@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Room } from '../../types/room';
-import { Status } from '../../types/status';
 import { RoomService } from '../../core/services/room.service';
 import { StatusService } from '../../core/services/status.service';
 import { RoomStatusService } from '../../core/services/room-status.service';
@@ -29,7 +28,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 export class RoomListComponent implements OnInit {
   rooms!: Room[];
   selectedRoom: any;
-  statuses: Status[] = [];
+  statuses: any[] = [];
   showAddPopup!: boolean;
   showDetailPopup = false;
   roomStatusList: any[] = [];

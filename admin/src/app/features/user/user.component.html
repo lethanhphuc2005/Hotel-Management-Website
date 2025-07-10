@@ -19,7 +19,7 @@
 
       <div class="popup-section">
         <label>Full Name:</label>
-        <span>{{ selectedUser.fullName }}</span>
+        <span>{{ selectedUser.first_name }}</span>
       </div>
       <div class="popup-section">
         <label>Email:</label>
@@ -27,7 +27,7 @@
       </div>
       <div class="popup-section">
         <label>Phone Number:</label>
-        <span>{{ selectedUser.phoneNumber }}</span>
+        <span>{{ selectedUser.phone_number }}</span>
       </div>
       <div class="popup-section">
         <label>Address:</label>
@@ -35,12 +35,12 @@
       </div>
       <div class="popup-section">
         <label>Request:</label>
-        <span>{{ selectedUser.requestNote || '—' }}</span>
+        <span>{{ selectedUser.request || '—' }}</span>
       </div>
       <div class="popup-section">
         <label>Status:</label>
-        <span [class.active]="selectedUser.isActive" [class.inactive]="!selectedUser.isActive">
-          {{ selectedUser.isActive ? 'Active' : 'Inactive' }}
+        <span [class.active]="selectedUser.status" [class.inactive]="!selectedUser.status">
+          {{ selectedUser.status ? 'Active' : 'Inactive' }}
         </span>
       </div>
 
@@ -51,14 +51,14 @@
   <!-- Table Body -->
   <div *ngFor="let user of users; let i = index" class="table-row">
     <div>{{ i + 1 }}</div>
-    <div (click)="onViewUserDetail(user)" class="clickable-name">{{ user.fullName }}</div>
+    <div (click)="onViewUserDetail(user)" class="clickable-name">{{ user.first_name }}</div>
     <div>{{ user.email }}</div>
-    <div>{{ user.phoneNumber }}</div>
+    <div>{{ user.phone_number }}</div>
     <div>{{ user.address }}</div>
-    <div>{{ user.requestNote || '—' }}</div>
+    <div>{{ user.request || '—' }}</div>
     <div class="status-toggle">
       <label class="switch">
-        <input type="checkbox" [checked]="user.isActive" (click)="onToggleUserStatus($event, user)" />
+        <input type="checkbox" [checked]="user.status" (click)="onToggleUserStatus($event, user)" />
         <span class="slider"></span>
       </label>
     </div>

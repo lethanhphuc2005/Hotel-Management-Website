@@ -11,5 +11,13 @@ export class ToastService {
   show(title: string, message: string, type: 'success' | 'error' = 'success') {
     this._show(title, message, type);
   }
+
+  success(title: string, message: string) {
+    this.show(title, message, 'success');
+  }
+
+  error(title: string, message: string) {
+    this.show(title, message, 'error');
+  }
 }
 

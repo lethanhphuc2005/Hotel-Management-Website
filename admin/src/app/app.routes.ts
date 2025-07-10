@@ -13,7 +13,7 @@ import { CommentComponent } from './features/comment/comment.component';
 import { CommentItemComponent } from './features/comment/comment-item/comment-item.component';
 import { ContentTypeComponent } from './features/content-type/content-type.component';
 import { ServiceComponent } from './features/service/service.component';
-import { DiscountComponent } from './features/discount/discount.component';
+// import { DiscountComponent } from './features/discount/discount.component';
 import { EmployeeComponent } from './features/employee/employee.component';
 import { BookingComponent } from './features/booking/booking.component';
 import { BookingMethodComponent } from './features/booking-method/booking-method.component';
@@ -47,7 +47,7 @@ export const routes: Routes = [
           { path: 'booking-method', component: BookingMethodComponent },
           { path: 'booking-status', component: BookingStatusComponent },
           { path: 'service', component: ServiceComponent },
-          { path: 'discount', component: DiscountComponent },
+          // { path: 'discount', component: DiscountComponent },
           { path: 'employee', component: EmployeeComponent },
           { path: 'review', component: ReviewComponent },
           { path: 'feature', component: FeatureComponent },

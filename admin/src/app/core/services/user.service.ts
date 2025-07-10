@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { UserRaw } from '../../types/user';
+import { User } from '../../types/user';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({ providedIn: 'root' })
@@ -10,8 +10,8 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  getAllUsers(): Observable<UserRaw[]> {
-    return this.http.get<UserRaw[]>(`${this.baseUrl}`);
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}`);
   }
 
 

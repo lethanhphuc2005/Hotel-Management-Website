@@ -5,7 +5,12 @@ export interface ContentType {
   name: string;
   description: string;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
   website_content_list?: WebsiteContent[];
+}
+
+export interface ContentTypeResponse {
+  message: string;
+  data: ContentType[];
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PaymentMethod } from '../../types/payment-method';
+import { PaymentMethod } from '../../types/method';
 import { PaymentMethodService } from '../../core/services/payment-method.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +31,7 @@ export class PaymentMethodComponent implements OnInit {
   // Sửa
   isEditPopupOpen = false;
   editPaymentMethod: Partial<PaymentMethod> = {
-    _id: '',
+    id: '',
     name: '',
     status: true,
   };
@@ -89,9 +89,9 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   onEditSubmit(): void {
-    if (this.editPaymentMethod._id) {
+    if (this.editPaymentMethod.id) {
       this.paymentService
-        .update(this.editPaymentMethod._id, this.editPaymentMethod)
+        .update(this.editPaymentMethod.id, this.editPaymentMethod)
         .subscribe({
           next: () => {
             this.loadData();
@@ -103,7 +103,7 @@ export class PaymentMethodComponent implements OnInit {
 
   toggleStatus(method: PaymentMethod): void {
     this.paymentService
-      .update(method._id, { status: !method.status })
+      .update(method.id, { status: !method.status })
       .subscribe(() => this.loadData());
   }
 }

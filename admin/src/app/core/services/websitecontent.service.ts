@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { IContent } from '../../types/website-content';
+import { WebsiteContent } from '../../types/website-content';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
@@ -13,18 +13,18 @@ export class WebsiteContentService {
 
   constructor(private http: HttpClient) { }
 
-  getAllContents(): Observable<IContent[]> {
-    return this.http.get<{ data: IContent[] }>(this.baseUrl).pipe(
+  getAllContents(): Observable<WebsiteContent[]> {
+    return this.http.get<{ data: WebsiteContent[] }>(this.baseUrl).pipe(
       map(res => res.data)
     );
   }
 
-  getContentById(id: string): Observable<IContent> {
-    return this.http.get<IContent>(`${this.baseUrl}/${id}`);
+  getContentById(id: string): Observable<WebsiteContent> {
+    return this.http.get<WebsiteContent>(`${this.baseUrl}/${id}`);
   }
 
-  updateContent(id: string, formData: FormData): Observable<IContent> {
-    return this.http.put<IContent>(`${this.baseUrl}/${id}`, formData);
+  updateContent(id: string, formData: FormData): Observable<WebsiteContent> {
+    return this.http.put<WebsiteContent>(`${this.baseUrl}/${id}`, formData);
   }
 
   onDelete(id: string): Observable<any> {
@@ -32,7 +32,7 @@ export class WebsiteContentService {
   }
 
   createContent(formData: FormData) {
-    return this.http.post<IContent>(this.baseUrl, formData);
+    return this.http.post<WebsiteContent>(this.baseUrl, formData);
   }
 
 

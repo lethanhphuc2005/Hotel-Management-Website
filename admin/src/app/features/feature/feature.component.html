@@ -101,7 +101,7 @@
     <div>
       <ul class="room-children-list">
         <li *ngFor="let item of feature.room_class_used_list">
-          {{ item.room_class_id?.name || '(chưa gán)' }}
+          {{ item.name || '(chưa gán)' }}
         </li>
       </ul>
     </div>
@@ -148,7 +148,7 @@
         <label>Loại phòng sử dụng:</label>
         <ul>
           <li *ngFor="let item of selectedFeature.room_class_used_list">
-            {{ item.room_class_id?.name || '(chưa gán)' }}
+            {{ item.name || '(chưa gán)' }}
           </li>
         </ul>
       </div>

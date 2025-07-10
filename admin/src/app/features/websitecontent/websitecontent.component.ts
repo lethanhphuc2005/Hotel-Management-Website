@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { WebsiteContentService } from '../../core/services/websitecontent.service';
-import { IContent } from '../../types/website-content';
+import { WebsiteContent } from '../../types/website-content';
 import { ContentTypeService } from '../../core/services/content-type.service';
 import { ContentType } from '../../types/content-type';
 
@@ -17,7 +17,7 @@ import { ContentType } from '../../types/content-type';
   imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
 })
 export class WebsitecontentComponent implements OnInit {
-  websiteContents: IContent[] = [];
+  websiteContents: WebsiteContent[] = [];
   contents: any;
   img: any;
   rt: any;
@@ -51,14 +51,14 @@ export class WebsitecontentComponent implements OnInit {
   }
 
 
-  onDelete(content: IContent) {
+  onDelete(content: WebsiteContent) {
     const confirmed = window.confirm(`Bạn có chắc muốn xoá bài viết "${content.title}" không?`);
     if (!confirmed) return;
 
-    this.websitecontentService.onDelete(content._id).subscribe({
+    this.websitecontentService.onDelete(content.id).subscribe({
       next: () => {
         // Xóa thành công, cập nhật lại danh sách local
-        this.websiteContents = this.websiteContents.filter(c => c._id !== content._id);
+        this.websiteContents = this.websiteContents.filter(c => c.id !== content.id);
         alert('Xóa bài viết thành công!');
       },
       error: (err) => {
@@ -70,7 +70,7 @@ export class WebsitecontentComponent implements OnInit {
 
 getContentTypeName(typeId: string): string {
   if (!Array.isArray(this.contentTypes)) return 'Không rõ';
-  const type = this.contentTypes.find(t => t._id === typeId);
+  const type = this.contentTypes.find(t => t.id === typeId);
   return type ? type.name : 'Không rõ';
 }
 
@@ -78,9 +78,9 @@ getContentTypeName(typeId: string): string {
 
   // popup xem
   isDetailPopupOpen: boolean = false;
-  selectedContent!: IContent;
+  selectedContent!: WebsiteContent;
 
-  onViewDetail(content: IContent) {
+  onViewDetail(content: WebsiteContent) {
     this.selectedContent = content;
     this.isDetailPopupOpen = true;
   }
@@ -88,7 +88,7 @@ getContentTypeName(typeId: string): string {
 
   onSearch() {
     const keyword = this.searchKeyword.trim().toLowerCase();
-    this.filteredContents = this.websiteContents.filter((content: IContent) =>
+    this.filteredContents = this.websiteContents.filter((content: WebsiteContent) =>
       (content.title || '').toLowerCase().includes(keyword)
     );
   }

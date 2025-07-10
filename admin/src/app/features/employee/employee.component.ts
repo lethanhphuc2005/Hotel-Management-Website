@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../core/services/employee.service';
-import { Employee } from '../../types/comment';
+import { Employee } from '../../types/employee';
 
 @Component({
   selector: 'app-employee',
@@ -27,93 +27,95 @@ export class EmployeeComponent implements OnInit {
   passwordData = {
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   };
   selectedEmployeeForPassword: any = null;
 
   constructor(private employeeService: EmployeeService) {}
-onSearch(): void {
-  const keyword = this.searchKeyword.trim().toLowerCase();
+  onSearch(): void {
+    const keyword = this.searchKeyword.trim().toLowerCase();
 
-  if (!keyword) {
-    this.filteredEmployeeList = [...this.employeeList];
-  } else {
-    this.filteredEmployeeList = this.employeeList.filter(emp => {
-      const fullName = `${emp.first_name ?? ''} ${emp.last_name ?? ''}`.toLowerCase();
-      const position = emp.position?.toLowerCase() ?? '';
-      const department = emp.department?.toLowerCase() ?? '';
-      const email = emp.email?.toLowerCase() ?? '';
+    if (!keyword) {
+      this.filteredEmployeeList = [...this.employeeList];
+    } else {
+      this.filteredEmployeeList = this.employeeList.filter((emp) => {
+        const fullName = `${emp.first_name ?? ''} ${
+          emp.last_name ?? ''
+        }`.toLowerCase();
+        const position = emp.position?.toLowerCase() ?? '';
+        const department = emp.department?.toLowerCase() ?? '';
+        const email = emp.email?.toLowerCase() ?? '';
 
-      return (
-        fullName.includes(keyword) ||
-        position.includes(keyword) ||
-        department.includes(keyword) ||
-        email.includes(keyword)
-      );
-    });
-  }
-}
-
-onChangePassword(employee: any): void {
-  this.selectedEmployeeForPassword = employee;
-  this.passwordData = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  };
-  this.isChangePasswordPopupOpen = true;
-}
-onChangePasswordSubmit(): void {
-  if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-    alert('Mật khẩu mới không khớp!');
-    return;
-  }
-
-  this.employeeService.changePassword(this.selectedEmployeeForPassword._id, {
-    oldPassword: this.passwordData.currentPassword,
-    newPassword: this.passwordData.newPassword
-  }).subscribe({
-    next: () => {
-      this.isChangePasswordPopupOpen = false;
-      alert('Đổi mật khẩu thành công!');
-    },
-    error: err => {
-      console.error('Lỗi đổi mật khẩu:', err);
-      alert('Đổi mật khẩu thất bại!');
+        return (
+          fullName.includes(keyword) ||
+          position.includes(keyword) ||
+          department.includes(keyword) ||
+          email.includes(keyword)
+        );
+      });
     }
-  });
-}
-onOpenChangePasswordPopup(employee: any): void {
-  this.selectedEmployeeForPassword = employee;
-  this.passwordData = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  };
-  this.isChangePasswordPopupOpen = true;
-}
+  }
 
+  onChangePassword(employee: any): void {
+    this.selectedEmployeeForPassword = employee;
+    this.passwordData = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    };
+    this.isChangePasswordPopupOpen = true;
+  }
+  onChangePasswordSubmit(): void {
+    if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
+      alert('Mật khẩu mới không khớp!');
+      return;
+    }
+
+    this.employeeService
+      .changePassword(this.selectedEmployeeForPassword._id, {
+        oldPassword: this.passwordData.currentPassword,
+        newPassword: this.passwordData.newPassword,
+      })
+      .subscribe({
+        next: () => {
+          this.isChangePasswordPopupOpen = false;
+          alert('Đổi mật khẩu thành công!');
+        },
+        error: (err) => {
+          console.error('Lỗi đổi mật khẩu:', err);
+          alert('Đổi mật khẩu thất bại!');
+        },
+      });
+  }
+  onOpenChangePasswordPopup(employee: any): void {
+    this.selectedEmployeeForPassword = employee;
+    this.passwordData = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    };
+    this.isChangePasswordPopupOpen = true;
+  }
 
   ngOnInit(): void {
     this.loadEmployeeList();
   }
-  initEmptyEmployee(): Employee {
+  initEmptyEmployee(): any {
     return {
-  first_name: '',
-  last_name: '',
-  position: '',
-  department: '',
-  address: '',
-  email: '',
-  phone_number: '',
-  role: 'staff',
-  status: true,
-  _id: '',
-
-};
+      first_name: '',
+      last_name: '',
+      position: '',
+      department: '',
+      address: '',
+      email: '',
+      phone_number: '',
+      role: 'staff',
+      status: true,
+      id: '',
+    };
   }
   loadEmployeeList(): void {
-    this.employeeService.getAllEmployees().subscribe(res => {
+    this.employeeService.getAllEmployees().subscribe((res) => {
       this.employeeList = res.data;
       this.filteredEmployeeList = [...this.employeeList];
     });
@@ -139,13 +141,15 @@ onOpenChangePasswordPopup(employee: any): void {
   }
 
   onEditSubmit(): void {
-    this.employeeService.updateEmployee(this.editEmployee._id, this.editEmployee).subscribe({
-      next: () => {
-        this.isEditPopupOpen = false;
-        this.loadEmployeeList();
-      },
-      error: (err) => console.error('Lỗi cập nhật:', err),
-    });
+    this.employeeService
+      .updateEmployee(this.editEmployee._id, this.editEmployee)
+      .subscribe({
+        next: () => {
+          this.isEditPopupOpen = false;
+          this.loadEmployeeList();
+        },
+        error: (err) => console.error('Lỗi cập nhật:', err),
+      });
   }
 
   onViewDetail(employee: any): void {
@@ -161,6 +165,4 @@ onOpenChangePasswordPopup(employee: any): void {
       error: (err) => console.error('Lỗi đổi trạng thái:', err),
     });
   }
-
-
 }

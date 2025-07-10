@@ -14,8 +14,8 @@ export interface Discount {
   can_be_stacked: boolean;
   priority: number;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export interface DiscountCondition {

@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Status } from '../../types/status';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
@@ -13,8 +12,8 @@ export class StatusService {
 
   constructor(private http: HttpClient) {}
 
-  getAllStatus(): Observable<Status[]> {
-    return this.http.get<Status[]>(this.baseUrl);
+  getAllStatus(): Observable<[]> {
+    return this.http.get<[]>(this.baseUrl);
   }
 
 }

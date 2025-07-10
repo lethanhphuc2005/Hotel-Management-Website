@@ -31,8 +31,8 @@ export interface Booking {
   cancel_date?: Date;
   cancel_reason?: string;
   cancellation_fee?: number;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
   booking_status: BookingStatus[];
   booking_method: BookingMethod[];
   user?: User[];

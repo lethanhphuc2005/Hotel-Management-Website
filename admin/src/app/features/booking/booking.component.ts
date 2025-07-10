@@ -16,7 +16,7 @@ import { Booking } from '../../types/booking';
 import { BookingStatusService } from '../../core/services/booking-status.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { UserService } from '../../core/services/user.service';
-import { UserRaw } from '../../types/user';
+import { User } from '../../types/user';
 
 @Component({
   selector: 'app-booking',
@@ -74,7 +74,7 @@ export class BookingComponent implements OnInit {
 
     this.userService.getUserById(userId).subscribe({
       next: (res) => {
-        const user = res as UserRaw;
+        const user = res as User;
         const fullName = `${user.first_name} ${user.last_name}`;
         this.userNameMap[userId] = fullName; // <-- cần thêm dòng này
       },
@@ -109,7 +109,7 @@ export class BookingComponent implements OnInit {
         this.bookingStatusMap = {};
 
         for (let status of statuses) {
-          this.bookingStatusMap[status._id] = status.name;
+          this.bookingStatusMap[status.id] = status.name;
         }
       },
       error: (err) => {
@@ -130,7 +130,7 @@ export class BookingComponent implements OnInit {
 
   //   this.bookings = this.allBookings.filter((booking: any) => {
   //     const user = booking.user || {};
-  //     const room = booking.room_id || {};
+  //     const room = booking.roomid || {};
   //     const request = (booking as any)?.request?.toLowerCase() || '';
 
   //     const fullName = `${user.last_name || ''} ${user.first_name || ''}`.toLowerCase();
@@ -145,7 +145,7 @@ export class BookingComponent implements OnInit {
   //       roomName.includes(keyword) ||
   //       request.includes(keyword);
 
-  //     const bookingStatusId = booking.booking_status?.[0]?._id;
+  //     const bookingStatusId = booking.booking_status?.[0]?.id;
   //     const matchStatus = this.filter.status ? bookingStatusId === this.filter.status : true;
 
   //     return matchKeyword && matchStatus;
@@ -157,7 +157,7 @@ export class BookingComponent implements OnInit {
     this.bookings = this.allBookings.filter((booking: any) => {
       const fullName = (booking.full_name || '').toLowerCase();
       const matchStatus = this.filter.status
-        ? booking.booking_status?.[0]?._id === this.filter.status
+        ? booking.booking_status?.[0]?.id === this.filter.status
         : true;
 
       return fullName.includes(keyword) && matchStatus;
@@ -193,10 +193,10 @@ export class BookingComponent implements OnInit {
         ? room.floor === +this.selectedFloor
         : true;
       const matchStatus = this.selectedStatus
-        ? room.room_status_id?._id === this.selectedStatus
+        ? room.room_statusid?.id === this.selectedStatus
         : true;
       const matchRoomClass = this.selectedRoomClass
-        ? room.room_class_id?._id === this.selectedRoomClass
+        ? room.room_classid?.id === this.selectedRoomClass
         : true;
       return matchFloor && matchStatus && matchRoomClass;
     });

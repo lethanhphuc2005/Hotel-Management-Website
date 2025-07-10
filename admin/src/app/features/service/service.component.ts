@@ -18,8 +18,8 @@ export class ServiceComponent implements OnInit {
   isAddPopupOpen = false;
   isEditPopupOpen = false;
   isDetailPopupOpen = false;
-  newService: Service = { name: '', price: 0, description: '', status: true };
-  editService: Service = { name: '', price: 0, description: '', status: true };
+  newService: any = { name: '', price: 0, description: '', status: true };
+  editService: any = { name: '', price: 0, description: '', status: true };
   selectedService!: Service;
   selectedFile: File | null = null;
   editSelectedFile: File | null = null;
@@ -103,14 +103,14 @@ getServices() {
       formData.append('image', this.editSelectedFile);
     }
 
-    this.serviceService.updateService(this.editService._id!, formData).subscribe(() => {
+    this.serviceService.updateService(this.editService.id!, formData).subscribe(() => {
       this.getServices();
       this.isEditPopupOpen = false;
     });
   }
 
   toggleService(sv: Service) {
-    this.serviceService.toggleStatus(sv._id!).subscribe(() => {
+    this.serviceService.toggleStatus(sv.id!).subscribe(() => {
       sv.status = !sv.status;
     });
   }
