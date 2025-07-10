@@ -2,40 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-require("./cron/clusterKeywordCron");
-
-const roomRouter = require("./routes/room.route");
-const authRouter = require("./routes/auth.route");
-const mainRoomClassRouter = require("./routes/mainRoomClass.route");
-const roomClassRouter = require("./routes/roomClass.route");
-const accountRouter = require("./routes/account.route");
-const userRouter = require("./routes/user.route");
-const websiteContentRouter = require("./routes/websiteContent.route");
-const serviceRouter = require("./routes/service.route");
-const imgroomtypeRouter = require("./routes/image.route");
-const roomStatusRouter = require("./routes/roomStatus.route");
-const bookingStatusRouter = require("./routes/bookingStatus.route");
-const employeeRouter = require("./routes/employee.route");
-const discountRouter = require("./routes/discount.route");
-const contentTypeRouter = require("./routes/contentType.route");
-const featureRouter = require("./routes/feature.route");
-const bookingMethodRouter = require("./routes/bookingMethod.route");
-const paymentMethodRouter = require("./routes/paymentMethod.route");
-const bookingRouter = require("./routes/booking.route");
-const commentRouter = require("./routes/comment.route");
-const reviewRouter = require("./routes/review.route");
-const paymentRouter = require("./routes/payment.route");
-const chatRouter = require("./routes/chat.route");
-const userFavoriteRouter = require("./routes/userFavorite.route");
-const walletRouter = require("./routes/wallet.route");
-const suggestionRouter = require("./routes/suggestion.route");
-const searchLogRouter = require("./routes/searchLog.route");
-const searchClusterRouter = require("./routes/searchCluster.route");
+const path = require("path");
 
 dotenv.config();
+require("./cron/clusterKeywordCron");
 
 const app = express();
-const path = require("path");
 require("./swagger")(app);
 
 // Middleware
@@ -47,42 +19,46 @@ app.use(cors());
 // Kết nối MongoDB
 mongoose
   .connect(process.env.MONGOOSE_URL)
-  .then(() => {
-    console.log("✅ Kết nối MongoDB thành công");
-  })
-  .catch((error) => {
-    console.error("Lỗi kết nối MongoDB:", error);
-  });
+  .then(() => console.log("✅ Kết nối MongoDB thành công"))
+  .catch((error) => console.error("❌ Lỗi kết nối MongoDB:", error));
 
-// Router
-app.use("/v1/auth", authRouter);
-app.use("/v1/room", roomRouter);
-app.use("/v1/main-room-class", mainRoomClassRouter);
-app.use("/v1/room-class", roomClassRouter);
-app.use("/v1/user", userRouter);
-app.use("/v1/account", accountRouter);
-app.use("/v1/website-content", websiteContentRouter);
-app.use("/v1/service", serviceRouter);
-app.use("/v1/image", imgroomtypeRouter);
-app.use("/v1/room-status", roomStatusRouter);
-app.use("/v1/booking-status", bookingStatusRouter);
-app.use("/v1/employee", employeeRouter);
-app.use("/v1/discount", discountRouter);
-app.use("/v1/content-type", contentTypeRouter);
-app.use("/v1/feature", featureRouter);
-app.use("/v1/booking-method", bookingMethodRouter);
-app.use("/v1/payment-method", paymentMethodRouter);
-app.use("/v1/booking", bookingRouter);
-app.use("/v1/comment", commentRouter);
-app.use("/v1/review", reviewRouter);
-app.use("/v1/payment", paymentRouter);
-app.use("/v1/chat", chatRouter);
-app.use("/v1/user-favorite", userFavoriteRouter);
-app.use("/v1/wallet", walletRouter);
-app.use("/v1/suggestion", suggestionRouter);
-app.use("/v1/search-log", searchLogRouter);
-app.use("/v1/search-cluster", searchClusterRouter);
+// Router map
+const routers = [
+  { path: "/auth", module: require("./routes/auth.route") },
+  { path: "/room", module: require("./routes/room.route") },
+  { path: "/main-room-class", module: require("./routes/mainRoomClass.route") },
+  { path: "/room-class", module: require("./routes/roomClass.route") },
+  { path: "/user", module: require("./routes/user.route") },
+  { path: "/account", module: require("./routes/account.route") },
+  { path: "/website-content", module: require("./routes/websiteContent.route") },
+  { path: "/service", module: require("./routes/service.route") },
+  { path: "/image", module: require("./routes/image.route") },
+  { path: "/room-status", module: require("./routes/roomStatus.route") },
+  { path: "/booking-status", module: require("./routes/bookingStatus.route") },
+  { path: "/employee", module: require("./routes/employee.route") },
+  { path: "/discount", module: require("./routes/discount.route") },
+  { path: "/content-type", module: require("./routes/contentType.route") },
+  { path: "/feature", module: require("./routes/feature.route") },
+  { path: "/booking-method", module: require("./routes/bookingMethod.route") },
+  { path: "/payment-method", module: require("./routes/paymentMethod.route") },
+  { path: "/booking", module: require("./routes/booking.route") },
+  { path: "/comment", module: require("./routes/comment.route") },
+  { path: "/review", module: require("./routes/review.route") },
+  { path: "/payment", module: require("./routes/payment.route") },
+  { path: "/chat", module: require("./routes/chat.route") },
+  { path: "/user-favorite", module: require("./routes/userFavorite.route") },
+  { path: "/wallet", module: require("./routes/wallet.route") },
+  { path: "/suggestion", module: require("./routes/suggestion.route") },
+  { path: "/search-log", module: require("./routes/searchLog.route") },
+  { path: "/search-cluster", module: require("./routes/searchCluster.route") },
+];
 
+// Apply all routers with prefix /api/v1
+routers.forEach((r) => {
+  app.use(`/api/v1${r.path}`, r.module);
+});
+
+// Start server
 app.listen(8000, () => {
-  console.log("🚀 Server is running on port 8000");
+  console.log("🚀 Server is running at http://localhost:8000");
 });

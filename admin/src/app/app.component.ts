@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { ToastService } from './services/toast.service';
-import { ToastComponent } from './components/toast/toast.component';
+import { ToastService } from './core/services/toast.service';
+import { TitleService } from './core/services/title.service';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
@@ -15,9 +16,10 @@ export class AppComponent implements OnInit {
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
 
-  constructor(private toastService: ToastService) {}
+  constructor(private toastService: ToastService, private titleService: TitleService) {}
 
   ngOnInit() {
+    this.titleService.init();
     this.toastService.register(this.showCustomToast.bind(this));
   }
 

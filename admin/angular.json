@@ -23,7 +23,7 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/assets/css/bootstrap.min.css",
               "src/assets/css/demo.css",
-            
+
               "src/assets/css/kaiadmin.css",
               "src/assets/css/kaiadmin.min.css",
               "src/assets/css/plugins.css",
@@ -46,7 +46,13 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
