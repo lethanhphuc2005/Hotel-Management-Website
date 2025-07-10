@@ -1,18 +1,27 @@
-import { FeatureMapping } from './feature';
-import { MainRoomClass } from './main-room-class';
+import { Comment } from "./comment";
+import { FeatureRoomClass } from "./feature";
+import { Image } from "./image";
+import { MainRoomClass } from "./main-room-class";
+import { Review } from "./review";
+import { Room } from "./room";
 
 export interface RoomClass {
-  _id: string;
+  id: string;
+  main_room_class_id: string;
   name: string;
   description: string;
-  view: string;
   bed_amount: number;
   capacity: number;
   price: number;
   price_discount: number;
+  view: string;
   status: boolean;
-  main_room_class_id: string;
-  main_room_class?: MainRoomClass[];
-  features?: FeatureMapping[];
-  images?: any[]; // nếu ảnh là mảng object thì bạn có thể tạo interface riêng cho ảnh
+  created_at: Date;
+  updated_at: Date;
+  main_room_class: MainRoomClass[];
+  rooms?: Room[];
+  features?: FeatureRoomClass[];
+  images?: Image[];
+  reviews: Review[];
+  comments: Comment[];
 }

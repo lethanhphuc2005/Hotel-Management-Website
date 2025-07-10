@@ -1,28 +1,17 @@
 import { Booking } from "./booking";
+import { PaymentMethod } from "./method";
 
-interface PaymentMethod {
-  _id: string;
-  name: string;
-  status: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  bookings: Booking[];
-}
 export interface Payment {
-  _id: string;
+  id: string;
   booking_id: string;
-  note?: string;
   amount: number;
   payment_method_id: string;
-  status: 'pending' | 'completed' | 'failed';
-  transaction_id: string;
-  payment_date: string;
-  metadata?: {
-    resultCode: number;
-    message: string;
-  };
-  createdAt: string;
-  updatedAt: string;
+  status: string;
+  transaction_id?: string;
+  payment_date: Date;
+  metadata?: Record<string, any>;
+  created_at: Date;
+  updated_at: Date;
   booking: Booking[];
-  payment_method: PaymentMethod[];
+  payment_method: PaymentMethod
 }

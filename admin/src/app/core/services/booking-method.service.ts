@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookingMethod } from '../../types/booking-method';
+import { BookingMethod } from '../../types/method';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 

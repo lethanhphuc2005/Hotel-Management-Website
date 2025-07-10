@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { IContent } from '../../types/websitecontent';
+import { IContent } from '../../types/website-content';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({

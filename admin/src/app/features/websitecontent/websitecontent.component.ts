@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { WebsiteContentService } from '../../core/services/websitecontent.service';
-import { IContent } from '../../types/websitecontent';
+import { IContent } from '../../types/website-content';
 import { ContentTypeService } from '../../core/services/content-type.service';
 import { ContentType } from '../../types/content-type';
 

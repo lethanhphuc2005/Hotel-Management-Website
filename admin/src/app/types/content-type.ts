@@ -1,18 +1,11 @@
+import { WebsiteContent } from "./website-content";
+
 export interface ContentType {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   status: boolean;
-  updatedAt: string;
-}
-
-export interface ContentTypeResponse {
-  message: string;
-  data: ContentType[];
-  pagination?: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  created_at: Date;
+  updated_at: Date;
+  website_content_list?: WebsiteContent[];
 }

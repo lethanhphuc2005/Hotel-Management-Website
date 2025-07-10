@@ -1,7 +1,9 @@
-export interface RoomClassImage {
-  _id?: string;
+export interface Image {
+  id:string;
   url: string;
-  room_class_id?: string;
-  target: 'main_room_class' | 'room_class';
+  room_class_id: string;
+  target: string;
   status: boolean;
+  created_at: Date;
+  updated_at: Date;
 }

@@ -1,5 +1,9 @@
+import { Booking } from "./booking";
+import { Comment } from "./comment";
+import { Review } from "./review";
+
 export interface Employee {
-  _id: string;
+  id: string;
   first_name: string;
   last_name: string;
   position: string;
@@ -9,5 +13,9 @@ export interface Employee {
   phone_number: string;
   role: string;
   status: boolean;
-  updatedAt?: string; // Có thể không có nếu chưa cập nhật
+  created_at: Date;
+  updated_at: Date;
+  comments: Comment[];
+  reviews: Review[];
+  bookings: Booking[];
 }

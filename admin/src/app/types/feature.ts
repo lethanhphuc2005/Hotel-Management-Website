@@ -1,19 +1,19 @@
+import { RoomClass } from "./room-class";
+
 export interface Feature {
-  _id: string;
+  id: string;
   name: string;
   description: string;
-  status: boolean;
   image: string;
-  room_class_used_list?: FeatureMapping[];
+  icon: string;
+  status: boolean;
+  created_at: Date;
+  updated_at: Date;
+  room_class_used_list: RoomClass[];
 }
 
-export interface FeatureMapping {
-  _id: string;
-  room_class_id?: {
-    _id: string;
-    name: string;
-    description?: string;
-    status: boolean;
-  };
+export interface FeatureRoomClass {
+  id: string;
+  room_class_id: string;
   feature_id: Feature;
 }
