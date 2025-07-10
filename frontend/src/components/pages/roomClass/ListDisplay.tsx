@@ -37,7 +37,7 @@ export default function RoomClassListDisplay({
   numAdults,
   showExtraBedOver6,
 }: RoomClassListDisplayProps) {
-  if (hasSearched && isOverCapacity) {
+  if (hasSearched && isOverCapacity && filteredRoomClass.length > 0) {
     return (
       <div className="alert alert-danger w-100 text-center">
         Số khách bạn chọn vượt quá sức chứa tối đa của các phòng.
@@ -48,7 +48,7 @@ export default function RoomClassListDisplay({
   if (hasSearched && filteredRoomClass.length === 0) {
     return (
       <div className="alert alert-warning w-100 text-center">
-        Không tìm thấy phòng nào phù hợp với số khách bạn chọn.
+        Không tìm thấy phòng nào phù hợp.
       </div>
     );
   }

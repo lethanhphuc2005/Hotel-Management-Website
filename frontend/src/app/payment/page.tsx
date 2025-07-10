@@ -21,6 +21,7 @@ import InformationSection from "@/components/pages/payment/InformationSection";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { fetchPreviewDiscountBookingPrice } from "@/services/DiscountService";
 import getCancelPolicyTimeline from "@/utils/getCancelPolicy";
+import { useSearchParams } from "next/navigation";
 
 export default function PayMent() {
   const { user } = useAuth();
@@ -119,12 +120,25 @@ export default function PayMent() {
     });
   }
 
-  const [name, setName] = useState(
-    user?.last_name + " " + user?.first_name || ""
-  );
-  const [email, setEmail] = useState(user?.email || "");
-  const [phone, setPhone] = useState(user?.phone_number || "");
-  const [request, setRequest] = useState(user?.request);
+  const searchParams = useSearchParams();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [request, setRequest] = useState("");
+
+  useEffect(() => {
+    const fullName =
+      searchParams.get("fullName") ||
+      (user?.last_name && user?.first_name
+        ? `${user.last_name} ${user.first_name}`
+        : "");
+
+    setName(fullName);
+    setEmail(searchParams.get("email") || user?.email || "");
+    setPhone(searchParams.get("phone") || user?.phone_number || "");
+    setRequest(searchParams.get("request") || user?.request || "");
+  }, [searchParams, user]);
 
   const handlePromoCodeChange = async (code: string) => {
     setPromoCode(code);
@@ -311,7 +325,10 @@ export default function PayMent() {
             setRequest={setRequest}
           />
 
-          <InformationSection cancelPolicyTimeline={cancelPolicyTimeline} total_price={finalTotal} />
+          <InformationSection
+            cancelPolicyTimeline={cancelPolicyTimeline}
+            total_price={finalTotal}
+          />
         </div>
 
         {/* Right Column - Room Info & Price */}

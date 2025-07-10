@@ -221,7 +221,6 @@ const DiscountController = {
       const user = await User.findById(req.user.id);
 
       const result = await calculateBookingPrice(bookingInfo, user);
-
       return res.status(200).json({
         message: "Discounts previewed successfully",
         data: result,

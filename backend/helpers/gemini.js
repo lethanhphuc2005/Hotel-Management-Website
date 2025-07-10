@@ -4,16 +4,31 @@ const RoomClass = require("../models/roomClass.model");
 const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 const Room = require("../models/room.model");
-const { Feature } = require("../models/feature.model");
-const Service = require("../models/service.model");
 const SearchLog = require("../models/searchLog.model");
 const removeVietnameseTones = require("../utils/removeVietnameseTones");
+const NodeCache = require("node-cache");
+const geminiCache = new NodeCache({ stdTTL: 3600 }); // TTL 1h
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.0-flash",
-  generationConfig: { temperature: 0, topK: 1, topP: 1, maxOutputTokens: 512 },
-});
+async function getAvailableGeminiModel() {
+  try {
+    // Ưu tiên 2.5-flash (chưa dùng hết quota)
+    const m = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    // Kiểm tra nhẹ bằng generateContent nhỏ
+    await m.generateContent("ping");
+    return m;
+  } catch (err25) {
+    console.warn("⚠️ gemini-2.0-flash failed, fallback to 2.5-flash");
+    try {
+      const m = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      await m.generateContent("ping");
+      return m;
+    } catch (err20) {
+      console.error("❌ Cả 2 model đều lỗi:", err20.message);
+      throw new Error("Cả 2 model đều lỗi hoặc hết quota");
+    }
+  }
+}
 
 const getFilteredRooms = async (filters) => {
   const { check_in_date, check_out_date } = filters;
@@ -92,7 +107,7 @@ const getFilteredRooms = async (filters) => {
 
     // Duyệt booking details, đếm phòng booked theo ngày và loại phòng
     bookingDetails.forEach((detail) => {
-      const roomClassId = detail.room_id.room_class_id.toString();
+      const roomClassId = detail.room_class_id.toString();
       const booking = bookings.find((b) => b._id.equals(detail.booking_id));
       if (!booking) return;
 
@@ -149,28 +164,40 @@ function sanitizeHistory(history) {
 
 function extractFiltersFromPrompt(prompt) {
   const filters = {};
-
-  // Chuẩn hóa prompt về chữ thường
   const text = prompt.toLowerCase();
 
-  // Tìm ngày theo định dạng dd/mm hoặc d/m
-  const dateRegex = /(?:ngày\s*)?(\d{1,2})[\/\-](\d{1,2})/g;
+  const fullDateRegex = /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/g;
+  const shortDateRegex = /(\d{1,2})[\/\-](\d{1,2})/g;
 
-  const matches = [...text.matchAll(dateRegex)];
+  let matchDates = [...text.matchAll(fullDateRegex)];
+  if (matchDates.length >= 1) {
+    const [d1, m1, y1] = matchDates[0].slice(1);
+    const [d2, m2, y2] = (matchDates[1] || matchDates[0]).slice(1);
+    filters.check_in_date = `${d1.padStart(2, "0")}/${m1.padStart(
+      2,
+      "0"
+    )}/${y1}`;
+    filters.check_out_date = `${d2.padStart(2, "0")}/${m2.padStart(
+      2,
+      "0"
+    )}/${y2}`;
+    return filters;
+  }
 
-  if (matches.length >= 1) {
-    const toDateParts = matches[0];
-    const fromDateParts = matches[1] || matches[0]; // nếu chỉ có 1 thì dùng làm cả from và to
-
-    // Chuyển định dạng sang yyyy-mm-dd
-    const formatDate = (d, m) => {
-      const day = d.padStart(2, "0");
-      const month = m.padStart(2, "0");
-      return `2025-${month}-${day}`; // bạn có thể dùng năm động nếu cần
-    };
-
-    filters.check_out_date = formatDate(fromDateParts[1], fromDateParts[2]);
-    filters.check_in_date = formatDate(toDateParts[1], toDateParts[2]);
+  // Nếu không có năm → giả định năm 2025
+  matchDates = [...text.matchAll(shortDateRegex)];
+  if (matchDates.length >= 1) {
+    const [d1, m1] = matchDates[0].slice(1);
+    const [d2, m2] = (matchDates[1] || matchDates[0]).slice(1);
+    const year = "2025";
+    filters.check_in_date = `${d1.padStart(2, "0")}/${m1.padStart(
+      2,
+      "0"
+    )}/${year}`;
+    filters.check_out_date = `${d2.padStart(2, "0")}/${m2.padStart(
+      2,
+      "0"
+    )}/${year}`;
   }
 
   return filters;
@@ -182,10 +209,21 @@ async function sendMessageWithRetry(chat, prompt, retries = 3, delay = 1000) {
       const result = await chat.sendMessage(prompt);
       return result.response.text();
     } catch (err) {
-      if (i < retries - 1 && err.message?.includes("503")) {
-        console.warn(`⚠️ Gemini quá tải, thử lại lần ${i + 2}...`);
+      const isRetryable =
+        err.message?.includes("503") ||
+        err.message?.includes("429") ||
+        err.response?.status === 429 ||
+        err.response?.status === 503;
+
+      if (i < retries - 1 && isRetryable) {
+        console.warn(
+          `⚠️ Gemini quá tải hoặc vượt hạn mức (lần ${
+            i + 2
+          }/${retries}), chờ ${delay}ms...`
+        );
         await new Promise((res) => setTimeout(res, delay));
       } else {
+        console.error("❌ Không thể gửi message tới Gemini:", err.message);
         throw err;
       }
     }
@@ -212,65 +250,178 @@ const generateResponseWithDB = async (req, res) => {
 
   try {
     const filters = extractFiltersFromPrompt(prompt);
-    const rooms = await getFilteredRooms(filters);
+    const allRooms = await getFilteredRooms(filters); // phòng còn trống theo ngày & số người
 
-    // Tạo system prompt thông minh
+    const infoText = history
+      .map((h) => h.parts?.map((p) => p.text || "").join(" "))
+      .join(" ");
+    const hasName = /tên[:\s]+[^\s]+/i.test(infoText);
+    const hasEmail = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(
+      infoText
+    );
+    const hasPhone = /((09|03|07|08|05)+([0-9]{8}))/i.test(infoText);
+    const userInfoStatus =
+      hasName && hasEmail && hasPhone ? "Đầy đủ" : "Thiếu thông tin";
+
+    const confirmationPhrases = [
+      "tôi xác nhận",
+      "tôi đồng ý",
+      "tôi muốn đặt",
+      "xác nhận đặt phòng",
+      "đặt phòng",
+      "ok đặt luôn",
+      "đặt luôn",
+      "yes",
+      "ok",
+      "tôi muốn xác nhận",
+    ];
+    const lastUserInput =
+      history
+        .filter((h) => h.role === "user")
+        .pop()
+        ?.parts?.[0]?.text?.toLowerCase()
+        .trim() || "";
+
+    const normalizeText = (str) =>
+      removeVietnameseTones(str).toLowerCase().trim();
+
+    const isConfirmed = confirmationPhrases.some((phrase) =>
+      normalizeText(lastUserInput).includes(normalizeText(phrase))
+    );
+
+    const nights = Math.ceil(
+      (new Date(filters.check_out_date) - new Date(filters.check_in_date)) /
+        (1000 * 60 * 60 * 24)
+    );
+
     const systemPrompt = `
-      Bạn là trợ lý AI của khách sạn The Moon Hotel.
-      Nhiệm vụ của bạn là tư vấn, giải thích chính sách và gợi ý các phòng phù hợp dựa trên nhu cầu của khách.
+      Bạn là trợ lý AI của khách sạn The Moon Hotel, hỗ trợ khách đặt phòng qua hội thoại từng bước.
 
-      📅 Khoảng thời gian được chọn: Từ ${filters.check_in_date} đến ${
-      filters.check_out_date
+      🎯 MỤC TIÊU:
+      1. Hỏi khách về yêu cầu đặt phòng: ngày check-in, check-out, số người lớn/trẻ em.
+      2. Dựa trên danh sách phòng có sẵn (**không hiển thị toàn bộ**), chọn tối đa 2 loại phòng phù hợp nhất và gợi ý cho khách.
+      3. Nếu khách muốn đặt, kiểm tra xem đã đủ thông tin cá nhân chưa:
+        - Họ tên
+        - Email
+        - Số điện thoại
+      4. Nếu thiếu thông tin, hãy lịch sự hỏi khách bổ sung.
+      5. Khi đã có đủ thông tin, hỏi lại khách xác nhận lần cuối để tiến hành đặt phòng.
+
+      🔒 QUY TẮC XÁC NHẬN:
+      - **CHỈ xác nhận đặt phòng khi khách nói rõ** một trong các ý sau:
+        "tôi xác nhận", "tôi muốn đặt", "xác nhận đặt phòng", "ok đặt luôn", "đặt luôn", "tôi muốn xác nhận", v.v.
+      - **KHÔNG xác nhận** nếu khách chỉ hỏi thông tin như: 
+        "còn loại nào khác?", "chọn phòng này được không?", "có phòng nào phù hợp không?", v.v.
+
+      📅 ĐỊNH DẠNG NGÀY:
+      - Luôn dùng định dạng ngày **dd/mm/yyyy** hoặc **d/m/yyyy**
+      - KHÔNG dùng định dạng thiếu năm (ví dụ: "5/7" hoặc "07-10")
+
+      ---
+
+      📍 Tình trạng hiện tại:
+      - ✅ Danh sách phòng đã lọc theo ngày & còn trống (**không hiển thị ra ngoài**)
+      - ✅ Thông tin cá nhân: ${userInfoStatus}
+      - ✅ Xác nhận đặt phòng: ${isConfirmed ? "Đã xác nhận" : "Chưa xác nhận"}
+
+      📌 Danh sách phòng (để AI chọn, KHÔNG hiển thị lên chat):
+      ${allRooms
+        .map(
+          (r) =>
+            `ID: ${r._id} | Name: ${r.name} | Price: ${r.price} | Capacity: ${r.capacity} | View: ${r.view}`
+        )
+        .join("\n")}
+
+      ---
+
+      💡 Trả về kết quả dưới dạng tự nhiên, dễ hiểu, sau đó luôn đính kèm JSON bên dưới:
+
+      \`\`\`json
+      {
+        "suggested_room_ids": ["id1", "id2"],
+        "booking": {
+          "full_name": "Tên khách",
+          "email": "Email",
+          "phone_number": "SĐT",
+          "check_in_date": "${filters.check_in_date}",
+          "check_out_date": "${filters.check_out_date}",
+          "adult_amount": ${filters.adult_amount || 2},
+          "child_amount": ${filters.child_amount || 0},
+          "original_price": 0,
+          "total_price": 0,
+          "booking_details": [
+            {
+              "room_class_id": "ID đã chọn",
+              "price_per_night": 0,
+              "nights": ${nights},
+              "services": []
+            }
+          ]
+        }
+      }
+      \`\`\`
+
+      🚫 Nếu khách chưa xác nhận rõ ràng, chỉ cần gợi ý phòng và KHÔNG tạo phần "booking".
+    `;
+
+    const cacheKey = `gemini:${prompt}:${JSON.stringify(history.slice(-5))}`;
+    const cached = geminiCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
-      📌 Danh sách các phòng hiện còn trống:
-      ${rooms
-        .map(
-          (room, i) => `(${i + 1}) ${room.name}
-            - Giá: ${room.price} VND/đêm
-            - Giường: ${room.bed_amount}
-            - Sức chứa: ${room.capacity}
-            - View: ${room.view}
-            - Xem thêm: http://localhost:3000/room-class/${room._id}`
-        )
-        .join("\n\n")}
-
-        📋 Chính sách khách sạn:
-        - Huỷ miễn phí trước 24h
-        - Không hút thuốc trong phòng
-        - Không mang theo thú cưng
-        - Trẻ dưới 6 tuổi ở miễn phí nếu không dùng giường phụ
-        - Trẻ từ 6-17 tuổi: +200.000 VND/đêm nếu có giường phụ
-        - Giường phụ: 300.000 VND/đêm
-
-        💬 Dưới đây là câu hỏi của khách:
-        "${prompt}"
-        `;
-
-    // Lọc và chuẩn hoá lịch sử cũ
-    const validHistory = sanitizeHistory(history).slice(-10);
-
+    const validHistory = sanitizeHistory(history).slice(-9);
+    const model = await getAvailableGeminiModel(); // 👈 gọi model phù hợp
     const chat = model.startChat({ history: validHistory });
 
-    // Gửi prompt + system context
-    const response = await sendMessageWithRetry(chat, systemPrompt);
+    const aiText = await sendMessageWithRetry(chat, systemPrompt);
 
-    // Cập nhật lại lịch sử hội thoại
     const updatedHistory = [
       ...validHistory,
       { role: "user", parts: [{ text: prompt }] },
-      { role: "model", parts: [{ text: response }] },
+      { role: "model", parts: [{ text: aiText }] },
     ];
 
-    return res.json({
-      response,
-      rooms,
-      history: updatedHistory,
+    // Tách JSON
+    const jsonMatch = aiText.match(/```json\s*([\s\S]*?)```/);
+    let bookingData = null;
+    let suggestedRoomIds = [];
+    // console.log(jsonMatch)
+
+    if (jsonMatch && jsonMatch[1]) {
+      try {
+        const jsonStr = jsonMatch[1].trim();
+        const parsed = JSON.parse(jsonStr);
+        bookingData = parsed.booking || null;
+        suggestedRoomIds = Array.isArray(parsed.suggested_room_ids)
+          ? parsed.suggested_room_ids
+          : [];
+      } catch (err) {
+        console.warn("❌ Không parse được booking JSON:", err.message);
+      }
+    }
+
+    const suggestedRooms = await RoomClass.find({
+      _id: { $in: suggestedRoomIds },
     });
+
+    const cleanedAiText = aiText.replace(/```json[\s\S]*?```/, "").trim();
+    const isBookingConfirmed =
+      !!bookingData?.full_name && !!bookingData?.booking_details?.length;
+
+    const resultData = {
+      response: cleanedAiText,
+      history: updatedHistory,
+      rooms: suggestedRooms,
+      isBooking: isBookingConfirmed,
+      bookingData,
+    };
+    geminiCache.set(cacheKey, resultData);
+    return res.json(resultData);
   } catch (err) {
-    console.error("❌ Lỗi trong generateResponseWithDB:", err);
+    console.error("❌ generateResponseWithDB Error:", err);
     return res.status(500).json({
-      response: "Lỗi khi lấy dữ liệu hoặc gọi AI",
+      response: "Đã có lỗi xảy ra.",
       error: err.message || "Unknown error",
     });
   }
@@ -322,11 +473,18 @@ const fetchSuggestionsFromGemini = async (req, res) => {
       "rooms": ["Deluxe hướng biển", "Suite cao cấp", "Phòng gia đình"]
     }
     `;
-
+    // 4. Kiểm tra cache
+    const cacheKey = `gemini:suggestions:${keywords.join(",")}`;
+    const cached = geminiCache.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+    // 5. Gửi prompt tới Gemini
+    const model = await getAvailableGeminiModel();
     const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const text = result.response.text(); // nhanh hơn sendMessage
 
-    // 4. Parse JSON từ response
+    // 6. Lưu cache kết quả
     const match =
       text.match(/```json([\s\S]*?)```/) || text.match(/\{[\s\S]*\}/);
     const rawJson = match ? (match[1] || match[0]).trim() : text;
@@ -363,11 +521,14 @@ const fetchSuggestionsFromGemini = async (req, res) => {
         },
       },
     ]);
-
-    return res.json({
+    // 8. Lưu cache kết quả
+    const resultData = {
       roomClasses: fullRoomClasses,
       rawResponse: text,
-    });
+    };
+    geminiCache.set(cacheKey, resultData);
+    // 9. Trả kết quả
+    return res.json(resultData);
   } catch (err) {
     console.error("Gemini suggestion error:", err);
     res.status(500).json({

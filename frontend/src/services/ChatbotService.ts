@@ -3,20 +3,29 @@ import {
   fetchSuggestionsFromGemini as fetchSuggestionsFromGeminiApi,
 } from "@/api/chatbotApi";
 import { ChatMessageHistory } from "@/types/chatbot";
-import { Feature } from "@/types/feature";
 import { RoomClass } from "@/types/roomClass";
-import { Service } from "@/types/service";
 
 export const generateChatResponse = async (
   prompt: string,
   history: ChatMessageHistory[]
-): Promise<{ success: boolean; data: string }> => {
+): Promise<{
+  success: boolean;
+  data: string;
+  rooms?: RoomClass[];
+  isBooking?: boolean;
+  bookingData?: any;
+  history?: ChatMessageHistory[];
+}> => {
   try {
     const response = await generateChatResponseApi(prompt, history);
 
     return {
       success: true,
       data: response.response || "Không có phản hồi từ mô hình.",
+      rooms: response.rooms || [],
+      isBooking: response.isBooking || false,
+      bookingData: response.bookingData || null,
+      history: response.history || [],
     };
   } catch (error) {
     console.error("Error generating chat response:", error);

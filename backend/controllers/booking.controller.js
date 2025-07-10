@@ -248,7 +248,6 @@ const bookingController = {
       const newBooking = new Booking(req.body);
       // Tính phụ phí cho trẻ em nếu có
       if (req.body.child_amount && req.body.child_amount.length > 0) {
-        7;
         newBooking.child_amount = req.body.child_amount.length; // lưu lại thông tin trẻ em
       } else {
         newBooking.child_amount = 0; // không có trẻ em thì để 0

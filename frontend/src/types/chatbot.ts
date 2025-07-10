@@ -17,4 +17,7 @@ export interface ChatMessageResponse {
   response: string;
   rooms: any[];
   history: ChatMessageHistory[];
+  bookingData?: any;     // Nếu đã xác nhận đặt phòng
+  isBooking?: boolean;   // Để biết có nhảy sang thanh toán không
 }
+

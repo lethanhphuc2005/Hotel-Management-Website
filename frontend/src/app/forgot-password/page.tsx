@@ -38,14 +38,14 @@ export default function ResetPasswordFlow() {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       if (newPassword.length < 6) {
-        toast.error("Mật khẩu mới phải có ít nhất 6 ký tự.");
+        toast.info("Mật khẩu mới phải có ít nhất 6 ký tự.");
         return;
       }
-      toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+      toast.info("Mật khẩu mới và xác nhận mật khẩu không khớp.");
       return;
     }
     if (otp.length !== 6) {
-      toast.error("Mã xác nhận phải có 6 ký tự.");
+      toast.info("Mã xác nhận phải có 6 ký tự.");
       return;
     }
     setLoading(true);
