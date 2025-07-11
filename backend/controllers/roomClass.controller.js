@@ -299,6 +299,37 @@ const roomClassController = {
             return bookedCount < totalRoom;
           });
         });
+
+        for (const rc of roomClasses) {
+          const rcId = rc.id.toString();
+          const totalRoom = await Room.countDocuments({ room_class_id: rcId });
+
+          if (totalRoom === 0) {
+            rc.rooms = [];
+            continue;
+          }
+
+          const dates = getDatesBetween(checkIn, checkOut);
+
+          rc.rooms = rc.rooms.filter((room) => {
+            const isRoomBooked = bookingDetails.some((bd) => {
+              if (!bd.room_id || !bd.room_id._id) return false;
+              if (!bd.room_id._id.equals(room._id)) return false;
+
+              const booking = bookings.find((b) => b._id.equals(bd.booking_id));
+              if (!booking) return false;
+
+              const bookedDates = getDatesBetween(
+                booking.check_in_date,
+                booking.check_out_date
+              );
+
+              return bookedDates.some((d) => dates.includes(d));
+            });
+
+            return !isRoomBooked;
+          });
+        }
       }
 
       if (!roomClasses.length) {
@@ -405,7 +436,7 @@ const roomClassController = {
               {
                 path: "employee_id",
                 select: "first_name last_name email phone_number",
-              }
+              },
             ],
           },
           {
@@ -419,7 +450,7 @@ const roomClassController = {
               {
                 path: "employee_id",
                 select: "first_name last_name email phone_number",
-              }
+              },
             ],
           },
         ])
@@ -471,7 +502,7 @@ const roomClassController = {
         // Map: room_class_id => tổng phòng
         const totalRoomsMap = {};
         totalRoomsByClass.forEach((r) => {
-          totalRoomsMap[r._id.toString()] = r.total;
+          totalRoomsMap[r.id.toString()] = r.total;
         });
 
         // Tạo map đếm số phòng đã book từng ngày theo từng loại phòng
@@ -575,7 +606,7 @@ const roomClassController = {
             {
               path: "employee_id",
               select: "first_name last_name email phone_number",
-            }
+            },
           ],
         },
         {
@@ -589,7 +620,7 @@ const roomClassController = {
             {
               path: "employee_id",
               select: "-address -status -createdAt -updatedAt",
-            }
+            },
           ],
         },
       ]);
@@ -647,11 +678,11 @@ const roomClassController = {
         // Nếu có tiện nghi: lưu vào bảng tiện nghi & gán vào features của loại phòng chính
         if (Array.isArray(features) && features.length > 0) {
           const featureDocs = [];
-          for (const feature of features) {
+          for (const featureId of features) {
             try {
               const newFeature = new Room_Class_Feature({
                 room_class_id: newRoomClass._id,
-                feature_id: feature.feature_id,
+                feature_id: featureId,
               });
               const savedFeature = await newFeature.save();
               featureDocs.push(savedFeature._id);

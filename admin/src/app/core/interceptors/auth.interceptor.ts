@@ -17,8 +17,12 @@ export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
-  const isAuthApi =
-    req.url.includes('/auth/login') || req.url.includes('/auth/register');
+  const publicRoutes = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/forgot-password',
+  ];
+  const isAuthApi = publicRoutes.some((path) => req.url.includes(path));
   const isProtectedAPI = req.url.includes('/api/') && !isAuthApi;
 
   const http = inject(HttpClient);
@@ -35,8 +39,8 @@ export const AuthInterceptor: HttpInterceptorFn = (
     localStorage.removeItem('login');
   }
 
-  const accessToken = loginData?.data?.accessToken;
-  const refreshToken = loginData?.data?.refreshToken;
+  const accessToken = loginData.accessToken;
+  const refreshToken = loginData.refreshToken;
   if (isProtectedAPI && !accessToken) {
     location.assign('/login');
     return EMPTY;

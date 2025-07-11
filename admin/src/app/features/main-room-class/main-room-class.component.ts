@@ -18,13 +18,13 @@ import { ImageHelperService } from '../../shared/services/image-helper.service';
   imports: [CommonModule, RouterModule, FormsModule],
 })
 export class MainRoomClassComponent implements OnInit {
-  mainRoomClasses!: MainRoomClass[];
+  originalMainRoomClasses: MainRoomClass[] = [];
+  mainRoomClasses: MainRoomClass[] = [];
   selectedMainRoomClass: MainRoomClass | null = null;
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
   searchKeyword: string = '';
-  hovered: string = '';
   statusFilterString: string = '';
   statusFilter: boolean | undefined = undefined;
   sortField: string = 'status';
@@ -53,7 +53,8 @@ export class MainRoomClassComponent implements OnInit {
   getAllMainRoomClasses(): void {
     this.mainRoomClassService.getAllMainRoomClasses().subscribe({
       next: (res) => {
-        this.mainRoomClasses = res.data;
+        this.originalMainRoomClasses = res.data;
+        this.mainRoomClasses = [...this.originalMainRoomClasses];
       },
       error: (err) => {
         console.error(err);
@@ -63,40 +64,24 @@ export class MainRoomClassComponent implements OnInit {
 
   onSearchInput(): void {
     if (!this.searchKeyword.trim()) {
-      this.getAllMainRoomClasses();
+      this.mainRoomClasses = [...this.originalMainRoomClasses];
       return;
     }
 
-    this.mainRoomClassService.getAllMainRoomClasses().subscribe({
-      next: (res) => {
-        this.mainRoomClasses = res.data.filter((item) =>
-          item.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
-        );
-      },
-      error: (err) => {
-        console.error('Lỗi lấy danh sách gợi ý loại phòng chính', err);
-      },
-    });
+    this.mainRoomClasses = this.originalMainRoomClasses.filter((item) =>
+      item.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
+    );
   }
 
   onStatusChange(): void {
-    if (this.statusFilterString === '') {
-      this.statusFilter = undefined;
-    } else {
-      this.statusFilter = this.statusFilterString === 'true';
+    if (!this.statusFilterString || this.statusFilterString === '') {
+      this.mainRoomClasses = [...this.originalMainRoomClasses];
+      return;
     }
-
-    this.mainRoomClassService.getAllMainRoomClasses().subscribe({
-      next: (res) => {
-        this.mainRoomClasses = res.data.filter((item) => {
-          if (this.statusFilter === undefined) return true; // Không lọc
-          return item.status === this.statusFilter;
-        });
-      },
-      error: (err) => {
-        console.error('Lỗi lấy danh sách loại phòng chính', err);
-      },
-    });
+    this.statusFilter = this.statusFilterString === 'true' ? true : false;
+    this.mainRoomClasses = this.originalMainRoomClasses.filter(
+      (item) => item.status === this.statusFilter
+    );
   }
 
   onSortChange(field: string): void {
@@ -125,15 +110,15 @@ export class MainRoomClassComponent implements OnInit {
     });
   }
 
-  onToggleChange(event: Event, rtm: any): void {
+  onToggleChange(event: Event, item: MainRoomClass): void {
     const checkbox = event.target as HTMLInputElement;
-    const originalStatus = rtm.status;
+    const originalStatus = item.status;
     const newStatus = checkbox.checked;
 
     // Optimistically update status
-    rtm.status = newStatus;
+    item.status = newStatus;
 
-    this.mainRoomClassService.toggleMainRoomClassStatus(rtm.id).subscribe({
+    this.mainRoomClassService.toggleMainRoomClassStatus(item.id).subscribe({
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
@@ -143,7 +128,7 @@ export class MainRoomClassComponent implements OnInit {
       },
       error: (err) => {
         // Thất bại → rollback
-        rtm.status = originalStatus;
+        item.status = originalStatus;
         this.toastService.error(
           err.error?.message || err.message || err.statusText,
           'Lỗi'
@@ -152,19 +137,20 @@ export class MainRoomClassComponent implements OnInit {
     });
   }
 
-  onViewDetail(item: MainRoomClass): void {
-    this.selectedMainRoomClass = item;
+  onViewDetail(event: MouseEvent, rc: MainRoomClass) {
+    const target = event.target as HTMLElement;
+
+    if (
+      target.closest('label.switch') || // 👉 kiểm tra phần tử (hoặc con của) label.switch
+      target.closest('button') ||
+      target.closest('input')
+    ) {
+      return;
+    }
+
+    // Nếu không phải các phần tử loại trừ thì mở chi tiết
+    this.selectedMainRoomClass = rc;
     this.isDetailPopupOpen = true;
-  }
-
-  closeDetailPopup(): void {
-    this.isDetailPopupOpen = false;
-    this.selectedMainRoomClass = null;
-  }
-
-  resetForm(): void {
-    this.selectedMainRoomClass = null;
-    this.isDetailPopupOpen = false;
   }
 
   onOpenPopup(isAddForm: boolean, item?: MainRoomClass): void {
@@ -195,7 +181,8 @@ export class MainRoomClassComponent implements OnInit {
   onClosePopup(): void {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
-    this.resetForm();
+    this.isDetailPopupOpen = false;
+    this.selectedMainRoomClass = null;
   }
 
   onFileSelected(event: Event): void {

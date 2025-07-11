@@ -1,0 +1,568 @@
+<div class="room-management user-management-card">
+  <h2>Quản lý loại phòng</h2>
+
+  <!-- Controls -->
+  <div
+    class="room-controls"
+    style="display: flex; align-items: center; gap: 8px"
+  >
+    <div
+      class="form-floating form-floating-custom mb-3"
+      style="position: relative; flex: 1"
+    >
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        style="width: 100%; padding-right: 30px"
+        [(ngModel)]="searchKeyword"
+        (ngModelChange)="onSearchInput()"
+      />
+      <label for="floatingInput">Tìm kiếm</label>
+    </div>
+    <button class="add-room" (click)="onOpenPopup(true)">
+      + Thêm loại phòng
+    </button>
+  </div>
+
+  <!-- <div class="filter-bar">
+   <div>
+      <label>Tiện nghi:</label>
+      <div class="feature-checkboxes">
+        <label *ngFor="let feature of features">
+          <input type="checkbox" [value]="feature.id" (change)="onFeatureFilterChange($event)" />
+          {{ feature.name }}
+        </label>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Popup Thêm loại phòng -->
+  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
+    <div class="popup-content">
+      <h2>Thêm loại phòng</h2>
+      <form (ngSubmit)="onAddRoomClass()" #addRoomForm="ngForm">
+        <div class="popup-section">
+          <div class="form-floating form-floating-custom mb-3">
+            <input
+              type="email"
+              class="form-control mb-3"
+              id="name"
+              name="name"
+              placeholder="name@example.com"
+              [(ngModel)]="newRoomClass.name"
+              required
+            />
+            <label for="name">Tên loại phòng</label>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea
+            class="form-control mb-3"
+            id="description"
+            name="description"
+            [(ngModel)]="newRoomClass.description"
+          ></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div>
+            <label for="bed">Số giường:</label>
+            <input
+              min="1"
+              class="form-control mb-3"
+              type="number"
+              id="bed"
+              name="bed"
+              [(ngModel)]="newRoomClass.bed_amount"
+              required
+            />
+          </div>
+          <div>
+            <label for="capacity">Sức chứa:</label>
+            <input
+              class="form-control mb-3"
+              min="1"
+              type="number"
+              id="capacity"
+              name="capacity"
+              [(ngModel)]="newRoomClass.capacity"
+              required
+            />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div>
+            <label for="price">Giá:</label>
+            <input
+              class="form-control mb-3"
+              min="0"
+              type="number"
+              id="price"
+              name="price"
+              [(ngModel)]="newRoomClass.price"
+              required
+            />
+          </div>
+          <div>
+            <label for="defaultSelect">View</label>
+            <select
+              [(ngModel)]="newRoomClass.view"
+              name="view"
+              required
+              class="form-select form-control"
+              id="defaultSelect"
+            >
+              <option value="" disabled selected>Chọn view</option>
+              <option value="biển">Biển</option>
+              <option value="núi">Núi</option>
+              <option value="thành phố">Thành phố</option>
+              <option value="vườn">Vườn</option>
+              <option value="hồ bơi">Hồ bơi</option>
+              <option value="sông">Sông</option>
+              <option value="hồ">Hồ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="mainRoomClass">Loại phòng chính:</label>
+          <select
+            id="mainRoomClass"
+            name="mainRoomClass"
+            [(ngModel)]="newRoomClass.main_room_class_id"
+            required
+          >
+            <option value="" disabled selected>Chọn loại phòng chính</option>
+            <option *ngFor="let mrc of mainRoomClasses" [value]="mrc.id">
+              {{ mrc.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label>Chọn tiện nghi:</label>
+          <div *ngFor="let f of features">
+            <label>
+              <input
+                type="checkbox"
+                name="feature-{{ f.id }}"
+                [checked]="selectedFeatureIds.includes(f.id)"
+                (change)="onFeatureToggle(f.id, $event)"
+              />
+              {{ f.name }}
+            </label>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="images">Ảnh loại phòng:</label>
+          <input
+            type="file"
+            id="images"
+            name="images"
+            multiple
+            (change)="onFileSelected($event)"
+          />
+          <div class="image-preview">
+            <div
+              *ngFor="let img of imagePreview; let i = index"
+              style="
+                display: inline-block;
+                position: relative;
+                margin-right: 8px;
+              "
+            >
+              <img
+                [src]="img"
+                width="100"
+                height="100"
+                style="object-fit: cover"
+              />
+
+              <!-- Nút X -->
+              <button
+                style="
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  background: rgba(0, 0, 0, 0.5);
+                  color: white;
+                  border: none;
+                  border-radius: 50%;
+                  width: 20px;
+                  height: 20px;
+                  cursor: pointer;
+                "
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!addRoomForm.form.valid">
+            Lưu
+          </button>
+          <button type="button" (click)="onClosePopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table Header -->
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tên</div>
+    <div>
+      Số giường <br />
+      (Sức chứa)
+    </div>
+    <div>Giá</div>
+    <div>Số phòng trống</div>
+    <div>Tiện nghi</div>
+    <div>Hành động</div>
+  </div>
+
+  <!-- Table Rows -->
+  <div
+    (click)="onViewDetail($event, rc)"
+    style="cursor: pointer"
+    class="table-row"
+    *ngFor="let rc of roomClasses; let i = index"
+  >
+    <div>{{ i + 1 }}</div>
+    <div>{{ rc.name }}</div>
+    <div>
+      {{ rc.bed_amount }} <br />
+      ({{ rc.capacity }})
+    </div>
+    <!-- <div>{{ rc.description }}</div> -->
+    <div>
+      <div *ngIf="rc.price_discount && rc.price_discount > 0">
+        <span class="original-price">
+          {{ rc.price | currency : "VND" : "symbol" }}
+        </span>
+        <br />
+        <span class="discount-price">
+          {{ rc.price_discount | currency : "VND" : "symbol" }}
+        </span>
+      </div>
+      <div *ngIf="!rc.price_discount || rc.price_discount <= 0">
+        {{ rc.price | currency : "VND" : "" }}đ
+      </div>
+    </div>
+    <div>{{ rc.rooms?.length }}</div>
+
+    <!-- Tiện nghi -->
+    <div class="feature-wrapper">
+      <button
+        (click)="onToggleFeature(rc, $event)"
+        [disabled]="!rc.features?.length"
+      >
+        Xem
+      </button>
+
+      <div *ngIf="rc.showFeatures" class="feature-dropdown">
+        <div *ngFor="let f of rc.features">
+          <label>{{ f.feature_id.name }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hành động -->
+    <div class="actions">
+      <label class="switch">
+        <input
+          type="checkbox"
+          [checked]="rc.status"
+          (change)="onToggleChange($event, rc)"
+        />
+        <span class="slider"></span>
+      </label>
+
+      <button class="icon-button" (click)="onOpenPopup(false, rc)">
+        <i class="fas fa-pen"></i>
+      </button>
+    </div>
+  </div>
+  <!-- Popup chi tiết loại phòng -->
+  <div class="popup-add-popup" *ngIf="isDetailPopupOpen && selectedRoomClass">
+    <div class="popup-content">
+      <h2>Chi tiết loại phòng</h2>
+
+      <div class="popup-section">
+        <strong>Tên loại phòng:</strong> {{ selectedRoomClass.name }}
+      </div>
+      <div class="popup-section">
+        <strong>Mô tả:</strong> {{ selectedRoomClass.description }}
+      </div>
+      <div class="popup-section">
+        <strong>Số giường:</strong> {{ selectedRoomClass.bed_amount }}
+      </div>
+      <div class="popup-section">
+        <strong>Sức chứa:</strong> {{ selectedRoomClass.capacity }}
+      </div>
+      <div class="popup-section">
+        <strong>Giá:</strong>
+        <span
+          *ngIf="
+            selectedRoomClass.price_discount &&
+            selectedRoomClass.price_discount > 0
+          "
+        >
+          <span class="original-price">
+            {{ selectedRoomClass.price | currency : "VND" : "symbol" }}
+          </span>
+          <span class="discount-price">
+            {{ selectedRoomClass.price_discount | currency : "VND" : "symbol" }}
+          </span>
+        </span>
+        <span
+          *ngIf="
+            !selectedRoomClass.price_discount ||
+            selectedRoomClass.price_discount <= 0
+          "
+        >
+          {{ selectedRoomClass.price | currency : "VND" : "" }}đ
+        </span>
+      </div>
+      <div class="popup-section">
+        <strong>View:</strong> {{ selectedRoomClass.view }}
+      </div>
+      <div class="popup-section">
+        <strong>Loại phòng chính:</strong>
+        {{ selectedRoomClass.main_room_class[0].name }}
+      </div>
+      <div class="popup-section" *ngIf="selectedRoomClass.features?.length">
+        <strong>Tiện nghi:</strong>
+        <ul>
+          <li *ngFor="let f of selectedRoomClass.features">
+            {{ f.feature_id.name }}
+          </li>
+        </ul>
+      </div>
+      <div class="popup-section">
+        <strong>Trạng thái:</strong>
+        <span
+          [ngClass]="{
+            'status-active': selectedRoomClass.status,
+            'status-inactive': !selectedRoomClass.status
+          }"
+        >
+          {{ selectedRoomClass.status ? "Kích hoạt" : "Không kích hoạt" }}
+        </span>
+      </div>
+      <div class="popup-section" *ngIf="selectedRoomClass.rooms?.length">
+        <strong>Số phòng:</strong>
+        <ul *ngFor="let r of selectedRoomClass.rooms">
+          <li>{{ r.name }}</li>
+        </ul>
+      </div>
+      <div class="popup-section">
+        <strong>Ảnh loại phòng:</strong>
+        <div class="image-preview">
+          <div
+            *ngFor="let img of selectedRoomClass.images; let i = index"
+            style="display: inline-block; position: relative; margin-right: 8px"
+          >
+            <img
+              [src]="getImageUrl(img.url)"
+              width="100"
+              height="100"
+              style="object-fit: cover"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="popup-actions">
+        <button (click)="onClosePopup()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Sửa loại phòng -->
+  <div class="popup-add-popup" *ngIf="isEditPopupOpen && selectedRoomClass">
+    <div class="popup-content">
+      <h2>Sửa loại phòng</h2>
+      <form (ngSubmit)="onEditRoomClass()" #editRoomClass="ngForm">
+        <div class="popup-section">
+          <div class="form-floating form-floating-custom mb-3">
+            <input
+              type="email"
+              class="form-control mb-3"
+              id="name"
+              name="name"
+              placeholder="name@example.com"
+              [(ngModel)]="selectedRoomClass.name"
+              required
+            />
+            <label for="name">Tên loại phòng</label>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="description">Mô tả:</label>
+          <textarea
+            class="form-control mb-3"
+            id="description"
+            name="description"
+            [(ngModel)]="selectedRoomClass.description"
+          ></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div>
+            <label for="bed">Số giường:</label>
+            <input
+              min="1"
+              class="form-control mb-3"
+              type="number"
+              id="bed"
+              name="bed"
+              [(ngModel)]="selectedRoomClass.bed_amount"
+              required
+            />
+          </div>
+          <div>
+            <label for="capacity">Sức chứa:</label>
+            <input
+              class="form-control mb-3"
+              min="1"
+              type="number"
+              id="capacity"
+              name="capacity"
+              [(ngModel)]="selectedRoomClass.capacity"
+              required
+            />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div>
+            <label for="price">Giá:</label>
+            <input
+              class="form-control mb-3"
+              min="0"
+              type="number"
+              id="price"
+              name="price"
+              [(ngModel)]="selectedRoomClass.price"
+              required
+            />
+          </div>
+          <div>
+            <label for="defaultSelect">View</label>
+            <select
+              [(ngModel)]="selectedRoomClass.view"
+              name="view"
+              required
+              class="form-select form-control"
+              id="defaultSelect"
+            >
+              <option value="" disabled>Chọn view</option>
+              <option value="biển">Biển</option>
+              <option value="núi">Núi</option>
+              <option value="thành phố">Thành phố</option>
+              <option value="vườn">Vườn</option>
+              <option value="hồ bơi">Hồ bơi</option>
+              <option value="sông">Sông</option>
+              <option value="hồ">Hồ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="mainRoomClass">Loại phòng chính:</label>
+          <select
+            id="mainRoomClass"
+            name="mainRoomClass"
+            [(ngModel)]="selectedRoomClass.main_room_class_id"
+            required
+          >
+            <option value="" disabled selected>Chọn loại phòng chính</option>
+            <option *ngFor="let mrc of mainRoomClasses" [value]="mrc.id">
+              {{ mrc.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="popup-section">
+          <label>Chọn tiện nghi:</label>
+          <div *ngFor="let f of features">
+            <label>
+              <input
+                type="checkbox"
+                name="feature-{{ f.id }}"
+                [checked]="isFeatureChecked(f.id)"
+                (change)="onFeatureToggle(f.id, $event)"
+              />
+              {{ f.name }}
+            </label>
+          </div>
+        </div>
+
+        <div class="popup-section">
+          <label for="images">Ảnh loại phòng:</label>
+          <input
+            type="file"
+            id="images"
+            name="images"
+            multiple
+            (change)="onFileSelected($event)"
+          />
+          <div class="image-preview">
+            <div
+              *ngFor="let img of imagePreview; let i = index"
+              style="
+                display: inline-block;
+                position: relative;
+                margin-right: 8px;
+              "
+            >
+              <img
+                [src]="img"
+                width="100"
+                height="100"
+                style="object-fit: cover"
+              />
+
+              <!-- Nút X -->
+              <div
+                (click)="removeImage(i, $event)"
+                style="
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  background: rgba(0, 0, 0, 0.5);
+                  color: white;
+                  border: none;
+                  border-radius: 50%;
+                  width: 20px;
+                  height: 20px;
+                  cursor: pointer;
+                  padding: 0;
+                  margin: 0;
+                "
+              >
+                ✕
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button type="submit" [disabled]="!editRoomClass.form.valid">
+            Lưu
+          </button>
+          <button type="button" (click)="onClosePopup()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

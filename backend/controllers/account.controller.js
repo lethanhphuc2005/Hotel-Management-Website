@@ -224,11 +224,20 @@ const accountController = {
 
       const accessToken = accountController.creareToken(admin);
       const refreshToken = accountController.creareRefreshToken(admin);
-      const { password, ...others } = admin._doc;
+      const dataToSend = {
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        position: admin.position,
+        department: admin.department,
+        email: admin.email,
+        phone_number: admin.phone_number,
+        status: admin.status,
+        role: admin.role,
+      }
 
       res.status(200).json({
         message: "Đăng nhập thành công",
-        data: { ...others, accessToken, refreshToken },
+        data: { ...dataToSend, accessToken, refreshToken },
       });
     } catch (err) {
       res.status(500).json(err.message);

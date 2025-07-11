@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { ToastService } from '../../core/services/toast.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   isRegister = false;
   loginForm!: FormGroup;
   registerF!: FormGroup;
-  constructor(private authService: AuthService, private router: Router, private ToastService: ToastService) {
+  constructor(private authService: AuthService, private router: Router, private Toastr: ToastrService) {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -49,13 +49,16 @@ export class LoginComponent implements OnInit {
   }
   onLogin() {
     if (this.loginForm.invalid) {
-      this.ToastService.show('Lỗi', 'Dữ liệu không hợp lệ', 'error');
+      this.Toastr.error('Dữ liệu không hợp lệ', 'Lỗi đăng nhập');
       return;
     } else {
       this.authService.login(this.loginForm.value).subscribe(data => {
-        this.ToastService.show('Thành công', 'Đăng nhập thành công', 'success');
-        let jsonData = JSON.stringify(data);
-        console.log(jsonData)
+        if (data.status === false) {
+          this.Toastr.error(data.message, 'Lỗi đăng nhập');
+          return;
+        }
+        this.Toastr.success('Đăng nhập thành công', 'Thông báo');
+        const jsonData = JSON.stringify(data.data);
         localStorage.setItem('login', jsonData);
         setTimeout(() => {
           this.router.navigate(['/home']);

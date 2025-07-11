@@ -44,7 +44,7 @@ const deleteOldImages = (inputPaths) => {
 
   paths.forEach((oldImagePath) => {
     if (oldImagePath) {
-      const imagePath = path.join(__dirname, "../public", oldImagePath);
+      const imagePath = path.join(__dirname, "../public/images", oldImagePath);
       fs.unlink(imagePath, (err) => {
         if (err) {
           console.error(`Không thể xóa file ảnh: ${oldImagePath}`, err);
@@ -52,6 +52,7 @@ const deleteOldImages = (inputPaths) => {
       });
     }
   });
+  console.log("Đã xóa ảnh cũ thành công trên server:", paths);
 };
 
 module.exports = {

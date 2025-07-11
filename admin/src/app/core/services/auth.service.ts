@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../../types/auth';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -15,8 +16,7 @@ export class AuthService {
    * Gọi API đăng nhập
    * @param body Dữ liệu đăng nhập (name và password)
    */
-  login(body: LoginRequest) {
-    console.log(this.httpClient.post(`${this.baseUrl}/auth/login`, body))
+  login(body: LoginRequest): Observable<any> {
     return this.httpClient.post(`${this.baseUrl}/auth/login`, body);
 
   }

@@ -7,7 +7,7 @@ import { WebsitecontentComponent } from './features/websitecontent/websiteconten
 import { LoginComponent } from './features/login/login.component';
 import { AuthGuard } from './core/auth/admin-guard';
 import { RoomListComponent } from './features/room-list/room-list.component';
-import { RoomClassListComponent } from './features/room-class-list/room-class-list.component';
+import { RoomClassListComponent } from './features/room-class/room-class.component';
 import { MainRoomClassComponent } from './features/main-room-class/main-room-class.component';
 import { CommentComponent } from './features/comment/comment.component';
 import { CommentItemComponent } from './features/comment/comment-item/comment-item.component';

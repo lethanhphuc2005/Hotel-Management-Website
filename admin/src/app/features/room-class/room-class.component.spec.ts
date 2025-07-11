@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { RoomClassListComponent } from './room-class-list.component';
+import { RoomClassListComponent } from './room-class.component';
 
 describe('RoomClassListComponent', () => {
   let component: RoomClassListComponent;

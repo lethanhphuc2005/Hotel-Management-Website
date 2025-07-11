@@ -36,7 +36,7 @@
         id="status"
         [(ngModel)]="statusFilterString"
         name="statusFilterString"
-        (change)="onStatusChange()"
+        (ngModelChange)="onStatusChange()"
       >
         <option value="">Tất cả</option>
         <option value="true">Đang hoạt động</option>
@@ -138,9 +138,14 @@
     <div>Hành động</div>
   </div>
 
-  <div *ngFor="let rtm of mainRoomClasses; let i = index" class="table-row">
+  <div
+    style="cursor: pointer"
+    (click)="onViewDetail($event, rtm)"
+    *ngFor="let rtm of mainRoomClasses; let i = index"
+    class="table-row"
+  >
     <div>{{ i + 1 }}</div>
-    <div style="cursor: pointer" (click)="onViewDetail(rtm)">
+    <div>
       {{ rtm.name }}
     </div>
     <!-- <div>{{ rtm.description }}</div> -->
@@ -223,7 +228,7 @@
         </div>
       </div>
 
-      <button class="close-btn" (click)="closeDetailPopup()">Đóng</button>
+      <button class="close-btn" (click)="onClosePopup()">Đóng</button>
     </div>
   </div>
   <!-- Popup Sửa loại phòng chính -->
