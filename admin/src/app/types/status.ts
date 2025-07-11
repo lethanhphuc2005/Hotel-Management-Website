@@ -15,7 +15,7 @@ export interface BookingStatus {
   name: string;
   status: boolean;
   code: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
   bookings?: Booking[];
 }

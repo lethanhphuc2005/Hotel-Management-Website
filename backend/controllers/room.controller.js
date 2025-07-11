@@ -8,7 +8,6 @@ const roomController = {
   // === KIỂM TRA ĐIỀU KIỆN PHÒNG ===
   validateRoom: async (roomData, roomId) => {
     const { floor, name, room_class_id, room_status_id } = roomData;
-
     if (!floor || !name || !room_class_id || !room_status_id) {
       return { valid: false, message: "Vui lòng điền đầy đủ thông tin phòng" };
     }
@@ -217,6 +216,17 @@ const roomController = {
     }
   },
 
+  normalizeRoomData: (data) => {
+    return {
+      ...data,
+      floor: Number(data.floor),
+      bed_amount: Number(data.bed_amount),
+      capacity: Number(data.capacity),
+      price: Number(data.price),
+      price_discount: Number(data.price_discount || 0),
+    };
+  },
+
   // === THÊM MỚI PHÒNG ===
   addRoom: async (req, res) => {
     try {
@@ -226,6 +236,12 @@ const roomController = {
       if (!validation.valid) {
         return res.status(400).json({ message: validation.message });
       }
+
+      // Chuyển đổi dữ liệu phòng sang định dạng chuẩn
+      const normalizedData = roomController.normalizeRoomData(
+        newRoom.toObject()
+      );
+      newRoom.set(normalizedData);
 
       await newRoom.save();
       res.status(201).json({
@@ -248,7 +264,7 @@ const roomController = {
       const updatedData =
         Object.keys(req.body).length === 0
           ? roomToUpdate.toObject()
-          : { ...roomToUpdate.toObject(), ...req.body };
+          : { ...roomToUpdate.toObject(), ...roomController.normalizeRoomData(req.body) };
 
       const validation = await roomController.validateRoom(
         updatedData,

@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const roomController = require("../controllers/room.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const multer = require("multer");
+const upload = multer();
 
 // === LẤY DANH SÁCH PHÒNG ===
 router.get(
@@ -24,12 +26,18 @@ router.get(
 );
 
 // === THÊM PHÒNG ===
-router.post("/", authMiddleware.authorizeRoles("admin"), roomController.addRoom);
+router.post(
+  "/",
+  authMiddleware.authorizeRoles("admin"),
+  upload.none(),
+  roomController.addRoom
+);
 
 // === CẬP NHẬT THÔNG TIN PHÒNG ===
 router.put(
   "/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
+  upload.none(),
   roomController.updateRoom
 );
 

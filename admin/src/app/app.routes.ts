@@ -6,7 +6,7 @@ import { UserComponent } from './features/user/user.component';
 import { WebsitecontentComponent } from './features/websitecontent/websitecontent.component';
 import { LoginComponent } from './features/login/login.component';
 import { AuthGuard } from './core/auth/admin-guard';
-import { RoomListComponent } from './features/room-list/room-list.component';
+import { RoomListComponent } from './features/room/room.component';
 import { RoomClassListComponent } from './features/room-class/room-class.component';
 import { MainRoomClassComponent } from './features/main-room-class/main-room-class.component';
 import { CommentComponent } from './features/comment/comment.component';

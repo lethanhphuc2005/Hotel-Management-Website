@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-header',
@@ -11,11 +11,11 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class HeaderComponent implements OnInit {
   ngOnInit() {}
-  constructor(private router: Router, private ToastService: ToastService) {}
+  constructor(private router: Router, private toastService: ToastrService) {}
 
   logout() {
     localStorage.removeItem('login');
-    this.ToastService.show('Thành công', 'Đăng xuất thành công', 'success');
+    this.toastService.success('Đăng xuất thành công', 'Thông báo');
     setTimeout(() => {
       this.router.navigate(['/login']);
     }, 2000);

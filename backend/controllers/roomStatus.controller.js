@@ -38,7 +38,10 @@ const roomStatusController = {
           .status(404)
           .json({ message: "Không có trạng thái phòng nào" });
       }
-      res.status(200).json(status);
+      res.status(200).json({
+        message: "Lấy tất cả trạng thái phòng thành công",
+        data: status,
+      });
     } catch (error) {
       res.status(500).json(error);
     }

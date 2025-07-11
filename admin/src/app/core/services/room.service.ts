@@ -1,7 +1,14 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Room } from '../../types/room';
+import {
+  Room,
+  RoomBookingCalendarResponse,
+  RoomDetailResponse,
+  RoomFilterParams,
+  RoomRequest,
+  RoomResponse,
+} from '../../types/room';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
@@ -13,22 +20,12 @@ export class RoomService {
   constructor(private http: HttpClient) {}
 
   // Lấy tất cả phòng (không lọc)
-  getAllRooms(): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.baseUrl}`);
+  getAllRooms(): Observable<RoomResponse> {
+    return this.http.get<RoomResponse>(`${this.baseUrl}`);
   }
 
   // Lọc phòng (trống, trạng thái, loại phòng, tìm kiếm, phân trang...)
-  getRooms(params: {
-    check_in_date?: string;
-    check_out_date?: string;
-    room_status_id?: string;
-    room_class_id?: string;
-    keyword?: string;
-    page?: number;
-    limit?: number;
-    sort?: string;
-    order?: 'asc' | 'desc';
-  }): Observable<any> {
+  getRooms(params: RoomFilterParams): Observable<RoomResponse> {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== '') {
@@ -36,22 +33,34 @@ export class RoomService {
       }
     });
 
-    return this.http.get<any>(`${this.baseUrl}`, { params: httpParams });
-  }
-
-  getBookingCalendar(roomId: string, year: number, month: number) {
-    return this.http.get<any>(`${this.baseUrl}/booking-calendar`, {
-      params: { room_id: roomId, year, month },
+    return this.http.get<RoomResponse>(`${this.baseUrl}`, {
+      params: httpParams,
     });
   }
 
+  getBookingCalendar(
+    roomId: string,
+    year: number,
+    month: number
+  ): Observable<RoomBookingCalendarResponse> {
+    return this.http.get<RoomBookingCalendarResponse>(
+      `${this.baseUrl}/booking-calendar`,
+      {
+        params: { room_id: roomId, year, month },
+      }
+    );
+  }
+
   // Thêm phòng
-  addRoom(roomData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, roomData);
+  addRoom(roomData: FormData | RoomRequest): Observable<RoomDetailResponse> {
+    return this.http.post<RoomDetailResponse>(`${this.baseUrl}`, roomData);
   }
 
   // Cập nhật phòng
-  updateRoom(id: string, roomData: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, roomData);
+  updateRoom(
+    id: string,
+    roomData: FormData | RoomRequest
+  ): Observable<RoomDetailResponse> {
+    return this.http.put<RoomDetailResponse>(`${this.baseUrl}/${id}`, roomData);
   }
 }

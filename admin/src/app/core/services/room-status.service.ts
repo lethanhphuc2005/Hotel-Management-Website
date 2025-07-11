@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoomStatusService {
   private readonly baseUrl = `${environment.apiUrl}/room-status`; // Lấy URL từ file cấu hình môi trường
@@ -15,6 +15,4 @@ export class RoomStatusService {
   getAllRoomStatuses(): Observable<any> {
     return this.http.get(this.baseUrl);
   }
-
-
 }
