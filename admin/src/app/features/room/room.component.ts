@@ -81,7 +81,20 @@ export class RoomListComponent implements OnInit {
   }
 
   getAllRoomClasses(): void {
-    this.roomClassService.getAllRoomClass().subscribe({
+    this.roomClassService.getAllRoomClass({
+      search: '',
+      page: 1,
+      limit: 100, // Lấy tất cả để hiển thị trong dropdown
+      sort: 'createdAt',
+      order: 'desc',
+      status: '',
+      feature: '',
+      type: '',
+      minBed: 0,
+      maxBed: 0,
+      minCapacity: 0,
+      maxCapacity: 0,
+    }).subscribe({
       next: (res: any) => {
         this.roomClasses = res.data;
       },

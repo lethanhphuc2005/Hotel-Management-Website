@@ -9,13 +9,14 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ImageHelperService } from '../../shared/services/image-helper.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-main-room-class',
   standalone: true,
   templateUrl: './main-room-class.component.html',
   styleUrls: ['./main-room-class.component.scss'],
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
 })
 export class MainRoomClassComponent implements OnInit {
   originalMainRoomClasses: MainRoomClass[] = [];
@@ -36,6 +37,10 @@ export class MainRoomClassComponent implements OnInit {
     status: true,
     image: null,
   };
+  page = 1;
+  limit = 5;
+  total = 0;
+  totalPages = 0;
 
   constructor(
     private mainRoomClassService: MainRoomClassService,
@@ -51,63 +56,51 @@ export class MainRoomClassComponent implements OnInit {
   }
 
   getAllMainRoomClasses(): void {
-    this.mainRoomClassService.getAllMainRoomClasses().subscribe({
-      next: (res) => {
-        this.originalMainRoomClasses = res.data;
-        this.mainRoomClasses = [...this.originalMainRoomClasses];
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.mainRoomClassService
+      .getAllMainRoomClasses({
+        search: this.searchKeyword,
+        page: this.page,
+        limit: this.limit,
+        sort: this.sortField,
+        order: this.sortOrder,
+        status: this.statusFilterString,
+      })
+      .subscribe({
+        next: (res) => {
+          this.mainRoomClasses = res.data;
+          this.total = res.pagination.total;
+          this.totalPages = res.pagination.totalPages;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+  }
+
+  onPageChange(page: number): void {
+    this.page = page;
+    this.getAllMainRoomClasses();
   }
 
   onSearchInput(): void {
-    if (!this.searchKeyword.trim()) {
-      this.mainRoomClasses = [...this.originalMainRoomClasses];
-      return;
-    }
-
-    this.mainRoomClasses = this.originalMainRoomClasses.filter((item) =>
-      item.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
-    );
+    this.page = 1;
+    this.getAllMainRoomClasses();
   }
 
   onStatusChange(): void {
-    if (!this.statusFilterString || this.statusFilterString === '') {
-      this.mainRoomClasses = [...this.originalMainRoomClasses];
-      return;
-    }
-    this.statusFilter = this.statusFilterString === 'true' ? true : false;
-    this.mainRoomClasses = this.originalMainRoomClasses.filter(
-      (item) => item.status === this.statusFilter
-    );
+    this.page = 1;
+    this.getAllMainRoomClasses();
   }
 
   onSortChange(field: string): void {
     if (this.sortField === field) {
-      // Nếu đang sắp xếp theo trường này, đảo ngược thứ tự
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      // Nếu đổi sang trường khác, đặt lại thứ tự về tăng dần
       this.sortField = field;
       this.sortOrder = 'asc';
     }
-
-    // Sắp xếp mảng theo trường và thứ tự đã chọn
-    this.mainRoomClasses.sort((a, b) => {
-      const aValue = a[this.sortField as keyof MainRoomClass];
-      const bValue = b[this.sortField as keyof MainRoomClass];
-
-      if (aValue === undefined || bValue === undefined) return 0;
-
-      const aVal = typeof aValue === 'boolean' ? Number(aValue) : aValue;
-      const bVal = typeof bValue === 'boolean' ? Number(bValue) : bValue;
-
-      if (aVal < bVal) return this.sortOrder === 'asc' ? -1 : 1;
-      if (aVal > bVal) return this.sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
+    this.page = 1; // Reset về trang đầu khi sắp xếp
+    this.getAllMainRoomClasses();
   }
 
   onToggleChange(event: Event, item: MainRoomClass): void {

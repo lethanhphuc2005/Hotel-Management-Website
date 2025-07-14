@@ -168,6 +168,7 @@ const roomClassController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const sortObj = {};
       sortObj[sort] = order === "asc" ? 1 : -1;
+      const total = await RoomClass.countDocuments(query);
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
@@ -340,12 +341,12 @@ const roomClassController = {
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        data: roomClasses,
+        data: roomClasses, // chỉ trả về trang hiện tại
         pagination: {
-          total: roomClasses.length,
+          total, // tổng tất cả kết quả sau khi lọc
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(roomClasses.length / parseInt(limit)),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {

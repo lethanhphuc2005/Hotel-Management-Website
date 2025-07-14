@@ -9,18 +9,17 @@ import { RoomClass, RoomClassRequest } from '../../types/room-class';
 import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { Feature } from '../../types/feature';
 import { MainRoomClass } from '../../types/main-room-class';
-import { Room } from '../../types/room';
 import { ToastrService } from 'ngx-toastr';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-room-class-list',
   standalone: true,
   templateUrl: './room-class.component.html',
   styleUrls: ['./room-class.component.scss'],
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
 })
 export class RoomClassListComponent implements OnInit {
-  originalRoomClasses: RoomClass[] = [];
   roomClasses: RoomClass[] = [];
   features: Feature[] = [];
   selectedFeatureIds: string[] = [];
@@ -37,6 +36,13 @@ export class RoomClassListComponent implements OnInit {
   imagePreview: string[] | null = null;
   selectedFiles: File[] = []; // Danh sách file thực tế
   newRoomClass: RoomClassRequest = {};
+  total = 0; // Tổng số loại phòng, có thể dùng để hiển thị phân trang
+  limit = 10; // Số lượng loại phòng hiển thị mỗi trang
+  page = 1; // Trang hiện tại
+  minBed = 0; // Giá trị tối thiểu cho số giường
+  maxBed = 10;
+  minCapacity = 0; // Giá trị tối thiểu cho sức chứa
+  maxCapacity = 10;
 
   constructor(
     private roomClassService: RoomClassService,
@@ -57,30 +63,54 @@ export class RoomClassListComponent implements OnInit {
   }
 
   getAllRoomClasses(): void {
-    this.roomClassService.getAllRoomClass().subscribe({
-      next: (res) => {
-        this.originalRoomClasses = res.data;
-        this.roomClasses = [...this.originalRoomClasses];
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.roomClassService
+      .getAllRoomClass({
+        search: this.searchKeyword,
+        page: this.page,
+        limit: this.limit,
+        sort: this.sortField,
+        order: this.sortOrder,
+        status: this.statusFilterString,
+        feature: '',
+        type: '',
+        minBed: this.minBed,
+        maxBed: this.maxBed,
+        minCapacity: this.minCapacity,
+        maxCapacity: this.maxCapacity,
+      })
+      .subscribe({
+        next: (res) => {
+          this.roomClasses = res.data;
+          this.total = res.pagination.total; // Cập nhật tổng số loại phòng
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   getAllFeatures(): void {
-    this.featureService.getAllFeatures().subscribe({
-      next: (res) => {
-        this.features = res.data;
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.featureService
+      .getAllFeatures({
+        search: '',
+        page: 1,
+        limit: 100,
+        sort: 'createdAt',
+        order: 'desc',
+        status: '',
+      })
+      .subscribe({
+        next: (res) => {
+          this.features = res.data;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   getAllMainRoomClasses(): void {
-    this.mainRoomClassService.getAllMainRoomClasses().subscribe({
+    this.mainRoomClassService.getAllMainRoomClasses({}).subscribe({
       next: (res) => {
         this.mainRoomClasses = res.data;
       },
@@ -91,51 +121,28 @@ export class RoomClassListComponent implements OnInit {
   }
 
   onSearchInput(): void {
-    if (!this.searchKeyword.trim()) {
-      this.roomClasses = [...this.originalRoomClasses];
-      return;
-    }
-
-    this.roomClasses = this.originalRoomClasses.filter((item) =>
-      item.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
-    );
+    this.page = 1; // Reset to first page on new search
+    this.getAllRoomClasses();
   }
 
   onStatusChange(): void {
-    if (!this.statusFilterString || this.statusFilterString === '') {
-      this.roomClasses = [...this.originalRoomClasses];
-      return;
-    }
-    this.statusFilter = this.statusFilterString === 'true' ? true : false;
-    this.roomClasses = this.originalRoomClasses.filter(
-      (item) => item.status === this.statusFilter
-    );
+    this.page = 1; // Reset to first page on status change
+    this.getAllRoomClasses();
   }
 
   onSortChange(field: string): void {
     if (this.sortField === field) {
-      // Nếu đang sắp xếp theo trường này, đảo ngược thứ tự
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      // Nếu đổi sang trường khác, đặt lại thứ tự về tăng dần
       this.sortField = field;
-      this.sortOrder = 'asc';
+      this.sortOrder = 'asc'; // Default to ascending on new sort
     }
+    this.getAllRoomClasses();
+  }
 
-    // Sắp xếp mảng theo trường và thứ tự đã chọn
-    this.roomClasses.sort((a, b) => {
-      const aValue = a[this.sortField as keyof RoomClass];
-      const bValue = b[this.sortField as keyof RoomClass];
-
-      if (aValue === undefined || bValue === undefined) return 0;
-
-      const aVal = typeof aValue === 'boolean' ? Number(aValue) : aValue;
-      const bVal = typeof bValue === 'boolean' ? Number(bValue) : bValue;
-
-      if (aVal < bVal) return this.sortOrder === 'asc' ? -1 : 1;
-      if (aVal > bVal) return this.sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
+  onPageChange(newPage: number): void {
+    this.page = newPage;
+    this.getAllRoomClasses();
   }
 
   onToggleFeature(rc: RoomClass, event: MouseEvent) {

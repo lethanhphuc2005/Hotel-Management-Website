@@ -270,7 +270,9 @@ const featureController = {
           updatedData.image = featureToUpdate.image; // Giữ nguyên đường dẫn hình ảnh cũ nếu không có file mới
         }
 
-        await featureToUpdate.updateOne({ $set: updatedData });
+        const updatedFeature = await featureToUpdate.updateOne({
+          $set: updatedData,
+        });
 
         res.status(200).json({
           message: "Cập nhật tiện nghi thành công",

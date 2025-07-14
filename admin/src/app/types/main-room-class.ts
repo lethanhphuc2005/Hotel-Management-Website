@@ -15,6 +15,7 @@ export interface MainRoomClass {
 export interface MainRoomClassResponse {
   message: string;
   data: MainRoomClass[];
+  pagination: MainRoomClassPaginationResponse;
 }
 
 export interface MainRoomClassDetailResponse {
@@ -27,4 +28,20 @@ export interface MainRoomClassRequest {
   description?: string;
   image?: File | null;
   status?: boolean;
+}
+
+export interface MainRoomClassPaginationResponse {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface MainRoomClassFilter {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  status?: string;
 }

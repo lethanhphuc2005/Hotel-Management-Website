@@ -1,9 +1,10 @@
-import { Comment } from "./comment";
-import { FeatureRoomClass } from "./feature";
-import { Image } from "./image";
-import { MainRoomClass } from "./main-room-class";
-import { Review } from "./review";
-import { Room } from "./room";
+import { Comment } from './comment';
+import { PaginationResponse } from './common';
+import { FeatureRoomClass } from './feature';
+import { Image } from './image';
+import { MainRoomClass } from './main-room-class';
+import { Review } from './review';
+import { Room } from './room';
 
 export interface RoomClass {
   id: string;
@@ -30,6 +31,7 @@ export interface RoomClass {
 export interface RoomClassResponse {
   message: string;
   data: RoomClass[];
+  pagination: PaginationResponse;
 }
 
 export interface RoomClassDetailResponse {
@@ -49,4 +51,19 @@ export interface RoomClassRequest {
   status?: boolean;
   images?: File[] | null;
   features?: string[];
+}
+
+export interface RoomClassSearchFilters {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  status?: string;
+  feature?: string;
+  type?: string;
+  minBed?: number;
+  maxBed?: number;
+  minCapacity?: number;
+  maxCapacity?: number;
 }

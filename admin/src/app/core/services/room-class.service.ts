@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   RoomClassDetailResponse,
   RoomClassRequest,
   RoomClassResponse,
+  RoomClassSearchFilters,
 } from '../../types/room-class';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
@@ -17,8 +18,34 @@ export class RoomClassService {
   constructor(private http: HttpClient) {}
 
   // Lấy danh sách tất cả các loại phòng
-  getAllRoomClass(): Observable<RoomClassResponse> {
-    return this.http.get<RoomClassResponse>(`${this.baseUrl}`);
+  getAllRoomClass({
+    search = '',
+    page = 1,
+    limit = 10,
+    sort = 'createdAt',
+    order = 'desc',
+    status = '',
+    feature = '',
+    type = '',
+    minBed = 0,
+    maxBed = 0,
+    minCapacity = 0,
+    maxCapacity = 0,
+  }: RoomClassSearchFilters): Observable<RoomClassResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order)
+      .set('status', status)
+      .set('feature', feature)
+      .set('type', type)
+      .set('minBed', minBed.toString())
+      .set('maxBed', maxBed.toString())
+      .set('minCapacity', minCapacity.toString())
+      .set('maxCapacity', maxCapacity.toString());
+    return this.http.get<RoomClassResponse>(`${this.baseUrl}`, { params });
   }
 
   // Lấy loại phòng theo ID

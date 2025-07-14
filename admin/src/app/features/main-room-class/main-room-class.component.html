@@ -144,7 +144,7 @@
     *ngFor="let rtm of mainRoomClasses; let i = index"
     class="table-row"
   >
-    <div>{{ i + 1 }}</div>
+    <div>{{ (page - 1) * limit + i + 1 }}</div>
     <div>
       {{ rtm.name }}
     </div>
@@ -180,6 +180,12 @@
       </button>
     </div>
   </div>
+  <app-pagination
+    [page]="page"
+    [limit]="limit"
+    [total]="total"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
 
   <!-- Popup chi tiết -->
   <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedMainRoomClass">

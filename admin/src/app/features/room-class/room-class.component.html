@@ -236,7 +236,7 @@
     class="table-row"
     *ngFor="let rc of roomClasses; let i = index"
   >
-    <div>{{ i + 1 }}</div>
+    <div>{{ (page - 1) * limit + i + 1 }}</div>
     <div>{{ rc.name }}</div>
     <div>
       {{ rc.bed_amount }} <br />
@@ -291,6 +291,13 @@
       </button>
     </div>
   </div>
+  <!-- Pagination -->
+  <app-pagination
+    [page]="page"
+    [limit]="limit"
+    [total]="total"
+    (pageChange)="onPageChange($event)"
+   />
   <!-- Popup chi tiết loại phòng -->
   <div class="popup-add-popup" *ngIf="isDetailPopupOpen && selectedRoomClass">
     <div class="popup-content">

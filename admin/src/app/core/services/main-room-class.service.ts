@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   MainRoomClassRequest,
   MainRoomClassDetailResponse,
   MainRoomClassResponse,
+  MainRoomClassFilter,
 } from '../../types/main-room-class';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
@@ -16,8 +17,25 @@ export class MainRoomClassService {
 
   constructor(private httpClient: HttpClient) {}
 
-  getAllMainRoomClasses(): Observable<MainRoomClassResponse> {
-    return this.httpClient.get<MainRoomClassResponse>(`${this.baseUrl}`);
+  getAllMainRoomClasses({
+    search = '',
+    status = '',
+    sort = 'createdAt',
+    order = 'desc',
+    page = 1,
+    limit = 10,
+  }: MainRoomClassFilter): Observable<MainRoomClassResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order);
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    return this.httpClient.get<MainRoomClassResponse>(`${this.baseUrl}`, { params });
   }
 
   getMainRoomClassById(id: string): Observable<MainRoomClassDetailResponse> {
