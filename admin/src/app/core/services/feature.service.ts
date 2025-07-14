@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   FeatureDetailResponse,
-  FeatureParam,
+  FeatureFilter,
   FeatureResponse,
 } from '../../types/feature';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
@@ -24,7 +24,7 @@ export class FeatureService {
     sort = 'createdAt',
     order = 'desc',
     status = '',
-  }: FeatureParam): Observable<FeatureResponse> {
+  }: FeatureFilter): Observable<FeatureResponse> {
     let params = new HttpParams()
       .set('search', search)
       .set('page', page.toString())

@@ -1,3 +1,4 @@
+import { PaginationResponse, PaginationParams } from './common';
 import { RoomClass } from './room-class';
 import { BookingStatus, RoomStatus } from './status';
 
@@ -13,14 +14,10 @@ export interface Room {
   status?: RoomStatus[];
 }
 
-export interface RoomFilterParams {
-  check_in_date?: string;
-  check_out_date?: string;
-}
-
 export interface RoomResponse {
   message: string;
   data: Room[];
+  pagination?: PaginationResponse;
 }
 
 export interface RoomDetailResponse {
@@ -47,3 +44,9 @@ export interface RoomRequest {
   room_status_id?: string;
 }
 
+export interface RoomFilter extends PaginationParams {
+  status?: string;
+  type?: string;
+  check_in_date?: string;
+  check_out_date?: string;
+}

@@ -2,10 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  Room,
   RoomBookingCalendarResponse,
   RoomDetailResponse,
-  RoomFilterParams,
+  RoomFilter,
   RoomRequest,
   RoomResponse,
 } from '../../types/room';
@@ -20,22 +19,29 @@ export class RoomService {
   constructor(private http: HttpClient) {}
 
   // Lấy tất cả phòng (không lọc)
-  getAllRooms(): Observable<RoomResponse> {
-    return this.http.get<RoomResponse>(`${this.baseUrl}`);
-  }
+  getAllRooms({
+    search = '',
+    page = 1,
+    limit = 10,
+    sort = 'createdAt',
+    order = 'desc',
+    type = '',
+    status = '',
+    check_in_date,
+    check_out_date,
+  }: RoomFilter): Observable<RoomResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order)
+      .set('check_in_date', check_in_date || '')
+      .set('check_out_date', check_out_date || '')
+      .set('type', type)
+      .set('status', status);
 
-  // Lọc phòng (trống, trạng thái, loại phòng, tìm kiếm, phân trang...)
-  getRooms(params: RoomFilterParams): Observable<RoomResponse> {
-    let httpParams = new HttpParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== '') {
-        httpParams = httpParams.set(key, value.toString());
-      }
-    });
-
-    return this.http.get<RoomResponse>(`${this.baseUrl}`, {
-      params: httpParams,
-    });
+    return this.http.get<RoomResponse>(`${this.baseUrl}`, { params });
   }
 
   getBookingCalendar(

@@ -5,7 +5,7 @@ import {
   RoomClassDetailResponse,
   RoomClassRequest,
   RoomClassResponse,
-  RoomClassSearchFilters,
+  RoomClassFilter,
 } from '../../types/room-class';
 import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
 
@@ -28,10 +28,10 @@ export class RoomClassService {
     feature = '',
     type = '',
     minBed = 0,
-    maxBed = 0,
+    maxBed = 100,
     minCapacity = 0,
-    maxCapacity = 0,
-  }: RoomClassSearchFilters): Observable<RoomClassResponse> {
+    maxCapacity = 100,
+  }: RoomClassFilter): Observable<RoomClassResponse> {
     let params = new HttpParams()
       .set('search', search)
       .set('page', page.toString())

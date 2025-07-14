@@ -16,8 +16,8 @@
         id="floatingInput"
         placeholder="name@example.com"
         style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (ngModelChange)="onSearchInput()"
+        [(ngModel)]="filter.keyword"
+        (ngModelChange)="onFilterChange()"
       />
       <label for="floatingInput">Tìm kiếm</label>
     </div>
@@ -27,11 +27,16 @@
   </div>
 
   <!-- <div class="filter-bar">
-   <div>
+    <div>
       <label>Tiện nghi:</label>
       <div class="feature-checkboxes">
         <label *ngFor="let feature of features">
-          <input type="checkbox" [value]="feature.id" (change)="onFeatureFilterChange($event)" />
+          <input
+            type="checkbox"
+            [value]="feature.id"
+            [(ngModel)]="filter.feature"
+            (change)="onFilterChange()"
+          />
           {{ feature.name }}
         </label>
       </div>
@@ -236,7 +241,7 @@
     class="table-row"
     *ngFor="let rc of roomClasses; let i = index"
   >
-    <div>{{ (page - 1) * limit + i + 1 }}</div>
+    <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
     <div>{{ rc.name }}</div>
     <div>
       {{ rc.bed_amount }} <br />
@@ -293,11 +298,11 @@
   </div>
   <!-- Pagination -->
   <app-pagination
-    [page]="page"
-    [limit]="limit"
-    [total]="total"
+    [page]="filter.page"
+    [limit]="filter.limit"
+    [total]="filter.total"
     (pageChange)="onPageChange($event)"
-   />
+  />
   <!-- Popup chi tiết loại phòng -->
   <div class="popup-add-popup" *ngIf="isDetailPopupOpen && selectedRoomClass">
     <div class="popup-content">

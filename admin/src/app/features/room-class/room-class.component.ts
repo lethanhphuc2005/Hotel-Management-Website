@@ -28,21 +28,38 @@ export class RoomClassListComponent implements OnInit {
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
-  searchKeyword: string = '';
-  statusFilterString: string = '';
-  statusFilter: boolean | undefined = undefined;
-  sortField: string = 'status';
-  sortOrder: 'asc' | 'desc' = 'asc';
   imagePreview: string[] | null = null;
   selectedFiles: File[] = []; // Danh sách file thực tế
   newRoomClass: RoomClassRequest = {};
-  total = 0; // Tổng số loại phòng, có thể dùng để hiển thị phân trang
-  limit = 10; // Số lượng loại phòng hiển thị mỗi trang
-  page = 1; // Trang hiện tại
-  minBed = 0; // Giá trị tối thiểu cho số giường
-  maxBed = 10;
-  minCapacity = 0; // Giá trị tối thiểu cho sức chứa
-  maxCapacity = 10;
+  filter: {
+    keyword: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+    page: number;
+    limit: number;
+    total: number;
+    status: string;
+    feature: string;
+    type: string;
+    minBed: number;
+    maxBed: number;
+    minCapacity: number;
+    maxCapacity: number;
+  } = {
+    keyword: '',
+    sortField: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    limit: 10,
+    total: 0,
+    status: '',
+    feature: '',
+    type: '',
+    minBed: 0,
+    maxBed: 10,
+    minCapacity: 0,
+    maxCapacity: 10,
+  };
 
   constructor(
     private roomClassService: RoomClassService,
@@ -65,23 +82,23 @@ export class RoomClassListComponent implements OnInit {
   getAllRoomClasses(): void {
     this.roomClassService
       .getAllRoomClass({
-        search: this.searchKeyword,
-        page: this.page,
-        limit: this.limit,
-        sort: this.sortField,
-        order: this.sortOrder,
-        status: this.statusFilterString,
+        search: this.filter.keyword,
+        page: this.filter.page,
+        limit: this.filter.limit,
+        sort: this.filter.sortField,
+        order: this.filter.sortOrder,
+        status: this.filter.status,
         feature: '',
         type: '',
-        minBed: this.minBed,
-        maxBed: this.maxBed,
-        minCapacity: this.minCapacity,
-        maxCapacity: this.maxCapacity,
+        minBed: this.filter.minBed,
+        maxBed: this.filter.maxBed,
+        minCapacity: this.filter.minCapacity,
+        maxCapacity: this.filter.maxCapacity,
       })
       .subscribe({
         next: (res) => {
           this.roomClasses = res.data;
-          this.total = res.pagination.total; // Cập nhật tổng số loại phòng
+          this.filter.total = res.pagination.total; // Cập nhật tổng số loại phòng
         },
         error: (err) => {
           console.error(err);
@@ -90,23 +107,14 @@ export class RoomClassListComponent implements OnInit {
   }
 
   getAllFeatures(): void {
-    this.featureService
-      .getAllFeatures({
-        search: '',
-        page: 1,
-        limit: 100,
-        sort: 'createdAt',
-        order: 'desc',
-        status: '',
-      })
-      .subscribe({
-        next: (res) => {
-          this.features = res.data;
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+    this.featureService.getAllFeatures({}).subscribe({
+      next: (res) => {
+        this.features = res.data;
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
 
   getAllMainRoomClasses(): void {
@@ -120,28 +128,13 @@ export class RoomClassListComponent implements OnInit {
     });
   }
 
-  onSearchInput(): void {
-    this.page = 1; // Reset to first page on new search
+  onFilterChange(): void {
+    this.filter.page = 1; // Reset về trang đầu khi thay đổi bộ lọc
     this.getAllRoomClasses();
   }
 
-  onStatusChange(): void {
-    this.page = 1; // Reset to first page on status change
-    this.getAllRoomClasses();
-  }
-
-  onSortChange(field: string): void {
-    if (this.sortField === field) {
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortOrder = 'asc'; // Default to ascending on new sort
-    }
-    this.getAllRoomClasses();
-  }
-
-  onPageChange(newPage: number): void {
-    this.page = newPage;
+  onPageChange(page: number): void {
+    this.filter.page = page;
     this.getAllRoomClasses();
   }
 

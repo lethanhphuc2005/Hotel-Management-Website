@@ -12,16 +12,16 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { ToastrService } from 'ngx-toastr';
 import { RoomClass } from '../../types/room-class';
 import { RoomStatus } from '../../types/status';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-room-list',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
-  imports: [RouterModule, CommonModule, FormsModule, FullCalendarModule],
+  imports: [RouterModule, CommonModule, FormsModule, FullCalendarModule, PaginationComponent],
   standalone: true,
 })
 export class RoomListComponent implements OnInit {
-  originalRooms: Room[] = [];
   rooms: Room[] = [];
   roomClasses: RoomClass[] = [];
   roomStatuses: RoomStatus[] = []; // Assuming you have a type for room statuses
@@ -29,26 +29,32 @@ export class RoomListComponent implements OnInit {
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
-  searchKeyword: string = '';
   statusFilterString: string = '';
   statusFilter: boolean | undefined = undefined;
-  sortField: string = 'status';
-  sortOrder: 'asc' | 'desc' = 'asc';
   newRoom: RoomRequest = {};
   filter: {
-    keyword?: string;
-    room_class_id?: string;
-    room_status_id?: string;
+    keyword: string;
     check_in_date?: string;
     check_out_date?: string;
+    total: number;
+    page: number;
+    limit: number;
+    type: string;
+    status: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
   } = {
     keyword: '',
-    room_class_id: '',
-    room_status_id: '',
     check_in_date: undefined,
     check_out_date: undefined,
+    total: 0,
+    page: 1,
+    limit: 10,
+    type: '',
+    status: '',
+    sortField: 'createdAt',
+    sortOrder: 'desc',
   };
-
   calendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
@@ -56,7 +62,6 @@ export class RoomListComponent implements OnInit {
     height: 'auto',
     locale: 'vi',
   };
-
   constructor(
     private roomService: RoomService,
     private roomStatusService: RoomStatusService,
@@ -71,35 +76,47 @@ export class RoomListComponent implements OnInit {
   }
 
   getAllRooms(): void {
-    this.roomService.getAllRooms().subscribe({
-      next: (res: any) => {
-        this.originalRooms = res.data;
-        this.rooms = [...this.originalRooms];
-      },
-      error: (err) => console.error('Lỗi khi lấy danh sách phòng:', err),
-    });
+    this.roomService
+      .getAllRooms({
+        search: this.filter.keyword,
+        page: this.filter.page,
+        limit: this.filter.limit,
+        sort: this.filter.sortField,
+        order: this.filter.sortOrder,
+        type: this.filter.type,
+        status: this.filter.status,
+        check_in_date: this.filter.check_in_date,
+        check_out_date: this.filter.check_out_date,
+      })
+      .subscribe({
+        next: (res: any) => {
+          this.rooms = res.data;
+          this.filter.total = res.pagination.total;
+        },
+        error: (err) => {
+          console.error('Lỗi khi lấy danh sách phòng:', err);
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+          this.rooms = [];
+          this.filter.total = 0;
+        },
+      });
   }
 
   getAllRoomClasses(): void {
-    this.roomClassService.getAllRoomClass({
-      search: '',
-      page: 1,
-      limit: 100, // Lấy tất cả để hiển thị trong dropdown
-      sort: 'createdAt',
-      order: 'desc',
-      status: '',
-      feature: '',
-      type: '',
-      minBed: 0,
-      maxBed: 0,
-      minCapacity: 0,
-      maxCapacity: 0,
-    }).subscribe({
-      next: (res: any) => {
-        this.roomClasses = res.data;
-      },
-      error: (err) => console.error('Lỗi khi lấy danh sách loại phòng:', err),
-    });
+    this.roomClassService
+      .getAllRoomClass({
+        page: 1,
+        limit: 100, // Lấy tất cả loại phòng
+      })
+      .subscribe({
+        next: (res: any) => {
+          this.roomClasses = res.data;
+        },
+        error: (err) => console.error('Lỗi khi lấy danh sách loại phòng:', err),
+      });
   }
 
   getAllRoomStatuses(): void {
@@ -112,15 +129,14 @@ export class RoomListComponent implements OnInit {
     });
   }
 
-  onSearchInput(): void {
-    if (!this.searchKeyword.trim()) {
-      this.rooms = [...this.originalRooms];
-      return;
-    }
+  onFilterChange(): void {
+    this.filter.page = 1; // Reset to first page on filter change
+    this.getAllRooms();
+  }
 
-    this.rooms = this.originalRooms.filter((item) =>
-      item.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
-    );
+  onPageChange(page: number): void {
+    this.filter.page = page;
+    this.getAllRooms();
   }
 
   onViewDetail(event: MouseEvent, r: Room) {
@@ -222,47 +238,6 @@ export class RoomListComponent implements OnInit {
           );
         },
       });
-  }
-
-  filterRooms(): void {
-    const keywordMatch = (room: Room) =>
-      !this.filter.keyword ||
-      room.name.toLowerCase().includes(this.filter.keyword.toLowerCase());
-
-    const classMatch = (room: Room) =>
-      !this.filter.room_class_id ||
-      room.room_class_id === this.filter.room_class_id;
-
-    const statusMatch = (room: Room) =>
-      !this.filter.room_status_id ||
-      room.room_status_id === this.filter.room_status_id;
-
-    // 👉 Nếu có ngày lọc => gọi backend
-    if (this.filter.check_in_date || this.filter.check_out_date) {
-      this.roomService
-        .getRooms({
-          check_in_date: this.filter.check_in_date,
-          check_out_date: this.filter.check_out_date,
-        })
-        .subscribe({
-          next: (res) => {
-            // Lọc tiếp trên frontend với keyword/class/status
-            this.rooms = res.data.filter(
-              (room) =>
-                keywordMatch(room) && classMatch(room) && statusMatch(room)
-            );
-          },
-          error: (err) => {
-            console.error('Lỗi khi lọc phòng theo ngày:', err);
-            this.toastService.error('Lỗi khi lọc phòng theo ngày', 'Lỗi');
-          },
-        });
-    } else {
-      // 👉 Không có ngày => lọc toàn bộ trên frontend
-      this.rooms = this.originalRooms.filter(
-        (room) => keywordMatch(room) && classMatch(room) && statusMatch(room)
-      );
-    }
   }
 
   loadCalendarData(roomId: string) {

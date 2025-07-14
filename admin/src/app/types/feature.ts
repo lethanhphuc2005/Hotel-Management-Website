@@ -1,3 +1,4 @@
+import { PaginationParams, PaginationResponse } from './common';
 import { RoomClass } from './room-class';
 
 export interface Feature {
@@ -21,13 +22,12 @@ export interface FeatureRoomClass {
 export interface FeatureResponse {
   message: string;
   data: Feature[];
-  pagination: FeaturePagination;
+  pagination: PaginationResponse;
 }
 
 export interface FeatureDetailResponse {
   message: string;
   data: Feature;
-  pagination: FeaturePagination;
 }
 
 export interface FeatureRequest {
@@ -38,18 +38,6 @@ export interface FeatureRequest {
   status: boolean;
 }
 
-export interface FeatureParam {
-  search?: string;
-  page?: number;
-  limit?: number;
-  sort?: string;
-  order?: 'asc' | 'desc';
+export interface FeatureFilter extends PaginationParams {
   status?: string;
-}
-
-export interface FeaturePagination {
-  total: number;
-  totalPages: number;
-  page: number;
-  limit: number;
 }

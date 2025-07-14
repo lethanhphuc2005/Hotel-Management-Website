@@ -17,7 +17,7 @@
         placeholder="name@example.com"
         style="width: 100%; padding-right: 30px"
         [(ngModel)]="filter.keyword"
-        (input)="filterRooms()"
+        (input)="onFilterChange()"
       />
       <label for="floatingInput">Tìm kiếm</label>
     </div>
@@ -31,8 +31,8 @@
       <label for="room-class">Lọc theo loại phòng</label>
       <select
         name="room-class"
-        [(ngModel)]="filter.room_class_id"
-        (change)="filterRooms()"
+        [(ngModel)]="filter.type"
+        (change)="onFilterChange()"
       >
         <option value="" selected>Tất cả loại phòng</option>
         <option *ngFor="let rc of roomClasses" [value]="rc.id">
@@ -44,7 +44,7 @@
     <!-- Lọc trạng thái -->
     <div>
       <label for="status">Lọc theo trạng thái</label>
-      <select [(ngModel)]="filter.room_status_id" (change)="filterRooms()">
+      <select [(ngModel)]="filter.status" (change)="onFilterChange()">
         <option value="">Tất cả trạng thái</option>
         <option *ngFor="let status of roomStatuses" [value]="status.id">
           {{ status.name }}
@@ -58,7 +58,7 @@
       <input
         type="date"
         [(ngModel)]="filter.check_in_date"
-        (change)="filterRooms()"
+        (change)="onFilterChange()"
       />
     </div>
 
@@ -67,7 +67,7 @@
       <input
         type="date"
         [(ngModel)]="filter.check_out_date"
-        (change)="filterRooms()"
+        (change)="onFilterChange()"
       />
     </div>
   </div>
@@ -199,6 +199,13 @@
       </button>
     </div>
   </div>
+  <!-- Pagination -->
+   <app-pagination
+    [page]="filter.page"
+    [total]="filter.total"
+    [limit]="filter.limit"
+    (pageChange)="onPageChange($event)"
+   />
   <!-- popup chi tiết -->
   <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedRoom">
     <div class="popup-content">

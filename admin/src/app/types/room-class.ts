@@ -1,5 +1,5 @@
 import { Comment } from './comment';
-import { PaginationResponse } from './common';
+import { PaginationParams, PaginationResponse } from './common';
 import { FeatureRoomClass } from './feature';
 import { Image } from './image';
 import { MainRoomClass } from './main-room-class';
@@ -53,12 +53,7 @@ export interface RoomClassRequest {
   features?: string[];
 }
 
-export interface RoomClassSearchFilters {
-  search?: string;
-  page?: number;
-  limit?: number;
-  sort?: string;
-  order?: 'asc' | 'desc';
+export interface RoomClassFilter extends PaginationParams {
   status?: string;
   feature?: string;
   type?: string;
