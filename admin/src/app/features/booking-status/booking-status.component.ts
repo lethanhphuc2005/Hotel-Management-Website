@@ -104,19 +104,26 @@ export class BookingStatusComponent implements OnInit {
     this.applyFilters();
   }
 
-  toggleStatus(status: any) {
-    const updatedStatus = { ...status, status: !status.status };
-    this.bookingStatusService.update(status._id, updatedStatus).subscribe({
-      next: () => {
-        status.status = !status.status;
-        this.applyFilters();
-      },
-      error: (err) => {
-        alert('Không thể cập nhật trạng thái');
-        console.error(err);
-      },
-    });
+toggleStatus(status: any) {
+  if (!status || !status.id) {
+    console.error('❌ Không tìm thấy _id trong status:', status);
+    return;
   }
+
+  const updatedStatus = { ...status, status: !status.status };
+
+  this.bookingStatusService.update(status.id, updatedStatus).subscribe({
+    next: () => {
+      status.status = updatedStatus.status;
+      this.applyFilters();
+    },
+    error: (err) => {
+      console.error('❌ Lỗi khi cập nhật trạng thái:', err);
+      alert('Không thể cập nhật trạng thái');
+    },
+  });
+}
+
 
   // ===== Thêm =====
   onAdd() {
@@ -148,7 +155,7 @@ export class BookingStatusComponent implements OnInit {
   }
 
   onEditSubmit() {
-    this.bookingStatusService.update(this.editStatus._id, this.editStatus).subscribe({
+    this.bookingStatusService.update(this.editStatus.id, this.editStatus).subscribe({
       next: () => {
         this.getAllBookingStatuses();
         this.isEditPopupOpen = false;
