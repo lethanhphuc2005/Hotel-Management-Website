@@ -158,7 +158,7 @@ onEdit(content: any) {
   console.log('Sửa content:', content);
 
   this.editContent = {
-    _id: content._id,
+   id: content.id || content._id,
     title: content.title || '',
     content_type_id: content.content_type_id || '',
     content: content.content || '',
@@ -188,7 +188,7 @@ onEdit(content: any) {
       formData.append('image', this.editContent.newImage);
     }
 
-    this.websitecontentService.updateContent(this.editContent._id, formData).subscribe({
+    this.websitecontentService.updateContent(this.editContent.id, formData).subscribe({
       next: () => {
         this.isEditPopupOpen = false;
         this.getAllContents(); // refresh list

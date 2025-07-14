@@ -95,7 +95,7 @@ export class BookingMethodComponent implements OnInit {
 
   toggleStatus(method: any) {
     const updatedMethod = { ...method, status: !method.status };
-    this.bookingMethodService.update(method._id, updatedMethod).subscribe({
+    this.bookingMethodService.update(method.id, updatedMethod).subscribe({
       next: () => {
         method.status = !method.status;
         this.applyFilters();
@@ -137,7 +137,7 @@ export class BookingMethodComponent implements OnInit {
   }
 
   onEditSubmit() {
-    this.bookingMethodService.update(this.editMethod._id, this.editMethod).subscribe({
+    this.bookingMethodService.update(this.editMethod.id, this.editMethod).subscribe({
       next: () => {
         this.getAllBookingMethods();
         this.isEditPopupOpen = false;
