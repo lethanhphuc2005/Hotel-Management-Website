@@ -1,0 +1,68 @@
+<div class="filter-bar">
+  <!-- Trạng thái -->
+  <div>
+    <label for="booking-status">Trạng thái:</label>
+    <select id="booking-status" [(ngModel)]="filter.status">
+      <option value="">Tất cả</option>
+      <option *ngFor="let status of bookingStatuses" [value]="status.id">
+        {{ status.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Phương thức đặt -->
+  <div>
+    <label for="booking-method">Phương thức đặt:</label>
+    <select id="booking-method" [(ngModel)]="filter.method">
+      <option value="">Tất cả</option>
+      <option *ngFor="let method of bookingMethods" [value]="method.id">
+        {{ method.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Trạng thái thanh toán -->
+  <div>
+    <label for="payment-status">Thanh toán:</label>
+    <select id="payment-status" [(ngModel)]="filter.payment_status">
+      <option value="">Tất cả</option>
+      <option value="unpaid">Chưa thanh toán</option>
+      <option value="paid">Đã thanh toán</option>
+      <option value="refunded">Đã hoàn tiền</option>
+    </select>
+  </div>
+
+  <!-- Ngày nhận -->
+  <div>
+    <label>Ngày nhận:</label>
+    <input type="date" [(ngModel)]="filter.check_in_date" />
+  </div>
+
+  <!-- Ngày trả -->
+  <div>
+    <label>Ngày trả:</label>
+    <input type="date" [(ngModel)]="filter.check_out_date" />
+  </div>
+
+  <!-- Tìm kiếm -->
+  <div
+    class="form-floating form-floating-custom mb-3"
+    style="position: relative; flex: 1"
+  >
+    <input
+      type="email"
+      class="form-control"
+      id="floatingInput"
+      placeholder="name@example.com"
+      style="width: 100%; padding-right: 30px"
+      [(ngModel)]="filter.keyword"
+      (keydown.enter)="onFilter.emit()"
+    />
+    <label for="floatingInput">Tìm kiếm</label>
+  </div>
+
+  <!-- Buttons -->
+  <button (click)="onToday.emit()">Hôm nay</button>
+  <button (click)="onFilter.emit()">Lọc</button>
+  <button (click)="onReset.emit()">Đặt lại</button>
+</div>

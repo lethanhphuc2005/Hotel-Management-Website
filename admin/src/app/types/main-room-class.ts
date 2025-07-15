@@ -1,4 +1,4 @@
-import { PaginationParams } from './common';
+import { FilterParams } from './common';
 import { Image } from './image';
 import { RoomClass } from './room-class';
 
@@ -38,6 +38,6 @@ export interface MainRoomClassPaginationResponse {
   totalPages: number;
 }
 
-export interface MainRoomClassFilter extends PaginationParams {
+export interface MainRoomClassFilter extends FilterParams {
   status?: string;
 }

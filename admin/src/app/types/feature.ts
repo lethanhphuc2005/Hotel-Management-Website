@@ -1,4 +1,4 @@
-import { PaginationParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './common';
 import { RoomClass } from './room-class';
 
 export interface Feature {
@@ -38,6 +38,6 @@ export interface FeatureRequest {
   status: boolean;
 }
 
-export interface FeatureFilter extends PaginationParams {
+export interface FeatureFilter extends FilterParams {
   status?: string;
 }

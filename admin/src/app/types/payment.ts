@@ -1,8 +1,8 @@
-import { Booking } from "./booking";
+import { Booking } from './booking';
 import { PaymentMethod } from "./method";
 
 export interface Payment {
-  id: string;
+  id?: string;
   booking_id: string;
   amount: number;
   payment_method_id: string;

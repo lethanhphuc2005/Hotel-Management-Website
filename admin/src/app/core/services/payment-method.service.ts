@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentMethod } from '../../types/method';
-import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
+import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
   providedIn: 'root',

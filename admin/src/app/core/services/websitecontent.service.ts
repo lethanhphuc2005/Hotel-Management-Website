@@ -3,20 +3,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { WebsiteContent } from '../../types/website-content';
-import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
+import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WebsiteContentService {
   private readonly baseUrl = `${environment.apiUrl}/website-content`; // Lấy URL từ file cấu hình môi trường
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAllContents(): Observable<WebsiteContent[]> {
-    return this.http.get<{ data: WebsiteContent[] }>(this.baseUrl).pipe(
-      map(res => res.data)
-    );
+    return this.http
+      .get<{ data: WebsiteContent[] }>(this.baseUrl)
+      .pipe(map((res) => res.data));
   }
 
   getContentById(id: string): Observable<WebsiteContent> {
@@ -34,6 +34,4 @@ export class WebsiteContentService {
   createContent(formData: FormData) {
     return this.http.post<WebsiteContent>(this.baseUrl, formData);
   }
-
-
 }

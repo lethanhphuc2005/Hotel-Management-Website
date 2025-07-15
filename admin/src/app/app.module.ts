@@ -12,6 +12,7 @@ import { ToastrModule } from 'ngx-toastr';
     FullCalendarModule,
     BrowserAnimationsModule,
     ToastrModule
+    
   ],
 })
 export class ToastModule {}

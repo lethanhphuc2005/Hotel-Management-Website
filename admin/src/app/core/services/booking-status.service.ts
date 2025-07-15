@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
+import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({ providedIn: 'root' })
 export class BookingStatusService {
@@ -9,7 +9,7 @@ export class BookingStatusService {
 
   constructor(private http: HttpClient) {}
 
-  getAll() {
+  getAll(): Observable<any> {
     return this.http.get(`${this.baseUrl}`);
   }
 

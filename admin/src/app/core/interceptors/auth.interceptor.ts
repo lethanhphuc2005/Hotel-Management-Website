@@ -39,13 +39,14 @@ export const AuthInterceptor: HttpInterceptorFn = (
     localStorage.removeItem('login');
   }
 
-  const accessToken = loginData.accessToken;
-  const refreshToken = loginData.refreshToken;
+  const accessToken = loginData?.accessToken;
+  const refreshToken = loginData?.refreshToken;
+
   if (isProtectedAPI && !accessToken) {
     location.assign('/login');
     return EMPTY;
   }
-  // 👉 Clone request và thêm token nếu có
+
   let clonedReq = req;
   if (isProtectedAPI && accessToken) {
     clonedReq = req.clone({
@@ -57,39 +58,33 @@ export const AuthInterceptor: HttpInterceptorFn = (
 
   return next(clonedReq).pipe(
     catchError((err: HttpErrorResponse) => {
-      // 👉 Nếu token hết hạn, thử refresh
       if (err.status === 403 && isProtectedAPI && refreshToken) {
-        return http
-          .post(`${baseUrl}/account/refresh`, {
-            refreshToken,
+        return http.post(`${baseUrl}/account/refresh`, { refreshToken }).pipe(
+          switchMap((res: any) => {
+            const newAccessToken = res.data.accessToken;
+            const newRefreshToken = res.data.refreshToken;
+
+            const updatedLoginData = {
+              ...loginData, // ⚠️ giữ nguyên user / các trường khác
+              accessToken: newAccessToken,
+              refreshToken: newRefreshToken,
+            };
+            localStorage.setItem('login', JSON.stringify(updatedLoginData));
+
+            const retryReq = req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${newAccessToken}`,
+              },
+            });
+
+            return next(retryReq);
+          }),
+          catchError((refreshErr) => {
+            localStorage.removeItem('login');
+            location.assign('/login');
+            return EMPTY;
           })
-          .pipe(
-            switchMap((res: any) => {
-              const newAccessToken = res.data.accessToken;
-              const newRefreshToken = res.data.refreshToken;
-
-              const updatedLoginData = {
-                ...loginData.data,
-                accessToken: newAccessToken,
-                refreshToken: newRefreshToken,
-              };
-              localStorage.setItem('login', JSON.stringify(updatedLoginData));
-              // 👉 Gửi lại request với token mới
-              const retryReq = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${newAccessToken}`,
-                },
-              });
-
-              return next(retryReq);
-            }),
-            catchError(() => {
-              // 👉 Refresh thất bại => Xoá login và chuyển về login
-              // localStorage.removeItem('login');
-              // location.assign('/login');
-              return EMPTY;
-            })
-          );
+        );
       }
 
       return throwError(() => err);

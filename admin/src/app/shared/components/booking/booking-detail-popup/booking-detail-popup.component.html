@@ -1,0 +1,213 @@
+<div
+  class="tw-fixed tw-inset-0 tw-bg-black/50 tw-flex tw-items-center tw-justify-center tw-z-50"
+  *ngIf="visible && booking"
+>
+  <div
+    class="tw-bg-white tw-rounded-2xl tw-shadow-2xl tw-w-full tw-max-w-5xl tw-p-6 tw-relative tw-animate-fadeIn tw-max-h-[85vh] tw-overflow-y-auto"
+  >
+    <h2 class="tw-text-2xl tw-font-bold tw-mb-6 tw-text-center tw-text-primary">
+      📋 Chi tiết đơn đặt phòng
+    </h2>
+
+    <!-- THÔNG TIN CHUNG -->
+    <div
+      class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-8 tw-text-sm tw-mb-8"
+    >
+      <!-- CỘT TRÁI -->
+      <div class="tw-space-y-3">
+        <p>
+          <strong>Mã đơn:</strong>
+          <span class="tw-text-blue-600">{{ booking.id }}</span>
+        </p>
+
+        <p>
+          <strong>Nhân viên:</strong>
+          <span *ngIf="booking.employee_id && booking.employee">
+            {{ booking.employee[0].last_name }}
+            {{ booking.employee[0].first_name }}
+          </span>
+          <span *ngIf="!booking.employee_id" class="tw-text-gray-500"
+            >Chưa xác định</span
+          >
+        </p>
+
+        <p>
+          <strong>Khách hàng:</strong><br />
+          {{ booking.full_name }}<br />
+          {{ booking.email }}<br />
+          {{ booking.phone_number }}
+        </p>
+
+        <p>
+          <strong>Số khách:</strong>
+          <span class="tw-text-green-600">
+            {{ booking.adult_amount }} Người lớn /
+            {{ booking.child_amount }} Trẻ em
+          </span>
+        </p>
+
+        <p>
+          <strong>Phương thức đặt:</strong>
+          {{ booking.booking_method[0].name || "Chưa xác định" }}
+        </p>
+
+        <p>
+          <strong>Trạng thái:</strong>
+          <span class="tw-font-semibold">
+            {{
+              getBookingStatusName(booking.booking_status[0].code) ||
+                "Chưa xác định"
+            }}
+          </span>
+          <span *ngIf="booking.cancel_date" class="tw-text-red-500">
+            (Hủy: {{ booking.cancel_date | date : "dd/MM/yyyy" }} -
+            {{ booking.cancel_reason || "Không rõ lý do" }})
+          </span>
+        </p>
+
+        <p>
+          <strong>Thanh toán:</strong>
+          {{ getBookingPaymentStatusName(booking.payment_status) }}
+        </p>
+
+        <p>
+          <strong>Ngày nhận:</strong>
+          {{ booking.check_in_date | date : "dd/MM/yyyy" }}<br />
+          <strong>Ngày trả:</strong>
+          {{ booking.check_out_date | date : "dd/MM/yyyy" }}
+        </p>
+
+        <p>
+          <strong>Ngày đặt:</strong>
+          {{ booking.booking_date | date : "dd/MM/yyyy" }}
+        </p>
+        <p>
+          <strong>Yêu cầu:</strong> {{ booking.request || "Không có yêu cầu" }}
+        </p>
+        <p>
+          <strong>Ghi chú:</strong> {{ booking.note || "Không có ghi chú" }}
+        </p>
+      </div>
+
+      <!-- CỘT PHẢI -->
+      <div class="tw-space-y-4">
+        <div *ngIf="booking.actual_check_in_date">
+          <h4 class="tw-font-bold tw-text-base tw-text-green-700">
+            🏨 Check-in
+          </h4>
+          <p>Ngày: {{ booking.actual_check_in_date | date : "dd/MM/yyyy" }}</p>
+          <p>Giờ: {{ booking.actual_check_in_date | date : "HH:mm" }}</p>
+          <p>CMND/CCCD: {{ booking.check_in_identity?.number || "Chưa có" }}</p>
+          <p>
+            Người đại diện:
+            {{ booking.check_in_identity?.representative_name || "Chưa có" }}
+          </p>
+        </div>
+
+        <div *ngIf="booking.actual_check_out_date">
+          <h4 class="tw-font-bold tw-text-base tw-text-yellow-600">
+            📤 Check-out
+          </h4>
+          <p>Ngày: {{ booking.actual_check_out_date | date : "dd/MM/yyyy" }}</p>
+          <p>Giờ: {{ booking.actual_check_out_date | date : "HH:mm" }}</p>
+        </div>
+
+        <div *ngIf="booking.payment">
+          <h4 class="tw-font-bold tw-text-base tw-text-blue-600">
+            💳 Thanh toán
+          </h4>
+          <p>Phương thức: {{ booking.payment[0].payment_method.name }}</p>
+          <p>
+            Mã giao dịch: {{ booking.payment[0].transaction_id || "Chưa có" }}
+          </p>
+          <p>
+            Ngày: {{ booking.payment[0].payment_date | date : "dd/MM/yyyy" }}
+          </p>
+          <p>
+            Trạng thái:
+            {{
+              getPaymentStatusName(booking.payment[0].status) || "Chưa xác định"
+            }}
+          </p>
+        </div>
+
+        <div>
+          <h4 class="tw-font-bold">💰 Tổng tiền:</h4>
+          <div *ngIf="booking.discount_value > 0">
+            <span class="tw-text-green-600">
+              {{ booking.total_price | currency : "VND" }}
+            </span>
+            <span class="tw-line-through tw-text-red-500 tw-ml-2">
+              {{ booking.original_price | currency : "VND" }}
+            </span>
+          </div>
+          <div *ngIf="booking.discount_value <= 0" class="tw-text-green-600">
+            {{ booking.original_price | currency : "VND" }}
+          </div>
+        </div>
+
+        <div *ngIf="booking.discount.length > 0">
+          <h4 class="tw-font-bold">🎁 Giảm giá:</h4>
+          <ul class="tw-list-disc tw-pl-5 tw-text-sm">
+            <li *ngFor="let discount of booking.discount">
+              {{ discount.name }} - Giảm: {{ getDiscountText(discount) }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANH SÁCH PHÒNG -->
+    <div class="tw-mt-6">
+      <h3 class="tw-font-bold tw-text-lg tw-mb-2">🛏️ Danh sách phòng</h3>
+      <ul class="tw-divide-y tw-divide-gray-200">
+        <li
+          *ngFor="let detail of booking.booking_details"
+          class="tw-py-3 tw-flex tw-flex-col md:tw-flex-row md:tw-items-center tw-gap-4"
+        >
+          <img
+            *ngIf="detail.room_class_id"
+            class="tw-w-16 tw-h-16 tw-rounded tw-object-cover"
+            [src]="getImageUrl(detail.room_class_id.images?.[0]?.url)"
+            [alt]="detail.room_class_id.name"
+          />
+          <div class="tw-flex-1">
+            <p class="tw-font-medium">
+              {{ detail.room?.[0]?.name || "(chưa gán)" }}
+              <span class="tw-font-normal tw-text-gray-500">
+                - {{ detail.room_class_id.name }}
+              </span>
+            </p>
+            <p>
+              Giá: {{ detail.price_per_night | currency : "VND" }} ×
+              {{ detail.nights }} đêm
+            </p>
+            <p *ngIf="detail.room?.[0]?.status?.[0]?.name">
+              Trạng thái: {{ detail.room?.[0]?.status?.[0]?.name }}
+            </p>
+
+            <!-- Dịch vụ -->
+            <div *ngIf="detail.services?.length">
+              <strong>Dịch vụ:</strong>
+              <ul class="tw-list-disc tw-pl-5">
+                <li *ngFor="let service of detail.services">
+                  {{ service.service_id.name }} ({{
+                    service.service_id.price | currency : "VND"
+                  }})
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Nút đóng -->
+    <button
+      class="tw-w-full tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-font-semibold tw-py-2 tw-mt-6 tw-rounded"
+      (click)="onClose()"
+    >
+      Đóng
+    </button>
+  </div>
+</div>

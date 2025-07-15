@@ -1,4 +1,5 @@
 import { Booking } from "./booking";
+import { PaginationResponse } from "./common";
 
 export interface BookingMethod {
   id: string;
@@ -15,4 +16,10 @@ export interface PaymentMethod {
   description: string;
   status: boolean;
   bookings: Booking[];
+}
+
+export interface BookingMethodResponse {
+  message: string;
+  data: BookingMethod[];
+  pagination: PaginationResponse;
 }

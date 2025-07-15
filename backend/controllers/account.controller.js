@@ -22,7 +22,7 @@ const accountController = {
   creareRefreshToken: (user) => {
     return jwt.sign(
       {
-        id: user._id,
+        id: user._id || user.id,
         role: user.role || "user",
         level: user.level || "user",
       },
@@ -221,7 +221,6 @@ const accountController = {
 
       const isMatch = await bcrypt.compare(req.body.password, admin.password);
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
-
       const accessToken = accountController.creareToken(admin);
       const refreshToken = accountController.creareRefreshToken(admin);
       const dataToSend = {

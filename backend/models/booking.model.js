@@ -95,7 +95,7 @@ const bookingSchema = new mongoose.Schema(
     },
     payment_status: {
       type: String,
-      enum: ["PAID", "UNPAID", "CANCELED"],
+      enum: ["PAID", "UNPAID", "CANCELLED", "REFUNDED"],
       default: "UNPAID",
       required: true,
     },
@@ -124,6 +124,37 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       default: 0,
       min: 0,
+    },
+    actual_check_in_date: {
+      type: Date,
+      default: null,
+    },
+    check_in_identity: {
+      type: {
+        type: String, // CMND / CCCD / Passport
+        required: false,
+        enum: ["CMND", "CCCD", "Passport"],
+      },
+      number: {
+        type: String,
+        trim: true,
+        maxlength: 20,
+      },
+      representative_name: {
+        type: String,
+        trim: true,
+        maxlength: 100,
+      },
+    },
+    actual_check_out_date: {
+      type: Date,
+      default: null,
+    },
+    check_out_note: {
+      type: String,
+      nullable: true,
+      trim: true,
+      maxlength: 500,
     },
   },
   { timestamps: true }

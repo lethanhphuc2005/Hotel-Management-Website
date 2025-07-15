@@ -6,7 +6,7 @@ import {
   FeatureFilter,
   FeatureResponse,
 } from '../../types/feature';
-import { environment } from '../../../environments/environment'; // Import từ file cấu hình môi trường
+import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
   providedIn: 'root',

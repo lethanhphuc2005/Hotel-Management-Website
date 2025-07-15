@@ -1,11 +1,13 @@
-import { Discount } from "./discount";
-import { Employee } from "./employee";
-import { BookingMethod } from "./method";
-import { Room } from "./room";
-import { RoomClass } from "./room-class";
-import { ServiceBooking } from "./service";
-import { BookingStatus } from "./status";
-import { User } from "./user";
+import { FilterParams, PaginationResponse } from './common';
+import { Discount } from './discount';
+import { Employee } from './employee';
+import { BookingMethod } from './method';
+import { Payment } from './payment';
+import { Room } from './room';
+import { RoomClass } from './room-class';
+import { ServiceBooking } from './service';
+import { BookingStatus } from './status';
+import { User } from './user';
 
 export interface Booking {
   id: string;
@@ -31,14 +33,19 @@ export interface Booking {
   cancel_date?: Date;
   cancel_reason?: string;
   cancellation_fee?: number;
+  actual_check_in_date?: Date;
+  check_in_identity?: BookingIndentity;
+  actual_check_out_date?: Date;
+  check_out_note?: string;
   created_at?: Date;
   updated_at?: Date;
   booking_status: BookingStatus[];
   booking_method: BookingMethod[];
   user?: User[];
   discount: Discount[];
-  payment: any[];
+  payment: Payment[];
   employee?: Employee[];
+  booking_details: BookingDetail[];
 }
 
 export interface BookingDetail {
@@ -50,4 +57,54 @@ export interface BookingDetail {
   nights: number;
   room?: Room[];
   services: ServiceBooking[];
+}
+
+export interface BookingResponse {
+  message: string;
+  data: Booking[];
+  pagination: PaginationResponse;
+}
+
+export interface BookingFilter extends FilterParams {
+  status?: string;
+  user?: string;
+  method?: string;
+  payment_status?: string;
+  check_in_date?: string;
+  check_out_date?: string;
+  booking_date?: string;
+}
+
+export interface BookingCancel {
+  id: string;
+  reason: string;
+}
+
+export interface BookingConfirm {
+  id: string;
+  roomAssignments: {
+    room_id: string;
+    detail_id: string;
+  }[];
+}
+
+export interface BookingCheckIn {
+  id: string;
+  identity: BookingIndentity;
+}
+
+export interface BookingCheckOut {
+  id: string;
+  note: string;
+}
+
+export interface BookingStatusResponse {
+  message: string;
+  data: Booking;
+}
+
+export interface BookingIndentity {
+  type: 'CMND' | 'CCCD' | 'Passport';
+  number: string;
+  representative_name: string;
 }

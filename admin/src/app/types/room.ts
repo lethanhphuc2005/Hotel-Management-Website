@@ -1,4 +1,4 @@
-import { PaginationResponse, PaginationParams } from './common';
+import { PaginationResponse, FilterParams } from './common';
 import { RoomClass } from './room-class';
 import { BookingStatus, RoomStatus } from './status';
 
@@ -44,7 +44,7 @@ export interface RoomRequest {
   room_status_id?: string;
 }
 
-export interface RoomFilter extends PaginationParams {
+export interface RoomFilter extends FilterParams {
   status?: string;
   type?: string;
   check_in_date?: string;

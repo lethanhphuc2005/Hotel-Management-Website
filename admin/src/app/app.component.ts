@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { TitleService } from './core/services/title.service';
+import { TitleService } from './shared/services/title.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({

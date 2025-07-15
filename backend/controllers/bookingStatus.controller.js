@@ -37,7 +37,10 @@ const bookingStatusController = {
           .status(404)
           .json({ message: "Không có trạng thái đặt phòng nào" });
       }
-      res.status(200).json(status);
+      res.status(200).json({
+        message: "Lấy tất cả trạng thái đặt phòng thành công",
+        data: status,
+      });
     } catch (error) {
       res.status(500).json(error);
     }
@@ -80,6 +83,8 @@ const bookingStatusController = {
       res.status(500).json(error);
     }
   },
+
+  
 
   // === CẬP NHẬT TRẠNG THÁI ===
   updateBookingStatus: async (req, res) => {

@@ -2,46 +2,113 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
+import {
+  BookingCancel,
+  BookingCheckIn,
+  BookingCheckOut,
+  BookingConfirm,
+  BookingFilter,
+  BookingResponse,
+  BookingStatusResponse,
+} from '@/types/booking';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookingService {
-  getAllBookingMethods() {
-    throw new Error('Method not implemented.');
-  }
-
   private readonly baseUrl = `${environment.apiUrl}/booking`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 
-  getAll(params?: any): Observable<any> {
-    let httpParams = new HttpParams();
-    if (params) {
-      Object.keys(params).forEach(key => {
-        if (params[key] != null) {
-          httpParams = httpParams.set(key, params[key]);
-        }
-      });
+  getAllBookings({
+    search = '',
+    order = 'asc',
+    sort = 'booking_date',
+    page = 1,
+    limit = 10,
+    status,
+    user,
+    method,
+    payment_status,
+    check_in_date,
+    check_out_date,
+    booking_date,
+  }: BookingFilter): Observable<BookingResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('order', order)
+      .set('sort', sort)
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+    if (status) {
+      params = params.set('status', status);
     }
-    return this.http.get(this.baseUrl, { params: httpParams });
+    if (user) {
+      params = params.set('user', user);
+    }
+    if (method) {
+      params = params.set('method', method);
+    }
+    if (payment_status) {
+      params = params.set('payment_status', payment_status);
+    }
+    if (check_in_date) {
+      params = params.set('check_in_date', check_in_date);
+    }
+    if (check_out_date) {
+      params = params.set('check_out_date', check_out_date);
+    }
+    if (booking_date) {
+      params = params.set('booking_date', booking_date);
+    }
+
+    return this.http.get<BookingResponse>(this.baseUrl, { params });
   }
 
-  getById(id: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/${id}`);
+  cancelBooking({
+    id,
+    reason,
+  }: BookingCancel): Observable<BookingStatusResponse> {
+    return this.http.put<BookingStatusResponse>(
+      `${this.baseUrl}/cancel/${id}`,
+      { reason }
+    );
   }
 
-  create(data: any): Observable<any> {
-    return this.http.post(this.baseUrl, data);
+  confirmBooking({
+    id,
+    roomAssignments,
+  }: BookingConfirm): Observable<BookingStatusResponse> {
+    return this.http.put<BookingStatusResponse>(
+      `${this.baseUrl}/confirm/${id}`,
+      {
+        roomAssignments,
+      }
+    );
   }
 
-  update(id: string, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, data);
+  checkInBooking({
+    id,
+    identity,
+  }: BookingCheckIn): Observable<BookingStatusResponse> {
+    return this.http.put<BookingStatusResponse>(
+      `${this.baseUrl}/check-in/${id}`,
+      {
+        identity,
+      }
+    );
   }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  checkOutBooking({
+    id,
+    note,
+  }: BookingCheckOut): Observable<BookingStatusResponse> {
+    return this.http.put<BookingStatusResponse>(
+      `${this.baseUrl}/check-out/${id}`,
+      {
+        note,
+      }
+    );
   }
-
 }

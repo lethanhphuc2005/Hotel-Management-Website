@@ -15,8 +15,8 @@
         id="searchInput"
         placeholder="Tìm kiếm tiện nghi..."
         style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (input)="onSearchInput()"
+        [(ngModel)]="filter.keyword"
+        (input)="onFilterChange()"
       />
       <label for="searchInput">Tìm kiếm</label>
     </div>
@@ -118,7 +118,7 @@
   </div>
 
   <div *ngFor="let feature of features; let i = index" class="table-row">
-    <div>{{ (page - 1) * limit + i + 1 }}</div>
+    <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
     <div (click)="onViewDetail($event, feature)" style="cursor: pointer">
       {{ feature.name }}
     </div>
@@ -159,9 +159,9 @@
     </div>
   </div>
   <app-pagination
-    [total]="total"
-    [page]="page"
-    [limit]="limit"
+    [total]="filter.total"
+    [page]="filter.page"
+    [limit]="filter.limit"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
 

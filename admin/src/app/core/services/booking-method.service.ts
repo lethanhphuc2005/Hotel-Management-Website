@@ -1,20 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookingMethod } from '../../types/method';
+import { BookingMethod, BookingMethodResponse } from '../../types/method';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-
+import { environment } from '@env/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookingMethodService {
   private readonly baseUrl = `${environment.apiUrl}/booking-method`; // Lấy URL từ file cấu hình môi trường
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<BookingMethod[]> {
-    return this.http.get<BookingMethod[]>(this.baseUrl);
+  getAll(): Observable<BookingMethodResponse> {
+    return this.http.get<BookingMethodResponse>(this.baseUrl);
   }
 
   create(data: any): Observable<any> {
@@ -25,4 +24,3 @@ export class BookingMethodService {
     return this.http.put(`${this.baseUrl}/${id}`, data);
   }
 }
-

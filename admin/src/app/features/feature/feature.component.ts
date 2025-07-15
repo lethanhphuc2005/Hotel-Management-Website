@@ -15,17 +15,11 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
   styleUrls: ['./feature.component.scss'],
 })
 export class FeatureComponent implements OnInit {
-  originalFeatures: Feature[] = [];
   features: Feature[] = [];
   selectedFeature: Feature | null = null;
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
-  searchKeyword: string = '';
-  statusFilterString: string = '';
-  statusFilter: boolean | undefined = undefined;
-  sortField: string = 'status';
-  sortOrder: 'asc' | 'desc' = 'asc';
   imagePreview: string | null = null;
   newFeature: FeatureRequest = {
     name: '',
@@ -34,10 +28,23 @@ export class FeatureComponent implements OnInit {
     status: true,
     image: null,
   };
-  page = 1;
-  limit = 10;
-  total = 0;
-  totalPages = 0;
+  filter: {
+    keyword: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+    page: number;
+    limit: number;
+    total: number;
+    status: string;
+  } = {
+    keyword: '',
+    sortField: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    limit: 10,
+    total: 0,
+    status: '',
+  };
 
   constructor(
     private featureService: FeatureService,
@@ -56,49 +63,37 @@ export class FeatureComponent implements OnInit {
   getAllFeatures(): void {
     this.featureService
       .getAllFeatures({
-        search: this.searchKeyword,
-        page: this.page,
-        limit: this.limit,
-        sort: this.sortField,
-        order: this.sortOrder,
-        status: this.statusFilterString,
+        search: this.filter.keyword,
+        page: this.filter.page,
+        limit: this.filter.limit,
+        sort: this.filter.sortField,
+        order: this.filter.sortOrder,
+        status: this.filter.status,
       })
       .subscribe({
         next: (res) => {
           this.features = res.data;
-          this.total = res.pagination.total;
-          this.totalPages = res.pagination.totalPages;
+          this.filter.total = res.pagination.total;
         },
         error: (err) => {
           console.error(err);
-          this.toastService.error('Không thể tải tiện nghi');
+          this.toastService.error(err.error?.message, 'Lỗi');
+          this.features = [];
         },
       });
   }
 
   onPageChange(newPage: number): void {
-    this.page = newPage;
+    this.filter.page = newPage;
     this.getAllFeatures();
   }
 
-  onSearchInput(): void {
-    this.page = 1; // Reset về trang đầu khi tìm kiếm
-    this.getAllFeatures();
-  }
-
-  onStatusChange(): void {
-    this.page = 1;
-    this.getAllFeatures();
-  }
-
-  onSortChange(field: string): void {
-    if (this.sortField === field) {
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortOrder = 'asc';
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sortField = sortField;
+      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc';
     }
-    this.page = 1;
+    this.filter.page = 1; // Reset to first page on filter change
     this.getAllFeatures();
   }
 

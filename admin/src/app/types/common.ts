@@ -5,7 +5,7 @@ export interface PaginationResponse {
   totalPages: number;
 }
 
-export interface PaginationParams {
+export interface FilterParams {
   page?: number;
   limit?: number;
   sort?: string;

@@ -16,8 +16,8 @@
         id="floatingInput"
         placeholder="name@example.com"
         style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (ngModelChange)="onSearchInput()"
+        [(ngModel)]="filter.keyword"
+        (ngModelChange)="onFilterChange()"
       />
       <label for="floatingInput">Tìm kiếm</label>
     </div>
@@ -34,9 +34,9 @@
       <label for="status">Trạng thái:</label>
       <select
         id="status"
-        [(ngModel)]="statusFilterString"
-        name="statusFilterString"
-        (ngModelChange)="onStatusChange()"
+        [(ngModel)]="filter.status"
+        name="status"
+        (ngModelChange)="onFilterChange()"
       >
         <option value="">Tất cả</option>
         <option value="true">Đang hoạt động</option>
@@ -47,8 +47,8 @@
     <!-- Nút sắp xếp theo trạng thái -->
     <div>
       <label>Sắp xếp:</label>
-      <button (click)="onSortChange('status')">
-        Trạng thái: {{ sortOrder === "asc" ? "↑" : "↓" }}
+      <button [(ngModel)]="filter.sortOrder" (click)="onFilterChange('status')">
+        Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
       </button>
     </div>
   </div>
@@ -144,7 +144,7 @@
     *ngFor="let rtm of mainRoomClasses; let i = index"
     class="table-row"
   >
-    <div>{{ (page - 1) * limit + i + 1 }}</div>
+    <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
     <div>
       {{ rtm.name }}
     </div>
@@ -181,9 +181,9 @@
     </div>
   </div>
   <app-pagination
-    [page]="page"
-    [limit]="limit"
-    [total]="total"
+    [page]="filter.page"
+    [limit]="filter.limit"
+    [total]="filter.total"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
 

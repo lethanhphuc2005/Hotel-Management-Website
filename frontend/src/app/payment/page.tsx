@@ -195,7 +195,6 @@ export default function PayMent() {
       toast.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
-
     try {
       setLoading(true);
       const payload = {

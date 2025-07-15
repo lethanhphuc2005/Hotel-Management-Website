@@ -102,6 +102,8 @@ export class RoomClassListComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
+          this.toastService.error(err.error?.message, 'Lỗi');
+          this.roomClasses = [];
         },
       });
   }

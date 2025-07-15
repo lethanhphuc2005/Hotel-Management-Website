@@ -18,7 +18,13 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
   selector: 'app-room-list',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
-  imports: [RouterModule, CommonModule, FormsModule, FullCalendarModule, PaginationComponent],
+  imports: [
+    RouterModule,
+    CommonModule,
+    FormsModule,
+    FullCalendarModule,
+    PaginationComponent,
+  ],
   standalone: true,
 })
 export class RoomListComponent implements OnInit {
@@ -95,10 +101,7 @@ export class RoomListComponent implements OnInit {
         },
         error: (err) => {
           console.error('Lỗi khi lấy danh sách phòng:', err);
-          this.toastService.error(
-            err.error?.message || err.message || err.statusText,
-            'Lỗi'
-          );
+          this.toastService.error(err.error?.message, 'Lỗi');
           this.rooms = [];
           this.filter.total = 0;
         },

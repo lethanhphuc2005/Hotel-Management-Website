@@ -26,13 +26,6 @@ router.get(
   bookingController.getBookingById
 );
 
-// == HỦY BỎ ĐẶT PHÒNG ===
-router.put(
-  "/cancel/:id",
-  authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
-  bookingController.cancelBooking
-);
-
 // === XEM PHÍ HỦY BỎ ĐẶT PHÒNG ===
 router.get(
   "/cancellation-fee/:id",
@@ -40,11 +33,32 @@ router.get(
   bookingController.previewCancellationFee
 );
 
-// === CẬP NHẬT TRẠNG THÁI ĐẶT PHÒNG ===
+// == HỦY BỎ ĐẶT PHÒNG ===
 router.put(
-  "/update-status/:id",
+  "/cancel/:id",
+  authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
+  bookingController.cancelBooking
+);
+
+// === XÁC NHẬN ĐẶT PHÒNG ===
+router.put(
+  "/confirm/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
-  bookingController.updateBookingStatus
+  bookingController.confirmBooking
+);
+
+// === CHECK IN ĐẶT PHÒNG ===
+router.put(
+  "/check-in/:id",
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  bookingController.checkInBooking
+);
+
+// === CHECK OUT ĐẶT PHÒNG ===
+router.put(
+  "/check-out/:id",
+  authMiddleware.authorizeRoles("admin", "receptionist"),
+  bookingController.checkOutBooking
 );
 
 // === TÍNH TỔNG TIỀN ĐẶT PHÒNG ===

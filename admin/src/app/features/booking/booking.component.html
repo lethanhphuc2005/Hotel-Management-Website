@@ -1,127 +1,43 @@
 <div class="room-management user-management-card">
   <h2>Quản lý đặt phòng</h2>
 
-  <!-- Controls -->
- <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
-       <div
-      class="form-floating form-floating-custom mb-3"
-      style="position: relative; flex: 1"
-    >
-      <input
-        type="email"
-        class="form-control"
-        id="floatingInput"
-        placeholder="name@example.com"
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (keyup.enter)="onSearch()"
-      />
-      <label for="floatingInput">Tìm kiếm</label>
-    </div>
-    <button class="add-room" (click)="openAddPopup()">
-      + Thêm Đơn Đặt Phòng
-    </button>
+  <app-booking-filter
+    [filter]="filter"
+    [bookingStatuses]="bookingStatuses"
+    [bookingMethods]="bookingMethods"
+    (onFilter)="onFilterChange()"
+    (onReset)="onResetFilter()"
+    (onToday)="onTodayBookings()"
+  />
+
+  <app-booking-table
+    [bookings]="bookings"
+    (onEdit)="onOpenPopup(false, $event)"
+    (onViewDetail)="onOpenPopup(true, $event)"
+  />
+
+  <div *ngIf="selectedBooking && isEditPopupOpen">
+    <app-booking-status-popup
+      [visible]="isEditPopupOpen"
+      [booking]="selectedBooking"
+      (onClose)="onClosePopup()"
+      (onConfirm)="handleConfirm($event)"
+      (onCheckIn)="handleCheckIn($event)"
+      (onCheckOut)="handleCheckOut($event)"
+      (onCancel)="handleCancel($event)"
+    />
   </div>
 
-  <!-- Bộ lọc -->
-  <div class="filter-bar">
-    <!-- Trạng thái -->
-    <div>
-      <label for="booking-status">Trạng thái:</label>
-      <select
-        id="booking-status"
-        [(ngModel)]="filter.status"
-        (change)="filterBookings()"
-      >
-        <option value="">Tất cả</option>
-        <option *ngFor="let status of bookingStatuses" [value]="status.id">
-          {{ status.name }}
-        </option>
-      </select>
-    </div>
+  <app-booking-detail-popup
+    [visible]="isDetailPopupOpen"
+    [booking]="selectedBooking"
+    [onClose]="onClosePopup.bind(this)"
+  />
 
-    <!-- Phương thức đặt -->
-    <div>
-      <label for="booking-method">Phương thức đặt:</label>
-      <select
-        id="booking-method"
-        [(ngModel)]="filter.booking_method"
-        (ngModelChange)="filterBookings()"
-      >
-        <option value="">Tất cả</option>
-        <option *ngFor="let method of bookingMethods" [value]="method.id">
-          {{ method.name }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Trạng thái thanh toán -->
-    <div>
-      <label for="payment-status">Thanh toán:</label>
-      <select
-        id="payment-status"
-        [(ngModel)]="filter.payment_status"
-        (ngModelChange)="filterBookings()"
-      >
-        <option value="">Tất cả</option>
-        <option *ngFor="let status of paymentStatuses" [value]="status.id">
-          {{ status.name }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Ngày nhận -->
-    <div>
-      <label>Ngày nhận:</label>
-      <input type="date" [(ngModel)]="filter.check_in_date" />
-    </div>
-
-    <!-- Ngày trả -->
-    <div>
-      <label>Ngày trả:</label>
-      <input type="date" [(ngModel)]="filter.check_out_date" />
-    </div>
-
-    <!-- Nút lọc -->
-    <button (click)="filterByDate()">Lọc</button>
-  </div>
-
-  <!-- Table Header -->
-  <div class="table-header">
-    <div>Mã đơn</div>
-    <div>Khách hàng</div>
-    <div>Ngày nhận / trả</div>
-    <!-- <div>SL người lớn / trẻ em</div> -->
-    <div>Phương thức đặt</div>
-    <div>Trạng thái</div>
-    <div>Thanh toán</div>
-    <div>Tổng tiền</div>
-    <div>Hành động</div>
-  </div>
-
-  <!-- Table Rows -->
-  <div class="table-row" *ngFor="let booking of bookings; let i = index">
-    <div>{{ booking.id || "---" }}</div>
-    <div>{{ booking.full_name }}</div>
-    <div>
-      {{ booking.check_in_date | date : "dd/MM/yyyy" }}<br />
-      {{ booking.check_out_date | date : "dd/MM/yyyy" }}
-    </div>
-    <!-- <div>
-      {{ booking.adult_count }}
-      {{ booking.children_count }}
-    </div> -->
-    <!-- <div>{{ booking.booking_method?.[0]?.name || 'Không rõ' }}</div>
-    <div>{{ booking.booking_status?.[0]?.name || 'Chưa xác định' }}</div> -->
-    <div>{{ booking.payment_status || "Chưa thanh toán" }}</div>
-    <div>{{ booking.total_price | currency : "VND" }}</div>
-    <div class="actions">
-      <button
-        class="icon-button"
-        (click)="editBooking(booking); $event.stopPropagation()"
-      >
-        <i class="fas fa-pen"></i>
-      </button>
-    </div>
-  </div>
+  <app-pagination
+    [total]="filter.total"
+    [limit]="filter.limit"
+    [page]="filter.page"
+    (pageChange)="onPageChange($event)"
+  />
 </div>

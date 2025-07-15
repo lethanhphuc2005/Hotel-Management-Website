@@ -3,6 +3,11 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./", // Quan trọng
+    "paths": {
+      "@/*": ["src/app/*"], // Gán alias @ -> src/app/
+      "@env/*": ["src/environments/*"] // Gán alias @env -> src/environments/
+    },
     "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,

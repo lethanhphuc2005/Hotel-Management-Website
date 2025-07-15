@@ -19,17 +19,11 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
   imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
 })
 export class MainRoomClassComponent implements OnInit {
-  originalMainRoomClasses: MainRoomClass[] = [];
   mainRoomClasses: MainRoomClass[] = [];
   selectedMainRoomClass: MainRoomClass | null = null;
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
-  searchKeyword: string = '';
-  statusFilterString: string = '';
-  statusFilter: boolean | undefined = undefined;
-  sortField: string = 'status';
-  sortOrder: 'asc' | 'desc' = 'asc';
   imagePreview: string | null = null;
   newMainRoom: MainRoomClassRequest = {
     name: '',
@@ -37,10 +31,23 @@ export class MainRoomClassComponent implements OnInit {
     status: true,
     image: null,
   };
-  page = 1;
-  limit = 5;
-  total = 0;
-  totalPages = 0;
+  filter: {
+    keyword: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+    page: number;
+    limit: number;
+    total: number;
+    status: string;
+  } = {
+    keyword: '',
+    sortField: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    limit: 10,
+    total: 0,
+    status: '',
+  };
 
   constructor(
     private mainRoomClassService: MainRoomClassService,
@@ -58,48 +65,37 @@ export class MainRoomClassComponent implements OnInit {
   getAllMainRoomClasses(): void {
     this.mainRoomClassService
       .getAllMainRoomClasses({
-        search: this.searchKeyword,
-        page: this.page,
-        limit: this.limit,
-        sort: this.sortField,
-        order: this.sortOrder,
-        status: this.statusFilterString,
+        search: this.filter.keyword,
+        page: this.filter.page,
+        limit: this.filter.limit,
+        sort: this.filter.sortField,
+        order: this.filter.sortOrder,
+        status: this.filter.status,
       })
       .subscribe({
         next: (res) => {
           this.mainRoomClasses = res.data;
-          this.total = res.pagination.total;
-          this.totalPages = res.pagination.totalPages;
+          this.filter.total = res.pagination.total;
         },
         error: (err) => {
           console.error(err);
+          this.toastService.error(err.error?.message, 'Lỗi');
+          this.mainRoomClasses = [];
         },
       });
   }
 
   onPageChange(page: number): void {
-    this.page = page;
+    this.filter.page = page;
     this.getAllMainRoomClasses();
   }
 
-  onSearchInput(): void {
-    this.page = 1;
-    this.getAllMainRoomClasses();
-  }
-
-  onStatusChange(): void {
-    this.page = 1;
-    this.getAllMainRoomClasses();
-  }
-
-  onSortChange(field: string): void {
-    if (this.sortField === field) {
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortOrder = 'asc';
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sortField = sortField;
+      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
-    this.page = 1; // Reset về trang đầu khi sắp xếp
+    this.filter.page = 1; // Reset to first page on filter change
     this.getAllMainRoomClasses();
   }
 
