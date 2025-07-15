@@ -1,7 +1,7 @@
 import { FilterParams, PaginationResponse } from './common';
 import { Discount } from './discount';
 import { Employee } from './employee';
-import { BookingMethod } from './method';
+import { BookingMethod } from './booking-method';
 import { Payment } from './payment';
 import { Room } from './room';
 import { RoomClass } from './room-class';

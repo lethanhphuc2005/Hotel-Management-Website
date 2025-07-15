@@ -1,0 +1,39 @@
+<div *ngFor="let method of bookingMethods; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>
+    {{ method.name }}
+  </div>
+  <div>{{ method.description }}</div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="method.status"
+        (change)="toggleStatus.emit({ $event, method })"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div>
+    <ng-container *ngIf="method.bookings && method.bookings.length > 0">
+      <div
+        *ngFor="let booking of method.bookings.slice(0, 2)"
+        style="font-size: 13px"
+      >
+        - Mã: {{ booking.id.slice(-6) }}
+      </div>
+      <div
+        *ngIf="method.bookings.length > 2"
+        style="font-size: 13px; color: #888"
+      >
+        +{{ method.bookings.length - 2 }} bản ghi nữa
+      </div>
+    </ng-container>
+    <ng-template #noBooking>Không có</ng-template>
+  </div>
+  <div class="actions">
+    <button class="icon-button" (click)="openEdit.emit({ method})">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

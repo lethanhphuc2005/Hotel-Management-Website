@@ -10,7 +10,7 @@ import { BookingMethodService } from '@/core/services/booking-method.service';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { ToastrService } from 'ngx-toastr';
 import { BookingStatus } from '@/types/booking-status';
-import { BookingMethod } from '@/types/method';
+import { BookingMethod } from '@/types/booking-method';
 import { BookingDetailPopupComponent } from '@/shared/components/booking/booking-detail-popup/booking-detail-popup.component';
 import { BookingStatusPopupComponent } from '@/shared/components/booking/booking-status-popup/booking-status-popup.component';
 import { BookingFilterComponent } from '@/shared/components/booking/booking-filter/booking-filter.component';
@@ -130,7 +130,7 @@ export class BookingComponent implements OnInit {
   }
 
   getAllBookingMethods(): void {
-    this.bookingMethodService.getAll().subscribe({
+    this.bookingMethodService.getAllBookingMethod({}).subscribe({
       next: (res) => {
         this.bookingMethods = res.data;
       },

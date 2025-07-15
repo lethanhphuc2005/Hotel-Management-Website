@@ -2,150 +2,199 @@ import { Component, OnInit } from '@angular/core';
 import { BookingMethodService } from '../../core/services/booking-method.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { BookingMethod, BookingMethodRequest } from '@/types/booking-method';
+import { ToastrService } from 'ngx-toastr';
+import { BookingMethodFilterComponent } from '@/shared/components/booking-method/booking-method-filter/booking-method-filter.component';
+import { BookingMethodListComponent } from '@/shared/components/booking-method/booking-method-list/booking-method-list.component';
+import { BookingMethodFormComponent } from '@/shared/components/booking-method/booking-method-form/booking-method-form.component';
 
 @Component({
   selector: 'app-booking-method',
   standalone: true,
   templateUrl: './booking-method.component.html',
   styleUrls: ['./booking-method.component.scss'],
-  imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
+  imports: [
+    RouterModule,
+    CommonModule,
+    FormsModule,
+    BookingMethodFilterComponent,
+    BookingMethodListComponent,
+    BookingMethodFormComponent,
+  ],
 })
 export class BookingMethodComponent implements OnInit {
-  bookingMethods: any[] = [];
-  filteredMethods: any[] = [];
-  searchKeyword: string = '';
-  selectedMethod: any = null;
-  sortOrder: 'asc' | 'desc' = 'asc';
+  bookingMethods: BookingMethod[] = [];
+  selectedBookingMethod: BookingMethod | null = null;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
-  isDetailPopupOpen: boolean = false;
-
-  newMethod: any = {
+  newBookingMethod: BookingMethodRequest = {
     name: '',
     description: '',
     status: true,
   };
-
-  editMethod: any = {
-    _id: '',
-    name: '',
-    description: '',
-    status: true,
+  filter: {
+    keyword: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+    page: number;
+    limit: number;
+    total: number;
+    status?: string;
+  } = {
+    keyword: '',
+    sortField: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    limit: 10,
+    total: 0,
+    status: '', // Optional filter for status
   };
 
-  constructor(private bookingMethodService: BookingMethodService) {}
+  constructor(
+    private bookingMethodService: BookingMethodService,
+    private toastService: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.getAllBookingMethods();
   }
 
-  getAllBookingMethods() {
-  this.bookingMethodService.getAll().subscribe({
-    next: (res: any) => {
-      console.log('Dữ liệu phương thức:', res);
-      if (Array.isArray(res.data)) {
-        this.bookingMethods = res.data;
-        this.filteredMethods = [...this.bookingMethods];
-        this.applyFilters(); // << Thêm dòng này để áp dụng filter ngay
-      } else {
-        this.bookingMethods = [];
-        this.filteredMethods = [];
-      }
-    },
-    error: (err) => {
-      console.error('Lỗi load phương thức:', err);
-    },
-  });
-}
+  getAllBookingMethods(): void {
+    this.bookingMethodService
+      .getAllBookingMethod({
+        search: this.filter.keyword,
+        page: this.filter.page,
+        limit: this.filter.limit,
+        status: this.filter.status,
+        order: this.filter.sortOrder,
+        sort: this.filter.sortField,
+      })
+      .subscribe({
+        next: (response) => {
+          this.bookingMethods = response.data;
+          this.filter.total = response.pagination.total;
+        },
+        error: (error) => {
+          console.error('Error fetching booking methods:', error);
+        },
+      });
+  }
 
+  onPageChange(page: number): void {
+    this.filter.page = page;
+    this.getAllBookingMethods();
+  }
 
-  applyFilters() {
-    const keyword = this.searchKeyword?.toLowerCase() || '';
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sortField = sortField;
+      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+    }
+    this.filter.page = 1; // Reset to first page on filter change
+    this.getAllBookingMethods();
+  }
 
-    this.filteredMethods = this.bookingMethods.filter((item) =>
-      item.name?.toLowerCase().includes(keyword)
-    );
+  onToggleChange(event: Event, item: BookingMethod): void {
+    const checkbox = event.target as HTMLInputElement;
+    const originalStatus = item.status;
+    const newStatus = checkbox.checked;
 
-    if (this.sortOrder === 'asc') {
-      this.filteredMethods.sort((a, b) =>
-        a.status === b.status ? 0 : a.status ? -1 : 1
-      );
-    } else {
-      this.filteredMethods.sort((a, b) =>
-        a.status === b.status ? 0 : a.status ? 1 : -1
-      );
+    // Optimistically update status
+    item.status = newStatus;
+
+    this.bookingMethodService.toggleBookingMethodStatus(item.id).subscribe({
+      next: () => {
+        // Thành công → giữ nguyên status
+        this.toastService.success(
+          'Thay đổi trạng thái đặt phòng thành công',
+          'Thành công'
+        );
+      },
+      error: (err) => {
+        // Thất bại → rollback
+        item.status = originalStatus;
+        this.toastService.error(
+          err.error?.message || err.message || err.statusText,
+          'Lỗi'
+        );
+      },
+    });
+  }
+
+  onOpenPopup(isAddForm: boolean, item?: BookingMethod): void {
+    this.isAddPopupOpen = isAddForm;
+    this.isEditPopupOpen = !isAddForm;
+
+    if (isAddForm) {
+      // Reset form thêm mới
+      this.selectedBookingMethod = null;
+      this.newBookingMethod = {
+        name: '',
+        description: '',
+        status: true,
+      };
+    } else if (item) {
+      console.log('Selected item for edit:', item);
+      this.selectedBookingMethod = item;
+      this.newBookingMethod = {
+        name: item.name,
+        description: item.description,
+        status: item.status,
+      };
     }
   }
 
-  onSearch() {
-    this.applyFilters();
+  onClosePopup(): void {
+    this.isAddPopupOpen = false;
+    this.isEditPopupOpen = false;
+    this.selectedBookingMethod = null;
   }
 
-  toggleSortOrder() {
-    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    this.applyFilters();
-  }
+  onAddSubmit(): void {
+    const formData = new FormData();
+    formData.append('name', this.newBookingMethod.name || '');
+    formData.append('description', this.newBookingMethod.description || '');
+    formData.append('status', String(this.newBookingMethod.status) || 'true');
 
-  onViewDetail(method: any) {
-    this.selectedMethod = method;
-    this.isDetailPopupOpen = true;
-  }
-
-  toggleStatus(method: any) {
-    const updatedMethod = { ...method, status: !method.status };
-    this.bookingMethodService.update(method.id, updatedMethod).subscribe({
-      next: () => {
-        method.status = !method.status;
-        this.applyFilters();
-      },
-      error: (err) => {
-        alert('Không thể cập nhật trạng thái');
-        console.error(err);
-      },
-    });
-  }
-
-  // ===== Thêm =====
-  onAdd() {
-    this.newMethod = {
-      name: '',
-      description: '',
-      status: true,
-    };
-    this.isAddPopupOpen = true;
-  }
-
-  onAddSubmit() {
-    this.bookingMethodService.create(this.newMethod).subscribe({
-      next: () => {
+    this.bookingMethodService.createBookingMethod(formData).subscribe({
+      next: (res) => {
+        this.toastService.success(
+          res.message || 'Thêm phương thức đặt phòng thành công',
+          'Thành công'
+        );
         this.getAllBookingMethods();
-        this.isAddPopupOpen = false;
+        this.onClosePopup();
       },
       error: (err) => {
-        alert('Thêm phương thức thất bại');
-        console.error(err);
+        console.error('Error adding booking status:', err);
+        this.toastService.error(err.error?.message || err.message, 'Lỗi');
       },
     });
   }
 
-  // ===== Sửa =====
-  onEdit(method: any) {
-    this.editMethod = { ...method };
-    this.isEditPopupOpen = true;
-  }
+  onEditSubmit(): void {
+    if (!this.selectedBookingMethod) return;
 
-  onEditSubmit() {
-    this.bookingMethodService.update(this.editMethod.id, this.editMethod).subscribe({
-      next: () => {
-        this.getAllBookingMethods();
-        this.isEditPopupOpen = false;
-      },
-      error: (err) => {
-        alert('Cập nhật phương thức thất bại');
-        console.error(err);
-      },
-    });
+    const formData = new FormData();
+    formData.append('name', this.newBookingMethod.name || '');
+    formData.append('description', this.newBookingMethod.description || '');
+
+    this.bookingMethodService
+      .updateBookingMethod(this.selectedBookingMethod.id, formData)
+      .subscribe({
+        next: (res) => {
+          this.toastService.success(
+            res.message || 'Cập nhật phương thức đặt phòng thành công',
+            'Thành công'
+          );
+          this.getAllBookingMethods();
+          this.onClosePopup();
+        },
+        error: (err) => {
+          console.error('Error updating booking status:', err);
+          this.toastService.error(err.error?.message || err.message, 'Lỗi');
+        },
+      });
   }
 }

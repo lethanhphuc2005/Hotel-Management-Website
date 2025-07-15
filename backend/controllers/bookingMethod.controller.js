@@ -1,5 +1,6 @@
 const BookingMethod = require("../models/bookingMethod.model");
 const Booking = require("../models/booking.model");
+const { upload } = require("../middlewares/upload");
 
 const bookingMethodController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===
@@ -118,22 +119,58 @@ const bookingMethodController = {
   },
 
   // === THÊM PHƯƠNG THỨC ĐẶT PHÒNG ===
-  addBookingMethod: async (req, res) => {
-    try {
-      const newMethod = new BookingMethod(req.body);
+  addBookingMethod: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const newMethod = new BookingMethod(req.body);
 
-      const validation = await bookingMethodController.validateBookingMethod(
-        newMethod
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
+        const validation = await bookingMethodController.validateBookingMethod(
+          newMethod
+        );
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        await newMethod.save();
+
+        res.status(201).json({
+          message: "Thêm phương thức đặt phòng thành công",
+          data: newMethod,
+        });
+      } catch (error) {
+        res.status(500).json(error);
+      }
+    },
+  ],
+
+  // === BẬT/TẮT PHƯƠNG THỨC ĐẶT PHÒNG ===
+  toggleBookingMethodStatus: async (req, res) => {
+    try {
+      const methodToToggle = await BookingMethod.findById(
+        req.params.id
+      ).populate("bookings");
+      if (!methodToToggle) {
+        return res
+          .status(404)
+          .json({ message: "Phương thức đặt phòng không tồn tại" });
       }
 
-      await newMethod.save();
+      // Nếu có phòng đặt thì không cho phép bật/tắt
+      if (methodToToggle.bookings && methodToToggle.bookings.length > 0) {
+        return res.status(400).json({
+          message: "Không thể thay đổi trạng thái phương thức đã có phòng đặt.",
+        });
+      }
 
-      res.status(201).json({
-        message: "Thêm phương thức đặt phòng thành công",
-        data: newMethod,
+      methodToToggle.status = !methodToToggle.status;
+      await methodToToggle.save();
+
+      res.status(200).json({
+        message: `Đã ${
+          methodToToggle.status ? "bật" : "tắt"
+        } phương thức đặt phòng thành công`,
+        data: methodToToggle,
       });
     } catch (error) {
       res.status(500).json(error);
@@ -141,46 +178,49 @@ const bookingMethodController = {
   },
 
   // === CẬP NHẬT PHƯƠNG THỨC ĐẶT PHÒNG ===
-  updateBookingMethod: async (req, res) => {
-    try {
-      const methodToUpdate = await BookingMethod.findById(req.params.id);
-      if (!methodToUpdate) {
-        return res
-          .status(404)
-          .json({ message: "Phương thức đặt phòng không tồn tại" });
-      }
+  updateBookingMethod: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const methodToUpdate = await BookingMethod.findById(req.params.id);
+        if (!methodToUpdate) {
+          return res
+            .status(404)
+            .json({ message: "Phương thức đặt phòng không tồn tại" });
+        }
 
-      // Nếu có phòng đặt thì không cho phép cập nhật
-      if (methodToUpdate.bookings && methodToUpdate.bookings.length > 0) {
-        return res.status(400).json({
-          message: "Không thể cập nhật phương thức đã có phòng đặt.",
+        // Nếu có phòng đặt thì không cho phép cập nhật
+        if (methodToUpdate.bookings && methodToUpdate.bookings.length > 0) {
+          return res.status(400).json({
+            message: "Không thể cập nhật phương thức đã có phòng đặt.",
+          });
+        }
+
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? methodToUpdate.toObject()
+            : { ...methodToUpdate.toObject(), ...req.body };
+
+        const validation = await bookingMethodController.validateBookingMethod(
+          updatedData,
+          req.params.id
+        );
+
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        await methodToUpdate.updateOne({ $set: updatedData });
+
+        res.status(200).json({
+          message: "Cập nhật phương thức đặt phòng thành công",
+          data: updatedData,
         });
+      } catch (error) {
+        res.status(500).json(error);
       }
-
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? methodToUpdate.toObject()
-          : { ...methodToUpdate.toObject(), ...req.body };
-
-      const validation = await bookingMethodController.validateBookingMethod(
-        updatedData,
-        req.params.id
-      );
-
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      await methodToUpdate.updateOne({ $set: updatedData });
-
-      res.status(200).json({
-        message: "Cập nhật phương thức đặt phòng thành công",
-        data: updatedData,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === XÓA PHƯƠNG THỨC ĐẶT PHÒNG ===
   deleteBookingMethod: async (req, res) => {

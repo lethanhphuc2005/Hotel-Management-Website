@@ -3,13 +3,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-booking-status-form',
+  selector: 'app-booking-method-form',
   imports: [CommonModule, FormsModule],
-  templateUrl: './booking-status-form.component.html',
-  styleUrl: './booking-status-form.component.scss',
+  templateUrl: './booking-method-form.component.html',
+  styleUrl: './booking-method-form.component.scss',
 })
-export class BookingStatusFormComponent {
-  @Input() bookingStatus: any = {};
+export class BookingMethodFormComponent {
+  @Input() bookingMethod: any = {};
   @Input() isEdit: boolean = false;
   @Output() submitForm = new EventEmitter();
   @Output() close = new EventEmitter();

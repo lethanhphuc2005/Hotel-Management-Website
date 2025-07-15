@@ -38,6 +38,12 @@ export const AuthInterceptor: HttpInterceptorFn = (
     console.error('Lỗi parse localStorage:', error);
     localStorage.removeItem('login');
   }
+  if (!loginData) {
+    if (isProtectedAPI) {
+      location.assign('/login');
+    }
+    return next(req);
+  }
   const accessToken = loginData.accessToken;
   const refreshToken = loginData.refreshToken;
 

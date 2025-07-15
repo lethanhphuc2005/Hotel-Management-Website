@@ -23,6 +23,13 @@ router.post(
   bookingMethodController.addBookingMethod
 );
 
+// === BẬT/TẮT PHƯƠNG THỨC ĐẶT PHÒNG ===
+router.put(
+  "/toggle/:id",
+  authMiddleware.authorizeRoles("admin"),
+  bookingMethodController.toggleBookingMethodStatus
+);
+
 // === CẬP NHẬT PHƯƠNG THỨC ĐẶT PHÒNG ===
 router.put(
   "/:id",

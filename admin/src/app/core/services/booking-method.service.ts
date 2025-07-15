@@ -1,6 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookingMethod, BookingMethodResponse } from '../../types/method';
+import {
+  BookingMethodDetailResponse,
+  BookingMethodFilter,
+  BookingMethodRequest,
+  BookingMethodResponse,
+} from '@/types/booking-method';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 
@@ -12,15 +17,56 @@ export class BookingMethodService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<BookingMethodResponse> {
-    return this.http.get<BookingMethodResponse>(this.baseUrl);
+  getAllBookingMethod({
+    search = '',
+    page = 1,
+    limit = 10,
+    status,
+    order = 'asc',
+    sort = 'createdAt',
+  }: BookingMethodFilter): Observable<BookingMethodResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('search', search)
+      .set('order', order)
+      .set('sort', sort);
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.http.get<BookingMethodResponse>(this.baseUrl, { params });
   }
 
-  create(data: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, data);
+  getBookingMethodById(id: string): Observable<BookingMethodDetailResponse> {
+    return this.http.get<BookingMethodDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  update(id: string, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, data);
+  createBookingMethod(
+    data: FormData | BookingMethodRequest
+  ): Observable<BookingMethodDetailResponse> {
+    return this.http.post<BookingMethodDetailResponse>(this.baseUrl, data);
+  }
+
+  toggleBookingMethodStatus(
+    id: string
+  ): Observable<BookingMethodDetailResponse> {
+    return this.http.put<BookingMethodDetailResponse>(
+      `${this.baseUrl}/toggle/${id}`,
+      {}
+    );
+  }
+
+  updateBookingMethod(
+    id: string,
+    data: FormData | BookingMethodRequest
+  ): Observable<BookingMethodDetailResponse> {
+    return this.http.put<BookingMethodDetailResponse>(
+      `${this.baseUrl}/${id}`,
+      data
+    );
+  }
+
+  deleteBookingMethod(id: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 }

@@ -1,24 +1,11 @@
 <div class="roomtype-management-card">
   <h2>Quản lý phương thức đặt phòng</h2>
 
-  <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
-       <div
-      class="form-floating form-floating-custom mb-3"
-      style="position: relative; flex: 1"
-    >
-      <input
-        type="email"
-        class="form-control"
-        id="floatingInput"
-        placeholder="name@example.com"
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (keyup.enter)="onSearch()"
-      />
-      <label for="floatingInput">Tìm kiếm</label>
-    </div>
-    <button class="add-room" (click)="onAdd()">+ Thêm phương thức</button>
-  </div>
+  <app-booking-method-filter
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+    (openAdd)="onOpenPopup(true)"
+  />
 
   <!-- Header bảng -->
   <div class="table-header">
@@ -31,174 +18,27 @@
   </div>
 
   <!-- Danh sách phương thức -->
-  <div *ngFor="let method of filteredMethods; let i = index" class="table-row">
-    <div>{{ i + 1 }}</div>
-    <div (click)="onViewDetail(method)" style="cursor: pointer">
-      {{ method.name }}
-    </div>
-    <div>{{ method.description }}</div>
-    <div class="status-column">
-      <label class="switch">
-        <input
-          type="checkbox"
-          [checked]="method.status"
-          (change)="toggleStatus(method); $event.stopPropagation()"
-        />
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div>
-      <ng-container *ngIf="method.bookings?.length > 0; else noBooking">
-        <div *ngFor="let booking of method.bookings.slice(0, 2)" style="font-size: 13px">
-          - Mã: {{ booking._id?.slice(-6) }}
-        </div>
-        <div *ngIf="method.bookings.length > 2" style="font-size: 13px; color: #888;">
-          +{{ method.bookings.length - 2 }} bản ghi nữa
-        </div>
-      </ng-container>
-      <ng-template #noBooking>Không có</ng-template>
-    </div>
-    <div class="actions">
-      <button class="icon-button" (click)="onEdit(method); $event.stopPropagation()">
-        <i class="fas fa-pen"></i>
-      </button>
-    </div>
-  </div>
+  <app-booking-method-list
+    [bookingMethods]="bookingMethods"
+    [filter]="filter"
+    (toggleStatus)="onToggleChange($event.$event, $event.method)"
+    (openEdit)="onOpenPopup(false, $event.method)"
+  />
 
-  <!-- Popup Chi tiết -->
-  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedMethod">
-    <div class="popup-content">
-      <h2>Chi tiết phương thức đặt phòng</h2>
+  <!-- Popup thêm mới -->
+  <app-booking-method-form
+    *ngIf="isAddPopupOpen"
+    [bookingMethod]="newBookingMethod"
+    (submitForm)="onAddSubmit()"
+    (close)="onClosePopup()"
+  />
 
-      <div class="popup-section">
-        <label>Tên:</label>
-        <span>{{ selectedMethod.name }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Mô tả:</label>
-        <span>{{ selectedMethod.description }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Trạng thái:</label>
-        <span [ngClass]="selectedMethod.status ? 'active' : 'inactive'">
-          {{ selectedMethod.status ? 'Đang hoạt động' : 'Tạm dừng hoạt động' }}
-        </span>
-      </div>
-
-      <div class="popup-section">
-        <label>Danh sách booking:</label>
-        <div *ngIf="selectedMethod.bookings?.length > 0; else noBooking">
-          <ul>
-            <li *ngFor="let booking of selectedMethod.bookings">
-              <div class="booking-info">
-                <p>
-                  <strong>Ngày:</strong>
-                  {{ booking.check_in_date | date: 'dd/MM/yyyy' }} -
-                  {{ booking.check_out_date | date: 'dd/MM/yyyy' }}
-                </p>
-                <p>
-                  <strong>Người lớn:</strong> {{ booking.adult_amount }} |
-                  <strong>Trẻ em:</strong> {{ booking.child_amount }}
-                </p>
-                <p><strong>Yêu cầu:</strong> {{ booking.request || 'Không' }}</p>
-                <p><strong>Tổng tiền:</strong> {{ booking.total_price | currency: 'VND' }}</p>
-                <hr />
-              </div>
-            </li>
-          </ul>
-        </div>
-        <ng-template #noBooking><p>Không có booking.</p></ng-template>
-      </div>
-
-      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
-    </div>
-  </div>
-
-  <!-- Popup Thêm -->
-  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
-    <div class="popup-content">
-      <h2>Thêm phương thức đặt phòng</h2>
-      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              name="name"
-              placeholder="Tên phương thức"
-              [(ngModel)]="newMethod.name"
-              required
-            />
-            <label>Tên phương thức</label>
-          </div>
-          <div class="form-floating form-floating-custom mb-3">
-            <textarea
-              class="form-control"
-              name="description"
-              placeholder="Mô tả"
-              [(ngModel)]="newMethod.description"
-            ></textarea>
-            <label>Mô tả</label>
-          </div>
-          <label>Trạng thái:</label>
-          <select
-            class="form-select form-control mb-3"
-            name="status"
-            [(ngModel)]="newMethod.status"
-          >
-            <option [value]="true">Đang hoạt động</option>
-            <option [value]="false">Tạm dừng</option>
-          </select>
-        </div>
-        <div class="popup-actions">
-          <button class="btn btn-success" type="submit" [disabled]="!addForm.valid">Lưu</button>
-          <button class="btn btn-danger" type="button" (click)="isAddPopupOpen = false">Hủy</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Popup Sửa -->
-  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
-    <div class="popup-content">
-      <h2>Sửa phương thức đặt phòng</h2>
-      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              name="name"
-              [(ngModel)]="editMethod.name"
-              required
-            />
-            <label>Tên phương thức</label>
-          </div>
-          <div class="form-floating form-floating-custom mb-3">
-            <textarea
-              class="form-control"
-              name="description"
-              [(ngModel)]="editMethod.description"
-            ></textarea>
-            <label>Mô tả</label>
-          </div>
-          <label>Trạng thái:</label>
-          <select
-            class="form-select form-control mb-3"
-            name="status"
-            [(ngModel)]="editMethod.status"
-          >
-            <option [value]="true">Đang hoạt động</option>
-            <option [value]="false">Tạm dừng</option>
-          </select>
-        </div>
-        <div class="popup-actions">
-          <button class="btn btn-success" type="submit" [disabled]="!editForm.valid">Lưu</button>
-          <button class="btn btn-danger" type="button" (click)="isEditPopupOpen = false">Hủy</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Popup chỉnh sửa -->
+  <app-booking-method-form
+    *ngIf="isEditPopupOpen"
+    [bookingMethod]="newBookingMethod"
+    [isEdit]="true"
+    (submitForm)="onEditSubmit()"
+    (close)="onClosePopup()"
+  />
 </div>
