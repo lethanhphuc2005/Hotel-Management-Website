@@ -10,7 +10,7 @@ import {
   BookingConfirm,
   BookingFilter,
   BookingResponse,
-  BookingStatusResponse,
+  BookingStatusUpdateResponse,
 } from '@/types/booking';
 
 @Injectable({
@@ -69,8 +69,8 @@ export class BookingService {
   cancelBooking({
     id,
     reason,
-  }: BookingCancel): Observable<BookingStatusResponse> {
-    return this.http.put<BookingStatusResponse>(
+  }: BookingCancel): Observable<BookingStatusUpdateResponse> {
+    return this.http.put<BookingStatusUpdateResponse>(
       `${this.baseUrl}/cancel/${id}`,
       { reason }
     );
@@ -79,8 +79,8 @@ export class BookingService {
   confirmBooking({
     id,
     roomAssignments,
-  }: BookingConfirm): Observable<BookingStatusResponse> {
-    return this.http.put<BookingStatusResponse>(
+  }: BookingConfirm): Observable<BookingStatusUpdateResponse> {
+    return this.http.put<BookingStatusUpdateResponse>(
       `${this.baseUrl}/confirm/${id}`,
       {
         roomAssignments,
@@ -91,8 +91,8 @@ export class BookingService {
   checkInBooking({
     id,
     identity,
-  }: BookingCheckIn): Observable<BookingStatusResponse> {
-    return this.http.put<BookingStatusResponse>(
+  }: BookingCheckIn): Observable<BookingStatusUpdateResponse> {
+    return this.http.put<BookingStatusUpdateResponse>(
       `${this.baseUrl}/check-in/${id}`,
       {
         identity,
@@ -103,8 +103,8 @@ export class BookingService {
   checkOutBooking({
     id,
     note,
-  }: BookingCheckOut): Observable<BookingStatusResponse> {
-    return this.http.put<BookingStatusResponse>(
+  }: BookingCheckOut): Observable<BookingStatusUpdateResponse> {
+    return this.http.put<BookingStatusUpdateResponse>(
       `${this.baseUrl}/check-out/${id}`,
       {
         note,

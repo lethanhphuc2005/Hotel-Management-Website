@@ -1,169 +1,203 @@
 import { Component, OnInit } from '@angular/core';
-import { BookingStatusService } from '../../core/services/booking-status.service';
+import { BookingStatusService } from '@/core/services/booking-status.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { BookingStatus, BookingStatusRequest } from '@/types/booking-status';
+import { ToastrService } from 'ngx-toastr';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { BookingStatusFilterComponent } from '@/shared/components/booking-status/booking-status-filter/booking-status-filter.component';
+import { BookingStatusListComponent } from '@/shared/components/booking-status/booking-status-list/booking-status-list.component';
+import { BookingStatusFormComponent } from '@/shared/components/booking-status/booking-status-form/booking-status-form.component';
 
 @Component({
   selector: 'app-booking-status',
   standalone: true,
   templateUrl: './booking-status.component.html',
   styleUrls: ['./booking-status.component.scss'],
-  imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
+  imports: [
+    RouterModule,
+    CommonModule,
+    FormsModule,
+    PaginationComponent,
+    BookingStatusFilterComponent,
+    BookingStatusListComponent,
+    BookingStatusFormComponent,
+  ],
 })
 export class BookingStatusComponent implements OnInit {
-  bookingStatuses: any[] = [];
-  filteredStatuses: any[] = [];
-  searchKeyword: string = '';
-  statusFilterString: string = '';
-  selectedStatus: any = null;
-  sortOrder: 'asc' | 'desc' = 'asc';
+  bookingStatuses: BookingStatus[] = [];
+  selectedBookingStatus: BookingStatus | null = null;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
-  isDetailPopupOpen: boolean = false;
-  newStatus: any = {
+  newBookingStatus: BookingStatusRequest = {
     name: '',
-    code: '',
     status: true,
   };
-
-  editStatus: any = {
-    _id: '',
-    name: '',
-    code: '',
-    status: true,
+  filter: {
+    keyword: string;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+    page: number;
+    limit: number;
+    total: number;
+    status?: string;
+  } = {
+    keyword: '',
+    sortField: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    limit: 10,
+    total: 0,
+    status: '', // Optional filter for status
   };
 
-  constructor(private bookingStatusService: BookingStatusService) { }
+  constructor(
+    private bookingStatusService: BookingStatusService,
+    private toastService: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.getAllBookingStatuses();
   }
 
-  getAllBookingStatuses() {
-    this.bookingStatusService.getAll().subscribe({
-      next: (res: any) => {
-        console.log('Dữ liệu trả về:', res);
-        if (Array.isArray(res)) {
-          this.bookingStatuses = res;
-          this.filteredStatuses = [...this.bookingStatuses];
-        } else {
+  getAllBookingStatuses(): void {
+    this.bookingStatusService
+      .getAllBookingStatus({
+        search: this.filter.keyword,
+        sort: this.filter.sortField,
+        order: this.filter.sortOrder,
+        page: this.filter.page,
+        limit: this.filter.limit,
+        status: this.filter.status,
+      })
+      .subscribe({
+        next: (res) => {
+          this.bookingStatuses = res.data;
+          this.filter.total = res.pagination.total;
+        },
+        error: (err) => {
+          console.error('Error fetching booking statuses:', err);
+          this.toastService.error(err.error?.message, 'Lỗi');
           this.bookingStatuses = [];
-          this.filteredStatuses = [];
-        }
-      },
-      error: (err) => {
-        console.error('Lỗi load booking status:', err);
-      }
-    });
+        },
+      });
   }
 
-
-  applyFilters() {
-  const keyword = this.searchKeyword?.toLowerCase() || '';
-  const statusFilter = this.statusFilterString || '';
-
-  // Lọc dữ liệu
-  this.filteredStatuses = this.bookingStatuses.filter((item) => {
-    const nameMatch = item.name?.toLowerCase().includes(keyword);
-    const statusMatch =
-      !statusFilter || item.status.toString() === statusFilter;
-
-    return nameMatch && statusMatch;
-  });
-
-  // Sắp xếp theo status (true/false)
-  if (this.sortOrder === 'asc') {
-    this.filteredStatuses.sort((a, b) => {
-      return a.status === b.status ? 0 : a.status ? -1 : 1;
-    });
-  } else {
-    this.filteredStatuses.sort((a, b) => {
-      return a.status === b.status ? 0 : a.status ? 1 : -1;
-    });
-  }
-}
-
-
-  onViewDetail(status: any) {
-    this.selectedStatus = status;
-    this.isDetailPopupOpen = true;
+  onPageChange(page: number): void {
+    this.filter.page = page;
+    this.getAllBookingStatuses();
   }
 
-  onSearch() {
-    this.applyFilters();
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sortField = sortField;
+      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+    }
+    this.filter.page = 1; // Reset to first page on filter change
+    this.getAllBookingStatuses();
   }
 
-  onStatusChange() {
-    this.applyFilters();
-  }
+  onToggleChange(event: Event, item: BookingStatus): void {
+    const checkbox = event.target as HTMLInputElement;
+    const originalStatus = item.status;
+    const newStatus = checkbox.checked;
 
-  toggleSortOrder() {
-    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    this.applyFilters();
-  }
+    // Optimistically update status
+    item.status = newStatus;
 
-toggleStatus(status: any) {
-  if (!status || !status.id) {
-    console.error('❌ Không tìm thấy _id trong status:', status);
-    return;
-  }
-
-  const updatedStatus = { ...status, status: !status.status };
-
-  this.bookingStatusService.update(status.id, updatedStatus).subscribe({
-    next: () => {
-      status.status = updatedStatus.status;
-      this.applyFilters();
-    },
-    error: (err) => {
-      console.error('❌ Lỗi khi cập nhật trạng thái:', err);
-      alert('Không thể cập nhật trạng thái');
-    },
-  });
-}
-
-
-  // ===== Thêm =====
-  onAdd() {
-    this.newStatus = {
-      name: '',
-      code: '',
-      status: true,
-    };
-    this.isAddPopupOpen = true;
-  }
-
-  onAddSubmit() {
-    this.bookingStatusService.create(this.newStatus).subscribe({
+    this.bookingStatusService.toggleBookingStatus(item.id).subscribe({
       next: () => {
-        this.getAllBookingStatuses();
-        this.isAddPopupOpen = false;
+        // Thành công → giữ nguyên status
+        this.toastService.success(
+          'Thay đổi trạng thái đặt phòng thành công',
+          'Thành công'
+        );
       },
       error: (err) => {
-        alert('Thêm thất bại');
-        console.error(err);
+        // Thất bại → rollback
+        item.status = originalStatus;
+        this.toastService.error(
+          err.error?.message || err.message || err.statusText,
+          'Lỗi'
+        );
       },
     });
   }
 
-  // ===== Sửa =====
-  onEdit(status: any) {
-    this.editStatus = { ...status };
-    this.isEditPopupOpen = true;
+  onOpenPopup(isAddForm: boolean, item?: BookingStatus): void {
+    this.isAddPopupOpen = isAddForm;
+    this.isEditPopupOpen = !isAddForm;
+
+    if (isAddForm) {
+      // Reset form thêm mới
+      this.selectedBookingStatus = null;
+      this.newBookingStatus = {
+        name: '',
+        status: true,
+        code: '',
+      };
+    } else if (item) {
+      console.log('Selected item for edit:', item);
+      this.selectedBookingStatus = item;
+      this.newBookingStatus = {
+        name: item.name,
+        status: item.status,
+        code: item.code,
+      };
+    }
   }
 
-  onEditSubmit() {
-    this.bookingStatusService.update(this.editStatus.id, this.editStatus).subscribe({
-      next: () => {
+  onClosePopup(): void {
+    this.isAddPopupOpen = false;
+    this.isEditPopupOpen = false;
+    this.selectedBookingStatus = null;
+  }
+
+  onAddSubmit(): void {
+    const formData = new FormData();
+    formData.append('name', this.newBookingStatus.name || '');
+    formData.append('status', String(this.newBookingStatus.status) || 'true');
+    formData.append('code', this.newBookingStatus.code || '');
+
+    this.bookingStatusService.createBookingStatus(formData).subscribe({
+      next: (res) => {
+        this.toastService.success(
+          'Thêm trạng thái đặt phòng thành công',
+          'Thành công'
+        );
         this.getAllBookingStatuses();
-        this.isEditPopupOpen = false;
+        this.onClosePopup();
       },
       error: (err) => {
-        alert('Cập nhật thất bại');
-        console.error(err);
+        console.error('Error adding booking status:', err);
+        this.toastService.error(err.error?.message || err.message, 'Lỗi');
       },
     });
+  }
+
+  onEditSubmit(): void {
+    if (!this.selectedBookingStatus) return;
+
+    const formData = new FormData();
+    formData.append('name', this.newBookingStatus.name || '');
+    formData.append('code', this.newBookingStatus.code || '');
+
+    this.bookingStatusService
+      .updateBookingStatus(this.selectedBookingStatus.id, formData)
+      .subscribe({
+        next: (res) => {
+          this.toastService.success(
+            'Cập nhật trạng thái đặt phòng thành công',
+            'Thành công'
+          );
+          this.getAllBookingStatuses();
+          this.onClosePopup();
+        },
+        error: (err) => {
+          console.error('Error updating booking status:', err);
+          this.toastService.error(err.error?.message || err.message, 'Lỗi');
+        },
+      });
   }
 }

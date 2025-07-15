@@ -161,7 +161,7 @@ const commentController = {
         message: "Lấy danh sách bình luận thành công.",
         data: comments,
         pagination: {
-          total: total,
+          total,
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),

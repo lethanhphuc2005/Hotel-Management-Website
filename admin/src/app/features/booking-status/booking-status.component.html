@@ -1,223 +1,47 @@
 <div class="roomtype-management-card">
   <h2>Quản lý trạng thái đặt phòng</h2>
 
-  <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
-    <div
-      class="form-floating form-floating-custom mb-3"
-      style="position: relative; flex: 1"
-    >
-      <input
-        type="email"
-        class="form-control"
-        id="floatingInput"
-        placeholder="name@example.com"
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (keyup.enter)="onSearch()"
-      />
-      <label for="floatingInput">Tìm kiếm</label>
-    </div>
-    <button class="add-room" (click)="onAdd()">+ Thêm trạng thái</button>
-  </div>
+  <app-booking-status-filter
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+    (openAdd)="onOpenPopup(true)"
+  ></app-booking-status-filter>
 
-  <!-- <div class="filter-bar">
-    <div>
-      <label for="status">Trạng thái:</label>
-      <select id="status" [(ngModel)]="statusFilterString" (change)="onStatusChange()">
-        <option value="">Tất cả</option>
-        <option value="true">Đang hoạt động</option>
-        <option value="false">Vô hiệu hóa</option>
-      </select>
-    </div>
-    <div>
-      <label>Sắp xếp:</label>
-      <button (click)="toggleSortOrder()">Trạng thái: {{ sortOrder === 'asc' ? '↑' : '↓' }}</button>
-    </div>
-  </div> -->
-
-  <!-- Bảng hiển thị danh sách trạng thái -->
   <div class="table-header">
-  <div>STT</div>
-  <div>Tên trạng thái</div>
-  <div>Mã trạng thái</div>
-  <div>Trạng thái</div>
-  <div>Booking</div>
-  <div>Hành động</div>
-</div>
-<div *ngFor="let status of filteredStatuses; let i = index" class="table-row">
-  <div>{{ i + 1 }}</div>
-  <div (click)="onViewDetail(status)" style="cursor: pointer">{{ status.name }}</div>
-  <div>{{ status.code }}</div>
-  <div class="status-column">
-    <label class="switch">
-      <input
-        type="checkbox"
-        [checked]="status.status"
-        (change)="toggleStatus(status); $event.stopPropagation()"
-      />
-      <span class="slider"></span>
-    </label>
-  </div>
-  <div>
-  <ng-container *ngIf="status.bookings?.length > 0; else noBooking">
-    <div *ngFor="let booking of status.bookings.slice(0, 2)" style="font-size: 13px">
-      - Mã: {{ booking._id?.slice(-6) }}
-    </div>
-
-    <div *ngIf="status.bookings.length > 2" style="font-size: 13px; color: #888;">
-      +{{ status.bookings.length - 2 }} bản ghi nữa
-    </div>
-  </ng-container>
-  <ng-template #noBooking>Không có</ng-template>
-</div>
-
-  <div class="actions">
-    <button class="icon-button" (click)="onEdit(status); $event.stopPropagation()">
-      <i class="fas fa-pen"></i>
-    </button>
-  </div>
-</div>
-
-
-<!-- Popup Chi tiết Trạng thái Đặt Phòng -->
-<div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedStatus">
-  <div class="popup-content">
-    <h2>Chi tiết trạng thái đặt phòng</h2>
-
-    <div class="popup-section">
-      <label>Tên:</label>
-      <span>{{ selectedStatus.name }}</span>
-    </div>
-
-    <div class="popup-section">
-      <label>Mã:</label>
-      <span>{{ selectedStatus.code }}</span>
-    </div>
-
-    <div class="popup-section">
-      <label>Trạng thái:</label>
-      <span [ngClass]="selectedStatus.status ? 'active' : 'inactive'">
-        {{ selectedStatus.status ? 'Đang hoạt động' : 'Tạm dừng hoạt động' }}
-      </span>
-    </div>
-
-    <div class="popup-section">
-      <label>Danh sách booking:</label>
-      <div *ngIf="selectedStatus.bookings?.length > 0; else noBooking">
-        <ul>
-          <li *ngFor="let booking of selectedStatus.bookings">
-            <div class="booking-info">
-              <p>
-                <strong>Ngày:</strong>
-                {{ booking.check_in_date | date: 'dd/MM/yyyy' }} -
-                {{ booking.check_out_date | date: 'dd/MM/yyyy' }}
-              </p>
-              <p>
-                <strong>Người lớn:</strong> {{ booking.adult_amount }} |
-                <strong>Trẻ em:</strong> {{ booking.child_amount }}
-              </p>
-              <p><strong>Yêu cầu:</strong> {{ booking.request || 'Không' }}</p>
-              <p><strong>Tổng tiền:</strong> {{ booking.total_price | currency: 'VND' }}</p>
-              <hr />
-            </div>
-          </li>
-        </ul>
-      </div>
-      <ng-template #noBooking><p>Không có booking.</p></ng-template>
-    </div>
-
-    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
-  </div>
-</div>
-
-
-  <!-- Popup Thêm trạng thái -->
-  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
-    <div class="popup-content">
-      <h2>Thêm trạng thái đặt phòng</h2>
-      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              name="name"
-              placeholder="Tên trạng thái"
-              [(ngModel)]="newStatus.name"
-              required
-            />
-            <label>Tên trạng thái</label>
-          </div>
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              name="code"
-              placeholder="Mã trạng thái"
-              [(ngModel)]="newStatus.code"
-              required
-            />
-            <label>Mã trạng thái</label>
-          </div>
-          <label>Trạng thái:</label>
-          <select
-            class="form-select form-control mb-3"
-            name="status"
-            [(ngModel)]="newStatus.status"
-          >
-            <option [value]="true">Đang hoạt động</option>
-            <option [value]="false">Tạm dừng</option>
-          </select>
-        </div>
-        <div class="popup-actions">
-          <button class="btn btn-success" type="submit" [disabled]="!addForm.valid">Lưu</button>
-          <button class="btn btn-danger" type="button" (click)="isAddPopupOpen = false">Hủy</button>
-        </div>
-      </form>
-    </div>
+    <div>STT</div>
+    <div>Tên trạng thái</div>
+    <div>Mã trạng thái</div>
+    <div>Trạng thái</div>
+    <div>Booking</div>
+    <div>Hành động</div>
   </div>
 
-  <!-- Popup Sửa trạng thái -->
-  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
-    <div class="popup-content">
-      <h2>Sửa trạng thái đặt phòng</h2>
-      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              name="name"
-              [(ngModel)]="editStatus.name"
-              required
-            />
-            <label>Tên trạng thái</label>
-          </div>
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              name="code"
-              [(ngModel)]="editStatus.code"
-              required
-            />
-            <label>Mã trạng thái</label>
-          </div>
-          <label>Trạng thái:</label>
-          <select
-            class="form-select form-control mb-3"
-            name="status"
-            [(ngModel)]="editStatus.status"
-          >
-            <option [value]="true">Đang hoạt động</option>
-            <option [value]="false">Tạm dừng</option>
-          </select>
-        </div>
-        <div class="popup-actions">
-          <button class="btn btn-success" type="submit" [disabled]="!editForm.valid">Lưu</button>
-          <button class="btn btn-danger" type="button" (click)="isEditPopupOpen = false">Hủy</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-booking-status-list
+    [bookingStatuses]="bookingStatuses"
+    [filter]="filter"
+    (toggleStatus)="onToggleChange($event.$event, $event.status)"
+    (openEdit)="onOpenPopup(false, $event)"
+  ></app-booking-status-list>
+
+  <app-booking-status-form
+    *ngIf="isAddPopupOpen"
+    [bookingStatus]="newBookingStatus"
+    (submitForm)="onAddSubmit()"
+    (close)="isAddPopupOpen = false"
+  ></app-booking-status-form>
+
+  <app-booking-status-form
+    *ngIf="isEditPopupOpen"
+    [bookingStatus]="newBookingStatus"
+    [isEdit]="true"
+    (submitForm)="onEditSubmit()"
+    (close)="isEditPopupOpen = false"
+  ></app-booking-status-form>
+
+  <app-pagination
+    [limit]="filter.limit"
+    [total]="filter.total"
+    [page]="filter.page"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
 </div>

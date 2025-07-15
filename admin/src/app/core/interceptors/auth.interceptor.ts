@@ -9,7 +9,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, EMPTY } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 
 const baseUrl = environment.apiUrl;
 
@@ -38,9 +38,8 @@ export const AuthInterceptor: HttpInterceptorFn = (
     console.error('Lỗi parse localStorage:', error);
     localStorage.removeItem('login');
   }
-
-  const accessToken = loginData?.accessToken;
-  const refreshToken = loginData?.refreshToken;
+  const accessToken = loginData.accessToken;
+  const refreshToken = loginData.refreshToken;
 
   if (isProtectedAPI && !accessToken) {
     location.assign('/login');

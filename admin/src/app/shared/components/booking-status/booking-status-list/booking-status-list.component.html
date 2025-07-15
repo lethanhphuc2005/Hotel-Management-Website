@@ -1,0 +1,30 @@
+<div *ngFor="let status of bookingStatuses; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ status.name }}</div>
+  <div>{{ status.code }}</div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="status.status"
+        (change)="toggleStatus.emit({ status, $event })"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div>
+    <ng-container *ngIf="status.bookings">
+      <div *ngFor="let booking of status.bookings?.slice(0, 2)">
+        - Mã: {{ booking.id.slice(-6) }}
+      </div>
+      <div *ngIf="status.bookings.length > 2" class="tw-text-gray-500">
+        +{{ status.bookings.length - 2 }} đơn nữa
+      </div>
+    </ng-container>
+  </div>
+  <div class="actions">
+    <button class="icon-button" (click)="openEdit.emit(status)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

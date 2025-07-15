@@ -6,7 +6,7 @@ import { Payment } from './payment';
 import { Room } from './room';
 import { RoomClass } from './room-class';
 import { ServiceBooking } from './service';
-import { BookingStatus } from './status';
+import { BookingStatus } from './booking-status';
 import { User } from './user';
 
 export interface Booking {
@@ -98,7 +98,7 @@ export interface BookingCheckOut {
   note: string;
 }
 
-export interface BookingStatusResponse {
+export interface BookingStatusUpdateResponse {
   message: string;
   data: Booking;
 }

@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { RoomService } from '@/core/services/room.service';
 import { BookingStatusService } from '@/core/services/booking-status.service';
 import { Booking } from '@/types/booking';
-import { BookingStatus } from '@/types/status';
+import { BookingStatus } from '@/types/booking-status';
 
 @Component({
   selector: 'app-booking-status-popup',
@@ -56,7 +56,7 @@ export class BookingStatusPopupComponent implements OnInit {
   }
 
   loadBookingStatuses() {
-    this.bookingStatusService.getAll().subscribe((res) => {
+    this.bookingStatusService.getAllBookingStatus({}).subscribe((res) => {
       this.statuses = res.data;
 
       if (this.booking?.booking_status[0]?.code === 'PENDING') {

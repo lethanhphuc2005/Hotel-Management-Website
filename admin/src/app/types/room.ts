@@ -1,6 +1,7 @@
+import { BookingStatus } from './booking-status';
 import { PaginationResponse, FilterParams } from './common';
 import { RoomClass } from './room-class';
-import { BookingStatus, RoomStatus } from './status';
+import { RoomStatus } from './status';
 
 export interface Room {
   id: string;

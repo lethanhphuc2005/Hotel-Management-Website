@@ -1,0 +1,56 @@
+<div class="popup-add-popup">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} trạng thái đặt phòng</h2>
+    <form (ngSubmit)="submitForm.emit()" #form="ngForm">
+      <div
+        class="form-floating form-floating-custom mb-3"
+        style="position: relative; flex: 1"
+      >
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+          style="width: 100%; padding-right: 30px"
+          name="name"
+          [(ngModel)]="bookingStatus.name"
+        />
+        <label for="floatingInput">Tên trạng thái phòng</label>
+      </div>
+      <div
+        class="form-floating form-floating-custom mb-3"
+        style="position: relative; flex: 1"
+      >
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+          style="width: 100%; padding-right: 30px"
+          name="code"
+          [(ngModel)]="bookingStatus.code"
+        />
+        <label for="floatingInput">Mã trạng thái đặt phòng</label>
+      </div>
+      <div *ngIf="!isEdit">
+        <label>Trạng thái:</label>
+        <select
+          class="form-control mb-3"
+          name="status"
+          [(ngModel)]="bookingStatus.status"
+        >
+          <option [value]="true">Đang hoạt động</option>
+          <option [value]="false">Tạm dừng</option>
+        </select>
+      </div>
+      <div class="popup-actions">
+        <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

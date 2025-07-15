@@ -1,0 +1,37 @@
+<div class="room-controls" style="display: flex; align-items: center; gap: 8px">
+  <div
+    class="form-floating form-floating-custom mb-3"
+    style="position: relative; flex: 1"
+  >
+    <input
+      type="email"
+      class="form-control"
+      id="floatingInput"
+      placeholder="name@example.com"
+      style="width: 100%; padding-right: 30px"
+      [(ngModel)]="filter.keyword"
+      (keyup.enter)="filterChange.emit()"
+    />
+    <label for="floatingInput">Tìm kiếm</label>
+  </div>
+  <button class="add-room" (click)="openAdd.emit(true)">
+    + Thêm trạng thái
+  </button>
+</div>
+
+<div class="filter-bar">
+  <div>
+    <label for="status">Trạng thái:</label>
+    <select id="status" [(ngModel)]="filter.status" (change)="filterChange.emit()">
+      <option value="">Tất cả</option>
+      <option value="true">Đang hoạt động</option>
+      <option value="false">Vô hiệu hóa</option>
+    </select>
+  </div>
+  <div>
+    <label>Sắp xếp:</label>
+    <button (click)="filterChange.emit('status')">
+      Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
+    </button>
+  </div>
+</div>
