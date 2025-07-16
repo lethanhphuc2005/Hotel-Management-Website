@@ -7,6 +7,8 @@ export interface BookingMethod {
   description: string;
   status: boolean;
   bookings: Booking[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface BookingMethodResponse {

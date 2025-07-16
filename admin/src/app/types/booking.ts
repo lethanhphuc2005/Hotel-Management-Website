@@ -37,8 +37,6 @@ export interface Booking {
   check_in_identity?: BookingIndentity;
   actual_check_out_date?: Date;
   check_out_note?: string;
-  created_at?: Date;
-  updated_at?: Date;
   booking_status: BookingStatus[];
   booking_method: BookingMethod[];
   user?: User[];
@@ -46,6 +44,8 @@ export interface Booking {
   payment: Payment[];
   employee?: Employee[];
   booking_details: BookingDetail[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface BookingDetail {

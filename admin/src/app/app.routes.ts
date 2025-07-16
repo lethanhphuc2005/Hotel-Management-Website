@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { UserComponent } from './features/user/user.component';
-import { WebsitecontentComponent } from './features/websitecontent/websitecontent.component';
+import { WebsiteContentComponent } from './features/website-content/website-content.component';
 import { LoginComponent } from './features/login/login.component';
 import { AuthGuard } from './core/auth/admin-guard';
 import { RoomListComponent } from './features/room/room.component';
@@ -41,7 +41,7 @@ export const routes: Routes = [
           { path: 'main-room-class', component: MainRoomClassComponent },
           { path: 'room-class', component: RoomClassListComponent },
           { path: 'user', component: UserComponent },
-          { path: 'website-content', component: WebsitecontentComponent },
+          { path: 'website-content', component: WebsiteContentComponent },
           { path: 'content-type', component: ContentTypeComponent },
           { path: 'booking', component: BookingComponent },
           { path: 'booking-method', component: BookingMethodComponent },

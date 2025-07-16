@@ -12,6 +12,6 @@ export interface Review {
   content: string;
   rating: number;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -2,7 +2,7 @@
   <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
   <div>{{ contentType.name }}</div>
   <div>{{ contentType.description }}</div>
-  <div>{{ contentType.updated_at }}</div>
+  <div>{{ contentType.updatedAt | formatDate}}</div>
   <div>
     <ng-container *ngIf="contentType.website_content_list">
       <div

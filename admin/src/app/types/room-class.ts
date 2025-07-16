@@ -17,8 +17,8 @@ export interface RoomClass {
   price_discount: number;
   view: string;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
   main_room_class: MainRoomClass[];
   rooms?: Room[];
   features?: FeatureRoomClass[];

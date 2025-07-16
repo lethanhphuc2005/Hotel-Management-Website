@@ -6,9 +6,9 @@ export interface BookingStatus {
   name: string;
   status: boolean;
   code: string;
-  created_at?: Date;
-  updated_at?: Date;
   bookings?: Booking[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface BookingStatusResponse {

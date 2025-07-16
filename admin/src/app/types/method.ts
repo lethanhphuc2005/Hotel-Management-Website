@@ -7,4 +7,6 @@ export interface PaymentMethod {
   description: string;
   status: boolean;
   bookings: Booking[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }

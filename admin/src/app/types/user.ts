@@ -18,8 +18,8 @@ export interface User {
   is_verified: boolean;
   level: string;
   verfitication_expired?: Date;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
   comments: Comment[];
   reviews: Review[];
   bookings: Booking[];
@@ -31,7 +31,7 @@ export interface UserFavorite {
   id: string;
   user_id: string;
   room_class_id: RoomClass;
-  created_at: Date;
+  createdAt: Date;
   updated_at: Date;
 }
 
@@ -47,5 +47,5 @@ export interface WalletTransaction {
   type: string;
   amount: number;
   note: string;
-  created_at: Date;
+  createdAt: Date;
 }

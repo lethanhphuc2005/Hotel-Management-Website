@@ -1,0 +1,88 @@
+<div class="popup-add-popup">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} nội dung website</h2>
+    <form (ngSubmit)="submitForm.emit()" #form="ngForm">
+      <div class="popup-section">
+        <label for="content_type_id">Loại nội dung:</label>
+        <select
+          id="content_type_id"
+          name="content_type_id"
+          [(ngModel)]="websiteContent.content_type_id"
+          required
+        >
+          <option *ngFor="let type of contentTypes" [value]="type.id">
+            {{ type.name }}
+          </option>
+        </select>
+      </div>
+      <div
+        class="form-floating form-floating-custom mb-3"
+        style="position: relative; flex: 1"
+      >
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+          style="width: 100%; padding-right: 30px"
+          name="name"
+          [(ngModel)]="websiteContent.title"
+        />
+        <label for="floatingInput">Tiêu đề</label>
+      </div>
+      <div>
+        <label for="description">Nội dung</label>
+        <textarea
+          class="form-control mb-3"
+          name="description"
+          [(ngModel)]="websiteContent.content"
+          rows="3"
+        ></textarea>
+      </div>
+      <div *ngIf="!isEdit">
+        <label>Trạng thái:</label>
+        <select
+          class="form-control mb-3"
+          name="status"
+          [(ngModel)]="websiteContent.status"
+        >
+          <option [value]="true">Đang hoạt động</option>
+          <option [value]="false">Tạm dừng</option>
+        </select>
+      </div>
+      <div class="popup-section">
+        <label for="image">Ảnh (file):</label>
+        <input
+          type="file"
+          id="image"
+          name="image"
+          (change)="onFileInputChange($event)"
+        />
+        <!-- Ưu tiên preview nếu có -->
+        <div *ngIf="imagePreview; else currentImage">
+          <label>Ảnh preview:</label>
+          <img [src]="imagePreview" width="120px" height="100px" />
+        </div>
+
+        <ng-template #currentImage>
+          <div *ngIf="websiteContent.image">
+            <label>Ảnh hiện tại:</label>
+            <img
+              [src]="getImageUrl(websiteContent.image)"
+              width="120px"
+              height="100px"
+            />
+          </div>
+        </ng-template>
+      </div>
+      <div class="popup-actions">
+        <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

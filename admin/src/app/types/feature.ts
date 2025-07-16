@@ -8,8 +8,8 @@ export interface Feature {
   image?: string;
   icon: string;
   status: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   room_class_used_list?: FeatureRoomClass[];
 }
 

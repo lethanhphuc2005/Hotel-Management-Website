@@ -66,7 +66,7 @@ export class ContentTypeService {
     );
   }
 
-  deleteContentType(id: string): Observable<ContentTypeDetailResponse> {
-    return this.http.delete<ContentTypeDetailResponse>(`${this.baseUrl}/${id}`);
+  deleteContentType(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

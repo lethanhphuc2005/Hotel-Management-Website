@@ -1,0 +1,33 @@
+<div *ngFor="let content of websiteContents; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ content.title }}</div>
+  <div>{{ content.content_type[0].name }}</div>
+  <div>{{ content.updatedAt | formatDate }}</div>
+  <div>
+    <img
+      *ngIf="content.image"
+      [src]="getImageUrl(content.image)"
+      alt="Content Image"
+      class="content-image"
+    />
+  </div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="content.status"
+        (change)="toggleStatus.emit({ content, $event })"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="actions">
+    <button class="icon-button" (click)="openDelete.emit(content.id)">
+      <i class="fas fa-trash"></i>
+    </button>
+    <button class="icon-button" (click)="openEdit.emit(content)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

@@ -1,3 +1,4 @@
+import { FilterParams, PaginationResponse } from './common';
 import { ContentType } from './content-type';
 
 export interface WebsiteContent {
@@ -7,7 +8,30 @@ export interface WebsiteContent {
   content_type_id: string;
   image: string;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
   content_type: ContentType[];
+}
+
+export interface WebsiteContentResponse {
+  message: string;
+  data: WebsiteContent[];
+  pagination: PaginationResponse;
+}
+
+export interface WebsiteContentDetailResponse {
+  message: string;
+  data: WebsiteContent;
+}
+
+export interface WebsiteContentRequest {
+  title?: string;
+  content_type_id?: string;
+  content?: string;
+  image?: File | null; // Có thể là null nếu không có hình ảnh
+  status?: boolean;
+}
+
+export interface WebsiteContentFilter extends FilterParams {
+  status?: string,
 }

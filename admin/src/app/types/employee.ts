@@ -13,8 +13,8 @@ export interface Employee {
   phone_number: string;
   role: string;
   status: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   comments: Comment[];
   reviews: Review[];
   bookings: Booking[];

@@ -9,8 +9,8 @@ export interface Room {
   floor: number;
   room_class_id: string;
   room_status_id?: string;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   room_class?: RoomClass[];
   status?: RoomStatus[];
 }

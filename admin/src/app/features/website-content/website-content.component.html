@@ -1,0 +1,53 @@
+<div class="website-content-card">
+  <h2>Quản lý nội dung website</h2>
+
+  <!-- Filter -->
+  <app-website-content-filter
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+    (openAdd)="onOpenPopup(true)"
+  ></app-website-content-filter>
+
+  <!-- Popup Thêm nội dung -->
+  <app-website-content-form
+    *ngIf="isAddPopupOpen"
+    [imagePreview]="imagePreview"
+    [contentTypes]="contentTypes"
+    [websiteContent]="newWebsiteContent"
+    (submitForm)="onAddSubmit()"
+    (close)="onClosePopup()"
+    (fileSelected)="onFileSelected($event)"
+  ></app-website-content-form>
+
+  <!--  Danh sách nội dung -->
+  <div class="table-header">
+    <div>STT</div>
+    <div>Tiêu đề</div>
+    <div>Loại</div>
+    <div>Ngày cập nhật</div>
+    <div>Hình ảnh</div>
+    <div>Trạng thái</div>
+    <div>Hành động</div>
+  </div>
+
+  <app-website-content-list
+    [websiteContents]="websiteContents"
+    [filter]="filter"
+    [websiteContents]="websiteContents"
+    (toggleStatus)="onToggleChange($event.$event, $event.content)"
+    (openEdit)="onOpenPopup(false, $event)"
+    (openDelete)="onDeleteSubmit($event)"
+  ></app-website-content-list>
+
+  <!-- Popup Sửa nội dung -->
+  <app-website-content-form
+    *ngIf="isEditPopupOpen"
+    [imagePreview]="imagePreview"
+    [contentTypes]="contentTypes"
+    [websiteContent]="selectedWebsiteContent"
+    [isEdit]="true"
+    (submitForm)="onEditSubmit()"
+    (close)="onClosePopup()"
+    (fileSelected)="onFileSelected($event)"
+  ></app-website-content-form>
+</div>

@@ -9,7 +9,7 @@ export interface Comment {
   user_id?: User;
   content: string;
   status: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   parent_comment?: Comment;
 }

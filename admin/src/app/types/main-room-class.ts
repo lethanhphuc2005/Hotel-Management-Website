@@ -9,8 +9,8 @@ export interface MainRoomClass {
   status: boolean;
   room_class_list?: RoomClass[];
   images?: Image[];
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface MainRoomClassResponse {

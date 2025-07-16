@@ -4,6 +4,5 @@ export interface Image {
   room_class_id: string;
   target: string;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
-}
+  createdAt: Date;
+  updatedAt: Date;}

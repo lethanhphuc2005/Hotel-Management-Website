@@ -5,8 +5,8 @@ export interface Service {
   description: string;
   image: string;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ServiceBooking {

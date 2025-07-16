@@ -10,8 +10,8 @@ export interface Payment {
   transaction_id?: string;
   payment_date: Date;
   metadata?: Record<string, any>;
-  created_at: Date;
-  updated_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
   booking: Booking[];
   payment_method: PaymentMethod
 }
