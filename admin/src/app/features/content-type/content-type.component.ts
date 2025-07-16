@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContentType, ContentTypeRequest } from '@/types/content-type';
 import { ToastrService } from 'ngx-toastr';
-import { ContentTypeFilterComponent } from './content-type-filter/content-type-filter.component';
 import { ContentTypeListComponent } from './content-type-list/content-type-list.component';
 import { ContentTypeFormComponent } from './content-type-form/content-type-form.component';
+import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 
 @Component({
   selector: 'app-content-type',
@@ -18,9 +18,9 @@ import { ContentTypeFormComponent } from './content-type-form/content-type-form.
     RouterModule,
     CommonModule,
     FormsModule,
-    ContentTypeFilterComponent,
     ContentTypeListComponent,
     ContentTypeFormComponent,
+    CommonFilterBarComponent
   ],
 })
 export class ContentTypeComponent implements OnInit {

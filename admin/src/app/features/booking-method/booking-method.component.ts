@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingMethod, BookingMethodRequest } from '@/types/booking-method';
 import { ToastrService } from 'ngx-toastr';
-import { BookingMethodFilterComponent } from '@/features/booking-method/booking-method-filter/booking-method-filter.component';
 import { BookingMethodListComponent } from '@/features/booking-method/booking-method-list/booking-method-list.component';
 import { BookingMethodFormComponent } from '@/features/booking-method/booking-method-form/booking-method-form.component';
+import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 
 @Component({
   selector: 'app-booking-method',
@@ -18,9 +18,9 @@ import { BookingMethodFormComponent } from '@/features/booking-method/booking-me
     RouterModule,
     CommonModule,
     FormsModule,
-    BookingMethodFilterComponent,
     BookingMethodListComponent,
     BookingMethodFormComponent,
+    CommonFilterBarComponent
   ],
 })
 export class BookingMethodComponent implements OnInit {

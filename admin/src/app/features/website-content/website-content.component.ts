@@ -8,9 +8,9 @@ import { WebsiteContent, WebsiteContentRequest } from '@/types/website-content';
 import { ContentType } from '@/types/content-type';
 import { ToastrService } from 'ngx-toastr';
 import { ImageHelperService } from '@/shared/services/image-helper.service';
-import { WebsiteContentFilterComponent } from './website-content-filter/website-content-filter.component';
 import { WebsiteContentListComponent } from './website-content-list/website-content-list.component';
 import { WebsiteContentFormComponent } from './website-content-form/website-content-form.component';
+import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 
 @Component({
   selector: 'app-website-content',
@@ -18,9 +18,9 @@ import { WebsiteContentFormComponent } from './website-content-form/website-cont
     CommonModule,
     FormsModule,
     RouterModule,
-    WebsiteContentFilterComponent,
     WebsiteContentListComponent,
     WebsiteContentFormComponent,
+    CommonFilterBarComponent,
   ],
   templateUrl: './website-content.component.html',
   styleUrl: './website-content.component.scss',

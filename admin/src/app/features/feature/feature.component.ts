@@ -6,11 +6,12 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 
 @Component({
   selector: 'app-feature',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, NgOptimizedImage],
+  imports: [CommonModule, FormsModule, PaginationComponent, NgOptimizedImage, CommonFilterBarComponent],
   templateUrl: './feature.component.html',
   styleUrls: ['./feature.component.scss'],
 })

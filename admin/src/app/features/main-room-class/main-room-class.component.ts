@@ -10,13 +10,14 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 
 @Component({
   selector: 'app-main-room-class',
   standalone: true,
   templateUrl: './main-room-class.component.html',
   styleUrls: ['./main-room-class.component.scss'],
-  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent, CommonFilterBarComponent],
 })
 export class MainRoomClassComponent implements OnInit {
   mainRoomClasses: MainRoomClass[] = [];

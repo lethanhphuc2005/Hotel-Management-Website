@@ -14,15 +14,22 @@
     />
     <label for="floatingInput">Tìm kiếm</label>
   </div>
+  <button class="add-room" (click)="filterChange.emit()">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
   <button class="add-room" (click)="openAdd.emit(true)">
-    + Thêm trạng thái
+    + {{ label || "none" }}
   </button>
 </div>
 
 <div class="filter-bar">
   <div>
     <label for="status">Trạng thái:</label>
-    <select id="status" [(ngModel)]="filter.status" (change)="filterChange.emit()">
+    <select
+      id="status"
+      [(ngModel)]="filter.status"
+      (change)="filterChange.emit()"
+    >
       <option value="">Tất cả</option>
       <option value="true">Đang hoạt động</option>
       <option value="false">Vô hiệu hóa</option>
@@ -32,6 +39,12 @@
     <label>Sắp xếp:</label>
     <button (click)="filterChange.emit('status')">
       Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
+    </button>
+  </div>
+  <div>
+    <label>Sắp xếp:</label>
+    <button (click)="filterChange.emit('createdAt')">
+      Ngày tạo: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
     </button>
   </div>
 </div>

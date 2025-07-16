@@ -1,11 +1,13 @@
 <div class="website-content-card">
   <h2>Quản lý loại nội dung</h2>
 
-  <app-content-type-filter
+  <!-- Filter -->
+  <app-common-filter-bar
     [filter]="filter"
     (filterChange)="onFilterChange($event)"
     (openAdd)="onOpenPopup(true)"
-  ></app-content-type-filter>
+    [label]="'Thêm loại nội dung'"
+  ></app-common-filter-bar>
 
   <!-- Popup Thêm -->
   <app-content-type-form

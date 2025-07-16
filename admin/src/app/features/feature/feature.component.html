@@ -1,29 +1,13 @@
 <div class="feature-management-card">
   <h2>Quản lý tiện nghi</h2>
 
-  <div
-    class="room-controls"
-    style="display: flex; align-items: center; gap: 8px"
-  >
-    <div
-      class="form-floating form-floating-custom mb-3"
-      style="position: relative; flex: 1"
-    >
-      <input
-        type="email"
-        class="form-control"
-        id="searchInput"
-        placeholder="Tìm kiếm tiện nghi..."
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="filter.keyword"
-        (input)="onFilterChange()"
-      />
-      <label for="searchInput">Tìm kiếm</label>
-    </div>
-    <button class="add-room" (click)="onOpenPopup(true)">
-      + Thêm tiện nghi
-    </button>
-  </div>
+  <!-- Filter -->
+  <app-common-filter-bar
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+    (openAdd)="onOpenPopup(true)"
+    [label]="'Thêm tiện nghi'"
+  ></app-common-filter-bar>
 
   <!-- Popup Thêm tiện nghi -->
   <div class="popup-add-popup" *ngIf="isAddPopupOpen">

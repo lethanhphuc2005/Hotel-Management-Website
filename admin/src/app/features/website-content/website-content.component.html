@@ -2,11 +2,12 @@
   <h2>Quản lý nội dung website</h2>
 
   <!-- Filter -->
-  <app-website-content-filter
+  <app-common-filter-bar
     [filter]="filter"
     (filterChange)="onFilterChange($event)"
     (openAdd)="onOpenPopup(true)"
-  ></app-website-content-filter>
+    [label]="'Thêm nội dung'"
+  ></app-common-filter-bar>
 
   <!-- Popup Thêm nội dung -->
   <app-website-content-form

@@ -1,11 +1,12 @@
 <div class="roomtype-management-card">
   <h2>Quản lý trạng thái đặt phòng</h2>
 
-  <app-booking-status-filter
+  <app-common-filter-bar
     [filter]="filter"
     (filterChange)="onFilterChange($event)"
     (openAdd)="onOpenPopup(true)"
-  ></app-booking-status-filter>
+    [label]="'Thêm trạng thái đặt phòng'"
+  ></app-common-filter-bar>
 
   <div class="table-header">
     <div>STT</div>

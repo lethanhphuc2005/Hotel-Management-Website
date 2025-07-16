@@ -1,11 +1,12 @@
 <div class="roomtype-management-card">
   <h2>Quản lý phương thức đặt phòng</h2>
 
-  <app-booking-method-filter
+  <app-common-filter-bar
     [filter]="filter"
     (filterChange)="onFilterChange($event)"
     (openAdd)="onOpenPopup(true)"
-  />
+    [label]="'Thêm phương thức đặt phòng'"
+  ></app-common-filter-bar>
 
   <!-- Header bảng -->
   <div class="table-header">

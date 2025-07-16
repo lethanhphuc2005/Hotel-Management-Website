@@ -1,20 +1,8 @@
 .room-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1rem;
-
-  input[type="text"],
-  select {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #dce1e7;
-    border-radius: 0.5rem;
-    flex-grow: 1;
-  }
-
-  select {
-    max-width: 150px;
-  }
 
   .add-room {
     background-color: #2f80ed;
@@ -24,7 +12,6 @@
     padding: 0.5rem 1.2rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 
     &:hover {
       background-color: #256ad2;
@@ -40,11 +27,11 @@
   background-color: #f5f7fa;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 12px;
 
   > div {
-    flex: 1; // 🔥 Mỗi ô input chiếm đều phần còn lại
+    flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 160px;
@@ -57,34 +44,19 @@
     }
 
     select,
-    input[type="date"] {
+    button {
       padding: 6px 10px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
       background-color: #fff;
-      transition: border-color 0.2s;
+      height: 40px;
+      color: black;
 
       &:focus {
         border-color: #007bff;
         outline: none;
       }
     }
-  }
-
-  button {
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    background-color: #fff;
-    color: black;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    // &:hover {
-    //   background-color: #0056b3;
-    // }
   }
 }
