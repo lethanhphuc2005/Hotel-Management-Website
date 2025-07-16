@@ -1,0 +1,47 @@
+<div class="popup-overlay" *ngIf="isVisible && comment">
+  <div class="popup-content tw-animate-fadeIn">
+    <h2>Chi tiết {{ comment.parent_id ? "phản hồi" : "bình luận" }}</h2>
+    <div class="popup-section">
+      <label>Người gửi:</label>
+      <span>
+        {{ comment.user_id?.last_name }}
+        {{ comment.user_id?.first_name }}
+      </span>
+    </div>
+
+    <div class="popup-section">
+      <label>Email:</label>
+      <span>{{ comment.user_id?.email }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>SĐT:</label>
+      <span>{{ comment.user_id?.phone_number }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Địa chỉ:</label>
+      <span>{{ comment.user_id?.address }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Phòng:</label>
+      <span>{{ comment.room_class_id.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Nội dung:</label>
+      <span>{{ comment.content }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Ngày tạo:</label>
+      <span>{{ comment.createdAt | formatDate }}</span>
+    </div>
+    <ul *ngIf="comment.children?.length">
+      <app-comment-tree [comments]="comment.children"></app-comment-tree>
+    </ul>
+
+    <button class="close-btn" (click)="closePopup.emit()">Đóng</button>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<div class="table-rom">
+  <div class="table-row" *ngFor="let comment of comments; let i = index">
+    <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+    <div>
+      {{ comment.user_id?.last_name }}
+      {{ comment.user_id?.first_name }}
+    </div>
+    <div>
+      {{ comment.user_id?.email }}
+    </div>
+    <div>{{ comment.content }}</div>
+    <div>{{ comment.room_class_id.name }}</div>
+    <div>{{ comment.createdAt | formatDate }}</div>
+    <div class="status-column">
+      <label class="switch">
+        <input
+          type="checkbox"
+          [checked]="comment.status"
+          (change)="toggleChange.emit({$event, comment})"
+        />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="actions">
+      <button (click)="viewDetail.emit(comment)">
+        <i class="fa-solid fa-eye"></i>
+      </button>
+      <button (click)="viewReplyPopup.emit(comment)">
+        <i class="fa-solid fa-reply"></i>
+      </button>
+    </div>
+  </div>
+</div>

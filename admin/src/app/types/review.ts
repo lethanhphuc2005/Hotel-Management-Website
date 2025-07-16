@@ -14,4 +14,5 @@ export interface Review {
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  children?: Review[]; // Thêm trường children để hỗ trợ cây bình luận
 }

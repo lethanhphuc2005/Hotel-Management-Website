@@ -1,5 +1,5 @@
 export interface Comment {
-  id?: string;
+  id: string;
   room_class_id: string;
   parent_id?: string | null;
   employee_id?: {
@@ -17,4 +17,8 @@ export interface Comment {
   created_at?: Date;
   updated_at?: Date;
   parent_comment?: Comment[]; // Optional field for parent comment
+}
+
+export interface CommentWithReplies extends Comment {
+  replies?: CommentWithReplies[];
 }

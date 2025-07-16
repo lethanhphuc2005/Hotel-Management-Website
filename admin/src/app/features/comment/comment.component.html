@@ -1,21 +1,11 @@
 <div class="comment-management-card">
   <h2>Quản lí bình luận</h2>
 
-  <div
-      class="form-floating form-floating-custom mb-3"
-      style="position: relative; flex: 1"
-    >
-      <input
-        type="email"
-        class="form-control"
-        id="floatingInput"
-        placeholder="name@example.com"
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (keyup.enter)="onSearch()"
-      />
-      <label for="floatingInput">Tìm kiếm</label>
-    </div>
+  <!--- Thanh lọc bình luận -->
+  <app-common-filter-bar
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+  ></app-common-filter-bar>
 
   <div class="table-header">
     <div>STT</div>
@@ -24,75 +14,35 @@
     <div>Nội dung</div>
     <div>Phòng</div>
     <div>Ngày tạo</div>
+    <div>Trạng thái</div>
     <div>Hành động</div>
   </div>
 
+  <!--- Hiển thị danh sách bình luận -->
+  <app-comment-list
+    [filter]="filter"
+    [comments]="userComments"
+    (toggleChange)="onToggleChange($event.$event, $event.comment)"
+    (viewDetail)="onPopupOpen(true, $event)"
+    (viewReplyPopup)="onPopupOpen(false, $event)"
+  ></app-comment-list>
+
   <!-- popup xem chi tiết -->
-  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedComment">
-  <div class="popup-content">
-    <h2>Chi tiết {{ selectedComment.isReplyOnly ? 'phản hồi' : 'bình luận' }}</h2>
+  <app-comment-detail-popup
+    [comment]="selectedComment"
+    [isVisible]="isDetailPopupOpen"
+    (closePopup)="onClosePopup()"
+  ></app-comment-detail-popup>
 
-    <div class="popup-section">
-      <label>Người gửi:</label>
-      <span>
-        {{ selectedComment.user_id?.last_name || selectedComment.employee_id?.last_name }}
-        {{ selectedComment.user_id?.first_name || selectedComment.employee_id?.first_name }}
-      </span>
-    </div>
-
-    <div class="popup-section" *ngIf="selectedComment.user_id || selectedComment.employee_id">
-      <label>Email:</label>
-      <span>{{ selectedComment.user_id?.email || selectedComment.employee_id?.email }}</span>
-    </div>
-
-    <div class="popup-section" *ngIf="selectedComment.user_id?.phone_number || selectedComment.employee_id?.phone_number">
-      <label>SĐT:</label>
-      <span>{{ selectedComment.user_id?.phone_number || selectedComment.employee_id?.phone_number }}</span>
-    </div>
-
-    <div class="popup-section" *ngIf="selectedComment.user_id?.address || selectedComment.employee_id?.address">
-      <label>Địa chỉ:</label>
-      <span>{{ selectedComment.user_id?.address || selectedComment.employee_id?.address }}</span>
-    </div>
-
-    <div class="popup-section">
-      <label>Phòng:</label>
-      <span>{{ selectedComment.room_class_id?.name }}</span>
-    </div>
-
-    <div class="popup-section">
-      <label>Nội dung:</label>
-      <span>{{ selectedComment.content }}</span>
-    </div>
-
-    <div class="popup-section">
-      <label>Ngày tạo:</label>
-      <span>{{ selectedComment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-    </div>
-
-    <div class="popup-section" *ngIf="!selectedComment.isReplyOnly && selectedComment.replies?.length">
-      <label>Phản hồi:</label>
-      <ul>
-        <li *ngFor="let reply of selectedComment.replies">
-          <strong>
-            {{ reply.user_id?.last_name || reply.employee_id?.last_name }}
-            {{ reply.user_id?.first_name || reply.employee_id?.first_name }}:
-          </strong> {{ reply.content }}
-        </li>
-      </ul>
-    </div>
-
-    <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
-  </div>
-</div>
-
-
-  <app-comment-item
-  *ngFor="let comment of filteredComments; let i = index"
-  [comment]="comment"
-  [index]="i"
-  [level]="0"
-  [onViewComment]="viewComment.bind(this)">
-</app-comment-item>
-
+  <!-- popup phản hồi bình luận -->
+  <app-comment-reply-popup
+    [comment]="selectedComment"
+    [isVisible]="isReplyPopupOn"
+    (submitForm)="onReplySubmit({
+      content: $event.content,
+      room_class_id: $event.room_class_id,
+      parent_id: $event.parent_id,
+    })"
+    (close)="onClosePopup()"
+  ></app-comment-reply-popup>
 </div>

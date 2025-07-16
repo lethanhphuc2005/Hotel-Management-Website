@@ -224,6 +224,7 @@ const accountController = {
       const accessToken = accountController.creareToken(admin);
       const refreshToken = accountController.creareRefreshToken(admin);
       const dataToSend = {
+        id: admin._id,
         first_name: admin.first_name,
         last_name: admin.last_name,
         position: admin.position,

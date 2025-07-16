@@ -1,0 +1,29 @@
+<ul>
+  <li *ngFor="let comment of comments">
+    <div class="tw-border tw-p-2 tw-rounded tw-mb-2">
+      {{ comment.content }}
+
+      <!-- reply metadata -->
+      <div class="tw-text-sm tw-text-gray-500">
+        Từ:
+        <span class="tw-font-semibold" *ngIf="comment.user_id">
+          {{ comment.user_id.last_name }} {{ comment.user_id.first_name }}
+        </span>
+        <span class="tw-font-semibold" *ngIf="comment.employee_id">
+          {{ comment.employee_id.last_name }}
+          {{ comment.employee_id.first_name }}
+          <strong class="tw-text-red-500">(admin)</strong>
+        </span>
+        <span class="tw-ml-2">
+          {{ comment.createdAt | formatDate }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Nếu có con, đệ quy tiếp -->
+    <app-comment-tree
+      *ngIf="comment.children?.length"
+      [comments]="comment.children"
+    ></app-comment-tree>
+  </li>
+</ul>

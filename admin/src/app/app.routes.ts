@@ -10,7 +10,6 @@ import { RoomListComponent } from './features/room/room.component';
 import { RoomClassListComponent } from './features/room-class/room-class.component';
 import { MainRoomClassComponent } from './features/main-room-class/main-room-class.component';
 import { CommentComponent } from './features/comment/comment.component';
-import { CommentItemComponent } from './features/comment/comment-item/comment-item.component';
 import { ContentTypeComponent } from './features/content-type/content-type.component';
 import { ServiceComponent } from './features/service/service.component';
 // import { DiscountComponent } from './features/discount/discount.component';
@@ -22,7 +21,6 @@ import { ReviewComponent } from './features/review/review.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { FeatureComponent } from './features/feature/feature.component';
 import { PaymentComponent } from './features/payment/payment.component';
-import { environment } from '../environments/environment';
 export const routes: Routes = [
   // Trang login riêng biệt, không có layout
   { path: 'login', component: LoginComponent },
@@ -53,13 +51,7 @@ export const routes: Routes = [
           { path: 'feature', component: FeatureComponent },
           { path: 'payment-method', component: PaymentMethodComponent },
           { path: 'payments', component: PaymentComponent },
-          {
-            path: 'comment',
-            component: CommentComponent,
-            children: [
-              { path: 'comment-item', component: CommentItemComponent },
-            ],
-          },
+          { path: 'comment', component: CommentComponent },
         ],
       },
     ],

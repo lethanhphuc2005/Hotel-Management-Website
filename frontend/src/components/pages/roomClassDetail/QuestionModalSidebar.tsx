@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Comment } from "@/types/comment";
+import { Comment, CommentWithReplies } from "@/types/comment";
 import { useAuth } from "@/contexts/AuthContext";
 import { createComment } from "@/services/CommentService";
 import { nestComments } from "@/utils/nestObject";
 import { toast } from "react-toastify";
 import { formatDate } from "@/utils/dateUtils";
+import { AnimatedButtonLink } from "@/components/common/Button";
 interface Props {
   roomClassId: string;
   comments: Comment[];
@@ -82,6 +83,73 @@ const QuestionModalSidebar = ({
     }
   };
 
+  const renderCommentTree = (comments: CommentWithReplies[]) => {
+    return comments.map((c) => (
+      <div
+        key={c.id}
+        className="tw-bg-gray-900 tw-p-3 tw-rounded tw-text-white"
+      >
+        {/* Người gửi */}
+        <div className="tw-font-bold">
+          {c.user_id && c.user_id.first_name
+            ? `${c.user_id.last_name} ${c.user_id.first_name}`
+            : c.employee_id
+            ? `Nhân viên: ${c.employee_id.last_name} ${c.employee_id.first_name}`
+            : "Ẩn danh"}
+          <div className="tw-text-xs tw-text-gray-400">
+            ({c.created_at ? formatDate(c.created_at) : "Vừa xong"})
+          </div>
+        </div>
+
+        {/* Nội dung */}
+        <div className="tw-text-sm tw-mt-2">{c.content}</div>
+
+        {/* Nút trả lời */}
+        {/* <button
+          onClick={() => setReplyingTo(c.id!)}
+          className="tw-text-sm tw-mt-2 hover:tw-underline"
+        >
+          Trả lời
+        </button> */}
+        <AnimatedButtonLink
+          onClick={() => {
+            setReplyingTo(c.id!);
+            setReplyContent("");
+          }}
+          className="tw-text-sm tw-mt-2"
+        >
+          Trả lời
+        </AnimatedButtonLink>
+
+        {/* Form trả lời */}
+        {replyingTo === c.id && (
+          <div className="tw-mt-2">
+            <textarea
+              rows={2}
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+              className="tw-w-full tw-bg-gray-800 tw-text-white tw-p-2 tw-rounded-md tw-text-sm"
+              placeholder="Nhập phản hồi..."
+            />
+            <button
+              onClick={() => handleReplySubmit(c.id!)}
+              className="tw-bg-primary tw-text-black tw-text-sm tw-font-semibold tw-py-1 tw-px-3 tw-rounded hover:tw-bg-yellow-400 tw-mt-2"
+            >
+              Gửi phản hồi
+            </button>
+          </div>
+        )}
+
+        {/* Reply con (gọi đệ quy) */}
+        {c.replies && c.replies.length > 0 && (
+          <div className="tw-ml-4 tw-mt-3 tw-space-y-2 tw-border-l tw-border-gray-400 tw-pl-1">
+            {renderCommentTree(c.replies)}
+          </div>
+        )}
+      </div>
+    ));
+  };
+
   return (
     <div className="tw-fixed tw-inset-0 tw-bg-black/60 tw-z-50 tw-flex tw-justify-end tw-backdrop-blur-sm">
       <motion.div
@@ -133,81 +201,7 @@ const QuestionModalSidebar = ({
           ) : (
             <div className="tw-space-y-4">
               {nested.length > 0 ? (
-                nested.map((c) => (
-                  <div
-                    key={c.id}
-                    className="tw-bg-gray-900 tw-p-3 tw-rounded tw-text-white"
-                  >
-                    <div className="tw-font-bold">
-                      {c.user_id
-                        ? `${c.user_id.last_name} ${c.user_id.first_name}`
-                        : c.employee_id
-                        ? `Nhân viên: ${c.employee_id.last_name} ${c.employee_id.first_name}`
-                        : "Ẩn danh"}
-                      <span className="tw-text-xs tw-text-gray-400 tw-ml-2">
-                        ( {c.created_at ? formatDate(c.created_at) : "Vừa xong"}{" "}
-                        )
-                      </span>
-                    </div>
-
-                    <div className="tw-text-sm">{c.content}</div>
-
-                    <button
-                      onClick={() => setReplyingTo(c.id!)}
-                      className="tw-text-sm tw-mt-2 hover:tw-underline"
-                    >
-                      Trả lời
-                    </button>
-
-                    {/* Form trả lời */}
-                    {replyingTo === c.id && (
-                      <div className="tw-mt-2">
-                        <textarea
-                          rows={2}
-                          value={replyContent}
-                          onChange={(e) => setReplyContent(e.target.value)}
-                          className="tw-w-full tw-bg-gray-800 tw-text-white tw-p-2 tw-rounded-md tw-text-sm"
-                          placeholder="Nhập phản hồi..."
-                        />
-                        <button
-                          onClick={() => handleReplySubmit(c.id!)}
-                          className="tw-bg-primary tw-text-black tw-text-sm tw-font-semibold tw-py-1 tw-px-3 tw-rounded hover:tw-bg-yellow-400 tw-mt-2"
-                        >
-                          Gửi phản hồi
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Hiển thị phản hồi */}
-                    {c.replies && c.replies.length > 0 && (
-                      <div className="tw-ml-4 tw-mt-3 tw-space-y-2">
-                        {c.replies.map((reply) => (
-                          <div
-                            key={reply.id}
-                            className="tw-bg-gray-800 tw-p-2 tw-rounded"
-                          >
-                            <div className="tw-font-semibold tw-text-sm">
-                              {reply.user_id?.last_name
-                                ? `${reply.user_id.last_name} ${reply.user_id.first_name}`
-                                : reply.employee_id?.last_name
-                                ? `Nhân viên: ${reply.employee_id.last_name} ${reply.employee_id.first_name}`
-                                : "Ẩn danh"}
-                              <span className="tw-text-xs tw-text-gray-400 tw-ml-2">
-                                ({" "}
-                                {reply.created_at
-                                  ? formatDate(reply.created_at)
-                                  : "Vừa xong"}{" "}
-                                )
-                              </span>
-                            </div>
-
-                            <div className="tw-text-xs">{reply.content}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))
+                renderCommentTree(nested)
               ) : (
                 <div className="tw-text-gray-400 tw-text-center tw-py-4">
                   Chưa có bình luận nào. Hãy đặt câu hỏi hoặc bình luận để bắt

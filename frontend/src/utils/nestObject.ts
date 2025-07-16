@@ -1,5 +1,5 @@
 import { Review } from "@/types/review";
-import { Comment } from "../types/comment";
+import { Comment, CommentWithReplies } from "@/types/comment";
 
 type ReviewWithReplies = Review & { replies?: Review[] };
 
@@ -28,23 +28,26 @@ export function nestReplies(reviews: Review[]): ReviewWithReplies[] {
   return nested;
 }
 
-export type CommentWithReplies = Comment & { replies?: Comment[] };
-
 export function nestComments(comments: Comment[]): CommentWithReplies[] {
   const map: Record<string, CommentWithReplies> = {};
-  comments.forEach((c) => {
-    map[c.id!] = { ...c, replies: [] };
+
+  // Gán từng comment vào map
+  comments.forEach((comment) => {
+    map[comment.id] = { ...comment, replies: [] };
   });
 
-  const result: CommentWithReplies[] = [];
+  const roots: CommentWithReplies[] = [];
 
-  comments.forEach((c) => {
-    if (c.parent_id && map[c.parent_id]) {
-      map[c.parent_id].replies?.push(map[c.id!]);
+  comments.forEach((comment) => {
+    const parentId = comment.parent_id;
+    if (parentId && map[parentId]) {
+      // Gắn vào replies của parent
+      map[parentId].replies!.push(map[comment.id]);
     } else {
-      result.push(map[c.id!]);
+      // Nếu không có parent, là root comment
+      roots.push(map[comment.id]);
     }
   });
 
-  return result;
+  return roots;
 }

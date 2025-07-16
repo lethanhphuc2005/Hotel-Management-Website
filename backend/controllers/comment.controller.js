@@ -2,33 +2,9 @@ const Comment = require("../models/comment.model");
 const RoomClass = require("../models/roomClass.model");
 const Employee = require("../models/employee.model");
 const User = require("../models/user.model");
+const { upload } = require("../middlewares/upload.middleware");
 
 const commentController = {
-  // === XÂY CÂY DỰNG CÂU TRÚC BÌNH LUẬN ===
-  // buildCommentTree: (comments) => {
-  //   const commentMap = new Map();
-  //   const commentTree = [];
-  //   comments.forEach((comment) => {
-  //     commentMap.set(comment._id.toString(), {
-  //       ...comment.toObject(),
-  //       replies: [],
-  //     });
-  //   });
-  //   comments.forEach((comment) => {
-  //     const commentId = comment._id.toString();
-  //     const parentId = comment.parent_id ? comment.parent_id.toString() : null;
-  //     if (parentId) {
-  //       const parentComment = commentMap.get(parentId);
-  //       if (parentComment) {
-  //         parentComment.replies.push(commentMap.get(commentId));
-  //       }
-  //     } else {
-  //       commentTree.push(commentMap.get(commentId));
-  //     }
-  //   });
-  //   return commentTree;
-  // },
-
   // === KIỂM TRA ĐIỀU KIỆN BÌNH LUẬN ===
   validateComment: async (commentData, commentId) => {
     const { room_class_id, content, employee_id, user_id, parent_id } =
@@ -256,71 +232,77 @@ const commentController = {
   },
 
   // === THÊM BÌNH LUẬN ===
-  addComment: async (req, res) => {
-    try {
-      const newComment = new Comment(req.body);
-      const validation = await commentController.validateComment(newComment);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
+  addComment: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const newComment = new Comment(req.body);
+        const validation = await commentController.validateComment(newComment);
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Lưu bình luận vào cơ sở dữ liệu
+        const savedComment = await newComment.save();
+        const populatedComment = await savedComment.populate(
+          "room_class_id employee_id user_id"
+        );
+        // Cập nhật thông tin người dùng hoặc nhân viên nếu có
+
+        // Trả về bình luận đã lưu
+        res.status(201).json({
+          message: "Bình luận đã được thêm thành công.",
+          data: populatedComment,
+        });
+      } catch (error) {
+        res.status(500).json(error);
       }
-
-      // Lưu bình luận vào cơ sở dữ liệu
-      const savedComment = await newComment.save();
-      const populatedComment = await savedComment.populate(
-        "room_class_id employee_id user_id"
-      );
-      // Cập nhật thông tin người dùng hoặc nhân viên nếu có
-
-      // Trả về bình luận đã lưu
-      res.status(201).json({
-        message: "Bình luận đã được thêm thành công.",
-        data: populatedComment,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === CẬP NHẬT BÌNH LUẬN (CHỈ ĐƯỢC CẬP NHẬT NỘI DUNG) ===
-  updateComment: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const commentToUpdate = await Comment.findById(id);
-      if (!commentToUpdate) {
-        return res.status(404).json({ message: "Bình luận không tồn tại." });
+  updateComment: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const { id } = req.params;
+        const commentToUpdate = await Comment.findById(id);
+        if (!commentToUpdate) {
+          return res.status(404).json({ message: "Bình luận không tồn tại." });
+        }
+
+        // Chỉ cho phép cập nhật trường content
+        const { content } = req.body;
+        if (typeof content !== "string" || content.trim() === "") {
+          return res
+            .status(400)
+            .json({ message: "Nội dung bình luận không được để trống." });
+        }
+
+        // Tạo dữ liệu mới chỉ với content
+        const updatedData = { ...commentToUpdate.toObject(), content };
+
+        const validation = await commentController.validateComment(
+          updatedData,
+          id
+        );
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Cập nhật chỉ trường content
+        commentToUpdate.content = content;
+        const updatedComment = await commentToUpdate.save();
+
+        res.status(200).json({
+          message: "Cập nhật bình luận thành công.",
+          data: updatedComment,
+        });
+      } catch (error) {
+        res.status(500).json(error);
       }
-
-      // Chỉ cho phép cập nhật trường content
-      const { content } = req.body;
-      if (typeof content !== "string" || content.trim() === "") {
-        return res
-          .status(400)
-          .json({ message: "Nội dung bình luận không được để trống." });
-      }
-
-      // Tạo dữ liệu mới chỉ với content
-      const updatedData = { ...commentToUpdate.toObject(), content };
-
-      const validation = await commentController.validateComment(
-        updatedData,
-        id
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Cập nhật chỉ trường content
-      commentToUpdate.content = content;
-      const updatedComment = await commentToUpdate.save();
-
-      res.status(200).json({
-        message: "Cập nhật bình luận thành công.",
-        data: updatedComment,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === XÓA BÌNH LUẬN ===
   deleteComment: async (req, res) => {

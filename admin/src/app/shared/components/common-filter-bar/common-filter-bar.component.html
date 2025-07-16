@@ -17,7 +17,7 @@
   <button class="add-room" (click)="filterChange.emit()">
     <i class="fa-solid fa-magnifying-glass"></i>
   </button>
-  <button class="add-room" (click)="openAdd.emit(true)">
+  <button class="add-room" (click)="openAdd.emit(true)" *ngIf="label">
     + {{ label || "none" }}
   </button>
 </div>
