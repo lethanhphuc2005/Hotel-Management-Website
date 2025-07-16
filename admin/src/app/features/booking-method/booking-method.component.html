@@ -26,6 +26,14 @@
     (openEdit)="onOpenPopup(false, $event.method)"
   />
 
+  <!-- Phân trang -->
+  <app-pagination
+    [total]="filter.total"
+    [limit]="filter.limit"
+    [page]="filter.page"
+    (pageChange)="onPageChange($event)"
+  />
+
   <!-- Popup thêm mới -->
   <app-booking-method-form
     *ngIf="isAddPopupOpen"

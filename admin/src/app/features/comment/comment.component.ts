@@ -10,6 +10,7 @@ import { buildCommentTree } from '@/shared/utils/reply.utils';
 import { CommentListComponent } from './comment-list/comment-list.component';
 import { CommentDetailPopupComponent } from './comment-detail-popup/comment-detail-popup.component';
 import { CommentReplyPopupComponent } from './comment-reply-popup/comment-reply-popup.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-comment',
@@ -23,6 +24,7 @@ import { CommentReplyPopupComponent } from './comment-reply-popup/comment-reply-
     CommentListComponent,
     CommentDetailPopupComponent,
     CommentReplyPopupComponent,
+    PaginationComponent
   ],
 })
 export class CommentComponent implements OnInit {

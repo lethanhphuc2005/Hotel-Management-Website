@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { BookingMethodListComponent } from '@/features/booking-method/booking-method-list/booking-method-list.component';
 import { BookingMethodFormComponent } from '@/features/booking-method/booking-method-form/booking-method-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-booking-method',
@@ -20,7 +21,8 @@ import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/
     FormsModule,
     BookingMethodListComponent,
     BookingMethodFormComponent,
-    CommonFilterBarComponent
+    CommonFilterBarComponent,
+    PaginationComponent
   ],
 })
 export class BookingMethodComponent implements OnInit {

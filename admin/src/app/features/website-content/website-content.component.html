@@ -31,6 +31,7 @@
     <div>Hành động</div>
   </div>
 
+  <!-- Hiển thị danh sách nội dung -->
   <app-website-content-list
     [websiteContents]="websiteContents"
     [filter]="filter"
@@ -39,6 +40,14 @@
     (openEdit)="onOpenPopup(false, $event)"
     (openDelete)="onDeleteSubmit($event)"
   ></app-website-content-list>
+
+  <!-- Pagination -->
+  <app-pagination
+    [total]="filter.total"
+    [limit]="filter.limit"
+    [page]="filter.page"
+    (pageChange)="onPageChange($event)"
+  />
 
   <!-- Popup Sửa nội dung -->
   <app-website-content-form

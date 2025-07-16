@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ContentTypeListComponent } from './content-type-list/content-type-list.component';
 import { ContentTypeFormComponent } from './content-type-form/content-type-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-content-type',
@@ -20,7 +21,8 @@ import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/
     FormsModule,
     ContentTypeListComponent,
     ContentTypeFormComponent,
-    CommonFilterBarComponent
+    CommonFilterBarComponent,
+    PaginationComponent
   ],
 })
 export class ContentTypeComponent implements OnInit {

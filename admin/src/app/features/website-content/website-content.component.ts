@@ -11,6 +11,7 @@ import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { WebsiteContentListComponent } from './website-content-list/website-content-list.component';
 import { WebsiteContentFormComponent } from './website-content-form/website-content-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-website-content',
@@ -21,6 +22,7 @@ import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/
     WebsiteContentListComponent,
     WebsiteContentFormComponent,
     CommonFilterBarComponent,
+    PaginationComponent
   ],
   templateUrl: './website-content.component.html',
   styleUrl: './website-content.component.scss',
