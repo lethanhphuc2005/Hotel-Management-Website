@@ -1,0 +1,60 @@
+<div class="popup-add-popup" *ngIf="isVisible && review">
+  <div class="popup-content tw-animate-fadeIn">
+    <h2>Phản hồi bình luận</h2>
+    <div class="popup-section">
+      <strong>Người gửi:</strong>
+      <span>
+        {{ review.user_id.last_name }}
+        {{ review.user_id.first_name }}
+      </span>
+    </div>
+
+    <div class="popup-section">
+      <strong>Email: </strong>
+      <span>{{ review.user_id.email }}</span>
+    </div>
+
+    <div class="popup-section">
+      <strong>SĐT: </strong>
+      <span>{{ review.user_id.phone_number }}</span>
+    </div>
+
+    <div class="popup-section">
+      <strong>Địa chỉ: </strong>
+      <span>{{ review.user_id.address }}</span>
+    </div>
+
+    <div class="popup-section">
+      <strong>Phòng: </strong>
+      <span>{{ review.room_class_id.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <strong>Nội dung: </strong>
+      <span>{{ review.content }}</span>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #form="ngForm">
+      <div>
+        <label for="floatingInput">Nội dung phản hồi</label>
+        <textarea
+          name="floatingInput"
+          class="form-control"
+          id="floatingInput"
+          style="width: 100%; padding-right: 30px; height: 100px"
+          [(ngModel)]="content"
+          required
+        >
+        </textarea>
+      </div>
+      <div class="popup-actions">
+        <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

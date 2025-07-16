@@ -34,13 +34,6 @@ export class CommentComponent implements OnInit {
   selectedComment: Comment | null = null;
   isDetailPopupOpen = false;
   isReplyPopupOn = false;
-  newComment: CommentRequest = {
-    room_class_id: '',
-    parent_id: undefined,
-    employee_id: undefined,
-    content: '',
-    status: true,
-  };
   filter: {
     keyword: string;
     page: number;
@@ -72,7 +65,6 @@ export class CommentComponent implements OnInit {
 
   getEmployeeId(): string {
     const user = JSON.parse(localStorage.getItem('login') || '{}');
-    console.log('Current user:', user);
     return user?.id || '';
   }
 

@@ -1,0 +1,49 @@
+<div class="table-rom">
+  <div class="table-row" *ngFor="let review of reviews; let i = index">
+    <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+    <div>
+      {{ review.user_id.last_name }}
+      {{ review.user_id.first_name }}
+    </div>
+    <div>
+      {{ review.user_id.email }}
+    </div>
+
+    <div>
+      <div>
+        <span *ngFor="let star of [].constructor(review.rating); let j = index">
+          <i class="fa-solid fa-star"></i>
+        </span>
+        <span
+          *ngFor="let star of [].constructor(5 - review.rating); let j = index"
+        >
+          <i class="fa-regular fa-star"></i>
+        </span>
+        <span *ngIf="review.rating === 0">Chưa đánh giá</span>
+      </div>
+      {{ review.content }}
+    </div>
+    <div>
+      {{ review.booking_id.id }}
+    </div>
+    <div>{{ review.createdAt | formatDate }}</div>
+    <div class="status-column">
+      <label class="switch">
+        <input
+          type="checkbox"
+          [checked]="review.status"
+          (change)="toggleChange.emit({$event, review})"
+        />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="actions">
+      <button (click)="viewDetail.emit(review)">
+        <i class="fa-solid fa-eye"></i>
+      </button>
+      <button (click)="viewReplyPopup.emit(review)">
+        <i class="fa-solid fa-reply"></i>
+      </button>
+    </div>
+  </div>
+</div>

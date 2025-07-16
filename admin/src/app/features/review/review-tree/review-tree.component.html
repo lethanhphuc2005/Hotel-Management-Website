@@ -1,0 +1,29 @@
+<ul>
+  <li *ngFor="let review of reviews">
+    <div class="tw-border tw-p-2 tw-rounded tw-mb-2">
+      {{ review.content }}
+
+      <!-- reply metadata -->
+      <div class="tw-text-sm tw-text-gray-500">
+        Từ:
+        <span class="tw-font-semibold" *ngIf="review.user_id">
+          {{ review.user_id.last_name }} {{ review.user_id.first_name }}
+        </span>
+        <span class="tw-font-semibold" *ngIf="review.employee_id">
+          {{ review.employee_id.last_name }}
+          {{ review.employee_id.first_name }}
+          <strong class="tw-text-red-500">(admin)</strong>
+        </span>
+        <span class="tw-ml-2">
+          {{ review.createdAt | formatDate }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Nếu có con, đệ quy tiếp -->
+    <app-review-tree
+      *ngIf="review.children?.length"
+      [reviews]="review.children"
+    ></app-review-tree>
+  </li>
+</ul>

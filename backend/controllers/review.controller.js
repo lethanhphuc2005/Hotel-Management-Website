@@ -5,33 +5,9 @@ const User = require("../models/user.model");
 const Employee = require("../models/employee.model");
 const RoomClass = require("../models/roomClass.model");
 const { BookingStatus } = require("../models/status.model");
+const { upload } = require("../middlewares/upload.middleware");
 
 const reviewController = {
-  // === XÂY DỰNG CẤU TRÚC CÂY ĐÁNH GIÁ ===
-  // buildReviewTree: (reviews) => {
-  //   const reviewMap = new Map();
-  //   const reviewTree = [];
-  //   reviews.forEach((review) => {
-  //     reviewMap.set(review._id.toString(), {
-  //       ...review.toObject(),
-  //       replies: [],
-  //     });
-  //   });
-  //   reviews.forEach((review) => {
-  //     const reviewId = review._id.toString();
-  //     const parentId = review.parent_id ? review.parent_id.toString() : null;
-  //     if (parentId) {
-  //       const parentComment = reviewMap.get(parentId);
-  //       if (parentComment) {
-  //         parentComment.replies.push(reviewMap.get(reviewId));
-  //       }
-  //     } else {
-  //       reviewTree.push(reviewMap.get(reviewId));
-  //     }
-  //   });
-  //   return reviewTree;
-  // },
-
   // === KIỂM TRA ĐIỀU KIỆN ĐÁNH GIÁ ===
   validateReview: async (reviewData, reviewId) => {
     const {
@@ -42,7 +18,6 @@ const reviewController = {
       user_id,
       parent_id,
     } = reviewData;
-
     // Kiểm tra xem booking_id có tồn tại không
     const booking = await Booking.findById(booking_id);
     if (!booking) {
@@ -186,6 +161,7 @@ const reviewController = {
               select: "name",
             },
           })
+          .populate("room_class_id")
           .populate("employee_id", "-password")
           .populate("user_id", "-password")
           .sort(sortOptions)
@@ -255,6 +231,7 @@ const reviewController = {
               select: "name",
             },
           })
+          .populate("room_class_id", "name")
           .populate("employee_id", "first_name last_name updatedAt")
           .populate("user_id", "first_name last_name createdAt updatedAt")
           .sort(sortOptions)
@@ -315,96 +292,105 @@ const reviewController = {
   },
 
   // === THÊM ĐÁNH GIÁ ===
-  addReview: async (req, res) => {
-    try {
-      const { booking_id, user_id, parent_id, room_class_id } = req.body;
-      const newReview = new Review(req.body);
-      const validation = await reviewController.validateReview(newReview);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
+  addReview: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const { booking_id, user_id, parent_id, room_class_id } = req.body;
+        const newReview = new Review(req.body);
+        const validation = await reviewController.validateReview(newReview);
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
 
-      const booking = await Booking.findById(newReview.booking_id);
-      const validBookingStatus = await BookingStatus.find({
-        code: "CHECKED_OUT",
-      });
-
-      if (
-        booking.booking_status_id.toString() !==
-        validBookingStatus[0]._id.toString()
-      ) {
-        return res
-          .status(400)
-          .json({ message: "Chỉ được đánh giá sau khi hoàn tất lưu trú." });
-      }
-
-      // 4. Kiểm tra ngày check-out đã qua chưa
-      const currentDate = new Date();
-      if (new Date(booking.check_out_date) > currentDate) {
-        return res
-          .status(400)
-          .json({ message: "Chưa thể đánh giá trước khi hoàn tất lưu trú." });
-      }
-
-      // 5. Kiểm tra xem người dùng đã đánh giá booking này chưa
-      // Nếu là user_id thì chỉ cho phép 1 review/booking/user
-      if (user_id && !parent_id) {
-        const existingReview = await Review.findOne({
-          booking_id,
-          user_id,
-          room_class_id,
-          status: true,
+        const booking = await Booking.findById(newReview.booking_id);
+        const validBookingStatus = await BookingStatus.find({
+          code: "CHECKED_OUT",
         });
-        if (existingReview) {
+
+        if (
+          booking.booking_status_id.toString() !==
+          validBookingStatus[0]._id.toString()
+        ) {
           return res
             .status(400)
-            .json({ message: "Bạn đã đánh giá đặt phòng này rồi." });
+            .json({ message: "Chỉ được đánh giá sau khi hoàn tất lưu trú." });
         }
+
+        // 4. Kiểm tra ngày check-out đã qua chưa
+        const currentDate = new Date();
+        if (new Date(booking.check_out_date) > currentDate) {
+          return res
+            .status(400)
+            .json({ message: "Chưa thể đánh giá trước khi hoàn tất lưu trú." });
+        }
+
+        // 5. Kiểm tra xem người dùng đã đánh giá booking này chưa
+        // Nếu là user_id thì chỉ cho phép 1 review/booking/user
+        if (user_id && !parent_id) {
+          const existingReview = await Review.findOne({
+            booking_id,
+            user_id,
+            room_class_id,
+            status: true,
+          });
+          if (existingReview) {
+            return res
+              .status(400)
+              .json({ message: "Bạn đã đánh giá đặt phòng này rồi." });
+          }
+        }
+        // Nếu là employee_id thì cho phép nhiều review
+
+        const savedReview = await newReview.save();
+
+        res.status(201).json({
+          message: "Thêm đánh giá thành công.",
+          data: savedReview,
+        });
+      } catch (error) {
+        res.status(500).json(error.message);
       }
-      // Nếu là employee_id thì cho phép nhiều review
-
-      const savedReview = await newReview.save();
-
-      res.status(201).json({
-        message: "Thêm đánh giá thành công.",
-        data: savedReview,
-      });
-    } catch (error) {
-      res.status(500).json(error.message);
-    }
-  },
+    },
+  ],
 
   // === CẬP NHẬT NỘI DUNG ĐÁNH GIÁ ===
-  updateReview: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { rating, content } = req.body;
+  updateReview: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { rating, content } = req.body;
 
-      const reviewToUpdate = await Review.findById(id);
-      if (!reviewToUpdate) {
-        return res.status(404).json({ message: "Đánh giá không tồn tại." });
+        const reviewToUpdate = await Review.findById(id);
+        if (!reviewToUpdate) {
+          return res.status(404).json({ message: "Đánh giá không tồn tại." });
+        }
+
+        // Chỉ cho phép cập nhật trường content và rating
+        const updatedData = { ...reviewToUpdate.toObject(), rating, content };
+
+        const validation = await reviewController.validateReview(
+          updatedData,
+          id
+        );
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        reviewToUpdate.content = content;
+        reviewToUpdate.rating = rating;
+        const updatedReview = await reviewToUpdate.save();
+
+        res.status(200).json({
+          message: "Cập nhật nội dung đánh giá thành công.",
+          data: updatedReview,
+        });
+      } catch (error) {
+        res.status(500).json(error.message);
       }
-
-      // Chỉ cho phép cập nhật trường content và rating
-      const updatedData = { ...reviewToUpdate.toObject(), rating, content };
-
-      const validation = await reviewController.validateReview(updatedData, id);
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      reviewToUpdate.content = content;
-      reviewToUpdate.rating = rating;
-      const updatedReview = await reviewToUpdate.save();
-
-      res.status(200).json({
-        message: "Cập nhật nội dung đánh giá thành công.",
-        data: updatedReview,
-      });
-    } catch (error) {
-      res.status(500).json(error.message);
-    }
-  },
+    },
+  ],
 
   // === KÍCH HOẠT/ VÔ HIỆU HÓA ĐÁNH GIÁ ===
   toggleReviewStatus: async (req, res) => {

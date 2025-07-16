@@ -1,0 +1,69 @@
+<div class="popup-overlay" *ngIf="isVisible && review">
+  <div class="popup-content tw-animate-fadeIn">
+    <h2>Chi tiết {{ review.parent_id ? "phản hồi" : "bình luận" }}</h2>
+    <div class="popup-section">
+      <label>Người gửi:</label>
+      <span>
+        {{ review.user_id.last_name }}
+        {{ review.user_id.first_name }}
+      </span>
+    </div>
+
+    <div class="popup-section">
+      <label>Email:</label>
+      <span>{{ review.user_id.email }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>SĐT:</label>
+      <span>{{ review.user_id.phone_number }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Địa chỉ:</label>
+      <span>{{ review.user_id.address }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Mã đơn:</label>
+      <span>{{ review.booking_id.id }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Phòng:</label>
+      <span>{{ review.room_class_id.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Đánh giá:</label>
+      <span *ngFor="let star of [].constructor(review.rating); let j = index">
+        <i class="fa-solid fa-star"></i>
+      </span>
+      <span
+        *ngFor="let star of [].constructor(5 - review.rating); let j = index"
+      >
+        <i class="fa-regular fa-star"></i>
+      </span>
+      <span *ngIf="review.rating === 0">Chưa đánh giá</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Nội dung:</label>
+      <span>{{ review.content }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Ngày tạo:</label>
+      <span>{{ review.createdAt | formatDate }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span>{{ review.status ? 'Hiển thị' : 'Ẩn' }}</span>
+    </div>
+    <ul *ngIf="review.children?.length">
+      <app-review-tree [reviews]="review.children"></app-review-tree>
+    </ul>
+
+    <button class="close-btn" (click)="closePopup.emit()">Đóng</button>
+  </div>
+</div>
