@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingMethod, BookingMethodRequest } from '@/types/booking-method';
 import { ToastrService } from 'ngx-toastr';
-import { BookingMethodFilterComponent } from '@/shared/components/booking-method/booking-method-filter/booking-method-filter.component';
-import { BookingMethodListComponent } from '@/shared/components/booking-method/booking-method-list/booking-method-list.component';
-import { BookingMethodFormComponent } from '@/shared/components/booking-method/booking-method-form/booking-method-form.component';
+import { BookingMethodFilterComponent } from '@/features/booking-method/booking-method-filter/booking-method-filter.component';
+import { BookingMethodListComponent } from '@/features/booking-method/booking-method-list/booking-method-list.component';
+import { BookingMethodFormComponent } from '@/features/booking-method/booking-method-form/booking-method-form.component';
 
 @Component({
   selector: 'app-booking-method',

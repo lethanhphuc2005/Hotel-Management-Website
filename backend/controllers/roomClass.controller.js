@@ -7,7 +7,7 @@ const {
   upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 const { BookingStatus } = require("../models/status.model");

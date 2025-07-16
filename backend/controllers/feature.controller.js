@@ -3,7 +3,7 @@ const {
   upload,
   deleteOldImages,
   deleteImagesOnError,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 
 const featureController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TIỆN NGHI ===

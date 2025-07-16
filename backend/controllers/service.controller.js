@@ -3,7 +3,7 @@ const {
   upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 
 const serviceController = {
   // === KIỂM TRA ĐIỀU KIỆN DỊCH VỤ ===

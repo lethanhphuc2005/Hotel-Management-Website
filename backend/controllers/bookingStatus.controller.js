@@ -1,5 +1,5 @@
 const { BookingStatus } = require("../models/status.model");
-const { upload } = require("../middlewares/upload");
+const { upload } = require("../middlewares/upload.middleware");
 const bookingStatusController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TRẠNG THÁI ===
   validateBookingStatus: async (statusData, statusId) => {

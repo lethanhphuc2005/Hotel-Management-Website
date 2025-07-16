@@ -1,6 +1,6 @@
 const BookingMethod = require("../models/bookingMethod.model");
 const Booking = require("../models/booking.model");
-const { upload } = require("../middlewares/upload");
+const { upload } = require("../middlewares/upload.middleware");
 
 const bookingMethodController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC ĐẶT PHÒNG ===

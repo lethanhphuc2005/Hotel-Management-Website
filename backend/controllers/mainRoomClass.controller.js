@@ -6,7 +6,7 @@ const {
   upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 
 const mainRoomClassController = {
   validateMainRoomClass: async (MainRoomClassData, MainRoomClassId) => {

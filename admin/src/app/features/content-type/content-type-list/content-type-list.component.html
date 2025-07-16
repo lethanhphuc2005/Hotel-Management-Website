@@ -1,0 +1,40 @@
+<div *ngFor="let contentType of contentTypes; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ contentType.name }}</div>
+  <div>{{ contentType.description }}</div>
+  <div>{{ contentType.updated_at }}</div>
+  <div>
+    <ng-container *ngIf="contentType.website_content_list">
+      <div
+        *ngFor="let content of contentType.website_content_list?.slice(0, 2)"
+      >
+        - Tiêu đề: {{ content.title.slice(-6) }}
+      </div>
+      <div
+        *ngIf="contentType.website_content_list.length > 2"
+        class="tw-text-gray-500"
+      >
+        +{{ contentType.website_content_list.length - 2 }} nội dung nữa
+      </div>
+    </ng-container>
+  </div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="contentType.status"
+        (change)="toggleStatus.emit({ contentType, $event })"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="actions">
+    <button class="icon-button" (click)="openDelete.emit(contentType.id)">
+      <i class="fas fa-trash"></i>
+    </button>
+    <button class="icon-button" (click)="openEdit.emit(contentType)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

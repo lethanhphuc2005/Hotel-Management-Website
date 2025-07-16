@@ -5,7 +5,7 @@ const {
   upload,
   deleteOldImages,
   deleteImagesOnError,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 
 const imageController = {
   // === KIỂM TRA ĐIỀU KIỆN HÌNH ẢNH ===

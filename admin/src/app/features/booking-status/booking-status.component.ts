@@ -6,9 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { BookingStatus, BookingStatusRequest } from '@/types/booking-status';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
-import { BookingStatusFilterComponent } from '@/shared/components/booking-status/booking-status-filter/booking-status-filter.component';
-import { BookingStatusListComponent } from '@/shared/components/booking-status/booking-status-list/booking-status-list.component';
-import { BookingStatusFormComponent } from '@/shared/components/booking-status/booking-status-form/booking-status-form.component';
+import { BookingStatusFilterComponent } from '@/features/booking-status/booking-status-filter/booking-status-filter.component';
+import { BookingStatusListComponent } from '@/features/booking-status/booking-status-list/booking-status-list.component';
+import { BookingStatusFormComponent } from '@/features/booking-status/booking-status-form/booking-status-form.component';
 
 @Component({
   selector: 'app-booking-status',

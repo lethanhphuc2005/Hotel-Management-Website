@@ -6,7 +6,7 @@ const {
   upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 
 const DiscountController = {
   validateDiscount: async (discountData, discountId) => {

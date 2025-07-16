@@ -1,5 +1,6 @@
 const ContentType = require("../models/contentType.model");
 const WebsiteContent = require("../models/websiteContent.model");
+const { upload } = require("../middlewares/upload.middleware");
 
 const contentTypeController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI NỘI DUNG ===
@@ -180,63 +181,69 @@ const contentTypeController = {
   },
 
   // === THÊM LOẠI NỘI DUNG MỚI ===
-  addContentType: async (req, res) => {
-    try {
-      const newContentType = new ContentType(req.body);
-      // Validate content type data
-      const validation = await contentTypeController.validateContentType(
-        newContentType
-      );
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
+  addContentType: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const newContentType = new ContentType(req.body);
+        // Validate content type data
+        const validation = await contentTypeController.validateContentType(
+          newContentType
+        );
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
 
-      const saveContentType = await newContentType.save();
-      res.status(200).json({
-        message: "Thêm loại nội dung thành công",
-        data: saveContentType,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+        const saveContentType = await newContentType.save();
+        res.status(200).json({
+          message: "Thêm loại nội dung thành công",
+          data: saveContentType,
+        });
+      } catch (error) {
+        res.status(500).json(error);
+      }
+    },
+  ],
 
   // === CẬP NHẬT LOẠI NỘI DUNG ===
-  updateContentType: async (req, res) => {
-    try {
-      const contentTypeToUpdate = await ContentType.findById(req.params.id);
-      if (!contentTypeToUpdate) {
-        return res
-          .status(404)
-          .json({ message: "Nội dung website không tồn tại." });
+  updateContentType: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const contentTypeToUpdate = await ContentType.findById(req.params.id);
+        if (!contentTypeToUpdate) {
+          return res
+            .status(404)
+            .json({ message: "Nội dung website không tồn tại." });
+        }
+
+        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? contentTypeToUpdate.toObject()
+            : { ...contentTypeToUpdate.toObject(), ...req.body };
+
+        // Validate dữ liệu cập nhật
+        const validation = await contentTypeController.validateContentType(
+          updatedData,
+          req.params.id
+        );
+
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        // Cập nhật nội dung website
+        await contentTypeToUpdate.updateOne({ $set: req.body });
+        res.status(200).json({
+          message: "Cập nhật loại nội dung thành công",
+          data: updatedData,
+        });
+      } catch (error) {
+        res.status(500).json(error);
       }
-
-      // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? contentTypeToUpdate.toObject()
-          : { ...contentTypeToUpdate.toObject(), ...req.body };
-
-      // Validate dữ liệu cập nhật
-      const validation = await contentTypeController.validateContentType(
-        updatedData,
-        req.params.id
-      );
-
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      // Cập nhật nội dung website
-      await contentTypeToUpdate.updateOne({ $set: req.body });
-      res.status(200).json({
-        message: "Cập nhật loại nội dung thành công",
-        data: updatedData,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === KÍCH HOẠT/VÔ HIỆU HÓA LOẠI NỘI DUNG ===
   toggleContentTypeStatus: async (req, res) => {

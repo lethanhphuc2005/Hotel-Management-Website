@@ -11,10 +11,10 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
 import { ToastrService } from 'ngx-toastr';
 import { BookingStatus } from '@/types/booking-status';
 import { BookingMethod } from '@/types/booking-method';
-import { BookingDetailPopupComponent } from '@/shared/components/booking/booking-detail-popup/booking-detail-popup.component';
-import { BookingStatusPopupComponent } from '@/shared/components/booking/booking-status-popup/booking-status-popup.component';
-import { BookingFilterComponent } from '@/shared/components/booking/booking-filter/booking-filter.component';
-import { BookingTableComponent } from '@/shared/components/booking/booking-table/booking-table.component';
+import { BookingDetailPopupComponent } from '@/features/booking/booking-detail-popup/booking-detail-popup.component';
+import { BookingStatusPopupComponent } from '@/features/booking/booking-status-popup/booking-status-popup.component';
+import { BookingFilterComponent } from '@/features/booking/booking-filter/booking-filter.component';
+import { BookingTableComponent } from '@/features/booking/booking-table/booking-table.component';
 
 @Component({
   selector: 'app-booking',

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Feature, FeatureRequest } from '../../types/feature';
 import { FeatureService } from '../../core/services/feature.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
@@ -10,7 +10,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 @Component({
   selector: 'app-feature',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, NgOptimizedImage],
   templateUrl: './feature.component.html',
   styleUrls: ['./feature.component.scss'],
 })

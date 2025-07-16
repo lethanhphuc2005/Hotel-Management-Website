@@ -4,7 +4,7 @@ const {
   upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload");
+} = require("../middlewares/upload.middleware");
 
 const websiteContentController = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===

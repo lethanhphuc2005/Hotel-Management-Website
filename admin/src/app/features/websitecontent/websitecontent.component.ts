@@ -30,16 +30,8 @@ export class WebsitecontentComponent implements OnInit {
 
   constructor(private websitecontentService: WebsiteContentService, private contentTypeService: ContentTypeService) { }
   ngOnInit(): void {
-    this.websitecontentService.getAllContents().subscribe(data => {
-      this.websiteContents = data;
-      this.filteredContents = data; // hiển thị ban đầu
-      console.log('Danh sách content:', data);
-    });
-
-    this.contentTypeService.getAll().subscribe(response => {
-      this.contentTypes = response.data;
-      console.log('Danh sách loại content:', response.data);
-    });
+    this.getAllContents();
+    this.getAllContentTypes();
   }
 
 
@@ -142,7 +134,7 @@ getContentTypeName(typeId: string): string {
   }
 
 getAllContentTypes() {
-  this.contentTypeService.getAll().subscribe({
+  this.contentTypeService.getAllContentTypes({}).subscribe({
     next: (res: any) => {
       this.contentTypes = Array.isArray(res.data) ? res.data : [];
     },

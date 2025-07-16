@@ -1,4 +1,5 @@
-import { WebsiteContent } from "./website-content";
+import { FilterParams, PaginationResponse } from './common';
+import { WebsiteContent } from './website-content';
 
 export interface ContentType {
   id: string;
@@ -13,4 +14,20 @@ export interface ContentType {
 export interface ContentTypeResponse {
   message: string;
   data: ContentType[];
+  pagination: PaginationResponse;
+}
+
+export interface ContentTypeDetailResponse {
+  message: string;
+  data: ContentType;
+}
+
+export interface ContentTypeRequest {
+  name?: string;
+  description?: string;
+  status?: boolean;
+}
+
+export interface ContentTypeFilter extends FilterParams {
+  status?: string;
 }

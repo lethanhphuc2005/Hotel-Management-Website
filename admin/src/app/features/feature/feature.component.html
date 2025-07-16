@@ -111,6 +111,7 @@
   <div class="table-header">
     <div>STT</div>
     <div>Tên tiện nghi</div>
+    <div>Icon</div>
     <div>Hình ảnh</div>
     <div>Loại phòng sử dụng</div>
     <div>Trạng thái</div>
@@ -122,14 +123,16 @@
     <div (click)="onViewDetail($event, feature)" style="cursor: pointer">
       {{ feature.name }}
     </div>
+    <div>
+      {{ feature.icon ? feature.icon : "(chưa có icon)" }}
+    </div>
     <div class="image-list">
       <img
-        *ngIf="feature.image"
-        loading="lazy"
-        class="tw-w-full tw-h-auto tw-rounded"
-        [src]="getImageUrl(feature.image)"
+        [ngSrc]="getImageUrl(feature.image)"
         [alt]="feature.name"
         width="200"
+        height="200"
+        class="tw-w-full tw-h-auto tw-rounded"
       />
     </div>
     <div>
@@ -200,12 +203,12 @@
         <label>Hình ảnh:</label>
         <div class="image-list">
           <img
-            loading="lazy"
-            class="tw-w-full tw-h-auto tw-rounded"
-            *ngIf="selectedFeature.image"
-            [src]="getImageUrl(selectedFeature.image)"
+            [ngSrc]="getImageUrl(selectedFeature.image)"
             [alt]="selectedFeature.name"
             width="200"
+            height="200"
+            sizes="(max-width: 768px) 100vw, 200px"
+            class="tw-w-full tw-h-auto tw-rounded"
           />
         </div>
       </div>
