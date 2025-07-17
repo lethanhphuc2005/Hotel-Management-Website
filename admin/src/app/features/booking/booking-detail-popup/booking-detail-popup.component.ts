@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { Booking } from '@/types/booking'; // Điều chỉnh theo dự án bạn
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ImageHelperService } from '@/shared/services/image-helper.service';
@@ -14,9 +14,13 @@ import { Discount } from '@/types/discount';
 export class BookingDetailPopupComponent {
   @Input() booking!: Booking | null;
   @Input() visible = false;
-  @Input() onClose!: () => void;
+  @Output() onClose = new EventEmitter();
 
   constructor(private imageHelper: ImageHelperService) {}
+
+  OnInit() {
+    console.log('Booking Detail Popup Initialized', this.booking);
+  }
 
   getBookingStatusName(status: string): string {
     switch (status) {

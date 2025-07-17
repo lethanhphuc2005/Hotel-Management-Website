@@ -104,7 +104,7 @@
 
   <div *ngFor="let feature of features; let i = index" class="table-row">
     <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
-    <div (click)="onViewDetail($event, feature)" style="cursor: pointer">
+    <div>
       {{ feature.name }}
     </div>
     <div>
@@ -137,6 +137,12 @@
       </label>
     </div>
     <div class="actions">
+      <button
+        class="icon-button"
+        (click)="onViewDetail(feature); $event.stopPropagation()"
+      >
+        <i class="fas fa-eye"></i>
+      </button>
       <button
         class="icon-button"
         (click)="onOpenPopup(false, feature); $event.stopPropagation()"
@@ -191,15 +197,12 @@
             [alt]="selectedFeature.name"
             width="200"
             height="200"
-            sizes="(max-width: 768px) 100vw, 200px"
             class="tw-w-full tw-h-auto tw-rounded"
           />
         </div>
       </div>
 
-      <button class="close-btn" (click)="isDetailPopupOpen = false">
-        Đóng
-      </button>
+      <button class="close-btn" (click)="onClosePopup()">Đóng</button>
     </div>
   </div>
 
@@ -283,11 +286,7 @@
           >
             Lưu
           </button>
-          <button
-            class="btn btn-danger"
-            type="button"
-            (click)="isEditPopupOpen = false"
-          >
+          <button class="btn btn-danger" type="button" (click)="onClosePopup()">
             Hủy
           </button>
         </div>

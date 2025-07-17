@@ -112,7 +112,7 @@
           <p>Giờ: {{ booking.actual_check_out_date | date : "HH:mm" }}</p>
         </div>
 
-        <div *ngIf="booking.payment">
+        <div *ngIf="booking.payment && booking.payment.length > 0">
           <h4 class="tw-font-bold tw-text-base tw-text-blue-600">
             💳 Thanh toán
           </h4>
@@ -205,7 +205,7 @@
     <!-- Nút đóng -->
     <button
       class="tw-w-full tw-bg-blue-500 hover:tw-bg-blue-600 tw-text-white tw-font-semibold tw-py-2 tw-mt-6 tw-rounded"
-      (click)="onClose()"
+      (click)="onClose.emit()"
     >
       Đóng
     </button>

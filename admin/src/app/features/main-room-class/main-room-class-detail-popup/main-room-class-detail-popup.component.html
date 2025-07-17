@@ -1,0 +1,45 @@
+<div class="popup-overlay" *ngIf="isVisible && mainRoomClass">
+  <div class="popup-content">
+    <h2>Chi tiết loại phòng chính</h2>
+
+    <div class="popup-section">
+      <label>Tên:</label>
+      <span>{{ mainRoomClass.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Mô tả:</label>
+      <span>{{ mainRoomClass.description }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span [ngClass]="mainRoomClass.status ? 'active' : 'inactive'">
+        {{ mainRoomClass.status ? "Đang hoạt động" : "Tạm dừng hoạt động" }}
+      </span>
+    </div>
+
+    <div class="popup-section">
+      <label>Loại phòng con:</label>
+      <ul>
+        <li *ngFor="let rc of mainRoomClass.room_class_list">
+          {{ rc.name }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="popup-section">
+      <label>Hình ảnh:</label>
+      <div class="image-list">
+        <img
+          *ngFor="let img of mainRoomClass.images"
+          [src]="getImageUrl(img.url)"
+          alt="Hình ảnh"
+          width="200"
+        />
+      </div>
+    </div>
+
+    <button class="close-btn" (click)="closePopup.emit()">Đóng</button>
+  </div>
+</div>

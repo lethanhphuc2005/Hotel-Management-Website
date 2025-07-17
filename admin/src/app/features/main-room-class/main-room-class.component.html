@@ -10,131 +10,34 @@
   ></app-common-filter-bar>
 
   <!-- Popup Thêm loại phòng chính -->
-  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
-    <div class="popup-content">
-      <h2>Thêm loại phòng chính</h2>
-
-      <form #addForm="ngForm" (ngSubmit)="onAddSubmit()">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="email"
-              class="form-control"
-              id="name"
-              name="name"
-              placeholder="name@example.com"
-              [(ngModel)]="newMainRoom.name"
-              (ngModelChange)="newMainRoom.name = $event"
-              required
-            />
-            <label for="name">Tên loại phòng chính</label>
-          </div>
-        </div>
-
-        <div class="popup-section">
-          <label for="description">Mô tả:</label>
-          <textarea
-            class="form-control mb-3"
-            id="description"
-            name="description"
-            [(ngModel)]="newMainRoom.description"
-            (ngModelChange)="newMainRoom.description = $event"
-          ></textarea>
-        </div>
-
-        <div class="popup-section">
-          <label for="status">Trạng thái:</label>
-          <select
-            id="status"
-            name="status"
-            class="form-select form-control mb-3"
-            [(ngModel)]="newMainRoom.status"
-            (ngModelChange)="newMainRoom.status = $event"
-          >
-            <option [value]="true">Đang hoạt động</option>
-            <option [value]="false">Tạm dừng hoạt động</option>
-          </select>
-        </div>
-
-        <div class="popup-section">
-          <label for="images">Ảnh (URL):</label>
-          <input
-            class="form-control mb-3"
-            type="file"
-            id="images"
-            name="images"
-            (change)="onFileSelected($event)"
-          />
-        </div>
-
-        <div class="popup-actions">
-          <button
-            class="btn btn-success"
-            type="submit"
-            [disabled]="!addForm.form.valid"
-          >
-            Lưu
-          </button>
-          <button class="btn btn-danger" type="button" (click)="onClosePopup()">
-            Hủy
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-main-room-class-form
+    *ngIf="isAddPopupOpen"
+    [imagePreview]="imagePreview"
+    [isEdit]="false"
+    [mainRoomClass]="newMainRoom"
+    (submitForm)="onAddSubmit()"
+    (close)="onClosePopup()"
+    (fileSelected)="onFileSelected($event)"
+  ></app-main-room-class-form>
 
   <div class="table-header">
     <div>STT</div>
-    <div>Tên LPC</div>
-    <!-- <div>Mô tả</div> -->
+    <div>Tên loại phòng chính</div>
     <div>Hình ảnh</div>
+    <div>Ngày cập nhật</div>
     <div>Loại phòng con</div>
     <div>Trạng thái</div>
     <div>Hành động</div>
   </div>
 
-  <div
-    style="cursor: pointer"
-    (click)="onViewDetail($event, rtm)"
-    *ngFor="let rtm of mainRoomClasses; let i = index"
-    class="table-row"
-  >
-    <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
-    <div>
-      {{ rtm.name }}
-    </div>
-    <!-- <div>{{ rtm.description }}</div> -->
-    <div class="image-list">
-      <img
-        *ngFor="let img of rtm.images ?? []"
-        [src]="getImageUrl(img.url)"
-        alt="Hình ảnh"
-        width="200"
-      />
-    </div>
-    <div>
-      <ul class="room-children-list">
-        <li *ngFor="let rc of rtm.room_class_list">
-          {{ rc.name }}
-        </li>
-      </ul>
-    </div>
-    <div class="status-column">
-      <label class="switch">
-        <input
-          type="checkbox"
-          [checked]="rtm.status"
-          (change)="onToggleChange($event, rtm)"
-        />
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="actions">
-      <button class="icon-button" (click)="onOpenPopup(false, rtm)">
-        <i class="fas fa-pen"></i>
-      </button>
-    </div>
-  </div>
+  <app-main-room-class-list
+    [mainRoomClasses]="mainRoomClasses"
+    [filter]="filter"
+    (toggleStatus)="onToggleChange($event.mainRoomClass, $event.$event)"
+    (openEdit)="onOpenPopup(false, $event)"
+    (openDetail)="onViewDetail($event)"
+  ></app-main-room-class-list>
+
   <app-pagination
     [page]="filter.page"
     [limit]="filter.limit"
@@ -143,134 +46,20 @@
   ></app-pagination>
 
   <!-- Popup chi tiết -->
-  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedMainRoomClass">
-    <div class="popup-content">
-      <h2>Chi tiết loại phòng chính</h2>
+  <app-main-room-class-detail-popup
+    [isVisible]="isDetailPopupOpen"
+    [mainRoomClass]="selectedMainRoomClass"
+    (closePopup)="onClosePopup()"
+  ></app-main-room-class-detail-popup>
 
-      <div class="popup-section">
-        <label>Tên:</label>
-        <span>{{ selectedMainRoomClass.name }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Mô tả:</label>
-        <span>{{ selectedMainRoomClass.description }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Trạng thái:</label>
-        <span [ngClass]="selectedMainRoomClass.status ? 'active' : 'inactive'">
-          {{
-            selectedMainRoomClass.status
-              ? "Đang hoạt động"
-              : "Tạm dừng hoạt động"
-          }}
-        </span>
-      </div>
-
-      <div class="popup-section">
-        <label>Loại phòng con:</label>
-        <ul>
-          <li *ngFor="let rc of selectedMainRoomClass.room_class_list">
-            {{ rc.name }}
-          </li>
-        </ul>
-      </div>
-
-      <div class="popup-section">
-        <label>Hình ảnh:</label>
-        <div class="image-list">
-          <img
-            *ngFor="let img of selectedMainRoomClass.images"
-            [src]="getImageUrl(img.url)"
-            alt="Hình ảnh"
-            width="200"
-          />
-        </div>
-      </div>
-
-      <button class="close-btn" (click)="onClosePopup()">Đóng</button>
-    </div>
-  </div>
   <!-- Popup Sửa loại phòng chính -->
-
-  <div class="popup-add-popup" *ngIf="isEditPopupOpen && selectedMainRoomClass">
-    <div class="popup-content">
-      <h2>Sửa loại phòng chính</h2>
-
-      <form #editForm="ngForm" (ngSubmit)="onEditSubmit()">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="email"
-              class="form-control"
-              id="name"
-              name="name"
-              placeholder=""
-              [(ngModel)]="newMainRoom.name"
-              (ngModelChange)="selectedMainRoomClass.name = $event"
-              required
-            />
-            <label for="name">Tên loại phòng chính</label>
-          </div>
-        </div>
-
-        <div class="popup-section">
-          <label for="description">Mô tả:</label>
-          <textarea
-            class="form-control mb-3"
-            id="description"
-            name="description"
-            [(ngModel)]="selectedMainRoomClass.description"
-            (ngModelChange)="newMainRoom.description = $event"
-          ></textarea>
-        </div>
-
-        <div class="popup-section">
-          <label for="editImage">Ảnh (chọn mới nếu muốn thay đổi):</label>
-          <input
-            type="file"
-            id="editImage"
-            class="form-control mb-3"
-            (change)="onFileSelected($event)"
-          />
-
-          <div class="col-6 col-sm-4">
-            <label class="imagecheck mb-4">
-              <input
-                name="imagecheck"
-                type="checkbox"
-                value="2"
-                class="imagecheck-input"
-                checked
-                disabled
-              />
-              <figure class="imagecheck-figure">
-                <img
-                  alt="Ảnh loại phòng"
-                  class="imagecheck-image"
-                  [src]="
-                    imagePreview || getImageUrl(selectedMainRoomClass.images?.[0]?.url)
-                  "
-                />
-              </figure>
-            </label>
-          </div>
-        </div>
-
-        <div class="popup-actions">
-          <button
-            class="btn btn-success"
-            type="submit"
-            [disabled]="!editForm.form.valid"
-          >
-            Lưu
-          </button>
-          <button class="btn btn-danger" type="button" (click)="onClosePopup()">
-            Hủy
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-main-room-class-form
+    *ngIf="isEditPopupOpen"
+    [imagePreview]="imagePreview"
+    [isEdit]="true"
+    [mainRoomClass]="selectedMainRoomClass"
+    (submitForm)="onEditSubmit()"
+    (close)="onClosePopup()"
+    (fileSelected)="onFileSelected($event)"
+  ></app-main-room-class-form>
 </div>

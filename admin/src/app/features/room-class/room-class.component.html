@@ -231,16 +231,12 @@
     <div>Giá</div>
     <div>Số phòng trống</div>
     <div>Tiện nghi</div>
+    <div>Trạng thái</div>
     <div>Hành động</div>
   </div>
 
   <!-- Table Rows -->
-  <div
-    (click)="onViewDetail($event, rc)"
-    style="cursor: pointer"
-    class="table-row"
-    *ngFor="let rc of roomClasses; let i = index"
-  >
+  <div class="table-row" *ngFor="let rc of roomClasses; let i = index">
     <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
     <div>{{ rc.name }}</div>
     <div>
@@ -279,9 +275,7 @@
         </div>
       </div>
     </div>
-
-    <!-- Hành động -->
-    <div class="actions">
+    <div>
       <label class="switch">
         <input
           type="checkbox"
@@ -290,7 +284,12 @@
         />
         <span class="slider"></span>
       </label>
-
+    </div>
+    <!-- Hành động -->
+    <div class="actions">
+      <button class="icon-button" (click)="onViewDetail(rc)">
+        <i class="fas fa-eye"></i>
+      </button>
       <button class="icon-button" (click)="onOpenPopup(false, rc)">
         <i class="fas fa-pen"></i>
       </button>

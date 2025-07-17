@@ -1,0 +1,75 @@
+<div class="popup-add-popup">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} loại phòng chính</h2>
+    <form (ngSubmit)="submitForm.emit()" #form="ngForm">
+      <div
+        class="form-floating form-floating-custom mb-3"
+        style="position: relative; flex: 1"
+      >
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+          style="width: 100%; padding-right: 30px"
+          name="name"
+          [(ngModel)]="mainRoomClass.name"
+        />
+        <label for="floatingInput">Tên loại phòng chính</label>
+      </div>
+      <div>
+        <label for="description">Mô tả</label>
+        <textarea
+          class="form-control mb-3"
+          name="description"
+          [(ngModel)]="mainRoomClass.description"
+          rows="3"
+        ></textarea>
+      </div>
+      <div *ngIf="!isEdit">
+        <label>Trạng thái:</label>
+        <select
+          class="form-control mb-3"
+          name="status"
+          [(ngModel)]="mainRoomClass.status"
+        >
+          <option [value]="true">Đang hoạt động</option>
+          <option [value]="false">Tạm dừng</option>
+        </select>
+      </div>
+      <div class="popup-section">
+        <label for="image">Ảnh (file):</label>
+        <input
+          type="file"
+          id="image"
+          name="image"
+          (change)="onFileInputChange($event)"
+        />
+        <!-- Ưu tiên preview nếu có -->
+        <div *ngIf="imagePreview; else currentImage">
+          <label>Ảnh preview:</label>
+          <img [src]="imagePreview" width="120px" height="100px" />
+        </div>
+
+        <ng-template #currentImage>
+          <div *ngIf="mainRoomClass.images[0].url">
+            <label>Ảnh hiện tại:</label>
+            <img
+              [src]="getImageUrl(mainRoomClass.images[0].url)"
+              width="120px"
+              height="100px"
+            />
+          </div>
+        </ng-template>
+      </div>
+      <div class="popup-actions">
+        <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

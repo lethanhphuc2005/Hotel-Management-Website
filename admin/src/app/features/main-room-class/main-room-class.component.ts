@@ -1,23 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MainRoomClassService } from '../../core/services/main-room-class.service';
-import {
-  MainRoomClass,
-  MainRoomClassRequest,
-} from '../../types/main-room-class';
+import { MainRoomClassService } from '@/core/services/main-room-class.service';
+import { MainRoomClass, MainRoomClassRequest } from '@/types/main-room-class';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { ImageHelperService } from '../../shared/services/image-helper.service';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { ImageHelperService } from '@/shared/services/image-helper.service';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { MainRoomClassListComponent } from './main-room-class-list/main-room-class-list.component';
+import { MainRoomClassDetailPopupComponent } from './main-room-class-detail-popup/main-room-class-detail-popup.component';
+import { MainRoomClassFormComponent } from './main-room-class-form/main-room-class-form.component';
 
 @Component({
   selector: 'app-main-room-class',
   standalone: true,
   templateUrl: './main-room-class.component.html',
   styleUrls: ['./main-room-class.component.scss'],
-  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent, CommonFilterBarComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    PaginationComponent,
+    CommonFilterBarComponent,
+    MainRoomClassListComponent,
+    MainRoomClassDetailPopupComponent,
+    MainRoomClassFormComponent,
+  ],
 })
 export class MainRoomClassComponent implements OnInit {
   mainRoomClasses: MainRoomClass[] = [];
@@ -127,18 +136,7 @@ export class MainRoomClassComponent implements OnInit {
     });
   }
 
-  onViewDetail(event: MouseEvent, rc: MainRoomClass) {
-    const target = event.target as HTMLElement;
-
-    if (
-      target.closest('label.switch') || // 👉 kiểm tra phần tử (hoặc con của) label.switch
-      target.closest('button') ||
-      target.closest('input')
-    ) {
-      return;
-    }
-
-    // Nếu không phải các phần tử loại trừ thì mở chi tiết
+  onViewDetail(rc: MainRoomClass) {
     this.selectedMainRoomClass = rc;
     this.isDetailPopupOpen = true;
   }
@@ -175,19 +173,14 @@ export class MainRoomClassComponent implements OnInit {
     this.selectedMainRoomClass = null;
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.newMainRoom.image = file;
+  onFileSelected(file: File): void {
+    this.newMainRoom.image = file;
 
-      // Hiển thị ảnh preview nếu cần
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.imagePreview = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   onAddSubmit(): void {

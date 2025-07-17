@@ -11,7 +11,13 @@ import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/
 @Component({
   selector: 'app-feature',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationComponent, NgOptimizedImage, CommonFilterBarComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PaginationComponent,
+    NgOptimizedImage,
+    CommonFilterBarComponent,
+  ],
   templateUrl: './feature.component.html',
   styleUrls: ['./feature.component.scss'],
 })
@@ -125,26 +131,17 @@ export class FeatureComponent implements OnInit {
     });
   }
 
-  onViewDetail(event: MouseEvent, rc: Feature) {
-    const target = event.target as HTMLElement;
-
-    if (
-      target.closest('label.switch') || // 👉 kiểm tra phần tử (hoặc con của) label.switch
-      target.closest('button') ||
-      target.closest('input')
-    ) {
-      return;
-    }
-
-    // Nếu không phải các phần tử loại trừ thì mở chi tiết
-    this.selectedFeature = rc;
+  onViewDetail(f: Feature) {
+    this.selectedFeature = f;
+    console.log('Selected feature:', f);
+    // Reset preview image
+    this.imagePreview = null;
     this.isDetailPopupOpen = true;
   }
 
   onOpenPopup(isAddForm: boolean, item?: Feature): void {
     this.isAddPopupOpen = isAddForm;
     this.isEditPopupOpen = !isAddForm;
-    console.log(isAddForm, item);
     if (isAddForm) {
       // Reset form thêm mới
       this.selectedFeature = null;

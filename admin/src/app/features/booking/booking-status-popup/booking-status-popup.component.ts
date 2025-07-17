@@ -21,7 +21,7 @@ import { BookingStatus } from '@/types/booking-status';
 })
 export class BookingStatusPopupComponent implements OnInit {
   @Input() visible = false;
-  @Input() booking!: Booking ;
+  @Input() booking!: Booking | null;
 
   @Output() onClose = new EventEmitter();
   @Output() onConfirm = new EventEmitter<any>(); // { detail_id, room_id }[]
@@ -69,6 +69,7 @@ export class BookingStatusPopupComponent implements OnInit {
   }
 
   loadAvailableRooms(detail: any) {
+    if (!this.booking) return;
     const { check_in_date, check_out_date } = this.booking;
     const classId = detail.room_class_id.id;
 
@@ -84,6 +85,9 @@ export class BookingStatusPopupComponent implements OnInit {
   }
 
   canConfirm(): boolean {
+    if (!this.booking || this.booking.booking_status[0].code !== 'PENDING') {
+      return false;
+    }
     return this.booking.booking_details.every(
       (detail) => !!this.selectedRooms[detail.id]
     );

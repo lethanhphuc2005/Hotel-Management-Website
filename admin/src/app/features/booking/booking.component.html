@@ -16,23 +16,21 @@
     (onViewDetail)="onOpenPopup(true, $event)"
   />
 
-  <div *ngIf="selectedBooking && isEditPopupOpen">
-    <app-booking-status-popup
-      [visible]="isEditPopupOpen"
-      [booking]="selectedBooking"
-      (onClose)="onClosePopup()"
-      (onConfirm)="handleConfirm($event)"
-      (onCheckIn)="handleCheckIn($event)"
-      (onCheckOut)="handleCheckOut($event)"
-      (onCancel)="handleCancel($event)"
-    />
-  </div>
+  <app-booking-status-popup
+    [visible]="isEditPopupOpen"
+    [booking]="selectedBooking"
+    (onClose)="onClosePopup()"
+    (onConfirm)="handleConfirm($event)"
+    (onCheckIn)="handleCheckIn($event)"
+    (onCheckOut)="handleCheckOut($event)"
+    (onCancel)="handleCancel($event)"
+  />
 
   <app-booking-detail-popup
     [visible]="isDetailPopupOpen"
     [booking]="selectedBooking"
-    [onClose]="onClosePopup.bind(this)"
-  />
+    (onClose)="onClosePopup()"
+  ></app-booking-detail-popup>
 
   <app-pagination
     [total]="filter.total"

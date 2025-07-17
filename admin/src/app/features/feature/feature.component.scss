@@ -106,10 +106,6 @@
       background-color: #2f80ed;
       color: white;
       cursor: pointer;
-
-      &:hover {
-        background-color: #256ad2;
-      }
     }
   }
 
@@ -125,7 +121,6 @@
       font-size: 18px;
       padding: 4px;
       color: black;
-      transition: color 0.3s ease;
 
       &:hover {
         color: #2f80ed;

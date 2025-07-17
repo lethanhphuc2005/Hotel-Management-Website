@@ -183,18 +183,7 @@ export class RoomClassListComponent implements OnInit {
     });
   }
 
-  onViewDetail(event: MouseEvent, rc: RoomClass) {
-    const target = event.target as HTMLElement;
-
-    if (
-      target.closest('label.switch') || // 👉 kiểm tra phần tử (hoặc con của) label.switch
-      target.closest('button') ||
-      target.closest('input')
-    ) {
-      return;
-    }
-
-    // Nếu không phải các phần tử loại trừ thì mở chi tiết
+  onViewDetail(rc: RoomClass) {
     this.selectedRoomClass = rc;
     this.isDetailPopupOpen = true;
   }

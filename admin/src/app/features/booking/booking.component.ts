@@ -186,7 +186,6 @@ export class BookingComponent implements OnInit {
   onOpenPopup(isDetail: boolean, item: Booking): void {
     this.isDetailPopupOpen = isDetail;
     this.isEditPopupOpen = !isDetail;
-
     this.selectedBooking = item;
   }
 
