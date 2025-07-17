@@ -713,7 +713,7 @@ const roomClassController = {
     upload.array("images", 5),
     async (req, res) => {
       try {
-        const { features = [] } = req.body;
+        let features = req.body.features || [];
         const roomClassToUpdate = await RoomClass.findById(req.params.id);
         if (!roomClassToUpdate) {
           return res
@@ -769,7 +769,15 @@ const roomClassController = {
           }
         }
 
-        // Cập nhật tiện nghi
+        if (typeof features === "string") {
+          try {
+            features = JSON.parse(features); // Chuyển sang mảng thực sự
+          } catch (err) {
+            console.error("Parse JSON thất bại:", err);
+            features = [];
+          }
+        }
+
         if (features && Array.isArray(features) && features.length > 0) {
           try {
             // Xóa các tiện nghi cũ liên kết với roomClass
@@ -780,7 +788,7 @@ const roomClassController = {
             // Thêm các tiện nghi mới
             const featuresData = features.map((feature) => ({
               room_class_id: req.params.id,
-              feature_id: feature.feature_id,
+              feature_id: feature,
             }));
 
             await Room_Class_Feature.insertMany(featuresData);

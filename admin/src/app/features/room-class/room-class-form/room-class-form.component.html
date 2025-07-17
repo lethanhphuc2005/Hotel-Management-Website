@@ -1,0 +1,175 @@
+<div
+  class="tw-fixed tw-inset-0 tw-bg-black/60 tw-flex tw-justify-center tw-items-center tw-z-[1000]"
+>
+  <div
+    class="tw-bg-white tw-p-8 tw-rounded-lg tw-w-[600px] tw-max-h-[80vh] tw-overflow-y-auto tw-shadow-lg tw-animate-fadeIn"
+  >
+    <h2 class="tw-mb-6 tw-text-center tw-font-bold tw-text-gray-800 tw-text-xl">
+      {{ isEdit ? "Sửa loại phòng" : "Thêm loại phòng" }}
+    </h2>
+
+    <form (ngSubmit)="onSubmit(roomForm)" #roomForm="ngForm">
+      <!-- Tên và mô tả -->
+      <div class="popup-section">
+        <div class="form-floating form-floating-custom mb-3">
+          <input
+            class="form-control mb-3"
+            id="name"
+            name="name"
+            [(ngModel)]="formData.name"
+            required
+          />
+          <label for="name">Tên loại phòng</label>
+        </div>
+        <label for="description">Mô tả:</label>
+        <textarea
+          class="form-control mb-3"
+          id="description"
+          name="description"
+          [(ngModel)]="formData.description"
+        ></textarea>
+      </div>
+
+      <!-- Giường & Sức chứa -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+        <div>
+          <label for="bed">Số giường:</label>
+          <input
+            class="form-control mb-3"
+            type="number"
+            id="bed"
+            name="bed"
+            [(ngModel)]="formData.bed_amount"
+            required
+          />
+        </div>
+        <div>
+          <label for="capacity">Sức chứa:</label>
+          <input
+            class="form-control mb-3"
+            type="number"
+            id="capacity"
+            name="capacity"
+            [(ngModel)]="formData.capacity"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Giá & View -->
+      <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+        <div>
+          <label for="price">Giá:</label>
+          <input
+            class="form-control mb-3"
+            type="number"
+            id="price"
+            name="price"
+            [(ngModel)]="formData.price"
+            required
+          />
+        </div>
+        <div>
+          <label for="view">View</label>
+          <select
+            class="form-select form-control"
+            [(ngModel)]="formData.view"
+            name="view"
+            required
+          >
+            <option value="" disabled>Chọn view</option>
+            <option value="biển">Biển</option>
+            <option value="núi">Núi</option>
+            <option value="thành phố">Thành phố</option>
+            <option value="vườn">Vườn</option>
+            <option value="hồ bơi">Hồ bơi</option>
+            <option value="sông">Sông</option>
+            <option value="hồ">Hồ</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loại phòng chính -->
+      <div class="popup-section">
+        <label for="mainRoomClass">Loại phòng chính:</label>
+        <select
+          id="mainRoomClass"
+          name="mainRoomClass"
+          [(ngModel)]="formData.main_room_class_id"
+          required
+          class="form-select form-control"
+        >
+          <option value="" disabled>Chọn loại phòng chính</option>
+          <option *ngFor="let mrc of mainRoomClasses" [value]="mrc.id">
+            {{ mrc.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Tiện nghi -->
+      <div class="popup-section">
+        <label>Chọn tiện nghi:</label>
+        <div *ngFor="let f of features">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="isFeatureChecked(f.id)"
+              (change)="onToggleFeature(f.id, $event)"
+            />
+            {{ f.name }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Hình ảnh -->
+      <div class="popup-section">
+        <label for="images">Ảnh loại phòng:</label>
+        <input
+          type="file"
+          id="images"
+          name="images"
+          multiple
+          (change)="onFileChange($event)"
+          class="form-control mb-3"
+        />
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-2">
+          <div
+            *ngFor="let img of imagePreview; let i = index"
+            class="tw-relative tw-w-[100px] tw-h-[100px] tw-border tw-border-gray-300 tw-rounded-md tw-overflow-hidden"
+          >
+            <img
+              [src]="img"
+              width="100"
+              height="100"
+              class="tw-w-full tw-h-full tw-object-cover"
+            />
+            <button
+              (click)="onRemoveImage(i, $event)"
+              class="tw-absolute tw-top-1 tw-right-1 tw-bg-black/50 tw-text-white tw-font-bold tw-rounded-full tw-w-5 tw-h-5 tw-text-xs tw-leading-5 tw-text-center hover:tw-bg-black/80"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="tw-flex tw-justify-between tw-mt-4 tw-gap-2">
+        <button
+          type="submit"
+          [disabled]="!roomForm.form.valid"
+          class="tw-flex-1 tw-py-3 tw-px-4 tw-text-base tw-rounded tw-border-none tw-cursor-pointer tw-bg-blue-600 tw-text-white tw-mr-2 tw-transition-colors disabled:tw-bg-blue-200 disabled:tw-cursor-not-allowed hover:tw-bg-blue-800 disabled:hover:tw-bg-blue-200"
+        >
+          Lưu
+        </button>
+        <button
+          type="button"
+          (click)="onClose()"
+          class="tw-flex-1 tw-py-3 tw-px-4 tw-text-base tw-rounded tw-border-none tw-cursor-pointer tw-bg-gray-600 tw-text-white tw-transition-colors hover:tw-bg-gray-700"
+        >
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,303 @@
+/* === Popup Overlay (xem) === */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+
+  h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 700;
+    color: #222;
+  }
+
+  .popup-section {
+    margin-bottom: 1rem;
+    align-items: center;
+
+    label {
+      flex-shrink: 0;
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    span {
+      color: #333;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: #555;
+    }
+
+    .image-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+
+      img {
+        width: 200px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+      }
+    }
+  }
+
+  .active {
+    color: green;
+    font-weight: 700;
+  }
+
+  .inactive {
+    color: #d9534f;
+    font-weight: 700;
+  }
+
+  .close-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.6rem 0;
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}
+
+/* === Popup Add Form === */
+.popup-add-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1100; /* cao hơn overlay thường */
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+
+  .popup-content {
+    background: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+
+    .popup-section {
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #444;
+      }
+
+      input[type="text"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border 0.3s;
+
+        &:focus {
+          outline: none;
+          border-color: #007bff;
+        }
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      button {
+        margin-top: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+
+        &:hover {
+          background-color: #218838;
+        }
+      }
+    }
+
+    .popup-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+
+      button {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        font-size: 16px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+
+        &:first-child {
+          background-color: #007bff;
+          color: #fff;
+          margin-right: 10px;
+
+          &:disabled {
+            background-color: #a0c4ff;
+            cursor: not-allowed;
+          }
+
+          &:hover:not(:disabled) {
+            background-color: #0056b3;
+          }
+        }
+
+        &:last-child {
+          background-color: #6c757d;
+          color: #fff;
+
+          &:hover {
+            background-color: #5a6268;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* === Shared Animation === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Image Gallery === */
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.room-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* === Image Preview (Review & Edit) === */
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  img {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.remove-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  text-align: center;
+  user-select: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* === Pricing === */
+.original-price {
+  color: #999;
+  font-weight: bold;
+  text-decoration: line-through;
+}
+
+.discount-price {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-left: 8px;
+}

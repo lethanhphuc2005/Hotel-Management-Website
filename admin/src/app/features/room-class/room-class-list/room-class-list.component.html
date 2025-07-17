@@ -1,0 +1,59 @@
+<div class="table-row" *ngFor="let rc of roomClasses; let i = index">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ rc.name }}</div>
+  <div>
+    {{ rc.bed_amount }} <br />
+    ({{ rc.capacity }})
+  </div>
+  <!-- <div>{{ rc.description }}</div> -->
+  <div>
+    <div *ngIf="rc.price_discount && rc.price_discount > 0">
+      <span class="original-price">
+        {{ rc.price | currency : "VND" : "symbol" }}
+      </span>
+      <br />
+      <span class="discount-price">
+        {{ rc.price_discount | currency : "VND" : "symbol" }}
+      </span>
+    </div>
+    <div *ngIf="!rc.price_discount || rc.price_discount <= 0">
+      {{ rc.price | currency : "VND" : "" }}đ
+    </div>
+  </div>
+  <div>{{ rc.rooms?.length }}</div>
+
+  <!-- Tiện nghi -->
+  <div>
+    <ng-container *ngIf="rc.features && rc.features.length > 0">
+      <div
+        *ngFor="let feature of rc.features.slice(0, 2)"
+        style="font-size: 13px"
+      >
+        {{ feature.feature_id.name }}
+      </div>
+      <div *ngIf="rc.features.length > 2" style="font-size: 13px; color: #888">
+        +{{ rc.features.length - 2 }} tiện nghi nữa
+      </div>
+    </ng-container>
+  </div>
+
+  <div>
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="rc.status"
+        (change)="toggleStatus.emit({$event, rc})"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <!-- Hành động -->
+  <div class="actions">
+    <button class="icon-button" (click)="openDetail.emit(rc)">
+      <i class="fas fa-eye"></i>
+    </button>
+    <button class="icon-button" (click)="openEdit.emit(rc)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

@@ -7,7 +7,7 @@ import { WebsiteContentComponent } from './features/website-content/website-cont
 import { LoginComponent } from './features/login/login.component';
 import { AuthGuard } from './core/auth/admin-guard';
 import { RoomListComponent } from './features/room/room.component';
-import { RoomClassListComponent } from './features/room-class/room-class.component';
+import { RoomClassComponent } from './features/room-class/room-class.component';
 import { MainRoomClassComponent } from './features/main-room-class/main-room-class.component';
 import { CommentComponent } from './features/comment/comment.component';
 import { ContentTypeComponent } from './features/content-type/content-type.component';
@@ -37,7 +37,7 @@ export const routes: Routes = [
         children: [
           { path: 'room', component: RoomListComponent },
           { path: 'main-room-class', component: MainRoomClassComponent },
-          { path: 'room-class', component: RoomClassListComponent },
+          { path: 'room-class', component: RoomClassComponent },
           { path: 'user', component: UserComponent },
           { path: 'website-content', component: WebsiteContentComponent },
           { path: 'content-type', component: ContentTypeComponent },

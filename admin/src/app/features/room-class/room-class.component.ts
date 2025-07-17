@@ -11,15 +11,26 @@ import { Feature } from '../../types/feature';
 import { MainRoomClass } from '../../types/main-room-class';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { RoomClassListComponent } from './room-class-list/room-class-list.component';
+import { RoomClassDetailComponent } from './room-class-detail/room-class-detail.component';
+import { RoomClassFormComponent } from './room-class-form/room-class-form.component';
 
 @Component({
-  selector: 'app-room-class-list',
+  selector: 'app-room-class',
   standalone: true,
   templateUrl: './room-class.component.html',
   styleUrls: ['./room-class.component.scss'],
-  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    PaginationComponent,
+    RoomClassListComponent,
+    RoomClassDetailComponent,
+    RoomClassFormComponent,
+  ],
 })
-export class RoomClassListComponent implements OnInit {
+export class RoomClassComponent implements OnInit {
   roomClasses: RoomClass[] = [];
   features: Feature[] = [];
   selectedFeatureIds: string[] = [];
@@ -88,8 +99,8 @@ export class RoomClassListComponent implements OnInit {
         sort: this.filter.sortField,
         order: this.filter.sortOrder,
         status: this.filter.status,
-        feature: '',
-        type: '',
+        feature: this.filter.feature,
+        type: this.filter.type,
         minBed: this.filter.minBed,
         maxBed: this.filter.maxBed,
         minCapacity: this.filter.minCapacity,
@@ -109,40 +120,49 @@ export class RoomClassListComponent implements OnInit {
   }
 
   getAllFeatures(): void {
-    this.featureService.getAllFeatures({}).subscribe({
-      next: (res) => {
-        this.features = res.data;
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.featureService
+      .getAllFeatures({
+        status: 'true',
+        limit: 1000,
+      })
+      .subscribe({
+        next: (res) => {
+          this.features = res.data;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   getAllMainRoomClasses(): void {
-    this.mainRoomClassService.getAllMainRoomClasses({}).subscribe({
-      next: (res) => {
-        this.mainRoomClasses = res.data;
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.mainRoomClassService
+      .getAllMainRoomClasses({
+        status: 'true',
+        limit: 1000,
+      })
+      .subscribe({
+        next: (res) => {
+          this.mainRoomClasses = res.data;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
-  onFilterChange(): void {
-    this.filter.page = 1; // Reset về trang đầu khi thay đổi bộ lọc
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sortField = sortField;
+      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+    }
+    this.filter.page = 1;
     this.getAllRoomClasses();
   }
 
   onPageChange(page: number): void {
     this.filter.page = page;
     this.getAllRoomClasses();
-  }
-
-  onToggleFeature(rc: RoomClass, event: MouseEvent) {
-    event.stopPropagation(); // Prevent row click event
-    rc.showFeatures = !rc.showFeatures;
   }
 
   onFeatureToggle(id: string, event: Event) {
@@ -212,6 +232,10 @@ export class RoomClassListComponent implements OnInit {
         item.images?.map((img) =>
           this.imageHelperService.getImageUrl(img.url)
         ) || null;
+      this.selectedFeatureIds =
+        item.features?.map((f) =>
+          (f.feature_id?.id || f.feature_id?.id)?.toString()
+        ) || [];
     }
   }
 
@@ -220,6 +244,10 @@ export class RoomClassListComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedRoomClass = null;
+    this.selectedFiles = []; // Reset selected files
+    this.imagePreview = null; // Reset image preview
+    this.newRoomClass = {};
+    this.selectedFeatureIds = []; // Reset selected feature IDs
   }
 
   onFileSelected(event: Event): void {
@@ -294,6 +322,8 @@ export class RoomClassListComponent implements OnInit {
         this.isAddPopupOpen = false;
         this.selectedFiles = []; // Reset selected files
         this.imagePreview = null; // Reset image preview
+        this.newRoomClass = {}; // Reset form data
+        this.selectedFeatureIds = []; // Reset selected feature IDs
         this.toastService.success(res.message, 'Thành công');
       },
       error: (err) => {
@@ -303,14 +333,6 @@ export class RoomClassListComponent implements OnInit {
         );
       },
     });
-  }
-
-  isFeatureChecked(featureId: string): boolean {
-    if (!this.selectedRoomClass?.features) return false;
-
-    return this.selectedRoomClass.features.some(
-      (f) => (f.feature_id?.id || f.feature_id?.id)?.toString() === featureId
-    );
   }
 
   onEditRoomClass(): void {
@@ -339,18 +361,9 @@ export class RoomClassListComponent implements OnInit {
         formData.append('images', file);
       });
     }
-
-    if (
-      this.selectedRoomClass.features &&
-      this.selectedRoomClass.features.length > 0
-    ) {
-      this.selectedRoomClass.features.forEach((featureId) => {
-        formData.append('features', featureId.feature_id?.id || '');
-      });
+    if (this.newRoomClass.features && this.newRoomClass.features.length > 0) {
+      formData.append('features', JSON.stringify(this.newRoomClass.features));
     }
-
-    console.log('FormData before update:', formData);
-    console.log('Selected Room Class ID:', this.selectedRoomClass.id);
 
     this.roomClassService
       .updateRoomClass(this.selectedRoomClass.id, formData)
@@ -360,6 +373,9 @@ export class RoomClassListComponent implements OnInit {
           this.isEditPopupOpen = false;
           this.selectedFiles = []; // Reset selected files
           this.imagePreview = null; // Reset image preview
+          this.newRoomClass = {}; // Reset form data
+          this.selectedRoomClass = null; // Reset selected room class
+          this.selectedFeatureIds = []; // Reset selected feature IDs
           this.toastService.success(res.message, 'Thành công');
         },
         error: (err) => {

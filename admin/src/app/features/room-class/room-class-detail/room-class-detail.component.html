@@ -1,0 +1,81 @@
+<div class="popup-add-popup" *ngIf="isVisible && roomClass">
+  <div class="popup-content">
+    <h2>Chi tiết loại phòng</h2>
+
+    <div class="popup-section">
+      <strong>Tên loại phòng:</strong> {{ roomClass.name }}
+    </div>
+    <div class="popup-section">
+      <strong>Mô tả:</strong> {{ roomClass.description }}
+    </div>
+    <div class="popup-section">
+      <strong>Số giường:</strong> {{ roomClass.bed_amount }}
+    </div>
+    <div class="popup-section">
+      <strong>Sức chứa:</strong> {{ roomClass.capacity }}
+    </div>
+    <div class="popup-section">
+      <strong>Giá:</strong>
+      <span *ngIf="roomClass.price_discount && roomClass.price_discount > 0">
+        <span class="original-price">
+          {{ roomClass.price | currency : "VND" : "symbol" }}
+        </span>
+        <span class="discount-price">
+          {{ roomClass.price_discount | currency : "VND" : "symbol" }}
+        </span>
+      </span>
+      <span *ngIf="!roomClass.price_discount || roomClass.price_discount <= 0">
+        {{ roomClass.price | currency : "VND" : "" }}đ
+      </span>
+    </div>
+    <div class="popup-section"><strong>View:</strong> {{ roomClass.view }}</div>
+    <div class="popup-section">
+      <strong>Loại phòng chính:</strong>
+      {{ roomClass.main_room_class[0].name }}
+    </div>
+    <div class="popup-section" *ngIf="roomClass.features?.length">
+      <strong>Tiện nghi:</strong>
+      <ul>
+        <li *ngFor="let f of roomClass.features">
+          {{ f.feature_id.name }}
+        </li>
+      </ul>
+    </div>
+    <div class="popup-section">
+      <strong>Trạng thái:</strong>
+      <span
+        [ngClass]="{
+          'status-active': roomClass.status,
+          'status-inactive': !roomClass.status
+        }"
+      >
+        {{ roomClass.status ? "Kích hoạt" : "Không kích hoạt" }}
+      </span>
+    </div>
+    <div class="popup-section" *ngIf="roomClass.rooms?.length">
+      <strong>Số phòng:</strong>
+      <ul *ngFor="let r of roomClass.rooms">
+        <li>{{ r.name }}</li>
+      </ul>
+    </div>
+    <div class="popup-section">
+      <strong>Ảnh loại phòng:</strong>
+      <div class="image-preview">
+        <div
+          *ngFor="let img of roomClass.images; let i = index"
+          class="image-wrapper"
+        >
+          <img
+            [src]="getImageUrl(img.url)"
+            width="100"
+            height="100"
+            style="object-fit: cover"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <button (click)="closePopup.emit()">Đóng</button>
+    </div>
+  </div>
+</div>
