@@ -1,0 +1,67 @@
+<!-- Controls -->
+<div class="room-controls" style="display: flex; align-items: center; gap: 8px">
+  <div
+    class="form-floating form-floating-custom mb-3"
+    style="position: relative; flex: 1"
+  >
+    <input
+      type="email"
+      class="form-control"
+      id="floatingInput"
+      placeholder="name@example.com"
+      style="width: 100%; padding-right: 30px"
+      [(ngModel)]="filter.keyword"
+      (input)="filterChange.emit()"
+    />
+    <label for="floatingInput">Tìm kiếm</label>
+  </div>
+  <button class="add-room" (click)="openPopup.emit()">+ Thêm Phòng</button>
+</div>
+
+<!-- 🧹 Thanh lọc  -->
+<div class="filter-bar">
+  <!-- Lọc loại phòng -->
+  <div>
+    <label for="room-class">Lọc theo loại phòng</label>
+    <select
+      name="room-class"
+      [(ngModel)]="filter.type"
+      (change)="filterChange.emit()"
+    >
+      <option value="" selected>Tất cả loại phòng</option>
+      <option *ngFor="let rc of roomClasses" [value]="rc.id">
+        {{ rc.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Lọc trạng thái -->
+  <div>
+    <label for="status">Lọc theo trạng thái</label>
+    <select [(ngModel)]="filter.status" (change)="filterChange.emit()">
+      <option value="">Tất cả trạng thái</option>
+      <option *ngFor="let status of roomStatuses" [value]="status.id">
+        {{ status.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Ngày nhận/trả -->
+  <div>
+    <label for="check-in">Ngày nhận</label>
+    <input
+      type="date"
+      [(ngModel)]="filter.check_in_date"
+      (change)="filterChange.emit()"
+    />
+  </div>
+
+  <div>
+    <label for="check-out">Ngày trả</label>
+    <input
+      type="date"
+      [(ngModel)]="filter.check_out_date"
+      (change)="filterChange.emit()"
+    />
+  </div>
+</div>

@@ -6,7 +6,7 @@ import { UserComponent } from './features/user/user.component';
 import { WebsiteContentComponent } from './features/website-content/website-content.component';
 import { LoginComponent } from './features/login/login.component';
 import { AuthGuard } from './core/auth/admin-guard';
-import { RoomListComponent } from './features/room/room.component';
+import { RoomComponent } from './features/room/room.component';
 import { RoomClassComponent } from './features/room-class/room-class.component';
 import { MainRoomClassComponent } from './features/main-room-class/main-room-class.component';
 import { CommentComponent } from './features/comment/comment.component';
@@ -35,7 +35,7 @@ export const routes: Routes = [
         component: AdminLayoutComponent,
         canActivate: [AuthGuard],
         children: [
-          { path: 'room', component: RoomListComponent },
+          { path: 'room', component: RoomComponent },
           { path: 'main-room-class', component: MainRoomClassComponent },
           { path: 'room-class', component: RoomClassComponent },
           { path: 'user', component: UserComponent },

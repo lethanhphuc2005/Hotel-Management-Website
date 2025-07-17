@@ -13,9 +13,13 @@ import { ToastrService } from 'ngx-toastr';
 import { RoomClass } from '../../types/room-class';
 import { RoomStatus } from '../../types/status';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { RoomFilterComponent } from './room-filter/room-filter.component';
+import { RoomListComponent } from './room-list/room-list.component';
+import { RoomDetailComponent } from './room-detail/room-detail.component';
+import { RoomFormComponent } from './room-form/room-form.component';
 
 @Component({
-  selector: 'app-room-list',
+  selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
   imports: [
@@ -24,10 +28,14 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
     FormsModule,
     FullCalendarModule,
     PaginationComponent,
+    RoomFilterComponent,
+    RoomListComponent,
+    RoomDetailComponent,
+    RoomFormComponent,
   ],
   standalone: true,
 })
-export class RoomListComponent implements OnInit {
+export class RoomComponent implements OnInit {
   rooms: Room[] = [];
   roomClasses: RoomClass[] = [];
   roomStatuses: RoomStatus[] = []; // Assuming you have a type for room statuses
@@ -142,16 +150,7 @@ export class RoomListComponent implements OnInit {
     this.getAllRooms();
   }
 
-  onViewDetail(event: MouseEvent, r: Room) {
-    const target = event.target as HTMLElement;
-
-    if (
-      target.closest('label.switch') || // 👉 kiểm tra phần tử (hoặc con của) label.switch
-      target.closest('button') ||
-      target.closest('input')
-    ) {
-      return;
-    }
+  onViewDetail(r: Room) {
     this.loadCalendarData(r.id);
     // Nếu không phải các phần tử loại trừ thì mở chi tiết
     this.selectedRoom = r;
@@ -268,7 +267,7 @@ export class RoomListComponent implements OnInit {
         console.error('Lỗi khi tải lịch đặt phòng:', err);
         this.calendarOptions = {
           ...this.calendarOptions,
-          events: [], // fallback
+          events: [],
         };
       },
     });

@@ -1,166 +1,26 @@
 <div class="room-management user-management-card">
   <h2>Quản lý phòng</h2>
 
-  <!-- Controls -->
-  <div
-    class="room-controls"
-    style="display: flex; align-items: center; gap: 8px"
-  >
-    <div
-      class="form-floating form-floating-custom mb-3"
-      style="position: relative; flex: 1"
-    >
-      <input
-        type="email"
-        class="form-control"
-        id="floatingInput"
-        placeholder="name@example.com"
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="filter.keyword"
-        (input)="onFilterChange()"
-      />
-      <label for="floatingInput">Tìm kiếm</label>
-    </div>
-    <button class="add-room" (click)="onOpenPopup(true)">+ Thêm Phòng</button>
-  </div>
-
-  <!-- 🧹 Thanh lọc  -->
-  <div class="filter-bar">
-    <!-- Lọc loại phòng -->
-    <div>
-      <label for="room-class">Lọc theo loại phòng</label>
-      <select
-        name="room-class"
-        [(ngModel)]="filter.type"
-        (change)="onFilterChange()"
-      >
-        <option value="" selected>Tất cả loại phòng</option>
-        <option *ngFor="let rc of roomClasses" [value]="rc.id">
-          {{ rc.name }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Lọc trạng thái -->
-    <div>
-      <label for="status">Lọc theo trạng thái</label>
-      <select [(ngModel)]="filter.status" (change)="onFilterChange()">
-        <option value="">Tất cả trạng thái</option>
-        <option *ngFor="let status of roomStatuses" [value]="status.id">
-          {{ status.name }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Ngày nhận/trả -->
-    <div>
-      <label for="check-in">Ngày nhận</label>
-      <input
-        type="date"
-        [(ngModel)]="filter.check_in_date"
-        (change)="onFilterChange()"
-      />
-    </div>
-
-    <div>
-      <label for="check-out">Ngày trả</label>
-      <input
-        type="date"
-        [(ngModel)]="filter.check_out_date"
-        (change)="onFilterChange()"
-      />
-    </div>
-  </div>
+  <!-- Thanh tìm kiếm -->
+  <app-room-filter
+    [filter]="filter"
+    [roomClasses]="roomClasses"
+    [roomStatuses]="roomStatuses"
+    (filterChange)="onFilterChange()"
+    (openPopup)="onOpenPopup(true)"
+  ></app-room-filter>
 
   <!-- popup thêm phòng -->
-  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
-    <div class="popup-content">
-      <h2>Thêm phòng</h2>
-
-      <form #addForm="ngForm" (ngSubmit)="onAddSubmit()">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="email"
-              class="form-control"
-              id="name"
-              name="name"
-              placeholder="name@example.com"
-              [(ngModel)]="newRoom.name"
-              (ngModelChange)="newRoom.name = $event"
-              required
-            />
-            <label for="name">Tên phòng</label>
-          </div>
-        </div>
-
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="number"
-              class="form-control"
-              id="floor"
-              name="floor"
-              min="0"
-              [(ngModel)]="newRoom.floor"
-              (ngModelChange)="newRoom.floor = $event"
-              required
-            />
-            <label for="floor">Tầng</label>
-          </div>
-        </div>
-
-        <div class="popup-section">
-          <label for="room_class_id">Loại phòng:</label>
-          <select
-            id="room_class_id"
-            name="room_class_id"
-            class="form-select form-control mb-3"
-            [(ngModel)]="newRoom.room_class_id"
-            (ngModelChange)="newRoom.room_class_id = $event"
-            required
-          >
-            <option value="" disabled selected>Chọn loại phòng</option>
-            <option
-              *ngFor="let roomClass of roomClasses"
-              [value]="roomClass.id"
-            >
-              {{ roomClass.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="popup-section">
-          <label for="room_status_id">Trạng thái:</label>
-          <select
-            id="room_status_id"
-            name="room_status_id"
-            class="form-select form-control mb-3"
-            [(ngModel)]="newRoom.room_status_id"
-            (ngModelChange)="newRoom.room_status_id = $event"
-          >
-            <option value="" disabled selected>Chọn trạng thái</option>
-            <option *ngFor="let status of roomStatuses" [value]="status.id">
-              {{ status.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="popup-actions">
-          <button
-            class="btn btn-success"
-            type="submit"
-            [disabled]="!addForm.form.valid"
-          >
-            Lưu
-          </button>
-          <button class="btn btn-danger" type="button" (click)="onClosePopup()">
-            Hủy
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-room-form
+    *ngIf="isAddPopupOpen"
+    [isVisible]="isAddPopupOpen"
+    [room]="newRoom"
+    [roomClasses]="roomClasses"
+    [roomStatuses]="roomStatuses"
+    [isEdit]="false"
+    (formSubmit)="onAddSubmit()"
+    (close)="onClosePopup()"
+  ></app-room-form>
 
   <!-- Table Header -->
   <div class="table-header">
@@ -171,175 +31,42 @@
     <div>Trạng thái</div>
     <div>Số giường</div>
     <div>Giá</div>
-    <!-- <div>Mô tả</div> -->
-    <!-- <div>Tiện nghi</div> -->
     <div>Hành động</div>
   </div>
 
   <!-- Table Rows -->
-  <div class="table-row" *ngFor="let room of rooms; let i = index">
-    <div>{{ i + 1 }}</div>
-    <div (click)="onViewDetail($event, room)" style="cursor: pointer">
-      {{ room.name }}
-    </div>
-    <div>{{ room.floor }}</div>
-    <div>{{ room.room_class?.[0]?.name || "Không rõ" }}</div>
-    <div>{{ room.status?.[0]?.name || "Không rõ" }}</div>
-    <div>{{ room.room_class?.[0]?.bed_amount }}</div>
-    <div>{{ room.room_class?.[0]?.price | currency : "VND" }}</div>
-    <!-- <div>{{ room.room_class[0].description }}</div> -->
-    <!-- <div>{{ getFeatureNames(room) }}</div> -->
-    <div class="actions">
-      <!-- Edit icon -->
-      <button
-        class="icon-button"
-        (click)="onOpenPopup(false, room); $event.stopPropagation()"
-      >
-        <i class="fas fa-pen"></i>
-      </button>
-    </div>
-  </div>
+  <app-room-list
+    [rooms]="rooms"
+    (viewDetail)="onViewDetail($event)"
+    (openPopup)="onOpenPopup(false, $event)"
+  ></app-room-list>
+
   <!-- Pagination -->
-   <app-pagination
+  <app-pagination
     [page]="filter.page"
     [total]="filter.total"
     [limit]="filter.limit"
     (pageChange)="onPageChange($event)"
-   />
+  />
+
   <!-- popup chi tiết -->
-  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedRoom">
-    <div class="popup-content">
-      <h2>Chi tiết phòng: {{ selectedRoom.name }}</h2>
-
-      <label>Lịch đặt phòng:</label>
-      <full-calendar [options]="calendarOptions"></full-calendar>
-
-      <div class="popup-section">
-        <label>Tên phòng:</label>
-        <span>{{ selectedRoom.name || "Không rõ" }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Tầng:</label>
-        <span>{{ selectedRoom.floor }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Trạng thái:</label>
-        <span>{{ selectedRoom.status?.[0]?.name }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Mô tả:</label>
-        <span>{{ selectedRoom.room_class?.[0]?.description }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Số giường:</label>
-        <span>{{ selectedRoom.room_class?.[0]?.bed_amount }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Tên loại phòng:</label>
-        <span>{{ selectedRoom.room_class?.[0]?.name }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Giá:</label>
-        <span>{{
-          selectedRoom.room_class?.[0]?.price | currency : "VND" : "symbol"
-        }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Giá giảm:</label>
-        <span>{{
-          selectedRoom.room_class?.[0]?.price_discount
-            | currency : "VND" : "symbol"
-        }}</span>
-      </div>
-
-      <div class="popup-section">
-        <label>Sức chứa:</label>
-        <span>{{ selectedRoom.room_class?.[0]?.capacity }} người</span>
-      </div>
-
-      <button class="close-btn" (click)="onClosePopup()">Đóng</button>
-    </div>
-  </div>
+  <app-room-detail
+    *ngIf="selectedRoom"
+    [room]="selectedRoom"
+    [isVisible]="isDetailPopupOpen"
+    (close)="onClosePopup()"
+    [calendarOptions]="calendarOptions"
+  ></app-room-detail>
 
   <!-- popup sửa phòng -->
-  <div class="popup-add-popup" *ngIf="isEditPopupOpen && selectedRoom">
-    <div class="popup-content">
-      <h2>Sửa phòng</h2>
-
-      <form #editForm="ngForm" (ngSubmit)="onEditSubmit()">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="email"
-              class="form-control"
-              id="name"
-              name="name"
-              placeholder=""
-              [(ngModel)]="selectedRoom.name"
-              (ngModelChange)="selectedRoom.name = $event"
-              required
-            />
-            <label for="name">Tên loại phòng chính</label>
-          </div>
-        </div>
-
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="number"
-              class="form-control"
-              id="floor"
-              name="floor"
-              min="0"
-              placeholder=""
-              [(ngModel)]="selectedRoom.floor"
-              (ngModelChange)="selectedRoom.floor = $event"
-              required
-            />
-            <label for="floor">Tầng</label>
-          </div>
-        </div>
-
-        <div class="popup-section">
-          <label for="room_class_id">Loại phòng:</label>
-          <select
-            id="room_class_id"
-            name="room_class_id"
-            class="form-select form-control mb-3"
-            [(ngModel)]="selectedRoom.room_class_id"
-            (ngModelChange)="selectedRoom.room_class_id = $event"
-            required
-          >
-            <option value="" disabled selected>Chọn loại phòng</option>
-            <option
-              *ngFor="let roomClass of roomClasses"
-              [value]="roomClass.id"
-            >
-              {{ roomClass.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="popup-actions">
-          <button
-            class="btn btn-success"
-            type="submit"
-            [disabled]="!editForm.form.valid"
-          >
-            Lưu
-          </button>
-          <button class="btn btn-danger" type="button" (click)="onClosePopup()">
-            Hủy
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-room-form
+    *ngIf="isEditPopupOpen"
+    [isVisible]="isEditPopupOpen"
+    [room]="selectedRoom"
+    [roomClasses]="roomClasses"
+    [roomStatuses]="roomStatuses"
+    [isEdit]="true"
+    (formSubmit)="onEditSubmit()"
+    (close)="onClosePopup()"
+  ></app-room-form>
 </div>

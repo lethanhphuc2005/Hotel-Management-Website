@@ -1,0 +1,82 @@
+<div class="popup-add-popup" *ngIf="isVisible && room">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} phòng</h2>
+
+    <form #editForm="ngForm" (ngSubmit)="formSubmit.emit()">
+      <div class="popup-section">
+        <div class="form-floating form-floating-custom mb-3">
+          <input
+            type="email"
+            class="form-control"
+            id="name"
+            name="name"
+            placeholder=""
+            [(ngModel)]="room.name"
+            required
+          />
+          <label for="name">Tên phòng</label>
+        </div>
+      </div>
+
+      <div class="popup-section">
+        <div class="form-floating form-floating-custom mb-3">
+          <input
+            type="number"
+            class="form-control"
+            id="floor"
+            name="floor"
+            min="0"
+            placeholder=""
+            [(ngModel)]="room.floor"
+            required
+          />
+          <label for="floor">Tầng</label>
+        </div>
+      </div>
+
+      <div class="popup-section">
+        <label for="room_class_id">Loại phòng:</label>
+        <select
+          id="room_class_id"
+          name="room_class_id"
+          class="form-select form-control mb-3"
+          [(ngModel)]="room.room_class_id"
+          required
+        >
+          <option value="">Chọn loại phòng</option>
+          <!-- <option value="">{{room.room_class_id}}</option> -->
+
+          <option *ngFor="let roomClass of roomClasses" [value]="roomClass.id">
+            {{ roomClass.name }}
+          </option>
+        </select>
+      </div>
+      <div class="popup-section" *ngIf="!isEdit">
+        <label for="room_status_id">Trạng thái:</label>
+        <select
+          id="room_status_id"
+          name="room_status_id"
+          class="form-select form-control mb-3"
+          [(ngModel)]="room.room_status_id"
+        >
+          <option value="" disabled selected>Chọn trạng thái</option>
+          <option *ngFor="let status of roomStatuses" [value]="status.id">
+            {{ status.name }}
+          </option>
+        </select>
+      </div>
+      <div class="popup-actions">
+        <button
+          class="btn btn-success"
+          type="submit"
+          [disabled]="!editForm.valid"
+        >
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
