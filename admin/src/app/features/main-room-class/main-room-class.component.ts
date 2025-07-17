@@ -11,6 +11,7 @@ import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/
 import { MainRoomClassListComponent } from './main-room-class-list/main-room-class-list.component';
 import { MainRoomClassDetailPopupComponent } from './main-room-class-detail-popup/main-room-class-detail-popup.component';
 import { MainRoomClassFormComponent } from './main-room-class-form/main-room-class-form.component';
+import { compressImage } from '@/shared/utils/image.utils';
 
 @Component({
   selector: 'app-main-room-class',
@@ -183,14 +184,19 @@ export class MainRoomClassComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  onAddSubmit(): void {
+  async onAddSubmit(): Promise<void> {
     const formData = new FormData();
     formData.append('name', this.newMainRoom.name || '');
     formData.append('description', this.newMainRoom.description || '');
     formData.append('status', this.newMainRoom.status?.toString() || 'true');
 
     if (this.newMainRoom.image) {
-      formData.append('image', this.newMainRoom.image);
+      const compressedFile = await compressImage(
+        this.newMainRoom.image,
+        1,
+        1920
+      );
+      formData.append('image', compressedFile);
     }
 
     this.mainRoomClassService.addMainRoomClass(formData).subscribe({
@@ -211,14 +217,19 @@ export class MainRoomClassComponent implements OnInit {
     });
   }
 
-  onEditSubmit(): void {
+  async onEditSubmit(): Promise<void> {
     if (!this.selectedMainRoomClass) return;
 
     const formData = new FormData();
     formData.append('name', this.newMainRoom.name || '');
     formData.append('description', this.newMainRoom.description || '');
     if (this.newMainRoom.image) {
-      formData.append('image', this.newMainRoom.image);
+      const compressedFile = await compressImage(
+        this.newMainRoom.image,
+        1,
+        1920
+      );
+      formData.append('image', compressedFile);
     }
 
     this.mainRoomClassService

@@ -14,6 +14,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 import { RoomClassListComponent } from './room-class-list/room-class-list.component';
 import { RoomClassDetailComponent } from './room-class-detail/room-class-detail.component';
 import { RoomClassFormComponent } from './room-class-form/room-class-form.component';
+import { compressImage } from '@/shared/utils/image.utils';
 
 @Component({
   selector: 'app-room-class',
@@ -288,7 +289,7 @@ export class RoomClassComponent implements OnInit {
     this.newRoomClass.images = [...this.selectedFiles];
   }
 
-  onAddRoomClass(): void {
+  async onAddRoomClass(): Promise<void> {
     const formData = new FormData();
     formData.append(
       'main_room_class_id',
@@ -305,9 +306,10 @@ export class RoomClassComponent implements OnInit {
     );
     formData.append('view', this.newRoomClass.view || '');
     if (this.selectedFiles.length > 0) {
-      this.selectedFiles.forEach((file) => {
-        formData.append('images', file);
-      });
+      for (const file of this.selectedFiles) {
+        const compressedFile = await compressImage(file, 1, 1920);
+        formData.append('images', compressedFile);
+      }
     }
 
     if (this.newRoomClass.features && this.newRoomClass.features.length > 0) {
@@ -335,7 +337,7 @@ export class RoomClassComponent implements OnInit {
     });
   }
 
-  onEditRoomClass(): void {
+  async onEditRoomClass(): Promise<void> {
     if (!this.selectedRoomClass) return;
 
     const formData = new FormData();
@@ -357,9 +359,10 @@ export class RoomClassComponent implements OnInit {
     );
     formData.append('view', this.selectedRoomClass.view || '');
     if (this.selectedFiles.length > 0) {
-      this.selectedFiles.forEach((file) => {
-        formData.append('images', file);
-      });
+      for (const file of this.selectedFiles) {
+        const compressedFile = await compressImage(file, 1, 1920);
+        formData.append('images', compressedFile);
+      }
     }
     if (this.newRoomClass.features && this.newRoomClass.features.length > 0) {
       formData.append('features', JSON.stringify(this.newRoomClass.features));

@@ -23,6 +23,7 @@
     "@fullcalendar/daygrid": "^6.1.17",
     "@fullcalendar/interaction": "^6.1.17",
     "bootstrap-icons": "^1.13.1",
+    "browser-image-compression": "^2.0.2",
     "fullcalendar": "^6.1.17",
     "ngx-pagination": "^6.0.3",
     "ngx-toastr": "^19.0.0",

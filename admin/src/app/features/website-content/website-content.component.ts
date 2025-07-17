@@ -12,6 +12,7 @@ import { WebsiteContentListComponent } from './website-content-list/website-cont
 import { WebsiteContentFormComponent } from './website-content-form/website-content-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { compressImage } from '@/shared/utils/image.utils';
 
 @Component({
   selector: 'app-website-content',
@@ -194,7 +195,7 @@ export class WebsiteContentComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  onAddSubmit(): void {
+  async onAddSubmit(): Promise<void> {
     const formData = new FormData();
     formData.append('title', this.newWebsiteContent.title || '');
     formData.append('content', this.newWebsiteContent.content || '');
@@ -208,7 +209,12 @@ export class WebsiteContentComponent implements OnInit {
     );
 
     if (this.newWebsiteContent.image) {
-      formData.append('image', this.newWebsiteContent.image);
+      const compressedFile = await compressImage(
+        this.newWebsiteContent.image,
+        1,
+        1920
+      );
+      formData.append('image', compressedFile);
     }
 
     this.websitecontentService.createWebsiteContent(formData).subscribe({
@@ -229,7 +235,7 @@ export class WebsiteContentComponent implements OnInit {
     });
   }
 
-  onEditSubmit(): void {
+  async onEditSubmit(): Promise<void> {
     if (!this.selectedWebsiteContent) return;
 
     const formData = new FormData();
@@ -240,7 +246,12 @@ export class WebsiteContentComponent implements OnInit {
       this.selectedWebsiteContent.content_type_id?.toString() || ''
     );
     if (this.newWebsiteContent.image) {
-      formData.append('image', this.newWebsiteContent.image);
+      const compressedFile = await compressImage(
+        this.newWebsiteContent.image,
+        1,
+        1920
+      );
+      formData.append('image', compressedFile);
     }
 
     this.websitecontentService

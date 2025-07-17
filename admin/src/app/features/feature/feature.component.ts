@@ -7,6 +7,7 @@ import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { compressImage } from '@/shared/utils/image.utils';
 
 @Component({
   selector: 'app-feature',
@@ -187,7 +188,7 @@ export class FeatureComponent implements OnInit {
     }
   }
 
-  onAddSubmit(): void {
+  async onAddSubmit(): Promise<void> {
     const formData = new FormData();
     formData.append('name', this.newFeature.name || '');
     formData.append('icon', this.newFeature.icon || '');
@@ -195,7 +196,12 @@ export class FeatureComponent implements OnInit {
     formData.append('status', this.newFeature.status?.toString() || 'true');
 
     if (this.newFeature.image) {
-      formData.append('image', this.newFeature.image);
+      const compressedFile = await compressImage(
+        this.newFeature.image,
+        1,
+        1920
+      );
+      formData.append('image', compressedFile);
     }
 
     this.featureService.createFeature(formData).subscribe({
@@ -216,7 +222,7 @@ export class FeatureComponent implements OnInit {
     });
   }
 
-  onEditSubmit(): void {
+  async onEditSubmit(): Promise<void> {
     if (!this.selectedFeature) return;
 
     const formData = new FormData();
@@ -224,7 +230,12 @@ export class FeatureComponent implements OnInit {
     formData.append('icon', this.newFeature.icon || '');
     formData.append('description', this.newFeature.description || '');
     if (this.newFeature.image) {
-      formData.append('image', this.newFeature.image);
+      const compressedFile = await compressImage(
+        this.newFeature.image,
+        1,
+        1920
+      );
+      formData.append('image', compressedFile);
     }
 
     this.featureService
@@ -233,6 +244,9 @@ export class FeatureComponent implements OnInit {
         next: () => {
           this.getAllFeatures();
           this.isEditPopupOpen = false;
+          this.selectedFeature = null;
+          this.imagePreview = null; // Reset preview image
+          this.newFeature.image = null; // Reset new image
           this.toastService.success(
             'Cập nhật loại phòng chính thành công',
             'Thành công'
