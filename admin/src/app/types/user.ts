@@ -1,7 +1,8 @@
-import { Booking } from "./booking";
-import { Comment } from "./comment";
-import { Review } from "./review";
-import { RoomClass } from "./room-class";
+import { Booking } from './booking';
+import { Comment } from './comment';
+import { FilterParams, PaginationResponse } from './common';
+import { Review } from './review';
+import { RoomClass } from './room-class';
 
 export interface User {
   id: string;
@@ -18,13 +19,13 @@ export interface User {
   is_verified: boolean;
   level: string;
   verfitication_expired?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  comments: Comment[];
-  reviews: Review[];
-  bookings: Booking[];
-  favorites: UserFavorite[];
-  wallet: any[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  comments?: Comment[];
+  reviews?: Review[];
+  bookings?: Booking[];
+  favorites?: UserFavorite[];
+  wallet?: UserWallet[];
 }
 
 export interface UserFavorite {
@@ -39,7 +40,7 @@ export interface UserWallet {
   id: string;
   user_id: string;
   balance: number;
-  transactions: any[]
+  transactions: WalletTransaction[];
 }
 
 export interface WalletTransaction {
@@ -48,4 +49,21 @@ export interface WalletTransaction {
   amount: number;
   note: string;
   createdAt: Date;
+}
+
+export interface UserResponse {
+  message: string;
+  data: User[];
+  pagination: PaginationResponse;
+}
+
+export interface UserDetailResponse {
+  message: string;
+  data: User;
+}
+
+export interface UserFilter extends FilterParams {
+  status?: string;
+  is_verified?: string;
+  level?: string;
 }

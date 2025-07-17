@@ -1,0 +1,68 @@
+<div class="room-controls" style="display: flex; align-items: center; gap: 8px">
+  <div
+    class="form-floating form-floating-custom mb-3"
+    style="position: relative; flex: 1"
+  >
+    <input
+      type="email"
+      class="form-control"
+      id="floatingInput"
+      placeholder="name@example.com"
+      style="width: 100%; padding-right: 30px"
+      [(ngModel)]="filter.keyword"
+      (ngModelChange)="filterChange.emit()"
+    />
+    <label for="floatingInput">Tìm kiếm</label>
+  </div>
+</div>
+<!-- Filter -->
+<div class="filter-bar">
+  <div>
+    <label for="levelFilter">Cấp độ:</label>
+    <select
+      id="levelFilter"
+      class="form-select"
+      [(ngModel)]="filter.level"
+      (ngModelChange)="filterChange.emit()"
+    >
+      <option value="">Tất cả</option>
+      <option value="bronze">Đồng</option>
+      <option value="silver">Bạc</option>
+      <option value="gold">Vàng</option>
+      <option value="diamond">Kim cương</option>
+    </select>
+  </div>
+  <div>
+    <label for="verifyFilter">Xác minh email:</label>
+    <select
+      id="verifyFilter"
+      class="form-select"
+      [(ngModel)]="filter.is_verified"
+      (ngModelChange)="filterChange.emit()"
+    >
+      <option value="">Tất cả</option>
+      <option value="true">Đã xác minh</option>
+      <option value="false">Chưa xác minh</option>
+    </select>
+  </div>
+  <div>
+    <label for="statusFilter">Trạng thái:</label>
+    <select
+      id="statusFilter"
+      class="form-select"
+      [(ngModel)]="filter.status"
+      (ngModelChange)="filterChange.emit()"
+    >
+      <option value="">Tất cả</option>
+      <option value="true">Kích hoạt</option>
+      <option value="false">Không kích hoạt</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Sắp xếp:</label>
+    <button (click)="filterChange.emit('status')">
+      Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
+    </button>
+  </div>
+</div>

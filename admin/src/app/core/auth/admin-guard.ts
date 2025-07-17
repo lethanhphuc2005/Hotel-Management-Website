@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   CanActivate,
   ActivatedRouteSnapshot,
@@ -6,29 +6,37 @@ import {
   Router,
   UrlTree,
 } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router) {}
+  private router = inject(Router);
+  private toastr = inject(ToastrService);
+
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree {
-    const jsonData = localStorage.getItem('login');
-    // Nếu chưa đăng nhập
-    if (!jsonData) {
-      alert('Vui lòng đăng nhập trước');
+    const loginData = localStorage.getItem('login');
+
+    if (!loginData) {
+      this.toastr.error('Bạn cần đăng nhập để truy cập trang này');
       return this.router.parseUrl('/login');
     }
-    const user = JSON.parse(jsonData);
+
+    const user = JSON.parse(loginData);
     const isAdminRoute = route.data['adminOnly'] === true;
-    // Kiểm tra role thay vì admin
+    console.log('Kiểm tra quyền truy cập:', {
+      isAdminRoute,
+      userRole: user.data?.role,
+    });
     if (isAdminRoute && user.data?.role !== 'admin') {
-      alert('Bạn không có quyền truy cập trang này');
-      return this.router.parseUrl('/unauthorized');
+      this.toastr.error('Bạn không có quyền truy cập vào trang này');
+      return this.router.parseUrl('/home');
     }
+
     return true;
   }
 }

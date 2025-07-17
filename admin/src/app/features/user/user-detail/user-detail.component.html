@@ -1,0 +1,161 @@
+<div class="popup-overlay" *ngIf="isVisible && user">
+  <div class="popup-content">
+    <h2>Chi tiết người dùng</h2>
+    <div class="user-details">
+      <p><strong>Tên:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Điện thoại:</strong> {{ user.phone_number }}</p>
+      <p><strong>Địa chỉ:</strong> {{ user.address }}</p>
+      <p>
+        <strong>Cấp độ:</strong>
+        {{ getUserLevelName(user.level) || "Chưa xác định" }}
+      </p>
+      <p>
+        <strong>Xác minh email:</strong>
+        {{ user.is_verified ? "Đã xác minh" : "Chưa xác minh" }}
+      </p>
+      <p>
+        <strong>Trạng thái:</strong>
+        {{ user.status ? "Kích hoạt" : "Không kích hoạt" }}
+      </p>
+      <p>
+        <strong>Ngày tạo:</strong> {{ user.createdAt | date : "dd/MM/yyyy" }}
+      </p>
+      <p>
+        <strong>Ngày cập nhật:</strong>
+        {{ user.updatedAt | date : "dd/MM/yyyy" }}
+      </p>
+      <p>
+        <strong>Số phòng đã đặt:</strong>
+        {{ user.total_bookings || 0 }}
+      </p>
+      <p>
+        <strong>Số tiền đã thanh toán:</strong>
+        {{ user.total_spent | currency : "VND" : "symbol" : "1.0-0" }}
+      </p>
+
+      <!-- Các đơn đặt phòng -->
+      <div *ngIf="user.bookings && user.bookings.length > 0">
+        <p><strong>Các đơn đặt phòng:</strong></p>
+        <ul>
+          <li
+            *ngFor="
+              let booking of user.bookings
+                | slice
+                  : 0
+                  : (showAllBookings ? user.bookings.length : visibleBookings)
+            "
+            class="tw-list-none"
+          >
+            <p>
+              <strong>ID:</strong> {{ booking.id }} | <strong>Ngày đặt:</strong>
+              {{ booking.createdAt | date : "dd/MM/yyyy" }}
+            </p>
+            <p>
+              <strong>Trạng thái:</strong>
+              {{ booking.payment_status ? "Đã thanh toán" : "Chưa thanh toán" }}
+            </p>
+            <p>
+              <strong>Tổng tiền:</strong>
+              {{ booking.total_price | currency : "VND" }}
+            </p>
+          </li>
+        </ul>
+        <button
+          *ngIf="user.bookings.length > visibleBookings"
+          (click)="toggleShowAll('bookings')"
+          class="tw-mt-1 tw-w-full tw-bg-blue-400 tw-text-white tw-p-2 tw-rounded hover:tw-bg-blue-500 tw-transition tw-duration-200"
+        >
+          {{ showAllBookings ? "Ẩn bớt" : "Xem thêm" }}
+        </button>
+      </div>
+
+      <!-- Các bình luận -->
+      <div *ngIf="user.comments && user.comments.length > 0">
+        <p><strong>Các bình luận:</strong></p>
+        <ul>
+          <li
+            *ngFor="
+              let comment of user.comments
+                | slice
+                  : 0
+                  : (showAllComments ? user.comments.length : visibleComments)
+            "
+            class="tw-list-none"
+          >
+            <p>
+              <strong>ID:</strong> {{ comment.id }} |
+              <strong>Ngày bình luận:</strong>
+              {{ comment.createdAt | date : "dd/MM/yyyy" }}
+            </p>
+            <p>
+              <strong>Nội dung:</strong>
+              {{ comment.content }}
+            </p>
+          </li>
+        </ul>
+        <button
+          *ngIf="user.comments.length > visibleComments"
+          (click)="toggleShowAll('comments')"
+          class="tw-mt-1 tw-w-full tw-bg-blue-400 tw-text-white tw-p-2 tw-rounded hover:tw-bg-blue-500 tw-transition tw-duration-200"
+        >
+          {{ showAllComments ? "Ẩn bớt" : "Xem thêm" }}
+        </button>
+      </div>
+
+      <!-- Các đánh giá -->
+      <div *ngIf="user.reviews && user.reviews.length > 0">
+        <p><strong>Các đánh giá:</strong></p>
+        <ul>
+          <li
+            *ngFor="
+              let review of user.reviews
+                | slice
+                  : 0
+                  : (showAllReviews ? user.reviews.length : visibleReviews)
+            "
+            class="tw-list-none"
+          >
+            <p>
+              <strong>ID:</strong> {{ review.id }} |
+              <strong>Ngày đánh giá:</strong>
+              {{ review.createdAt | date : "dd/MM/yyyy" }}
+            </p>
+            <p>
+              <strong>Nội dung:</strong>
+              {{ review.content || "Không có nội dung" }}
+            </p>
+            <p>
+              <strong>Điểm đánh giá: </strong
+              ><span
+                *ngFor="
+                  let star of [].constructor(review.rating);
+                  let j = index
+                "
+              >
+                <i class="fa-solid fa-star"></i>
+              </span>
+              <span
+                *ngFor="
+                  let star of [].constructor(5 - review.rating);
+                  let j = index
+                "
+              >
+                <i class="fa-regular fa-star"></i>
+              </span>
+            </p>
+          </li>
+        </ul>
+        <button
+          *ngIf="user.reviews.length > visibleReviews"
+          (click)="toggleShowAll('reviews')"
+          class="tw-mt-1 tw-w-full tw-bg-blue-400 tw-text-white tw-p-2 tw-rounded hover:tw-bg-blue-500 tw-transition tw-duration-200"
+        >
+          {{ showAllReviews ? "Ẩn bớt" : "Xem thêm" }}
+        </button>
+      </div>
+    </div>
+
+    <button class="close-btn" (click)="closeDetail.emit()">Đóng</button>
+  </div>
+</div>

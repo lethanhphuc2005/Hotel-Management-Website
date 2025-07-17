@@ -1,66 +1,31 @@
 <div class="user-management-card">
   <h2>Quản lí khách hàng</h2>
 
-  <!-- Table Header -->
-  <div class="table-header">
-    <div>STT</div>
-    <div>Tên</div>
-    <div>Email</div>
-    <div>Phone</div>
-    <div>Địa chỉ</div>
-    <div>Ghi chú</div>
-    <div>Trạng thái</div>
-  </div>
-
+  <!--- User Filter -->
+  <app-user-filter
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+  ></app-user-filter>
   <!-- User Detail Popup -->
-  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedUser">
-    <div class="popup-content">
-      <h2>Customer Detail</h2>
-
-      <div class="popup-section">
-        <label>Full Name:</label>
-        <span>{{ selectedUser.first_name }}</span>
-      </div>
-      <div class="popup-section">
-        <label>Email:</label>
-        <span>{{ selectedUser.email }}</span>
-      </div>
-      <div class="popup-section">
-        <label>Phone Number:</label>
-        <span>{{ selectedUser.phone_number }}</span>
-      </div>
-      <div class="popup-section">
-        <label>Address:</label>
-        <span>{{ selectedUser.address }}</span>
-      </div>
-      <div class="popup-section">
-        <label>Request:</label>
-        <span>{{ selectedUser.request || '—' }}</span>
-      </div>
-      <div class="popup-section">
-        <label>Status:</label>
-        <span [class.active]="selectedUser.status" [class.inactive]="!selectedUser.status">
-          {{ selectedUser.status ? 'Active' : 'Inactive' }}
-        </span>
-      </div>
-
-      <button class="close-btn" (click)="isDetailPopupOpen = false">Close</button>
-    </div>
-  </div>
+  <app-user-detail
+    [isVisible]="isDetailPopupOpen"
+    [user]="selectedUser"
+    (closeDetail)="onClosePopup()"
+  ></app-user-detail>
 
   <!-- Table Body -->
-  <div *ngFor="let user of users; let i = index" class="table-row">
-    <div>{{ i + 1 }}</div>
-    <div (click)="onViewUserDetail(user)" class="clickable-name">{{ user.first_name }}</div>
-    <div>{{ user.email }}</div>
-    <div>{{ user.phone_number }}</div>
-    <div>{{ user.address }}</div>
-    <div>{{ user.request || '—' }}</div>
-    <div class="status-toggle">
-      <label class="switch">
-        <input type="checkbox" [checked]="user.status" (click)="onToggleUserStatus($event, user)" />
-        <span class="slider"></span>
-      </label>
-    </div>
-  </div>
+  <app-user-list
+    [users]="users"
+    [filter]="filter"
+    (toggleChange)="onToggleChange($event.$event, $event.user)"
+    (viewDetail)="onViewDetail($event)"
+  ></app-user-list>
+
+  <!-- Pagination -->
+  <app-pagination
+    [total]="filter.total"
+    [page]="filter.page"
+    [limit]="filter.limit"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
 </div>

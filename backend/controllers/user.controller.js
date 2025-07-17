@@ -17,6 +17,8 @@ const userController = {
         sort = "createdAt",
         order = "desc",
         status,
+        is_verified,
+        level,
       } = req.query;
 
       const query = {};
@@ -39,6 +41,19 @@ const userController = {
         } else if (status === "false" || status === false) {
           query.status = false;
         }
+      }
+
+      if (typeof is_verified !== "undefined") {
+        // Chấp nhận cả true/false dạng string
+        if (is_verified === "true" || is_verified === true) {
+          query.is_verified = true;
+        } else if (is_verified === "false" || is_verified === false) {
+          query.is_verified = false;
+        }
+      }
+
+      if (level) {
+        query.level = level;
       }
 
       const sortOption = {};
@@ -73,7 +88,7 @@ const userController = {
       const total = await User.countDocuments(query);
 
       if (!users || users.length === 0) {
-        return res.status(404).json("Không tìm thấy user nào");
+        return res.status(404).json({ message: "Không tìm thấy user nào" });
       }
       res.status(200).json({
         message: "Lấy tất cả user thành công",
@@ -397,7 +412,6 @@ const userController = {
         });
         await wallet.save();
       }
-      
 
       res.status(200).json({
         message: "Xác thực tài khoản thành công",
@@ -538,7 +552,7 @@ const userController = {
       return {
         success: true,
         message: `Cập nhật cấp độ người dùng thành công: ${level}`,
-      }
+      };
     } catch (error) {
       console.error("Lỗi khi cập nhật cấp độ người dùng:", error);
       return {

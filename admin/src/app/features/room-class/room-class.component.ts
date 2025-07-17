@@ -15,6 +15,7 @@ import { RoomClassListComponent } from './room-class-list/room-class-list.compon
 import { RoomClassDetailComponent } from './room-class-detail/room-class-detail.component';
 import { RoomClassFormComponent } from './room-class-form/room-class-form.component';
 import { compressImage } from '@/shared/utils/image.utils';
+import { RoomClassFilterComponent } from './room-class-filter/room-class-filter.component';
 
 @Component({
   selector: 'app-room-class',
@@ -29,6 +30,7 @@ import { compressImage } from '@/shared/utils/image.utils';
     RoomClassListComponent,
     RoomClassDetailComponent,
     RoomClassFormComponent,
+    RoomClassFilterComponent,
   ],
 })
 export class RoomClassComponent implements OnInit {
@@ -50,13 +52,13 @@ export class RoomClassComponent implements OnInit {
     page: number;
     limit: number;
     total: number;
-    status: string;
-    feature: string;
-    type: string;
-    minBed: number;
-    maxBed: number;
-    minCapacity: number;
-    maxCapacity: number;
+    status?: string;
+    feature?: string;
+    type?: string;
+    minBed?: number;
+    maxBed?: number;
+    minCapacity?: number;
+    maxCapacity?: number;
   } = {
     keyword: '',
     sortField: 'createdAt',
@@ -67,10 +69,6 @@ export class RoomClassComponent implements OnInit {
     status: '',
     feature: '',
     type: '',
-    minBed: 0,
-    maxBed: 10,
-    minCapacity: 0,
-    maxCapacity: 10,
   };
 
   constructor(

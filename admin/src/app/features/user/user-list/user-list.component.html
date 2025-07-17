@@ -1,0 +1,45 @@
+<!-- Table Header -->
+<div class="table-header">
+  <div>STT</div>
+  <div>Tên</div>
+  <div>Email</div>
+  <div>Phone</div>
+  <div>Địa chỉ</div>
+  <div>Cấp độ</div>
+  <div>Trạng thái</div>
+  <div>Hành động</div>
+</div>
+
+<!-- Table Body -->
+<div *ngFor="let user of users; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>
+    {{ user.last_name }} {{ user.first_name }} <br />
+    <span class="tw-text-red-500" *ngIf="!user.is_verified">
+      (Chưa xác minh)
+    </span>
+  </div>
+  <div>
+    {{ user.email }}
+  </div>
+  <div>
+    {{ user.phone_number }}
+  </div>
+  <div>{{ user.address }}</div>
+  <div>{{ getUserLevelName(user.level) || "" }}</div>
+  <div class="status-toggle">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="user.status"
+        (click)="toggleChange.emit({$event, user})"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="actions">
+    <button class="icon-button" (click)="viewDetail.emit(user)">
+      <i class="fas fa-eye"></i>
+    </button>
+  </div>
+</div>
