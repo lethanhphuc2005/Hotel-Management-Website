@@ -1,0 +1,47 @@
+<div class="popup-overlay" *ngIf="isVisible">
+  <div class="popup-content">
+    <h2>Chi tiết tiện nghi</h2>
+
+    <div class="popup-section">
+      <label>Tên:</label>
+      <span>{{ feature.name }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Mô tả:</label>
+      <span>{{ feature.description }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span [ngClass]="feature.status ? 'active' : 'inactive'">
+        {{ feature.status ? "Đang hoạt động" : "Tạm dừng hoạt động" }}
+      </span>
+    </div>
+
+    <div class="popup-section">
+      <label>Loại phòng sử dụng:</label>
+      <ul>
+        <li *ngFor="let item of feature.room_class_used_list">
+          {{ item.room_class_id.name || "(chưa gán)" }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="popup-section">
+      <label>Hình ảnh:</label>
+      <div class="image-list">
+        <img
+          *ngIf="feature.image"
+          [src]="getImageUrl(feature.image)"
+          [alt]="feature.name"
+          width="200"
+          height="200"
+          class="tw-w-full tw-h-auto tw-rounded"
+        />
+      </div>
+    </div>
+
+    <button class="close-btn" (click)="close.emit()">Đóng</button>
+  </div>
+</div>

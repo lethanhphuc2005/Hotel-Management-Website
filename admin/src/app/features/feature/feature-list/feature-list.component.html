@@ -1,0 +1,54 @@
+<div class="table-header">
+  <div>STT</div>
+  <div>Tên tiện nghi</div>
+  <div>Icon</div>
+  <div>Hình ảnh</div>
+  <div>Loại phòng sử dụng</div>
+  <div>Trạng thái</div>
+  <div>Hành động</div>
+</div>
+
+<div *ngFor="let feature of features; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>
+    {{ feature.name }}
+  </div>
+  <div>
+    {{ feature.icon ? feature.icon : "(chưa có icon)" }}
+  </div>
+  <div class="image-list">
+    <img
+      *ngIf="feature.image"
+      [src]="getImageUrl(feature.image)"
+      [alt]="feature.name"
+      width="200"
+      height="200"
+      class="tw-w-full tw-h-auto tw-rounded"
+    />
+  </div>
+  <div>
+    <ul class="room-children-list">
+      <li *ngFor="let item of feature.room_class_used_list">
+        {{ item.room_class_id.name || "(chưa gán)" }}
+      </li>
+    </ul>
+  </div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="feature.status"
+        (change)="toggleStatus.emit({$event, feature})"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="actions">
+    <button class="icon-button" (click)="viewDetail.emit(feature)">
+      <i class="fas fa-eye"></i>
+    </button>
+    <button class="icon-button" (click)="openEdit.emit(feature)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

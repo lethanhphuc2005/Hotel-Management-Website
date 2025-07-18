@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Feature, FeatureRequest } from '../../types/feature';
-import { FeatureService } from '../../core/services/feature.service';
+import { Feature, FeatureRequest } from '@/types/feature';
+import { FeatureService } from '@/core/services/feature.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ImageHelperService } from '../../shared/services/image-helper.service';
+import { CommonModule } from '@angular/common';
+import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { ToastrService } from 'ngx-toastr';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { compressImage } from '@/shared/utils/image.utils';
+import { FeatureListComponent } from './feature-list/feature-list.component';
+import { FeatureDetailComponent } from './feature-detail/feature-detail.component';
+import { FeatureFormComponent } from './feature-form/feature-form.component';
 
 @Component({
   selector: 'app-feature',
@@ -16,8 +19,10 @@ import { compressImage } from '@/shared/utils/image.utils';
     CommonModule,
     FormsModule,
     PaginationComponent,
-    NgOptimizedImage,
     CommonFilterBarComponent,
+    FeatureListComponent,
+    FeatureDetailComponent,
+    FeatureFormComponent,
   ],
   templateUrl: './feature.component.html',
   styleUrls: ['./feature.component.scss'],
@@ -134,7 +139,6 @@ export class FeatureComponent implements OnInit {
 
   onViewDetail(f: Feature) {
     this.selectedFeature = f;
-    console.log('Selected feature:', f);
     // Reset preview image
     this.imagePreview = null;
     this.isDetailPopupOpen = true;
@@ -173,19 +177,14 @@ export class FeatureComponent implements OnInit {
     this.selectedFeature = null;
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.newFeature.image = file;
+  onFileSelected(file: File): void {
+    this.newFeature.image = file;
 
-      // Hiển thị ảnh preview nếu cần
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.imagePreview = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   async onAddSubmit(): Promise<void> {

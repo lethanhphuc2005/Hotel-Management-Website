@@ -9,6 +9,7 @@ import { EmployeeFilterComponent } from './employee-filter/employee-filter.compo
 import { EmployeeListComponent } from './employee-list/employee-list.component';
 import { EmployeeFormComponent } from './employee-form/employee-form.component';
 import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-employee',
@@ -20,6 +21,7 @@ import { EmployeeDetailComponent } from './employee-detail/employee-detail.compo
     EmployeeListComponent,
     EmployeeFormComponent,
     EmployeeDetailComponent,
+    PaginationComponent
   ],
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.scss'],
@@ -49,7 +51,7 @@ export class EmployeeComponent implements OnInit {
     limit: number;
     sortField: string;
     sortOrder: 'desc' | 'asc';
-    total?: number;
+    total: number;
     status?: string;
     role?: string;
     department?: string;
@@ -64,6 +66,7 @@ export class EmployeeComponent implements OnInit {
     role: '',
     department: '',
     position: '',
+    total: 0,
   };
 
   constructor(

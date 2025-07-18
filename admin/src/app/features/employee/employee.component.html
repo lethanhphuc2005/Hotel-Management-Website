@@ -25,6 +25,14 @@
     (openPopup)="onOpenPopup(false, $event)"
   ></app-employee-list>
 
+  <!--- Pagination -->
+  <app-pagination
+    [total]="filter.total"
+    [limit]="filter.limit"
+    [page]="filter.page"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+
   <!-- Popup chi tiết nhân viên -->
   <app-employee-detail
     *ngIf="selectedEmployee"
