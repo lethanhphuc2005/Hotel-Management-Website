@@ -1,1 +1,71 @@
-<p>service-form works!</p>
+<div class="popup-add-popup" *ngIf="isVisible">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} dịch vụ</h2>
+
+    <form (ngSubmit)="submitForm.emit()" #editForm="ngForm">
+      <div class="popup-section">
+        <div class="form-floating form-floating-custom mb-3">
+          <input
+            type="email"
+            class="form-control"
+            id="name"
+            name="name"
+            [(ngModel)]="service.name"
+            required
+          />
+          <label for="name">Tên dịch vụ</label>
+        </div>
+      </div>
+
+      <div class="popup-section">
+        <label for="description">Mô tả:</label>
+        <textarea
+          class="form-control mb-3"
+          id="description"
+          name="description"
+          [(ngModel)]="service.description"
+        ></textarea>
+      </div>
+
+      <div class="popup-section">
+        <label for="editImage">Ảnh:</label>
+        <input
+          type="file"
+          id="editImage"
+          class="form-control mb-3"
+          (change)="onFileInputChange($event)"
+        />
+
+        <!-- Ưu tiên preview nếu có -->
+        <div *ngIf="imagePreview; else currentImage">
+          <label>Ảnh preview:</label>
+          <img [src]="imagePreview" width="120px" height="100px" />
+        </div>
+
+        <ng-template #currentImage>
+          <div *ngIf="service.image">
+            <label>Ảnh hiện tại:</label>
+            <img
+              [src]="getImageUrl(service.image)"
+              width="120px"
+              height="100px"
+            />
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="popup-actions">
+        <button
+          class="btn btn-success"
+          type="submit"
+          [disabled]="!editForm.form.valid"
+        >
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

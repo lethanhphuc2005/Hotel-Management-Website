@@ -2,6 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
+import {
+  ServiceDetailResponse,
+  ServiceFilter,
+  ServiceRequest,
+  ServiceResponse,
+} from '@/types/service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,38 +17,45 @@ export class ServiceService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ Lấy danh sách dịch vụ (admin, receptionist)
-  getAll(params: any = {}): Observable<any> {
-    return this.http.get(`${this.baseUrl}`, { params });
+  getAllServices({
+    search = '',
+    page = 1,
+    limit = 10,
+    sort = 'createdAt',
+    order = 'desc',
+    status,
+  }: ServiceFilter): Observable<ServiceResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order);
+    if (status) params = params.set('status', status);
+    return this.http.get<ServiceResponse>(this.baseUrl, { params });
   }
 
-  // ✅ Lấy danh sách cho user
-  getAllForUser(params?: any): Observable<any> {
-    return this.http.get(`${this.baseUrl}/user`, { params });
+  getServiceById(id: string): Observable<ServiceDetailResponse> {
+    return this.http.get<ServiceDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  // ✅ Lấy dịch vụ theo ID
-  getById(id: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/${id}`);
+  createService(
+    data: FormData | ServiceRequest
+  ): Observable<ServiceDetailResponse> {
+    return this.http.post<ServiceDetailResponse>(this.baseUrl, data);
   }
 
-  // ✅ Thêm dịch vụ mới
-  createService(data: FormData): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, data);
+  updateService(
+    id: string,
+    data: FormData | ServiceRequest
+  ): Observable<ServiceDetailResponse> {
+    return this.http.put<ServiceDetailResponse>(`${this.baseUrl}/${id}`, data);
   }
 
-  // ✅ Cập nhật dịch vụ
-  updateService(id: string, data: FormData): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, data);
+  toggleServiceStatus(id: string): Observable<ServiceDetailResponse> {
+    return this.http.put<ServiceDetailResponse>(
+      `${this.baseUrl}/toggle/${id}`,
+      {}
+    );
   }
-
-  // ✅ Kích hoạt / Vô hiệu hóa
-  toggleStatus(id: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/toggle/${id}`, {});
-  }
-
-  // ❌ (Ẩn) Xoá dịch vụ
-  // deleteService(id: string): Observable<any> {
-  //   return this.http.delete(`${this.baseUrl}/${id}`);
-  // }
 }

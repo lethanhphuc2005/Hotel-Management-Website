@@ -27,8 +27,10 @@ export async function compressImage(
     console.log('✅ Compressed image size:', compressedSizeMB, 'MB');
 
     // Lấy đuôi file gốc
+    const originalName =
+      file.name.split('.').slice(0, -1).join('.') || 'untitled';
     const extension = file.name.split('.').pop() || 'jpg';
-    const newFileName = `compressed_${Date.now()}.${extension}`;
+    const newFileName = `${originalName}_compressed.${extension}`;
 
     // Tạo lại File với tên mới
     const compressedFile = new File([compressedBlob], newFileName, {
