@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail } = require("../config/mail");
+const { upload } = require("../middlewares/upload.middleware");
 
 let refreshTokens = [];
 const accountController = {
@@ -133,34 +134,44 @@ const accountController = {
   },
 
   // ====== THÊM TÀI KHOẢN QUẢN TRỊ VIÊN =====
-  addAuthAccount: async (req, res) => {
-    try {
-      if (req.body.secret_key !== process.env.ADMIN_SECRET_KEY) {
-        return res.status(403).json("Bạn không có quyền tạo admin");
-      }
+  addAuthAccount: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        if (req.body.secret_key !== process.env.ADMIN_SECRET_KEY) {
+          return res.status(403).json("Bạn không có quyền tạo admin");
+        }
 
-      const checkAccount = await Employee.findOne({
-        email: req.body.email,
-      });
-      if (checkAccount) {
-        return res.status(400).json("Email admin đã tồn tại");
-      }
+        const checkAccount = await Employee.findOne({
+          email: req.body.email,
+        });
+        if (checkAccount) {
+          return res.status(400).json("Email admin đã tồn tại");
+        }
 
-      const hashPassword = await bcrypt.hash(req.body.password, 10);
-      const newAccount = new Employee({
-        email: req.body.email,
-        password: hashPassword,
-      });
-      const savedAccount = await newAccount.save();
-      const { password, ...accountData } = savedAccount._doc;
-      res.status(200).json({
-        message: "Tạo tài khoản admin thành công",
-        data: accountData,
-      });
-    } catch (error) {
-      res.status(500).json(error.message);
-    }
-  },
+        const hashPassword = await bcrypt.hash(req.body.password, 10);
+        const newAccount = new Employee({
+          email: req.body.email,
+          password: hashPassword,
+          first_name: req.body.first_name,
+          last_name: req.body.last_name,
+          phone_number: req.body.phone_number,
+          address: req.body.address,
+          position: req.body.position,
+          department: req.body.department,
+          role: req.body.role,
+          status: true,
+        });
+        const savedAccount = await newAccount.save();
+        res.status(200).json({
+          message: "Tạo tài khoản admin thành công",
+          data: savedAccount,
+        });
+      } catch (error) {
+        res.status(500).json(error.message);
+      }
+    },
+  ],
 
   // ====== ĐĂNG NHẬP USER =====
   loginUser: async (req, res) => {
@@ -233,7 +244,7 @@ const accountController = {
         phone_number: admin.phone_number,
         status: admin.status,
         role: admin.role,
-      }
+      };
 
       res.status(200).json({
         message: "Đăng nhập thành công",

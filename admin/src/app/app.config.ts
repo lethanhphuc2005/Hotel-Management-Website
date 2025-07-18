@@ -1,7 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import {
-  HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptors,
 } from '@angular/common/http';

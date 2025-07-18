@@ -1,20 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { TitleService } from './shared/services/title.service';
-import { ToastrService } from 'ngx-toastr';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterModule],
+  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit {
-  constructor(
-    private titleService: TitleService,
-  ) {}
+  constructor() {}
 
-  ngOnInit() {
-    this.titleService.init();
-  }
+  ngOnInit() {}
 }

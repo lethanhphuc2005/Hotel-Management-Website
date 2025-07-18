@@ -1,10 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
+import {
+  EmployeeDetailResponse,
+  EmployeeFilter,
+  EmployeeRequest,
+  EmployeeResponse,
+} from '@/types/employee';
+import { ChangePasswordRequest } from '@/types/auth';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EmployeeService {
   private readonly baseUrl = `${environment.apiUrl}/employee`; // Lấy URL từ file cấu hình môi trường
@@ -12,33 +19,69 @@ export class EmployeeService {
   constructor(private http: HttpClient) {}
 
   // ✅ Lấy tất cả nhân viên
-  getAllEmployees(): Observable<any> {
-    return this.http.get(`${this.baseUrl}`);
+  getAllEmployees({
+    search = '',
+    page = 1,
+    limit = 10,
+    sort = 'createdAt',
+    order = 'desc',
+    status,
+    role,
+    department,
+    position,
+  }: EmployeeFilter): Observable<EmployeeResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order);
+    if (status) params = params.set('status', status);
+    if (role) params = params.set('role', role);
+    if (department) params = params.set('department', department);
+    if (position) params = params.set('position', position);
+    return this.http.get<EmployeeResponse>(this.baseUrl, { params });
   }
 
   // ✅ Lấy nhân viên theo ID
-  getEmployeeById(id: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/user-info/${id}`);
+  getEmployeeById(id: string): Observable<EmployeeDetailResponse> {
+    return this.http.get<EmployeeDetailResponse>(
+      `${this.baseUrl}/user-info/${id}`
+    );
   }
 
   // ✅ Cập nhật nhân viên
-  updateEmployee(id: string, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/update/${id}`, data);
+  updateEmployee(
+    id: string,
+    data: FormData | EmployeeRequest
+  ): Observable<EmployeeDetailResponse> {
+    return this.http.put<EmployeeDetailResponse>(
+      `${this.baseUrl}/update/${id}`,
+      data
+    );
   }
 
   // ✅ Đổi mật khẩu
- changePassword(employeeId: string, data: { oldPassword: string, newPassword: string }) {
-  return this.http.post<any>(`${this.baseUrl}/change-password/${employeeId}`, data);
-}
-
+  changePassword(
+    id: string,
+    data: FormData | ChangePasswordRequest
+  ): Observable<EmployeeDetailResponse> {
+    return this.http.post<EmployeeDetailResponse>(
+      `${this.baseUrl}/change-password/${id}`,
+      data
+    );
+  }
 
   // ✅ Kích hoạt / vô hiệu hoá nhân viên
-  toggleEmployeeStatus(id: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/toggle/${id}`, {});
+  toggleEmployeeStatus(id: string): Observable<EmployeeDetailResponse> {
+    return this.http.put<EmployeeDetailResponse>(
+      `${this.baseUrl}/toggle/${id}`,
+      {}
+    );
   }
 
   // ✅ (Tùy chọn) Xoá nhân viên
-  deleteEmployee(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/delete/${id}`);
+  deleteEmployee(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/delete/${id}`);
   }
 }

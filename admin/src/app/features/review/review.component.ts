@@ -1,7 +1,4 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { buildCommentTree } from '@/shared/utils/reply.utils';
 import { Review } from '@/types/review';
@@ -18,14 +15,11 @@ import { ReviewFilterComponent } from './review-filter/review-filter.component';
   templateUrl: './review.component.html',
   styleUrls: ['./review.component.scss'],
   imports: [
-    RouterModule,
-    CommonModule,
-    FormsModule,
     ReviewDetailPopupComponent,
     ReviewListComponent,
     ReviewReplyPopupComponent,
     PaginationComponent,
-    ReviewFilterComponent
+    ReviewFilterComponent,
   ],
 })
 export class ReviewComponent implements OnInit {

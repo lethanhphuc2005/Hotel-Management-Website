@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { Room, RoomRequest } from '../../types/room';
 import { RoomService } from '../../core/services/room.service';
 import { RoomStatusService } from '../../core/services/room-status.service';
-import { FormsModule } from '@angular/forms';
 import { RoomClassService } from '../../core/services/room-class.service';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -23,9 +20,6 @@ import { RoomFormComponent } from './room-form/room-form.component';
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
   imports: [
-    RouterModule,
-    CommonModule,
-    FormsModule,
     FullCalendarModule,
     PaginationComponent,
     RoomFilterComponent,

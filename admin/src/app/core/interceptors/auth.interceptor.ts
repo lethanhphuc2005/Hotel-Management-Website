@@ -18,11 +18,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
-  const publicRoutes = [
-    '/auth/login',
-    '/auth/register',
-    '/auth/forgot-password',
-  ];
+  const publicRoutes = ['/auth/login'];
   const toastr = inject(ToastrService); // 👈 inject toastr ở đây
 
   const isAuthApi = publicRoutes.some((path) => req.url.includes(path));

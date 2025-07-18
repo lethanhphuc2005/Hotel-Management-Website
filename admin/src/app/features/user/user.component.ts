@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '@/core/services/user.service';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { User } from '@/types/user';
 import { ToastrService } from 'ngx-toastr';
 import { UserListComponent } from './user-list/user-list.component';
@@ -15,8 +13,6 @@ import { UserFilterComponent } from './user-filter/user-filter.component';
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
   imports: [
-    RouterModule,
-    CommonModule,
     UserListComponent,
     UserDetailComponent,
     PaginationComponent,

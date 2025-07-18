@@ -4,14 +4,13 @@ import { PaymentMethodService } from '../../core/services/payment-method.service
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-payment-method',
   standalone:true,
   templateUrl: './payment-method.component.html',
   styleUrls: ['./payment-method.component.scss'],
-  imports:[CommonModule, FormsModule, RouterModule, HttpClientModule]
+  imports:[CommonModule, FormsModule, RouterModule]
 })
 export class PaymentMethodComponent implements OnInit {
   paymentMethods: PaymentMethod[] = [];

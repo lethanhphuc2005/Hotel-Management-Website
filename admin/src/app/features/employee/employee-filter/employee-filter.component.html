@@ -1,0 +1,61 @@
+<div class="room-controls" style="display: flex; align-items: center; gap: 8px">
+  <div
+    class="form-floating form-floating-custom mb-3"
+    style="position: relative; flex: 1"
+  >
+    <input
+      type="email"
+      class="form-control"
+      id="floatingInput"
+      placeholder="name@example.com"
+      style="width: 100%; padding-right: 30px"
+      [(ngModel)]="filter.search"
+      (ngModelChange)="filterChange.emit()"
+    />
+    <label for="floatingInput">Tìm kiếm</label>
+  </div>
+  <button class="add-room" (click)="filterChange.emit()">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+  <button class="add-room" (click)="openAdd.emit()" *ngIf="label">
+    + {{ label || "none" }}
+  </button>
+</div>
+<!-- Filter -->
+<div class="filter-bar">
+  <div>
+    <label for="departmentFilter">Bộ phận:</label>
+    <select
+      id="departmentFilter"
+      class="form-select"
+      [(ngModel)]="filter.department"
+      (ngModelChange)="filterChange.emit()"
+    >
+      <option value="">Tất cả</option>
+      <option value="Housekeeping">Dọn dẹp</option>
+      <option value="Front Desk">Tiền sảnh</option>
+      <option value="Management">Quản lý</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="statusFilter">Trạng thái:</label>
+    <select
+      id="statusFilter"
+      class="form-select"
+      [(ngModel)]="filter.status"
+      (ngModelChange)="filterChange.emit()"
+    >
+      <option value="">Tất cả</option>
+      <option value="true">Kích hoạt</option>
+      <option value="false">Không kích hoạt</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Sắp xếp:</label>
+    <button (click)="filterChange.emit('status')">
+      Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
+    </button>
+  </div>
+</div>

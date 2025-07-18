@@ -17,9 +17,6 @@ import { compressImage } from '@/shared/utils/image.utils';
 @Component({
   selector: 'app-website-content',
   imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
     WebsiteContentListComponent,
     WebsiteContentFormComponent,
     CommonFilterBarComponent,

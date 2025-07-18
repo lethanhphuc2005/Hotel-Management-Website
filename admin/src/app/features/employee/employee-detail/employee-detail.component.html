@@ -1,0 +1,36 @@
+<div class="popup-overlay" *ngIf="isVisible">
+  <div class="popup-content">
+    <h2>Chi tiết nhân viên</h2>
+
+    <div class="popup-section">
+      <label>Họ tên:</label>
+      <span>{{ employee.last_name }} {{ employee.first_name }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Chức vụ:</label> <span>{{ employee.position }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Bộ phận:</label> <span>{{ employee.department }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Địa chỉ:</label> <span>{{ employee.address }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Email:</label> <span>{{ employee.email }}</span>
+    </div>
+    <div class="popup-section">
+      <label>SĐT:</label> <span>{{ employee.phone_number }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Vai trò:</label> <span>{{ employee.role }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span [ngClass]="employee.status ? 'active' : 'inactive'">{{
+        employee.status ? "Đang làm việc" : "Nghỉ việc"
+      }}</span>
+    </div>
+
+    <button class="close-btn" (click)="closePopup.emit()">Đóng</button>
+  </div>
+</div>

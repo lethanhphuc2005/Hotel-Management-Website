@@ -1,0 +1,37 @@
+<div class="table-header">
+  <div>STT</div>
+  <div>Tên nhân viên</div>
+  <div>Chức vụ</div>
+  <div>Bộ phận</div>
+  <div>Email</div>
+  <div>Trạng thái</div>
+  <div>Hành động</div>
+</div>
+
+<div *ngFor="let employee of employees; let i = index" class="table-row">
+  <div>{{ i + 1 }}</div>
+  <div (click)="viewDetail.emit(employee)" style="cursor: pointer">
+    {{ employee.last_name }} {{ employee.first_name }}
+  </div>
+  <div>{{ employee.position }}</div>
+  <div>{{ employee.department }}</div>
+  <div>{{ employee.email }}</div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="employee.status"
+        (change)="toggleStatusChange.emit({$event: $event, employee: employee })"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="actions">
+    <button class="icon-button" (click)="viewDetail.emit(employee)">
+      <i class="fas fa-eye"></i>
+    </button>
+    <button class="icon-button" (click)="openPopup.emit(employee)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

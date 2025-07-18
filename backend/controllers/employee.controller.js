@@ -1,5 +1,6 @@
 const Employee = require("../models/employee.model");
 const bcrypt = require("bcryptjs");
+const { upload } = require("../middlewares/upload.middleware");
 
 const employeeController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN NHÂN VIÊN ===
@@ -83,6 +84,8 @@ const employeeController = {
         page = 1,
         role,
         status,
+        position,
+        department,
       } = req.query;
 
       const query = {};
@@ -98,6 +101,16 @@ const employeeController = {
           { position: { $regex: search, $options: "i" } },
           { department: { $regex: search, $options: "i" } },
         ];
+      }
+
+      // Filter by position
+      if (position) {
+        query.position = position;
+      }
+
+      // Filter by department
+      if (department) {
+        query.department = department;
       }
 
       // Filter by role
@@ -144,7 +157,9 @@ const employeeController = {
         .exec();
 
       if (!users || users.length === 0) {
-        return res.status(404).json("Không tìm thấy nhân viên nào");
+        return res.status(404).json({
+          message: "Không tìm thấy nhân viên nào",
+        });
       }
 
       const total = await Employee.countDocuments(query);
@@ -216,37 +231,40 @@ const employeeController = {
   },
 
   // ====== CẬP NHẬT THÔNG TIN NHÂN VIÊN =====
-  updateEmployee: async (req, res) => {
-    try {
-      const userToUpdate = await Employee.findById(req.params.id);
-      if (!userToUpdate) {
-        return res.status(404).json({ message: "Không tìm thấy nhân viên" });
+  updateEmployee: [
+    upload.none(),
+    async (req, res) => {
+      try {
+        const userToUpdate = await Employee.findById(req.params.id);
+        if (!userToUpdate) {
+          return res.status(404).json({ message: "Không tìm thấy nhân viên" });
+        }
+
+        // Validate employer data
+        const updatedData =
+          Object.keys(req.body).length === 0
+            ? userToUpdate.toObject()
+            : { ...userToUpdate.toObject(), ...req.body };
+
+        const validation = await employeeController.validateEmployee(
+          updatedData,
+          req.params.id
+        );
+
+        if (!validation.valid) {
+          return res.status(400).json({ message: validation.message });
+        }
+
+        await userToUpdate.updateOne({ $set: req.body });
+        res.status(200).json({
+          message: "Cập nhật thông tin nhân viên thành công",
+          data: { ...userToUpdate._doc, ...req.body },
+        });
+      } catch (error) {
+        res.status(500).json(error);
       }
-
-      // Validate employer data
-      const updatedData =
-        Object.keys(req.body).length === 0
-          ? userToUpdate.toObject()
-          : { ...userToUpdate.toObject(), ...req.body };
-
-      const validation = await employeeController.validateEmployee(
-        updatedData,
-        req.params.id
-      );
-
-      if (!validation.valid) {
-        return res.status(400).json({ message: validation.message });
-      }
-
-      await userToUpdate.updateOne({ $set: req.body });
-      res.status(200).json({
-        message: "Cập nhật thông tin nhân viên thành công",
-        data: { ...userToUpdate._doc, ...req.body },
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
+    },
+  ],
 
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ NHÂN VIÊN ===
   toggleEmployeeStatus: async (req, res) => {
