@@ -76,7 +76,6 @@ export default function RoomClassesPage() {
     numChildrenUnder6,
     numChildrenOver6,
     numAdults,
-    showExtraBedOver6,
   } = useRoomFilterLogic({
     roomClasses,
     searchTerm,
@@ -182,7 +181,7 @@ export default function RoomClassesPage() {
               hasSearched={hasSearched}
               isOverCapacity={isOverCapacity}
               filteredRoomClass={filteredRoomClass}
-              displayRoomClass={filteredRoomClass}
+              displayRoomClass={displayRoomClass}
               numberOfNights={numberOfNights}
               totalGuests={totalGuests}
               numberOfAdults={numberOfAdults}
@@ -192,7 +191,6 @@ export default function RoomClassesPage() {
               numChildrenUnder6={numChildrenUnder6}
               numchildrenOver6={numChildrenOver6}
               numAdults={numAdults}
-              showExtraBedOver6={showExtraBedOver6}
             />
           </div>
         </div>
