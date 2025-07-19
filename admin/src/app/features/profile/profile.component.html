@@ -1,0 +1,72 @@
+<div class="profile-page" *ngIf="user">
+
+  <!-- Thanh sidebar phụ bên trong -->
+  <aside class="profile-sidebar">
+    <div class="avatar">
+      <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}" alt="Avatar">
+      <p>{{ user.role }}</p>
+    </div>
+
+    <ul class="menu">
+      <li [class.active]="!editing && !changingPassword" (click)="editing = false; changingPassword = false">
+        Xem thông tin
+      </li>
+      <li [class.active]="editing" (click)="editing = true; changingPassword = false">
+        Chỉnh sửa
+      </li>
+      <li [class.active]="changingPassword" (click)="editing = false; changingPassword = true">
+        Đổi mật khẩu
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Nội dung hiển thị -->
+  <section class="profile-content">
+
+    <!-- Xem thông tin -->
+    <div *ngIf="!editing && !changingPassword">
+      <h2>Thông Tin Tài Khoản</h2>
+      <p><strong>Họ:</strong> {{ user.first_name }}</p>
+      <p><strong>Tên:</strong> {{ user.last_name }}</p>
+      <p><strong>Chức vụ:</strong> {{ user.position }}</p>
+      <p><strong>Phòng ban:</strong> {{ user.department }}</p>
+      <p><strong>Địa chỉ:</strong> {{ user.address }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Số điện thoại:</strong> {{ user.phone_number }}</p>
+      <p><strong>Vai trò:</strong> {{ user.role }}</p>
+      <p><strong>Trạng thái:</strong> {{ user.status ? 'Hoạt động' : 'Vô hiệu hóa' }}</p>
+    </div>
+
+    <!-- Chỉnh sửa -->
+    <div *ngIf="editing">
+      <h2>Chỉnh Sửa Thông Tin</h2>
+      <label>Họ: <input [(ngModel)]="user.first_name"></label>
+      <label>Tên: <input [(ngModel)]="user.last_name"></label>
+      <label>Chức vụ:
+        <input [(ngModel)]="user.position" disabled>
+      </label>
+      <label>Phòng ban:
+        <input [(ngModel)]="user.department" disabled>
+      </label>
+      <label>Địa chỉ: <input [(ngModel)]="user.address"></label>
+      <label>Email: <input [(ngModel)]="user.email" disabled></label>
+      <label>Số điện thoại: <input [(ngModel)]="user.phone_number"></label>
+      <button (click)="saveProfile()">Lưu thay đổi</button>
+    </div>
+
+    <!-- Đổi mật khẩu -->
+    <div *ngIf="changingPassword">
+      <h2>Đổi Mật Khẩu</h2>
+      <label>Mật khẩu hiện tại:
+        <input type="password" [(ngModel)]="currentPassword">
+      </label>
+      <label>Mật khẩu mới:
+        <input type="password" [(ngModel)]="newPassword">
+      </label>
+      <p *ngIf="changePasswordError" class="error-message">{{ changePasswordError }}</p>
+      <button (click)="changePassword()">Đổi mật khẩu</button>
+    </div>
+
+  </section>
+
+</div>
