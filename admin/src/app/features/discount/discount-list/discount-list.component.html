@@ -1,0 +1,56 @@
+<div class="table-header">
+  <div>STT</div>
+  <div>Tên khuyến mãi</div>
+  <div>Loại khuyến mãi</div>
+  <div>Giá trị</div>
+  <div>Ngày bắt đầu - Ngày kết thúc</div>
+  <div>Điều kiện</div>
+  <div>Trạng thái</div>
+  <div>Hành động</div>
+</div>
+
+<div *ngFor="let discount of discounts; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>
+    {{ discount.name }}
+  </div>
+  <div>
+    {{ getDiscounTypeName(discount.type) }} <br />
+    <span class="text-gray-500" *ngIf="discount.promo_code">
+      ({{ discount.promo_code }})
+    </span>
+  </div>
+  <div>
+    <span *ngIf="discount.value_type === 'percent'">
+      {{ discount.value * 100 }}%
+    </span>
+    <span *ngIf="discount.value_type === 'fixed'">
+      {{ discount.value | currency : "VND" }}
+    </span>
+  </div>
+  <div>
+    {{ discount.valid_from | date : "dd/MM/yyyy" }} -
+    {{ discount.valid_to | date : "dd/MM/yyyy" }}
+  </div>
+  <div>
+    {{ getConditionText(discount.conditions) }}
+  </div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="discount.status"
+        (change)="toggleStatus.emit({$event, discount})"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="actions">
+    <button class="icon-button" (click)="viewDetail.emit(discount)">
+      <i class="fas fa-eye"></i>
+    </button>
+    <button class="icon-button" (click)="openEdit.emit(discount)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

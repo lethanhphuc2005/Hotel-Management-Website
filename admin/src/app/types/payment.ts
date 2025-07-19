@@ -12,6 +12,6 @@ export interface Payment {
   metadata?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
-  booking: Booking[];
+  booking: Booking;
   payment_method: PaymentMethod
 }

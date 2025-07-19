@@ -1,212 +1,206 @@
-// import { Component, OnInit } from '@angular/core';
-// import { DiscountService } from '../../core/services/discount.service';
-// import { Discount } from '../../types/discount';
-// import { FormsModule } from '@angular/forms';
-// import { HttpClientModule } from '@angular/common/http';
-// import { RouterModule } from '@angular/router';
-// import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { DiscountService } from '@/core/services/discount.service';
+import { Discount, DiscountFilter, DiscountRequest } from '@/types/discount';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { ImageHelperService } from '@/shared/services/image-helper.service';
+import { DiscountListComponent } from './discount-list/discount-list.component';
+import { DiscountFilterComponent } from './discount-filter/discount-filter.component';
 
-// @Component({
-//   selector: 'app-discount',
-//   standalone: true,
-//   templateUrl: './discount.component.html',
-//   styleUrls: ['./discount.component.scss'],
-//   imports: [CommonModule, RouterModule, HttpClientModule, FormsModule]
-// })
-// export class DiscountComponent implements OnInit {
-//   discounts: Discount[] = [];
-//   filteredDiscounts: Discount[] = [];
+@Component({
+  selector: 'app-discount',
+  standalone: true,
+  templateUrl: './discount.component.html',
+  styleUrls: ['./discount.component.scss'],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    PaginationComponent,
+    DiscountListComponent,
+    DiscountFilterComponent,
+  ],
+})
+export class DiscountComponent implements OnInit {
+  discounts: Discount[] = [];
+  selectedDiscount: Discount | null = null;
+  isAddPopupOpen = false;
+  isEditPopupOpen = false;
+  isDetailPopupOpen = false;
+  imagePreview: string | null = null;
+  newDiscount: DiscountRequest = {};
+  filter: DiscountFilter = {
+    search: '',
+    page: 1,
+    limit: 10,
+    sort: 'createdAt',
+    order: 'desc',
+    status: '',
+    total: 0,
+    type: '',
+    value_type: '',
+    valid_from: undefined,
+    valid_to: undefined,
+    priority: undefined,
+    apply_to: '',
+    min_advance_days: undefined,
+    max_advance_days: undefined,
+    min_stay_nights: undefined,
+    max_stay_nights: undefined,
+    min_rooms: undefined,
+    user_level: '',
+  };
+  constructor(
+    private discountService: DiscountService,
+    private toastr: ToastrService,
+    private imageHelperService: ImageHelperService
+  ) {}
 
-//   isAddPopupOpen = false;
-//   isEditPopupOpen = false;
-//   isDetailPopupOpen = false;
+  ngOnInit(): void {
+    this.fetchDiscounts();
+  }
 
-//   selectedDiscount!: Discount;
-//   newDiscount: Discount = this.getEmptyDiscount();
-//   editDiscount: Discount = this.getEmptyDiscount();
+  getImageUrl(image?: string): string {
+    return this.imageHelperService.getImageUrl(image);
+  }
 
-//   searchTerm: string = '';
-// selectedImageFile: File | null = null;
-// previewImage: string | ArrayBuffer | null = null;
+  fetchDiscounts(): void {
+    this.discountService.getAllDiscounts(this.filter).subscribe({
+      next: (response) => {
+        this.discounts = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (error) => {
+        console.error('Error fetching discounts:', error);
+        this.toastr.error(error.error.message || 'Failed to fetch discounts');
+        this.discounts = [];
+      },
+    });
+  }
 
-//   constructor(private discountService: DiscountService) { }
+  onPageChange(newPage: number): void {
+    this.filter.page = newPage;
+    this.fetchDiscounts();
+  }
 
-//   ngOnInit(): void {
-//     this.loadDiscounts();
-//   }
-//   loadDiscounts() {
-//     this.discountService.getAll().subscribe({
-//       next: (res) => {
-//         this.discounts = res.data;
-//         this.filteredDiscounts = [...this.discounts]; // nếu bạn có lọc
-//       },
-//       error: (err) => {
-//         console.error('Lỗi khi load khuyến mãi:', err);
-//       }
-//     });
-//   }
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc';
+    }
+    this.filter.page = 1; // Reset to first page on filter change
+    this.fetchDiscounts();
+  }
 
-//  openAddPopup() {
-//   this.newDiscount = this.getEmptyDiscount();
-//   this.selectedImageFile = null;
-//   this.previewImage = null;
-//   this.isAddPopupOpen = true;
-// }
+  onToggleChange(event: Event, item: Discount): void {
+    const checkbox = event.target as HTMLInputElement;
+    const originalStatus = item.status;
+    const newStatus = checkbox.checked;
 
-// openEditPopup(discount: Discount) {
-//   this.editDiscount = { ...discount };
-//   this.selectedImageFile = null;
-//   this.previewImage = discount.image ? ('http://localhost:8000/' + discount.image) : null;
-//   this.isEditPopupOpen = true;
-// }
+    // Optimistically update status
+    item.status = newStatus;
 
+    this.discountService.toggleDiscountStatus(item.id).subscribe({
+      next: () => {
+        // Thành công → giữ nguyên status
+        this.toastr.success(
+          'Thay đổi trạng thái loại phòng chính thành công',
+          'Thành công'
+        );
+      },
+      error: (err) => {
+        // Thất bại → rollback
+        item.status = originalStatus;
+        this.toastr.error(
+          err.error?.message || err.message || err.statusText,
+          'Lỗi'
+        );
+      },
+    });
+  }
 
-//   viewDetail(discount: Discount) {
-//     console.log("📸 Ảnh khuyến mãi:", discount.image); // Kiểm tra giá trị
-//     this.selectedDiscount = discount;
-//     this.isDetailPopupOpen = true;
-//   }
+  onViewDetail(discount: Discount): void {
+    this.selectedDiscount = discount;
+    // Reset preview image
+    this.imagePreview = null;
+    this.isDetailPopupOpen = true;
+  }
 
-//   closePopup() {
-//     this.isAddPopupOpen = false;
-//     this.isEditPopupOpen = false;
-//     this.isDetailPopupOpen = false;
-//   }
+  onOpenPopup(isAddForm: boolean, item?: Discount): void {
+    this.isAddPopupOpen = isAddForm;
+    this.isEditPopupOpen = !isAddForm;
+    if (isAddForm) {
+      // Reset form thêm mới
+      this.selectedDiscount = null;
+      this.newDiscount = {
+        name: '',
+        image: null,
+        description: '',
+        type: '',
+        value: undefined,
+        value_type: '',
+        conditions: {
+          min_advance_days: undefined,
+          max_advance_days: undefined,
+          min_stay_nights: undefined,
+          max_stay_nights: undefined,
+          min_rooms: undefined,
+          user_levels: [''],
+        },
+        promo_code: '',
+        valid_from: undefined,
+        valid_to: undefined,
+        apply_to_room_class_ids: [],
+        can_be_stacked: false,
+        priority: 0,
+        status: true,
+      };
+    } else if (item) {
+      // Mở form chỉnh sửa
+      this.selectedDiscount = item;
+      this.newDiscount = {
+        name: item.name,
+        image: null, // Image will be handled separately
+        description: item.description,
+        type: item.type,
+        value: item.value,
+        value_type: item.value_type,
+        conditions: {
+          min_advance_days: item.conditions.min_advance_days,
+          max_advance_days: item.conditions.max_advance_days,
+          min_stay_nights: item.conditions.min_stay_nights,
+          max_stay_nights: item.conditions.max_stay_nights,
+          min_rooms: item.conditions.min_rooms,
+          user_levels: item.conditions.user_levels || undefined,
+        },
+        promo_code: item.promo_code || '',
+        valid_from: new Date(item.valid_from),
+        valid_to: new Date(item.valid_to),
+        apply_to_room_class_ids: item.apply_to_room_class_ids || [],
+        can_be_stacked: item.can_be_stacked,
+        priority: item.priority,
+        status: item.status,
+      };
+    }
+  }
 
-//   toggleStatus(discount: Discount) {
-//     if (!discount._id) {
-//       alert('❌ Mã khuyến mãi không hợp lệ!');
-//       return;
-//     }
+  onClosePopup(): void {
+    this.isAddPopupOpen = false;
+    this.isEditPopupOpen = false;
+    this.isDetailPopupOpen = false;
+    this.selectedDiscount = null;
+  }
 
-//     const now = new Date();
-//     const start = new Date(discount.start_day);
-//     const end = new Date(discount.end_day);
+  onFileSelected(file: File): void {
+    this.newDiscount.image = file;
 
-//     // Nếu đang TẮT (status = false), người dùng muốn BẬT lên
-//     if (!discount.status) {
-//       if (now < start) {
-//         alert('❌ Khuyến mãi này chưa đến ngày bắt đầu. Không thể bật!');
-//         return;
-//       }
-//       if (now > end) {
-//         alert('❌ Khuyến mãi này đã hết hạn. Không thể bật lại!');
-//         return;
-//       }
-//     }
-
-//     // Nếu hợp lệ hoặc chỉ tắt => gọi API
-//     this.discountService.toggleStatus(discount._id).subscribe({
-//       next: () => {
-//         discount.status = !discount.status;
-//         console.log('✅ Đã cập nhật trạng thái thành công');
-//         this.loadDiscounts();
-//       },
-//       error: (err) => {
-//         console.error('❌ Lỗi khi cập nhật trạng thái:', err);
-//         alert(err.error?.message || 'Không thể cập nhật trạng thái. Vui lòng thử lại!');
-//         this.loadDiscounts();
-//       }
-//     });
-//   }
-//   isValidToToggle(discount: any): boolean {
-//     const now = new Date();
-//     const start = new Date(discount.start_day);
-//     const end = new Date(discount.end_day);
-//     // Nếu đang bật (status = true) thì cho tắt bất kỳ lúc nào
-//     if (discount.status) {
-//       return true;
-//     }
-//     // Nếu đang tắt (status = false) thì chỉ cho bật nếu trong thời gian hợp lệ
-//     return start <= now && now <= end;
-//   }
-//   getFormattedValue(discount: any): string {
-//     return discount.type === 'Percentage'
-//       ? `${discount.value}%`
-//       : `${discount.value.toLocaleString()} VNĐ`;
-//   }
-//   onSubmit() {
-//     const discount = this.currentDiscount;
-//     // Đảm bảo giá trị limit là đúng
-//     discount.limit = discount.limit?.toLowerCase() === 'limited' ? 'limited' : 'unlimited';
-
-//     if (discount.limit === 'limited') {
-//       if (!discount.quantity || discount.quantity <= 0) {
-//         alert('❌ Vui lòng nhập số lượng lớn hơn 0 cho khuyến mãi có giới hạn.');
-//         return;
-//       }
-//     } else {
-//       // unlimited: không được nhập quantity
-//       if (discount.quantity && discount.quantity > 0) {
-//         alert('❌ Không được nhập số lượng cho khuyến mãi không giới hạn.');
-//         return;
-//       }
-//       // đảm bảo quantity là 0 hoặc undefined
-//       discount.quantity = 0;
-//     }
-//     // xử lý gọi API như bình thường
-//     if (this.isEditPopupOpen) {
-//       if (!discount._id) {
-//         alert('❌ Không thể cập nhật vì thiếu ID.');
-//         return;
-//       }
-//       this.discountService.update(discount._id, discount).subscribe({
-//         next: () => {
-//           this.loadDiscounts();
-//           this.closePopup();
-//         },
-//         error: (err) => {
-//           alert(`❌ Cập nhật thất bại: ${err.error?.message || 'Lỗi không xác định'}`);
-//         }
-//       });
-//     } else {
-//       this.discountService.add(discount).subscribe({
-//         next: () => {
-//           this.loadDiscounts();
-//           this.closePopup();
-//         },
-//         error: (err) => {
-//           alert(`❌ Thêm thất bại: ${err.error?.message || 'Lỗi không xác định'}`);
-//         }
-//       });
-//     }
-//   }
-//   get currentDiscount(): Discount {
-//     return this.isEditPopupOpen ? this.editDiscount : this.newDiscount;
-//   }
-
-//   getEmptyDiscount(): Discount {
-//     return {
-//       name: '',
-//       image: '',
-//       description: '',
-//       type: 'Percentage',
-//       value: 1,
-//       start_day: '',
-//       end_day: '',
-//       quantity: 1,
-//       status: true,
-//       limit: 'limited',
-//     };
-//   }
-//   onSearch() {
-//     const keyword = this.searchTerm.toLowerCase();
-//     this.filteredDiscounts = this.discounts.filter((d) =>
-//       d.name.toLowerCase().includes(keyword)
-//     );
-//   }
-// onImageSelected(event: any) {
-//   const file: File = event.target.files[0];
-//   if (file) {
-//     this.selectedImageFile = file;
-
-//     // Hiển thị ảnh xem trước
-//     const reader = new FileReader();
-//     reader.onload = e => this.previewImage = reader.result;
-//     reader.readAsDataURL(file);
-//   } else {
-//     this.selectedImageFile = null;
-//     this.previewImage = null;
-//   }
-// }
-// }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+}

@@ -4,8 +4,8 @@ const PaymentSchema = new mongoose.Schema(
   {
     booking_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Booking",
-      default: null,
+      ref: "booking",
+      required: true,
     },
     amount: {
       type: Number,
@@ -40,7 +40,9 @@ PaymentSchema.virtual("booking", {
   ref: "booking",
   localField: "booking_id",
   foreignField: "_id",
+  justOne: true,
 });
+
 PaymentSchema.virtual("payment_method", {
   ref: "payment_method",
   localField: "payment_method_id",

@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Discount } from '../../types/discount';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+  DiscountDetailResponse,
+  DiscountFilter,
+  DiscountRequest,
+  DiscountResponse,
+} from '@/types/discount';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
@@ -10,42 +15,79 @@ export class DiscountService {
 
   constructor(private http: HttpClient) {}
 
- getAll(): Observable<{ data: Discount[] }> {
-  return this.http.get<{ data: Discount[] }>(this.baseUrl);
-}
-
-
-  add(discount: Discount): Observable<Discount> {
-    return this.http.post<Discount>(this.baseUrl, discount);
+  getAllDiscounts({
+    page = 1,
+    limit = 10,
+    sort = 'createdAt',
+    order = 'desc',
+    search = '',
+    type,
+    status,
+    value_type,
+    valid_from,
+    valid_to,
+    priority,
+    apply_to,
+    min_advance_days,
+    max_advance_days,
+    min_stay_nights,
+    max_stay_nights,
+    min_rooms,
+    user_level,
+  }: DiscountFilter): Observable<DiscountResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order)
+      .set('search', search);
+    if (status) params = params.set('status', status);
+    if (type) params = params.set('type', type);
+    if (value_type) params = params.set('value_type', value_type);
+    if (valid_from) params = params.set('valid_from', valid_from);
+    if (valid_to) params = params.set('valid_to', valid_to);
+    if (priority && priority > 0)
+      params = params.set('priority', priority.toString());
+    if (apply_to) params = params.set('apply_to', apply_to);
+    if (min_advance_days && Number(min_advance_days) > 0)
+      params = params.set('min_advance_days', min_advance_days.toString());
+    if (max_advance_days && Number(max_advance_days) > 0)
+      params = params.set('max_advance_days', max_advance_days.toString());
+    if (min_stay_nights && Number(min_stay_nights) > 0)
+      params = params.set('min_stay_nights', min_stay_nights.toString());
+    if (max_stay_nights && Number(max_stay_nights) > 0)
+      params = params.set('max_stay_nights', max_stay_nights.toString());
+    if (min_rooms && Number(min_rooms) > 0)
+      params = params.set('min_rooms', min_rooms.toString());
+    if (user_level) params = params.set('user_level', user_level);
+    return this.http.get<DiscountResponse>(this.baseUrl, { params });
   }
 
-  update(id: string, discount: Discount): Observable<Discount> {
-    return this.http.put<Discount>(`${this.baseUrl}/${id}`, discount);
+  getDiscountById(id: string): Observable<DiscountDetailResponse> {
+    return this.http.get<DiscountDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  createDiscount(
+    data: FormData | DiscountRequest
+  ): Observable<DiscountDetailResponse> {
+    return this.http.post<DiscountDetailResponse>(this.baseUrl, data);
   }
 
-updateStatus(id: string, discount: Partial<Discount>): Observable<Discount> {
-  return this.http.put<Discount>(`${this.baseUrl}/toggle/${id}`, discount);
-}
-toggleStatus(id: string) {
-  return this.http.put<any>(`${this.baseUrl}/toggle/${id}`, {}); // PUT yêu cầu không cần body
-}
-addWithFormData(formData: FormData): Observable<any> {
-  return this.http.post(`${this.baseUrl}`, formData);
-}
-
-updateWithFormData(id: string, formData: FormData): Observable<any> {
-  return this.http.put(`${this.baseUrl}/${id}`, formData);
-}
-
- addWithImage(formData: FormData): Observable<any> {
-    return this.http.post(`${this.baseUrl}`, formData);
+  updateDiscount(
+    id: string,
+    data: FormData | DiscountRequest
+  ): Observable<DiscountDetailResponse> {
+    return this.http.put<DiscountDetailResponse>(`${this.baseUrl}/${id}`, data);
   }
 
-  updateWithImage(id: string, formData: FormData): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, formData);
+  toggleDiscountStatus(id: string): Observable<DiscountDetailResponse> {
+    return this.http.put<DiscountDetailResponse>(
+      `${this.baseUrl}/toggle/${id}`,
+      {}
+    );
+  }
+
+  deleteDiscount(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

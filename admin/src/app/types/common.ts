@@ -11,4 +11,5 @@ export interface FilterParams {
   sort?: string;
   order?: 'asc' | 'desc';
   search?: string;
+  total?: number;
 }
