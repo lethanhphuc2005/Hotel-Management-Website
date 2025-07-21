@@ -28,8 +28,62 @@ export function useRoomFilterLogic({
   selectedMainRoomClassIds,
   priceRange,
   guests,
+  dateRange,
 }: FilterParams) {
   return useMemo(() => {
+    // thuật toán tính số giường cần
+    function calculateMinBedsNeeded(adults: number, teens: number, kidsUnder6: number) {
+      let beds = 0;
+      let remainingAdults = adults;
+      let remainingTeens = teens;
+      let remainingKidsUnder6 = kidsUnder6;
+
+      // Xử lý TH đặc biệt: 1 người lớn + 1 teen + 1 trẻ <6 => 1 giường
+      if (adults === 1 && teens === 1 && kidsUnder6 === 1) {
+        return 1;
+      }
+
+      // Ghép 2 người lớn với nhau
+      beds += Math.floor(remainingAdults / 2);
+      remainingAdults %= 2;
+
+      // Ghép 1 người lớn + 1 teen
+      if (remainingAdults === 1 && remainingTeens >= 1) {
+        beds += 1;
+        remainingAdults = 0;
+        remainingTeens -= 1;
+      }
+
+      // Người lớn còn lại (lẻ) => 1 giường riêng
+      if (remainingAdults === 1) {
+        beds += 1;
+        remainingAdults = 0;
+      }
+
+      // Ghép 2 teen với nhau
+      beds += Math.floor(remainingTeens / 2);
+      remainingTeens %= 2;
+
+      // 1 teen dư => dùng giường xếp, KHÔNG cộng thêm vào `beds`
+
+      // ====== Xử lý trẻ dưới 6 tuổi ======
+
+      // Nếu có ít nhất 1 người lớn -> 1 trẻ <6 có thể nằm chung
+      if (adults >= 1 && kidsUnder6 > 0) {
+        remainingKidsUnder6 -= 1;
+      }
+
+      if (remainingKidsUnder6 > 0) {
+        // Cứ 2 trẻ nằm chung 1 giường
+        beds += Math.floor(remainingKidsUnder6 / 2);
+        if (remainingKidsUnder6 % 2 !== 0) {
+          beds += 1;
+        }
+      }
+
+      return beds;
+    }
+
     // --- Guest logic ---
     const numAdults = guests.adults ?? 0;
     const numChildrenUnder6 = guests.children.age0to6 ?? 0;
@@ -43,7 +97,7 @@ export function useRoomFilterLogic({
       numChildrenUnder6 - maxChildrenCanShare
     );
     const totalNeedBed = numAdults + numChildrenOver6 + numChildrenNeedBed;
-    const minBedsNeeded = Math.ceil(totalNeedBed / 2);
+    const minBedsNeeded = calculateMinBedsNeeded(numAdults, numChildrenOver6, numChildrenUnder6);
 
     const isSpecialCase =
       (numAdults === 1 && numChildrenOver6 === 1 && numChildrenUnder6 === 1) ||
@@ -83,8 +137,7 @@ export function useRoomFilterLogic({
     // --- Lọc theo số giường phù hợp ---
     const suitableRoomClass = filteredRoomClass.filter(
       (room) =>
-        room.bed_amount * 2 >= totalNeedBed ||
-        (isSpecialCase && room.bed_amount === 1)
+        room.bed_amount >= minBedsNeeded
     );
 
     // --- Ưu tiên phòng ít giường nhất ---
@@ -102,15 +155,15 @@ export function useRoomFilterLogic({
     const displayRoomClass = isSpecialCase
       ? [...topRooms, ...otherRooms]
       : suitableRoomClass
-          .map((room) => ({
-            ...room,
-            isSuitable: room.bed_amount >= minBedsNeeded,
-          }))
-          .sort((a, b) => {
-            if (a.isSuitable && !b.isSuitable) return -1;
-            if (!a.isSuitable && b.isSuitable) return 1;
-            return a.bed_amount - b.bed_amount;
-          });
+        .map((room) => ({
+          ...room,
+          isSuitable: room.bed_amount >= minBedsNeeded,
+        }))
+        .sort((a, b) => {
+          if (a.isSuitable && !b.isSuitable) return -1;
+          if (!a.isSuitable && b.isSuitable) return 1;
+          return a.bed_amount - b.bed_amount;
+        });
 
     // --- Check quá tải ---
     const maxCapacity = filteredRoomClass.reduce(
@@ -126,19 +179,16 @@ export function useRoomFilterLogic({
     const isOverCapacity = totalEffectiveGuests > maxCapacity;
 
     // --- Extra bed check ---
-    const showExtraBedOver6 =
-      numChildrenOver6 > 0 && totalNeedBed > minBedsNeeded * 2;
+    // const showExtraBedOver6 =
+    //   numChildrenOver6 > 0 && totalNeedBed > minBedsNeeded * 2;
 
-    // Tính rating cho mỗi phòng
-    const withRatingRoomClass = filteredRoomClass.map((room) => {
+    // --- Sắp xếp displayRoomClass theo sortOption ---
+    const displayRoomClassSorted = [...displayRoomClass].map((room) => {
       const reviews = room.reviews || [];
       const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
       const rating = reviews.length ? totalRating / reviews.length : 0;
       return { ...room, rating };
-    });
-
-    // Sắp xếp bản sao, không mutate mảng gốc
-    const sortedFilteredRoomClass = [...withRatingRoomClass].sort((a, b) => {
+    }).sort((a, b) => {
       switch (sortOption) {
         case "price_asc":
           return a.price - b.price;
@@ -154,12 +204,11 @@ export function useRoomFilterLogic({
     });
 
     return {
-      filteredRoomClass: sortedFilteredRoomClass,
+      filteredRoomClass,
       suitableRoomClass,
-      displayRoomClass,
+      displayRoomClass: displayRoomClassSorted,
       totalEffectiveGuests,
       isOverCapacity,
-      showExtraBedOver6,
       numAdults,
       numChildrenUnder6,
       numChildrenOver6,
@@ -173,5 +222,6 @@ export function useRoomFilterLogic({
     selectedMainRoomClassIds,
     priceRange,
     guests,
+    dateRange,
   ]);
 }

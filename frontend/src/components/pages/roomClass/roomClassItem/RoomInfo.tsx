@@ -5,14 +5,17 @@ export default function RoomInfo({
   numChildrenUnder6 = 0,
   numchildrenOver6 = 0,
   numAdults = 1,
-  showExtraBedOver6,
 }: {
   rci: RoomClass;
   numChildrenUnder6?: number;
   numchildrenOver6?: number;
   numAdults?: number;
-  showExtraBedOver6?: boolean;
 }) {
+
+  const extraBedTeens = Math.max(
+    0,
+    numchildrenOver6 - ((rci.bed_amount * 2) - numAdults)
+  );
   const showExtraBed =
     numChildrenUnder6 > 0 &&
     numAdults + numchildrenOver6 === rci.bed_amount * 2;
@@ -54,7 +57,7 @@ export default function RoomInfo({
           bố mẹ
         </p>
       )}
-      {showExtraBedOver6 && (
+      {extraBedTeens > 0 && (
         <p className="mb-1 text-warning">
           <i className="bi bi-check2"></i> Phụ thu thêm giường: 100.000đ/đêm
         </p>

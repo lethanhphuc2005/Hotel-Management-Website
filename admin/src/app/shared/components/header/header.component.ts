@@ -10,9 +10,21 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, RouterModule],
 })
 export class HeaderComponent implements OnInit {
-  ngOnInit() {}
+  userName: string = 'Người dùng';
+  email: string = '';
+  isLoggedIn: boolean = false;
   constructor(private router: Router, private toastService: ToastrService) {}
 
+ ngOnInit(): void {
+    const loginDataString = localStorage.getItem('login');
+    if (loginDataString) {
+      const loginData = JSON.parse(loginDataString);
+      this.isLoggedIn = true;
+      this.userName = `${loginData.last_name} ${loginData.first_name}`;
+    } else {
+      this.isLoggedIn = false;
+    }
+  }
   logout() {
     localStorage.removeItem('login');
     this.toastService.success('Đăng xuất thành công', 'Thông báo');
@@ -20,4 +32,5 @@ export class HeaderComponent implements OnInit {
       this.router.navigate(['/login']);
     }, 2000);
   }
+
 }

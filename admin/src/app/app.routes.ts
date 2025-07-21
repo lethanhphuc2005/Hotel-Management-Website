@@ -21,6 +21,7 @@ import { ReviewComponent } from './features/review/review.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { FeatureComponent } from './features/feature/feature.component';
 import { PaymentComponent } from './features/payment/payment.component';
+import { ProfileComponent } from './features/profile/profile.component';
 export const routes: Routes = [
   // Trang login riêng biệt, không có layout
   { path: 'login', component: LoginComponent },
@@ -52,6 +53,7 @@ export const routes: Routes = [
           { path: 'payment-method', component: PaymentMethodComponent },
           { path: 'payments', component: PaymentComponent },
           { path: 'comment', component: CommentComponent },
+          { path: 'profile', component: ProfileComponent },
         ],
       },
     ],

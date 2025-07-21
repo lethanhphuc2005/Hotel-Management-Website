@@ -18,7 +18,6 @@ interface RoomClassListDisplayProps {
   numChildrenUnder6: number;
   numchildrenOver6: number;
   numAdults: number;
-  showExtraBedOver6: boolean;
 }
 
 export default function RoomClassListDisplay({
@@ -35,7 +34,6 @@ export default function RoomClassListDisplay({
   numChildrenUnder6,
   numchildrenOver6,
   numAdults,
-  showExtraBedOver6,
 }: RoomClassListDisplayProps) {
   if (hasSearched && isOverCapacity && filteredRoomClass.length > 0) {
     return (
@@ -66,7 +64,6 @@ export default function RoomClassListDisplay({
       numChildrenUnder6={numChildrenUnder6}
       numchildrenOver6={numchildrenOver6}
       numAdults={numAdults}
-      showExtraBedOver6={showExtraBedOver6}
     />
   );
 }
