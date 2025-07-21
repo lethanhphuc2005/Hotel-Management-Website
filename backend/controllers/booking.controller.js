@@ -14,7 +14,7 @@ const Room = require("../models/room.model");
 const walletController = require("./wallet.controller");
 const mailSender = require("../helpers/mail.sender");
 const { notificationEmail } = require("../config/mail");
-const { calculateCancellationFee } = require("../utils/cancellationPolicy");
+const calculateCancellationFee = require("../utils/cancellationPolicy");
 const Payment = require("../models/payment.model");
 const mongoose = require("mongoose");
 
@@ -844,7 +844,6 @@ const bookingController = {
         booking.total_price,
         booking.createdAt
       );
-
       res.status(200).json({
         message: `Nếu bạn huỷ bây giờ, bạn sẽ mất ${feeAmount.toLocaleString(
           "vi-VN"

@@ -24,7 +24,6 @@ module.exports = function calculateCancellationFee(
       feePercent = 30;
     }
   }
-
   const feeAmount = Math.round((feePercent / 100) * totalPrice);
   return { feePercent, feeAmount };
 }

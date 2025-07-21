@@ -10,6 +10,7 @@ import { useFavorite } from "@/hooks/useFavorite";
 import RoomImageWithLike from "./RoomImageWithLike";
 import RoomInfo from "./RoomInfo";
 import RoomPriceAndBooking from "./RoomPriceAndBooking";
+import getImageUrl from "@/utils/getImageUrl";
 
 export default function RoomClassItem({
   rci,
@@ -157,7 +158,7 @@ export default function RoomClassItem({
       </button>
 
       <RoomImageWithLike
-        imageUrl={rci.images?.[0].url || ""}
+        imageUrl={getImageUrl(rci?.images?.[0]?.url)}
         roomId={rci.id}
         liked={liked}
         onLikeClick={handleLikeClick}
@@ -168,7 +169,6 @@ export default function RoomClassItem({
         numChildrenUnder6={childrenUnder6}
         numchildrenOver6={childrenOver6}
         numAdults={numAdults}
-        showExtraBedOver6={showExtraBedOver6}
       />
 
       <RoomPriceAndBooking

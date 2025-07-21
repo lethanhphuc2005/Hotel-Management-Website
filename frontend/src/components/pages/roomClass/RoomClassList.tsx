@@ -17,6 +17,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
+import getImageUrl from "@/utils/getImageUrl";
 
 export function RoomClassList({
   rcl,
@@ -126,10 +127,7 @@ export const RoomClassListForSearch = ({
               {/* Ảnh */}
               <div className="tw-aspect-[4/3] tw-overflow-hidden">
                 <Image
-                  src={
-                    `http://localhost:8000/images/${room.images?.[0]?.url}` ||
-                    "/images/room-default.jpg"
-                  }
+                  src={getImageUrl(room.images?.[0]?.url)}
                   alt={room.name}
                   width={400}
                   height={260}

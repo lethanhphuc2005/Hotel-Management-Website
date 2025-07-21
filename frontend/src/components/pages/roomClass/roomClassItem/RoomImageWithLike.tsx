@@ -19,7 +19,7 @@ export default function RoomImageWithLike({
         <Image
           width={250}
           height={150}
-          src={`/img/${imageUrl}`}
+          src={imageUrl}
           alt={roomId}
           quality={100}
           loading="lazy"

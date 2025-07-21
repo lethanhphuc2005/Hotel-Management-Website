@@ -7,6 +7,7 @@ import style from "@/styles/base/page.module.css";
 import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { AnimatedButton } from "@/components/common/Button";
+import getImageUrl from "@/utils/getImageUrl";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
           {mrci.images?.map((img, index) => (
             <motion.img
               key={index}
-              src={`http://localhost:8000/images/${img.url}`}
+              src={getImageUrl(img.url)}
               alt={mrci.name}
               className={style.roomImage}
               initial={{ scale: 1.05, opacity: 0 }}

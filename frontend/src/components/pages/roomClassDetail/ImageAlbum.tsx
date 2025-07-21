@@ -6,6 +6,7 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
+import getImageUrl from "@/utils/getImageUrl";
 
 const ImageAlbum = ({ images }: { images: { id: string; url: string }[] }) => {
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +28,7 @@ const ImageAlbum = ({ images }: { images: { id: string; url: string }[] }) => {
           onClick={() => handleMainClick(0)}
         >
           <Image
-            src={`http://localhost:8000/images/${images[0]?.url}`}
+            src={getImageUrl(images[0].url)}
             alt="main"
             className="tw-w-full tw-h-full tw-object-cover"
             width={800}
@@ -45,7 +46,7 @@ const ImageAlbum = ({ images }: { images: { id: string; url: string }[] }) => {
                 onClick={() => handleMainClick(index + 1)}
               >
                 <Image
-                  src={`http://localhost:8000/images/${img.url}`}
+                  src={getImageUrl(img.url)}
                   alt={`thumb-${index}`}
                   className="tw-w-full tw-h-full tw-object-cover"
                   width={300}
@@ -71,7 +72,7 @@ const ImageAlbum = ({ images }: { images: { id: string; url: string }[] }) => {
             {images.map((img) => (
               <SwiperSlide key={img.id}>
                 <img
-                  src={`http://localhost:8000/images/${img.url}`}
+                  src={getImageUrl(img.url)}
                   alt="preview"
                   className="tw-w-full tw-h-full tw-object-cover"
                 />

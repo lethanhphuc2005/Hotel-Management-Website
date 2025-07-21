@@ -33,7 +33,6 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
             <Header />
             {children}
             <Footer />
-            {/* ✅ Di chuyển ChatbotPopup vào trong Redux Provider */}
             <ChatbotPopup />
           </CartProvider>
         </AuthProvider>

@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
 import { capitalizeFirst } from "@/utils/stringUtils";
 import Pagination from "@/components/sections/Pagination";
+import getImageUrl from '../../../utils/getImageUrl';
 
 type Favorite = {
   id: string;
@@ -77,7 +78,7 @@ export default function FavoriteSection({
           <div className="tw-flex tw-justify-between tw-gap-4 tw-items-start">
             {/* Hình ảnh */}
             <img
-              src={`http://localhost:8000/images/${favorite.room_class_id.images?.[0]?.url}`}
+              src={getImageUrl(favorite.room_class_id.images?.[0]?.url)}
               alt={favorite.room_class_id.name}
               className="tw-w-28 tw-h-20 tw-object-cover tw-rounded-lg tw-flex-shrink-0 tw-border tw-border-gray-600"
             />

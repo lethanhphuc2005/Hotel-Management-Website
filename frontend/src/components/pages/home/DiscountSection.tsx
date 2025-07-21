@@ -17,6 +17,8 @@ import {
   faHotel,
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
+import Link from "next/link";
+import getImageUrl from "@/utils/getImageUrl";
 
 const typeIconMap: Record<string, any> = {
   early_bird: faCalendarDays,
@@ -99,7 +101,7 @@ export function DiscountItem({ dci }: { dci: Discount }) {
             width={400}
             height={220}
             loading="lazy"
-            src={`http://localhost:8000/images/${dci.image}`}
+            src={getImageUrl(dci.image)}
             alt={dci.name}
             className="card-img-top"
             style={{ height: "220px", objectFit: "cover" }}
@@ -158,9 +160,9 @@ export default function DiscountList({
     >
       <div className={style.headerContainer}>
         <h2 className={style.sectionTitle}>{title}</h2>
-        <a href="#" className={style.seeAll}>
+        <Link href="/discount" className={style.seeAll}>
           Xem tất cả <i className="bi bi-arrow-right"></i>
-        </a>
+        </Link>
       </div>
       {dcl.map((dc: Discount) => (
         <DiscountItem dci={dc} key={dc.id} />

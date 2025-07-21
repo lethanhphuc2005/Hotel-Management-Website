@@ -2,9 +2,9 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
 const PROMPT = `
-Tôi muốn đặt phòng cho 2 người lớn, 1 trẻ em từ 10/7 đến 12/7. Gợi ý giúp tôi loại phòng phù hợp, có view đẹp, tiện nghi tốt và trong tầm giá khoảng 1 triệu đến 2 triệu một đêm.
-Trả kết quả dưới dạng JSON có room_ids.
-`;
+  Tôi muốn đặt phòng cho 2 người lớn, 1 trẻ em từ 10/7 đến 12/7. Gợi ý giúp tôi loại phòng phù hợp, có view đẹp, tiện nghi tốt và trong tầm giá khoảng 1 triệu đến 2 triệu một đêm.
+  Trả kết quả dưới dạng JSON có room_ids.
+  `;
 
 const testModels = ["gemini-2.0-flash", "gemini-2.5-flash"];
 

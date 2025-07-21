@@ -15,6 +15,7 @@ import { Booking } from "@/types/booking";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { createReview } from "@/services/ReviewService";
 import { useRouter } from "next/navigation";
+import getImageUrl from '../../../utils/getImageUrl';
 
 export default function RateAfterBookingPage() {
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
@@ -213,7 +214,7 @@ export default function RateAfterBookingPage() {
             <div key={item.id}>
               <div className="tw-bg-[#1a1a1a] tw-p-4 tw-rounded-2xl tw-flex tw-gap-4 tw-shadow-md">
                 <Image
-                  src={`http://localhost:8000/images/${item.room_class_id?.images[0]?.url}`}
+                  src={getImageUrl(item.room_class_id?.images[0]?.url)}
                   alt={item.room_class_id?.name || "Phòng"}
                   width={120}
                   height={120}
