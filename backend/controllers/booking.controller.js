@@ -273,24 +273,51 @@ const bookingController = {
         }
       }
 
-      await newBooking.save();
+      const savedBooking = await newBooking.save();
+
+      const populatedBooking = await Booking.findById(
+        savedBooking._id
+      ).populate([
+        {
+          path: "booking_details",
+          populate: [
+            {
+              path: "room_class_id",
+              select: "name",
+            },
+            {
+              path: "services",
+              select: "service_id amount used_at",
+              populate: {
+                path: "service_id",
+                select: "name price",
+              },
+            },
+          ],
+        },
+      ]);
+
       // Gửi mail thông tin đặt phòng (nếu cần)
       try {
         const bookingMessage = `
             <h2>Thông tin đặt phòng</h2>
-            <p><strong>Họ tên:</strong> ${newBooking.full_name}</p>
-            <p><strong>Số điện thoại:</strong> ${newBooking.phone_number}</p>
-            <p><strong>Email:</strong> ${newBooking.email}</p>
-            <p><strong>Ngày đặt:</strong> ${newBooking.booking_date.toLocaleDateString()}</p>
-            <p><strong>Ngày nhận phòng:</strong> ${newBooking.check_in_date.toLocaleDateString()}</p>
-            <p><strong>Ngày trả phòng:</strong> ${newBooking.check_out_date.toLocaleDateString()}</p>
-            <p><strong>Số lượng người lớn:</strong> ${
-              newBooking.adult_amount
+            <p><strong>Họ tên:</strong> ${populatedBooking.full_name}</p>
+            <p><strong>Số điện thoại:</strong> ${
+              populatedBooking.phone_number
             }</p>
-            <p><strong>Số lượng trẻ em:</strong> ${newBooking.child_amount}</p>
+            <p><strong>Email:</strong> ${populatedBooking.email}</p>
+            <p><strong>Ngày đặt:</strong> ${populatedBooking.booking_date.toLocaleDateString()}</p>
+            <p><strong>Ngày nhận phòng:</strong> ${populatedBooking.check_in_date.toLocaleDateString()}</p>
+            <p><strong>Ngày trả phòng:</strong> ${populatedBooking.check_out_date.toLocaleDateString()}</p>
+            <p><strong>Số lượng người lớn:</strong> ${
+              populatedBooking.adult_amount
+            }</p>
+            <p><strong>Số lượng trẻ em:</strong> ${
+              populatedBooking.child_amount
+            }</p>
             <p><strong>Thông tin chi tiết đặt phòng:</strong></p>
             <ul>
-              ${booking_details
+              ${populatedBooking.booking_details
                 .map(
                   (detail) => `
                 <li>
@@ -317,12 +344,12 @@ const bookingController = {
                 )
                 .join("")}
             </ul>
-            <p><strong>Tổng tiền:</strong> ${newBooking.total_price.toLocaleString(
+            <p><strong>Tổng tiền:</strong> ${populatedBooking.total_price.toLocaleString(
               "vi-VN"
             )} VND</p>
           `;
         mailSender({
-          email: newBooking.email,
+          email: populatedBooking.email,
           subject: notificationEmail.subject,
           html: notificationEmail.html(bookingMessage),
         });
