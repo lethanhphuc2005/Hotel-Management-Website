@@ -232,13 +232,6 @@ const bookingMethodController = {
           .json({ message: "Phương thức đặt phòng không tồn tại" });
       }
 
-      // Nếu có phòng đặt thì không cho phép xóa
-      // if (methodToDelete.bookings && methodToDelete.bookings.length > 0) {
-      //   return res.status(400).json({
-      //     message: "Không thể xóa phương thức đã có phòng đặt.",
-      //   });
-      // }
-
       // Kiểm tra xem phương thức có đang được sử dụng trong booking hay không
       const bookings = await Booking.find({
         booking_method_id: methodToDelete._id,

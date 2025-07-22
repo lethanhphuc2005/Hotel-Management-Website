@@ -473,7 +473,7 @@ const bookingController = {
               populate: [
                 {
                   path: "room",
-                  populate: ("room_class room_status"),
+                  populate: "room_class room_status",
                 },
                 {
                   path: "room_class",

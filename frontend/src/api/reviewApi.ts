@@ -49,7 +49,7 @@ export const updateReview = async ({
   rating,
   content,
 }: UpdateReviewRequest) => {
-  const response = await api.put(`/review/${reviewId}`, {
+  const response = await api.patch(`/review/${reviewId}`, {
     user_id: userId,
     rating,
     content,
@@ -64,7 +64,7 @@ export const deleteReview = async ({
   reviewId,
   userId,
 }: DeleteReviewRequest) => {
-  const response = await api.put(`/review/toggle/${reviewId}`, {
+  const response = await api.patch(`/review/toggle/${reviewId}`, {
     user_id: userId,
   });
   if (response.status !== 200) {

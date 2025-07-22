@@ -67,6 +67,6 @@ export class RoomService {
     id: string,
     roomData: FormData | RoomRequest
   ): Observable<RoomDetailResponse> {
-    return this.http.put<RoomDetailResponse>(`${this.baseUrl}/${id}`, roomData);
+    return this.http.patch<RoomDetailResponse>(`${this.baseUrl}/${id}`, roomData);
   }
 }

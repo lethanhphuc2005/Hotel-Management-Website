@@ -18,21 +18,21 @@ router.get(
 );
 
 // === CẬP NHẬT THÔNG TIN NHÂN VIÊN ===
-router.put(
+router.patch(
   "/update/:id",
   authMiddleware.authorizeSelfOrRoles("admin"),
   employeeController.updateEmployee
 );
 
 // === ĐỔI MẬT KHẨU NHÂN VIÊN ===
-router.put(
+router.patch(
   "/change-password/:id",
   authMiddleware.authorizeSelfOnly(),
   employeeController.changePassword
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ NHÂN VIÊN ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   employeeController.toggleEmployeeStatus

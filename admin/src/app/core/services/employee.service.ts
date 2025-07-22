@@ -55,7 +55,7 @@ export class EmployeeService {
     id: string,
     data: FormData | EmployeeRequest
   ): Observable<EmployeeDetailResponse> {
-    return this.http.put<EmployeeDetailResponse>(
+    return this.http.patch<EmployeeDetailResponse>(
       `${this.baseUrl}/update/${id}`,
       data
     );
@@ -74,7 +74,7 @@ export class EmployeeService {
 
   // ✅ Kích hoạt / vô hiệu hoá nhân viên
   toggleEmployeeStatus(id: string): Observable<EmployeeDetailResponse> {
-    return this.http.put<EmployeeDetailResponse>(
+    return this.http.patch<EmployeeDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );

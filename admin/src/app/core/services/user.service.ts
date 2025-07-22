@@ -43,6 +43,6 @@ export class UserService {
   }
 
   toggleUserStatus(id: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/toggle/${id}`, {});
+    return this.http.patch<void>(`${this.baseUrl}/toggle/${id}`, {});
   }
 }

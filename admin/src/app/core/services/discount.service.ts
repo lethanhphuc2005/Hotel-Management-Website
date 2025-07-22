@@ -77,11 +77,11 @@ export class DiscountService {
     id: string,
     data: FormData | DiscountRequest
   ): Observable<DiscountDetailResponse> {
-    return this.http.put<DiscountDetailResponse>(`${this.baseUrl}/${id}`, data);
+    return this.http.patch<DiscountDetailResponse>(`${this.baseUrl}/${id}`, data);
   }
 
   toggleDiscountStatus(id: string): Observable<DiscountDetailResponse> {
-    return this.http.put<DiscountDetailResponse>(
+    return this.http.patch<DiscountDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );

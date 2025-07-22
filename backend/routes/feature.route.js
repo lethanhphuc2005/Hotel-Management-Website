@@ -19,14 +19,14 @@ router.get("/:id", featureController.getFeatureById);
 router.post("/", authMiddleware.authorizeRoles("admin"), featureController.addFeature);
 
 // === CẬP NHẬT TIỆN NGHI ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   featureController.updateFeature
 );
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA TIỆN NGHI ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   featureController.toggleFeatureStatus

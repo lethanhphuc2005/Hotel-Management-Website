@@ -25,14 +25,14 @@ router.post(
 );
 
 // === CẬP NHẬT TRẠNG THÁI PHÒNG ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   roomStatusController.updateRoomStatus
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ TRẠNG THÁI PHÒNG ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   roomStatusController.toggleRoomStatus

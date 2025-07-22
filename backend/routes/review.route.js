@@ -23,14 +23,14 @@ router.post(
 );
 
 // === CẬP NHẬT ĐÁNH GIÁ ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeSelfOrRoles("admin"),
   reviewController.updateReview
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HÓA ĐÁNH GIÁ ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeSelfOrRoles("admin"),
   reviewController.toggleReviewStatus

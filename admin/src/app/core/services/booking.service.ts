@@ -70,7 +70,7 @@ export class BookingService {
     id,
     reason,
   }: BookingCancel): Observable<BookingStatusUpdateResponse> {
-    return this.http.put<BookingStatusUpdateResponse>(
+    return this.http.patch<BookingStatusUpdateResponse>(
       `${this.baseUrl}/cancel/${id}`,
       { reason }
     );
@@ -80,7 +80,7 @@ export class BookingService {
     id,
     roomAssignments,
   }: BookingConfirm): Observable<BookingStatusUpdateResponse> {
-    return this.http.put<BookingStatusUpdateResponse>(
+    return this.http.patch<BookingStatusUpdateResponse>(
       `${this.baseUrl}/confirm/${id}`,
       {
         roomAssignments,
@@ -92,7 +92,7 @@ export class BookingService {
     id,
     identity,
   }: BookingCheckIn): Observable<BookingStatusUpdateResponse> {
-    return this.http.put<BookingStatusUpdateResponse>(
+    return this.http.patch<BookingStatusUpdateResponse>(
       `${this.baseUrl}/check-in/${id}`,
       {
         identity,
@@ -104,7 +104,7 @@ export class BookingService {
     id,
     note,
   }: BookingCheckOut): Observable<BookingStatusUpdateResponse> {
-    return this.http.put<BookingStatusUpdateResponse>(
+    return this.http.patch<BookingStatusUpdateResponse>(
       `${this.baseUrl}/check-out/${id}`,
       {
         note,

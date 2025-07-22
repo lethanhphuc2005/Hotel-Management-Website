@@ -19,7 +19,7 @@ router.get("/:id", commentController.getCommentById);
 router.post("/", commentController.addComment);
 
 // === CẬP NHẬT BÌNH LUẬN ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeSelfOrRoles("admin"),
   commentController.updateComment
@@ -33,7 +33,7 @@ router.put(
 // );
 
 // === KÍCH HOẠT/ VÔ HIỆU HÓA BÌNH LUẬN ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeSelfOrRoles("admin"),
   commentController.toggleCommentStatus

@@ -50,7 +50,7 @@ export class BookingMethodService {
   toggleBookingMethodStatus(
     id: string
   ): Observable<BookingMethodDetailResponse> {
-    return this.http.put<BookingMethodDetailResponse>(
+    return this.http.patch<BookingMethodDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );
@@ -60,7 +60,7 @@ export class BookingMethodService {
     id: string,
     data: FormData | BookingMethodRequest
   ): Observable<BookingMethodDetailResponse> {
-    return this.http.put<BookingMethodDetailResponse>(
+    return this.http.patch<BookingMethodDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );

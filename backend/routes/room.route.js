@@ -34,7 +34,7 @@ router.post(
 );
 
 // === CẬP NHẬT THÔNG TIN PHÒNG ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
   upload.none(),
@@ -42,7 +42,7 @@ router.put(
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ PHÒNG ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
   roomController.toggleRoomStatus

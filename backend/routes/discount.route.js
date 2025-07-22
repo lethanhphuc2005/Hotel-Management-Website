@@ -24,14 +24,14 @@ router.post(
 );
 
 // === CẬP NHẬT KHUYẾN MÃI ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   DiscountController.updateDiscount
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ KHUYẾN MÃI ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   DiscountController.toggleDiscountStatus

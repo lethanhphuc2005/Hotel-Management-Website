@@ -20,10 +20,10 @@ router.get("/:id", imageController.getImageById);
 router.post("/", authMiddleware.authorizeRoles("admin"), imageController.addImage);
 
 // === CẬP NHẬT HÌNH ẢNH ===
-router.put("/:id", authMiddleware.authorizeRoles("admin"), imageController.updateImage);
+router.patch("/:id", authMiddleware.authorizeRoles("admin"), imageController.updateImage);
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA HÌNH ẢNH ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   imageController.toggleImageStatus

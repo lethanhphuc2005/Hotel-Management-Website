@@ -19,7 +19,7 @@ export const updateProfile = async (
   data: UpdateUserProfileRequest
 ) => {
   try {
-    const response = await api.put("/user/update/" + userId, data);
+    const response = await api.patch("/user/update/" + userId, data);
     if (response.status !== 200) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }

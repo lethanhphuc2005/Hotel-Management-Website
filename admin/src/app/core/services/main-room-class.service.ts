@@ -56,7 +56,7 @@ export class MainRoomClassService {
   toggleMainRoomClassStatus(
     id: string
   ): Observable<MainRoomClassDetailResponse> {
-    return this.httpClient.put<MainRoomClassDetailResponse>(
+    return this.httpClient.patch<MainRoomClassDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {
         status: true,
@@ -68,7 +68,7 @@ export class MainRoomClassService {
     id: string,
     data: FormData | MainRoomClassRequest
   ): Observable<MainRoomClassDetailResponse> {
-    return this.httpClient.put<MainRoomClassDetailResponse>(
+    return this.httpClient.patch<MainRoomClassDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );

@@ -18,21 +18,21 @@ router.get(
 );
 
 // === CẬP NHẬT USER ===
-router.put(
+router.patch(
   "/update/:id",
   authMiddleware.authorizeSelfOrRoles("admin"),
   userController.updateUser
 );
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA USER ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   userController.toggleUserStatus
 );
 
 // === ĐỔI MẬT KHẨU USER ===
-router.put(
+router.patch(
   "/change-password/:id",
   authMiddleware.authorizeSelfOnly(),
   userController.changePassword

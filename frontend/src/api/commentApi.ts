@@ -41,7 +41,7 @@ export const updateComment = async ({
   userId,
   content,
 }: UpdateCommentRequest) => {
-  const response = await api.put(`/comment/${commentId}`, {
+  const response = await api.patch(`/comment/${commentId}`, {
     user_id: userId,
     content,
   });
@@ -55,7 +55,7 @@ export const deleteComment = async ({
   commentId,
   userId,
 }: DeleteCommentRequest) => {
-  const response = await api.put(`/comment/toggle/${commentId}`, {
+  const response = await api.patch(`/comment/toggle/${commentId}`, {
     user_id: userId,
   });
   if (response.status !== 200) {

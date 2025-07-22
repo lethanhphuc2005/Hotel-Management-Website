@@ -51,7 +51,7 @@ export class WebsiteContentService {
   toggleWebsiteContentStatus(
     id: string
   ): Observable<WebsiteContentDetailResponse> {
-    return this.http.put<WebsiteContentDetailResponse>(
+    return this.http.patch<WebsiteContentDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );
@@ -61,7 +61,7 @@ export class WebsiteContentService {
     id: string,
     data: FormData | WebsiteContentRequest
   ): Observable<WebsiteContentDetailResponse> {
-    return this.http.put<WebsiteContentDetailResponse>(
+    return this.http.patch<WebsiteContentDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );

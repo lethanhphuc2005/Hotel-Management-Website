@@ -105,14 +105,8 @@ export default function BookedRoomSection({
         "Ví dụ: thay đổi kế hoạch, giá cao, đặt nhầm..."
       );
       if (reason === null) return;
-
+      console.log("Lý do huỷ:", reason);
       setCancelReason(reason);
-      // Nếu không nhập lý do, sử dụng lý do mặc định
-      if (!reason.trim()) {
-        setCancelReason("Không cung cấp lý do");
-      } else {
-        setCancelReason(reason);
-      }
 
       // Bước 3: Thực hiện huỷ
       const response = await cancelBooking(bookingId, userId, cancelReason);
@@ -121,7 +115,10 @@ export default function BookedRoomSection({
         setBookings((prev) =>
           prev.map((booking) =>
             booking.id === bookingId
-              ? { ...booking, booking_status: { code: "CANCELLED" } }
+              ? {
+                  ...booking,
+                  booking_status: { code: "CANCELLED", name: "Cancelled" },
+                }
               : booking
           )
         );
@@ -319,21 +316,26 @@ export default function BookedRoomSection({
                         Giảm giá áp dụng:
                       </p>
                       <ul className="tw-list-disc tw-ml-6">
-                        {booking.discounts.map((discount: Discount, index: number) => (
-                          <li key={discount.id || index} className="tw-text-sm">
-                            <p>
-                              <strong>{discount.name}</strong>:{" "}
-                              {discount.value_type === "percent"
-                                ? `${discount.value * 100}%`
-                                : `${formatCurrencyVN(discount.value)}`}
-                              <br />
-                              <span className="tw-text-gray-400">
-                                Hiệu lực từ {formatDate(discount.valid_from)}{" "}
-                                đến {formatDate(discount.valid_to)}
-                              </span>
-                            </p>
-                          </li>
-                        ))}
+                        {booking.discounts.map(
+                          (discount: Discount, index: number) => (
+                            <li
+                              key={discount.id || index}
+                              className="tw-text-sm"
+                            >
+                              <p>
+                                <strong>{discount.name}</strong>:{" "}
+                                {discount.value_type === "percent"
+                                  ? `${discount.value * 100}%`
+                                  : `${formatCurrencyVN(discount.value)}`}
+                                <br />
+                                <span className="tw-text-gray-400">
+                                  Hiệu lực từ {formatDate(discount.valid_from)}{" "}
+                                  đến {formatDate(discount.valid_to)}
+                                </span>
+                              </p>
+                            </li>
+                          )
+                        )}
                       </ul>
                       <motion.div
                         initial={{ x: 30, opacity: 0 }}

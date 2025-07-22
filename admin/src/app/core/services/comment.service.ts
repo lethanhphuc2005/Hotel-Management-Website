@@ -56,7 +56,7 @@ export class CommentService {
 
   // Cập nhật trạng thái bình luận
   toggleCommentStatus(id: string): Observable<CommentDetailResponse> {
-    return this.http.put<CommentDetailResponse>(
+    return this.http.patch<CommentDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );
@@ -67,7 +67,7 @@ export class CommentService {
     id: string,
     data: FormData | CommentRequest
   ): Observable<CommentDetailResponse> {
-    return this.http.put<CommentDetailResponse>(`${this.baseUrl}/${id}`, data);
+    return this.http.patch<CommentDetailResponse>(`${this.baseUrl}/${id}`, data);
   }
 
   // Xóa bình luận

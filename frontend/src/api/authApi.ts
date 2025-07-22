@@ -65,7 +65,7 @@ export const changePassword = async ({
   password,
   newPassword,
 }: ChangePasswordRequest) => {
-  const response = await api.put("/user/change-password/" + userId, {
+  const response = await api.patch("/user/change-password/" + userId, {
     password,
     newPassword,
   });

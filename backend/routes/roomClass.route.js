@@ -19,14 +19,14 @@ router.get("/:id", roomTypeController.getRoomClassById);
 router.post("/", authMiddleware.authorizeRoles("admin"), roomTypeController.addRoomClass);
 
 // === CẬP NHẬT LOẠI PHÒNG ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
   roomTypeController.updateRoomClass
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   roomTypeController.toggleRoomClassStatus

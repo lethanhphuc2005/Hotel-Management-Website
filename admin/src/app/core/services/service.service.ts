@@ -49,11 +49,11 @@ export class ServiceService {
     id: string,
     data: FormData | ServiceRequest
   ): Observable<ServiceDetailResponse> {
-    return this.http.put<ServiceDetailResponse>(`${this.baseUrl}/${id}`, data);
+    return this.http.patch<ServiceDetailResponse>(`${this.baseUrl}/${id}`, data);
   }
 
   toggleServiceStatus(id: string): Observable<ServiceDetailResponse> {
-    return this.http.put<ServiceDetailResponse>(
+    return this.http.patch<ServiceDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );

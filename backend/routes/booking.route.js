@@ -34,28 +34,28 @@ router.get(
 );
 
 // == HỦY BỎ ĐẶT PHÒNG ===
-router.put(
+router.patch(
   "/cancel/:id",
   authMiddleware.authorizeSelfOrRoles("admin", "receptionist"),
   bookingController.cancelBooking
 );
 
 // === XÁC NHẬN ĐẶT PHÒNG ===
-router.put(
+router.patch(
   "/confirm/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
   bookingController.confirmBooking
 );
 
 // === CHECK IN ĐẶT PHÒNG ===
-router.put(
+router.patch(
   "/check-in/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
   bookingController.checkInBooking
 );
 
 // === CHECK OUT ĐẶT PHÒNG ===
-router.put(
+router.patch(
   "/check-out/:id",
   authMiddleware.authorizeRoles("admin", "receptionist"),
   bookingController.checkOutBooking

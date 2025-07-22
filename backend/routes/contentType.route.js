@@ -24,14 +24,14 @@ router.post(
 );
 
 // === CẬP NHẬT LOẠI NỘI DUNG ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   contentTypeController.updateContentType
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI NỘI DUNG ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   contentTypeController.toggleContentTypeStatus

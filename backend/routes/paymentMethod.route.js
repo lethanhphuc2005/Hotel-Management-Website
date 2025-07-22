@@ -25,7 +25,7 @@ router.post(
 );
 
 // === CẬP NHẬT PHƯƠNG THỨC THANH TOÁN ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   paymentMethodController.updatePaymentMethod

@@ -62,7 +62,7 @@ export class RoomClassService {
 
   // Cập nhật trạng thái loại phòng
   toggleRoomClassStatus(id: string): Observable<RoomClassDetailResponse> {
-    return this.http.put<RoomClassDetailResponse>(
+    return this.http.patch<RoomClassDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {
         status: true,
@@ -75,7 +75,7 @@ export class RoomClassService {
     id: string,
     data: FormData | RoomClassRequest
   ): Observable<RoomClassDetailResponse> {
-    return this.http.put<RoomClassDetailResponse>(
+    return this.http.patch<RoomClassDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );

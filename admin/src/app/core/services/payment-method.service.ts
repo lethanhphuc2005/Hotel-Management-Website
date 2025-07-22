@@ -58,7 +58,7 @@ export class PaymentMethodService {
     id: string,
     data: FormData | PaymentMethodRequest
   ): Observable<PaymentMethodDetailResponse> {
-    return this.http.put<PaymentMethodDetailResponse>(
+    return this.http.patch<PaymentMethodDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );

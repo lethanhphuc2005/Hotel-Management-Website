@@ -24,14 +24,14 @@ router.post(
 );
 
 // === CẬP NHẬT LOẠI PHÒNG CHÍNH ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   mainRoomClassController.updateMainRoomClass
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ LOẠI PHÒNG CHÍNH ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   mainRoomClassController.toggleMainRoomClassStatus

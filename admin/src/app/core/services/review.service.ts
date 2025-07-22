@@ -64,7 +64,7 @@ export class ReviewService {
   }
 
   toggleReviewStatus(id: string): Observable<ReviewDetailResponse> {
-    return this.http.put<ReviewDetailResponse>(
+    return this.http.patch<ReviewDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );
@@ -74,7 +74,7 @@ export class ReviewService {
     id: string,
     data: FormData | ReviewRequest
   ): Observable<ReviewDetailResponse> {
-    return this.http.put<ReviewDetailResponse>(`${this.baseUrl}/${id}`, data);
+    return this.http.patch<ReviewDetailResponse>(`${this.baseUrl}/${id}`, data);
   }
 
   deleteReview(id: string): Observable<void> {

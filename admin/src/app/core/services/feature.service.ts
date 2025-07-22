@@ -52,7 +52,7 @@ export class FeatureService {
     id: string,
     formData: FormData
   ): Observable<FeatureDetailResponse> {
-    return this.http.put<FeatureDetailResponse>(
+    return this.http.patch<FeatureDetailResponse>(
       `${this.baseUrl}/${id}`,
       formData
     );
@@ -60,7 +60,7 @@ export class FeatureService {
 
   // Cập nhật trạng thái (kích hoạt / vô hiệu hóa)
   updateStatus(id: string): Observable<FeatureDetailResponse> {
-    return this.http.put<FeatureDetailResponse>(
+    return this.http.patch<FeatureDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );

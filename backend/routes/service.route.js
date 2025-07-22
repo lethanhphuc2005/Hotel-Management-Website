@@ -19,14 +19,14 @@ router.get("/:id", serviceController.getServiceById);
 router.post("/", authMiddleware.authorizeRoles("admin"), serviceController.addService);
 
 // === CẬP NHẬT DỊCH VỤ ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   serviceController.updateService
 );
 
 // === KÍCH HOẠT/ VÔ HIỆU HOÁ DỊCH VỤ ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   serviceController.toggleServiceStatus

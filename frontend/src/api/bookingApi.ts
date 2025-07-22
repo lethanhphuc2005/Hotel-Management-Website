@@ -72,7 +72,7 @@ export const cancelBooking = async ({
   cancelReason,
 }: CancelBookingRequest) => {
   try {
-    const response = await api.put(`/booking/cancel/${bookingId}`, {
+    const response = await api.patch(`/booking/cancel/${bookingId}`, {
       user_id: userId,
       cancel_reason: cancelReason,
     });

@@ -25,14 +25,14 @@ router.post(
 );
 
 // === CẬP NHẬT TRẠNG THÁI ĐẶT PHÒNG ===
-router.put(
+router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
   bookingStatusController.updateBookingStatus
 );
 
 // === KÍCH HOẠT / VÔ HIỆU HÓA TRẠNG THÁI ĐẶT PHÒNG ===
-router.put(
+router.patch(
   "/toggle/:id",
   authMiddleware.authorizeRoles("admin"),
   bookingStatusController.toggleBookingStatus

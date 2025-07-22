@@ -50,7 +50,7 @@ export class ContentTypeService {
   }
 
   toggleContentTypeStatus(id: string): Observable<ContentTypeDetailResponse> {
-    return this.http.put<ContentTypeDetailResponse>(
+    return this.http.patch<ContentTypeDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
       {}
     );
@@ -60,7 +60,7 @@ export class ContentTypeService {
     id: string,
     data: FormData | ContentTypeRequest
   ): Observable<ContentTypeDetailResponse> {
-    return this.http.put<ContentTypeDetailResponse>(
+    return this.http.patch<ContentTypeDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );
