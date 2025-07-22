@@ -1,0 +1,29 @@
+<div class="table-header">
+  <div>STT</div>
+  <div>Tên phương thức</div>
+  <div>Trạng thái</div>
+  <div>Số lượng đơn hàng</div>
+  <div>Hành động</div>
+</div>
+
+<!-- Danh sách -->
+<div *ngFor="let method of paymentMethods; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ method.name }}</div>
+  <div class="status-column">
+    <label class="switch">
+      <input
+        type="checkbox"
+        [checked]="method.status"
+        (change)="toggleStatus.emit({$event, method})"
+      />
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div>{{ method.payments.length || 0 }}</div>
+  <div class="actions">
+    <button class="icon-button" (click)="openEdit.emit(method)">
+      <i class="fas fa-pen"></i>
+    </button>
+  </div>
+</div>

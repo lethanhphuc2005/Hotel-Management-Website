@@ -1,16 +1,11 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  OnInit,
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomService } from '@/core/services/room.service';
 import { BookingStatusService } from '@/core/services/booking-status.service';
-import { Booking } from '@/types/booking';
+import { Booking, BookingDetail } from '@/types/booking';
 import { BookingStatus } from '@/types/booking-status';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-booking-status-popup',
@@ -48,7 +43,8 @@ export class BookingStatusPopupComponent implements OnInit {
 
   constructor(
     private roomService: RoomService,
-    private bookingStatusService: BookingStatusService
+    private bookingStatusService: BookingStatusService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -56,22 +52,27 @@ export class BookingStatusPopupComponent implements OnInit {
   }
 
   loadBookingStatuses() {
-    this.bookingStatusService.getAllBookingStatus({}).subscribe((res) => {
-      this.statuses = res.data;
+    this.bookingStatusService.getAllBookingStatus({}).subscribe({
+      next: (res) => {
+        this.statuses = res.data;
 
-      if (this.booking?.booking_status.code === 'PENDING') {
-        this.booking.booking_details.forEach((detail: any) => {
-          this.selectedRooms[detail.id] = '';
-          this.loadAvailableRooms(detail);
-        });
-      }
+        if (this.booking?.booking_status.code === 'PENDING') {
+          this.booking.booking_details.forEach((detail: any) => {
+            this.selectedRooms[detail.id] = '';
+            this.loadAvailableRooms(detail);
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load booking statuses', err);
+        this.toastr.error(err.error.message || err.error, 'Lỗi');},
     });
   }
 
-  loadAvailableRooms(detail: any) {
+  loadAvailableRooms(detail: BookingDetail) {
     if (!this.booking) return;
     const { check_in_date, check_out_date } = this.booking;
-    const classId = detail.room_class_id.id;
+    const classId = detail.room_class_id;
 
     this.roomService
       .getAllRooms({
@@ -79,9 +80,18 @@ export class BookingStatusPopupComponent implements OnInit {
         check_in_date: new Date(check_in_date).toISOString(),
         check_out_date: new Date(check_out_date).toISOString(),
       })
-      .subscribe((res) => {
-        this.availableRooms[detail.id] = res.data;
-      });
+      .subscribe({
+        next: (res) => {
+          this.availableRooms[detail.id] = res.data;
+          if (this.availableRooms[detail.id].length > 0) {
+            this.selectedRooms[detail.id] = this.availableRooms[detail.id][0].id;
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load available rooms', err);
+          this.toastr.error(err.error.message || err.error, 'Lỗi');
+        },
+      })
   }
 
   canConfirm(): boolean {

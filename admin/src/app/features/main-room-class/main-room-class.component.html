@@ -33,7 +33,7 @@
   <app-main-room-class-list
     [mainRoomClasses]="mainRoomClasses"
     [filter]="filter"
-    (toggleStatus)="onToggleChange($event.mainRoomClass, $event.$event)"
+    (toggleStatus)="onToggleChange($event.$event, $event.mainRoomClass)"
     (openEdit)="onOpenPopup(false, $event)"
     (openDetail)="onViewDetail($event)"
   ></app-main-room-class-list>

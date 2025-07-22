@@ -1,4 +1,4 @@
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 import { Discount } from './discount';
 import { Employee } from './employee';
 import { BookingMethod } from './booking-method';
@@ -40,8 +40,8 @@ export interface Booking {
   booking_status: BookingStatus;
   booking_method: BookingMethod;
   user?: User;
-  discount: Discount[];
-  payment: Payment[];
+  discounts: Discount[];
+  payments: Payment[];
   employee?: Employee;
   booking_details: BookingDetail[];
   createdAt?: Date;
@@ -52,10 +52,11 @@ export interface BookingDetail {
   id: string;
   booking_id: string;
   room_id: string;
-  room_class_id: RoomClass;
+  room_class_id: string;
   price_per_night: number;
   nights: number;
   room?: Room;
+  room_class: RoomClass;
   services: ServiceBooking[];
 }
 

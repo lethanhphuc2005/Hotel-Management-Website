@@ -1,4 +1,4 @@
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 
 export interface Service {
   id: string;
@@ -13,8 +13,9 @@ export interface Service {
 
 export interface ServiceBooking {
   id: string;
-  service_id: Service;
+  service_id: string;
   amount: number;
+  service: Service;
   used_at: Date;
 }
 

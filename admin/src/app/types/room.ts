@@ -1,5 +1,5 @@
 import { BookingStatus } from './booking-status';
-import { PaginationResponse, FilterParams } from './common';
+import { PaginationResponse, FilterParams } from './_common';
 import { RoomClass } from './room-class';
 import { RoomStatus } from './status';
 
@@ -11,8 +11,8 @@ export interface Room {
   room_status_id?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  room_class?: RoomClass[];
-  status?: RoomStatus[];
+  room_class?: RoomClass;
+  room_status?: RoomStatus;
 }
 
 export interface RoomResponse {

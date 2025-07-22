@@ -1,59 +1,106 @@
 import { Component, OnInit } from '@angular/core';
-import { PaymentService } from '../../core/services/payment.service';
-import { Payment } from '../../types/payment';
+import { PaymentService } from '@/core/services/payment.service';
+import { Payment, PaymentFilter } from '@/types/payment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
+import { PaymentListComponent } from './payment-list/payment-list.component';
+import { PaymentMethod } from '@/types/payment-method';
+import { PaymentMethodService } from '@/core/services/payment-method.service';
+import { PaymentFilterComponent } from './payment-filter/payment-filter.component';
+import { PaymentDetailComponent } from './payment-detail/payment-detail.component';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.scss'],
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PaymentListComponent,
+    PaymentFilterComponent,
+    PaymentDetailComponent,
+  ],
 })
 export class PaymentComponent implements OnInit {
   payments: Payment[] = [];
-  searchKeyword: string = '';
-  isDetailPopupOpen = false;
+  paymentMethods: PaymentMethod[] = [];
   selectedPayment: Payment | null = null;
+  isDetailPopupOpen = false;
+  filter: PaymentFilter = {
+    search: '',
+    page: 1,
+    limit: 10,
+    sort: 'createdAt',
+    order: 'desc',
+    status: '',
+    method: '',
+    payment_date: undefined,
+    total: 0,
+  };
 
-  constructor(private paymentService: PaymentService) {}
+  constructor(
+    private paymentService: PaymentService,
+    private toastService: ToastrService,
+    private paymentMethodService: PaymentMethodService
+  ) {}
 
   ngOnInit(): void {
-    this.loadPayments();
+    this.fetchPayments();
+    this.fetchPaymentMethods();
   }
 
-  loadPayments(): void {
-    this.paymentService.getAllPayments().subscribe({
-      next: (res: any) => {
-        this.payments = res.data;
+  fetchPayments(): void {
+    this.paymentService.getAllPayments(this.filter).subscribe({
+      next: (response) => {
+        this.payments = response.data;
+        this.filter.total = response.pagination?.total;
       },
       error: (err) => {
-        console.error('Lỗi tải dữ liệu:', err);
+        console.error(err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.payments = [];
       },
     });
   }
 
-  filteredPayments(): Payment[] {
-    if (!this.searchKeyword.trim()) return this.payments;
-    const keyword = this.searchKeyword.toLowerCase();
-    return this.payments.filter(payment =>
-      payment.status.toString().toLowerCase().includes(keyword)
-    );
+  fetchPaymentMethods(): void {
+    this.paymentMethodService.getAllPaymentMethods({}).subscribe({
+      next: (response) => {
+        this.paymentMethods = response.data;
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+      },
+    });
   }
 
-  onSearch(): void {
-    // gọi tự động khi nhấn enter
+  onPageChange(page: number): void {
+    this.filter.page = page;
+    this.fetchPayments();
   }
 
-  viewDetail(payment: Payment): void {
-    this.selectedPayment = payment;
-    this.isDetailPopupOpen = true;
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+    }
+    this.filter.page = 1; // Reset to first page on filter change
+    this.fetchPayments();
   }
 
-  closeDetailPopup(): void {
+  onOpenPopup(isDetail: boolean, payment?: Payment): void {
+    this.isDetailPopupOpen = isDetail;
+    if (payment) {
+      this.selectedPayment = payment;
+    } else {
+      this.selectedPayment = null;
+    }
+  }
+
+  onClosePopup(): void {
     this.isDetailPopupOpen = false;
     this.selectedPayment = null;
   }

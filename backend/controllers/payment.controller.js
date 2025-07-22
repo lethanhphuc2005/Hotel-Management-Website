@@ -9,6 +9,8 @@ const PaymentMethod = require("../models/paymentMethod.model");
 const walletController = require("./wallet.controller");
 const User = require("../models/user.model");
 const userController = require("./user.controller");
+const { isValidObjectId } = require("mongoose");
+const mongoose = require("mongoose");
 
 const PaymentController = {
   // === TẠO YÊU CẦU THANH TOÁN ===
@@ -193,7 +195,7 @@ const PaymentController = {
           error: "Payment method is required",
         });
       }
-      const { orderId } = req.body;
+      const { orderId } = req.query;
       if (!orderId) {
         return res.status(400).json({
           error: "Order ID is required",
@@ -258,21 +260,51 @@ const PaymentController = {
         limit,
         sort = "createdAt",
         order = "desc",
+        method,
+        status,
+        payment_date,
       } = req.query;
 
       const query = {};
+
       if (search) {
-        query.$or = [
-          { booking_id: { $regex: search, $options: "i" } },
+        const orConditions = [
           { transaction_id: { $regex: search, $options: "i" } },
-          { status: { $regex: search, $options: "i" } },
         ];
+
+        // nếu search là chuỗi 24 ký tự hợp lệ, thử convert sang ObjectId
+        if (isValidObjectId(search)) {
+          orConditions.push({
+            booking_id: new mongoose.Types.ObjectId(search),
+          });
+        }
+
+        query.$or = orConditions;
       }
+
       const sortOption = {};
       if (sort === "status") {
         sortOption.status = order === "asc" ? 1 : -1;
       } else {
         sortOption[sort] = order === "asc" ? 1 : -1;
+      }
+
+      if (method) {
+        query.payment_method_id = method;
+      }
+
+      if (status) {
+        query.status = status;
+      }
+
+      if (payment_date) {
+        const date = new Date(payment_date);
+        const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+        query.payment_date = {
+          $gte: startOfDay,
+          $lte: endOfDay,
+        };
       }
 
       const skip = (parseInt(page) - 1) * parseInt(limit);

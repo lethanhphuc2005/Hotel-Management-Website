@@ -1,0 +1,39 @@
+<div class="popup-overlay" *ngIf="isVisible && payment">
+  <div class="popup-content">
+    <h2>Chi tiết thanh toán</h2>
+
+    <div class="popup-section">
+      <label>Người thanh toán:</label
+      ><span>{{ payment.booking.full_name }}</span>
+    </div>
+      <div class="popup-section">
+      <label>Mã đơn phòng:</label
+      ><span>{{ payment.booking.id }}</span>
+    </div>
+    <div class="popup-section">
+      <label>SĐT:</label><span>{{ payment.booking.phone_number }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Tổng tiền:</label
+      ><span>{{ payment.amount | currency : "VND" }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Ngày thanh toán:</label
+      ><span>{{ payment.payment_date | formatDate }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Trạng thái:</label><span>{{ payment.status }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Phương thức:</label><span>{{ payment.payment_method.name }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Giao dịch ID:</label><span>{{ payment.transaction_id }}</span>
+    </div>
+    <div class="popup-section">
+      <label>Ghi chú:</label><span>{{ payment.booking.note }}</span>
+    </div>
+
+    <button class="close-btn" (click)="close.emit()">Đóng</button>
+  </div>
+</div>

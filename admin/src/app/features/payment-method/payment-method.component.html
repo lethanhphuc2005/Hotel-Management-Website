@@ -1,152 +1,41 @@
 <div class="roomtype-management-card">
   <h2>Quản lý phương thức thanh toán</h2>
 
-  <div class="room-controls" style="display: flex; align-items: center; gap: 8px">
-    <div class="form-floating form-floating-custom mb-3" style="position: relative; flex: 1">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Tìm kiếm"
-        style="width: 100%; padding-right: 30px"
-        [(ngModel)]="searchKeyword"
-        (keyup.enter)="onSearch()"
-      />
-      <label for="floatingInput">Tìm kiếm</label>
-    </div>
+  <app-common-filter-bar
+    [filter]="filter"
+    (filterChange)="onFilterChange($event)"
+    [label]="'Thêm phương thức thanh toán'"
+    (openAdd)="onOpenPopup(true)"
+  ></app-common-filter-bar>
 
-    <button class="add-room" (click)="onAdd()">+ Thêm phương thức</button>
-  </div>
+  <app-payment-method-list
+    [paymentMethods]="paymentMethods"
+    [filter]="filter"
+    (toggleStatus)="onToggleChange($event.$event, $event.method)"
+    (openEdit)="onOpenPopup(false, $event)"
+  ></app-payment-method-list>
 
-  <!-- Popup thêm -->
-  <div class="popup-add-popup" *ngIf="isAddPopupOpen">
-    <div class="popup-content">
-      <h2>Thêm phương thức thanh toán</h2>
-      <form (ngSubmit)="onAddSubmit()" #addForm="ngForm">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              id="name"
-              name="name"
-              placeholder="Tên phương thức"
-              [(ngModel)]="newPaymentMethod.name"
-              required
-            />
-            <label for="name">Tên phương thức thanh toán</label>
-          </div>
-        </div>
+  <app-pagination
+    *ngIf="filter.total && filter.limit && filter.page"
+    [limit]="filter.limit"
+    [total]="filter.total"
+    [page]="filter.page"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
 
-        <div class="popup-section">
-          <label for="status">Trạng thái:</label>
-          <select
-            id="status"
-            name="status"
-            class="form-select form-control mb-3"
-            [(ngModel)]="newPaymentMethod.status"
-          >
-            <option [value]="true">Đang hoạt động</option>
-            <option [value]="false">Tạm dừng hoạt động</option>
-          </select>
-        </div>
+  <app-payment-method-form
+    [isVisible]="isAddPopupOpen"
+    [paymentMethod]="newPaymentMethod"
+    (close)="onClosePopup()"
+    (submit)="onAddSubmit()"
+    [isEdit]="false"
+  ></app-payment-method-form>
 
-        <div class="popup-actions">
-          <button class="btn btn-success" type="submit" [disabled]="!addForm.form.valid">Lưu</button>
-          <button class="btn btn-danger" type="button" (click)="closeAddPopup()">Hủy</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Tiêu đề bảng -->
-  <div class="table-header">
-    <div>STT</div>
-    <div>Tên phương thức</div>
-    <div>Trạng thái</div>
-    <div>Số lượng booking</div>
-    <div>Hành động</div>
-  </div>
-
-  <!-- Danh sách -->
-  <div *ngFor="let method of paymentMethods; let i = index" class="table-row">
-    <div>{{ i + 1 }}</div>
-    <div (click)="onViewDetail(method)" style="cursor: pointer">
-      {{ method.name }}
-    </div>
-    <div class="status-column">
-      <label class="switch">
-        <input
-          type="checkbox"
-          [checked]="method.status"
-          (change)="toggleStatus(method); $event.stopPropagation()"
-        />
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div>{{ method.bookings.length || 0 }}</div>
-    <div class="actions">
-      <button class="icon-button" (click)="onEdit(method); $event.stopPropagation()">
-        <i class="fas fa-pen"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Popup chi tiết -->
-  <div class="popup-overlay" *ngIf="isDetailPopupOpen && selectedPaymentMethod">
-    <div class="popup-content">
-      <h2>Chi tiết phương thức thanh toán</h2>
-      <div class="popup-section">
-        <label>Tên:</label>
-        <span>{{ selectedPaymentMethod.name }}</span>
-      </div>
-      <div class="popup-section">
-        <label>Trạng thái:</label>
-        <span [ngClass]="selectedPaymentMethod.status ? 'active' : 'inactive'">
-          {{ selectedPaymentMethod.status ? 'Đang hoạt động' : 'Tạm dừng hoạt động' }}
-        </span>
-      </div>
-      <div class="popup-section">
-        <label>Booking sử dụng:</label>
-        <ul>
-          <li *ngFor="let b of selectedPaymentMethod.bookings">
-            {{ b.full_name }} - {{ b.payment_status }}
-          </li>
-        </ul>
-      </div>
-      <button class="close-btn" (click)="isDetailPopupOpen = false">Đóng</button>
-    </div>
-  </div>
-
-  <!-- Popup sửa -->
-  <div class="popup-add-popup" *ngIf="isEditPopupOpen">
-    <div class="popup-content">
-      <h2>Sửa phương thức thanh toán</h2>
-      <form (ngSubmit)="onEditSubmit()" #editForm="ngForm">
-        <div class="popup-section">
-          <div class="form-floating form-floating-custom mb-3">
-            <input
-              type="text"
-              class="form-control"
-              id="editName"
-              name="name"
-              [(ngModel)]="editPaymentMethod.name"
-              required
-            />
-            <label for="editName">Tên phương thức</label>
-          </div>
-        </div>
-        <div class="popup-section">
-          <label for="editStatus">Trạng thái:</label>
-          <select id="editStatus" name="status" [(ngModel)]="editPaymentMethod.status" class="form-control mb-3">
-            <option [ngValue]="true">Đang hoạt động</option>
-            <option [ngValue]="false">Tạm dừng hoạt động</option>
-          </select>
-        </div>
-        <div class="popup-actions">
-          <button class="btn btn-success" type="submit" [disabled]="!editForm.form.valid">Lưu</button>
-          <button class="btn btn-danger" type="button" (click)="isEditPopupOpen = false">Hủy</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-payment-method-form
+    [isVisible]="isEditPopupOpen"
+    [paymentMethod]="newPaymentMethod"
+    (close)="onClosePopup()"
+    (submit)="onEditSubmit()"
+    [isEdit]="true"
+  ></app-payment-method-form>
 </div>

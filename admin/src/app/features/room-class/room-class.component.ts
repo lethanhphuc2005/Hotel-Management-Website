@@ -232,9 +232,8 @@ export class RoomClassComponent implements OnInit {
           this.imageHelperService.getImageUrl(img.url)
         ) || null;
       this.selectedFeatureIds =
-        item.features?.map((f) =>
-          (f.feature_id?.id || f.feature_id?.id)?.toString()
-        ) || [];
+        item.features?.map((f) => (f.feature_id || f.feature_id)?.toString()) ||
+        [];
     }
   }
 

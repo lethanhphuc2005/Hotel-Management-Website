@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PaymentMethod } from '../../types/method';
+import {
+  PaymentMethodFilter,
+  PaymentMethodResponse,
+  PaymentMethodDetailResponse,
+  PaymentMethodRequest,
+} from '@/types/payment-method';
 import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
@@ -12,24 +17,54 @@ export class PaymentMethodService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(search = ''): Observable<any> {
-    const params = new HttpParams().set('search', search);
-    return this.http.get<any>(this.baseUrl, { params });
+  getAllPaymentMethods({
+    search = '',
+    page = 1,
+    limit = 10,
+    sort = 'createdAt',
+    order = 'desc',
+    status,
+  }: PaymentMethodFilter): Observable<PaymentMethodResponse> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sort', sort)
+      .set('order', order);
+    if (status) params = params.set('status', status);
+    return this.http.get<PaymentMethodResponse>(this.baseUrl, { params });
   }
 
-  getById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  getPaymentMethodById(id: string): Observable<PaymentMethodDetailResponse> {
+    return this.http.get<PaymentMethodDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  add(method: Partial<PaymentMethod>): Observable<any> {
-    return this.http.post<any>(this.baseUrl, method);
+  createPaymentMethod(
+    data: FormData | PaymentMethodRequest
+  ): Observable<PaymentMethodDetailResponse> {
+    return this.http.post<PaymentMethodDetailResponse>(this.baseUrl, data);
   }
 
-  update(id: string, method: Partial<PaymentMethod>): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/${id}`, method);
+  togglePaymentMethodStatus(
+    id: string
+  ): Observable<PaymentMethodDetailResponse> {
+    return this.http.patch<PaymentMethodDetailResponse>(
+      `${this.baseUrl}/toggle/${id}`,
+      {}
+    );
   }
 
-  delete(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.baseUrl}/${id}`);
+  updatePaymentMethod(
+    id: string,
+    data: FormData | PaymentMethodRequest
+  ): Observable<PaymentMethodDetailResponse> {
+    return this.http.put<PaymentMethodDetailResponse>(
+      `${this.baseUrl}/${id}`,
+      data
+    );
+  }
+
+  deletePaymentMethod(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

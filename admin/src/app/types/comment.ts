@@ -2,7 +2,7 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
 import { Employee } from './employee';
 import { RoomClass } from './room-class';
 import { User } from './user';
-import { FilterParams } from './common';
+import { FilterParams } from './_common';
 
 export interface Comment {
   id: string;
@@ -15,8 +15,8 @@ export interface Comment {
   createdAt?: Date;
   updatedAt?: Date;
   children: Comment[]; // For nested comments
-  employee?: Employee | null; // Employee can be null if the comment is anonymous
-  user?: User | null; // User can be null if the comment is anonymous
+  employee?: Employee; // Employee can be null if the comment is anonymous
+  user?: User; // User can be null if the comment is anonymous
   room_class: RoomClass; // Room class can be null
 }
 

@@ -1,5 +1,5 @@
 import { Booking } from './booking';
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 
 export interface BookingMethod {
   id: string;

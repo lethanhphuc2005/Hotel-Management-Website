@@ -1,4 +1,4 @@
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 
 export interface Discount {
   id: string;
@@ -42,7 +42,7 @@ export interface DiscountDetailResponse {
 
 export interface DiscountRequest {
   name?: string;
-  image?: File | null ;
+  image?: File | null;
   description?: string;
   type?: string;
   value?: number;

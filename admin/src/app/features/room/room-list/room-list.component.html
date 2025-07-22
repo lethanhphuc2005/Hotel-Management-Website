@@ -4,10 +4,10 @@
     {{ room.name }}
   </div>
   <div>{{ room.floor }}</div>
-  <div>{{ room.room_class?.[0]?.name || "Không rõ" }}</div>
-  <div>{{ room.status?.[0]?.name || "Không rõ" }}</div>
-  <div>{{ room.room_class?.[0]?.bed_amount }}</div>
-  <div>{{ room.room_class?.[0]?.price | currency : "VND" }}</div>
+  <div>{{ room.room_class?.name || "Không rõ" }}</div>
+  <div>{{ room.room_status?.name || "Không rõ" }}</div>
+  <div>{{ room.room_class?.bed_amount }}</div>
+  <div>{{ room.room_class?.price | currency : "VND" }}</div>
   <div class="actions">
     <button class="icon-button" (click)="viewDetail.emit(room)">
       <i class="fas fa-eye"></i>

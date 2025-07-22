@@ -1,6 +1,6 @@
 import { Booking } from "./booking";
 import { Comment } from "./comment";
-import { FilterParams, PaginationResponse } from "./common";
+import { FilterParams, PaginationResponse } from "./_common";
 import { Review } from "./review";
 
 export interface Employee {

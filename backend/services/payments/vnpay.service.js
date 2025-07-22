@@ -290,16 +290,18 @@ const VNPayService = {
   // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req) => {
     try {
-      const { orderId, transactionDate } = req.body;
+      const { orderId, transactionDate } = req.query;
       if (!orderId || !transactionDate) {
         throw new Error("Missing required fields: orderId or transactionDate");
       }
-      const dateObj = new Date(transactionDate);
+      let cleanDateString = transactionDate.replace(/([ ]\d{2}:\d{2})$/, "");
+      const dateObj = new Date(cleanDateString);
       if (isNaN(dateObj.getTime())) {
         throw new Error("Invalid transactionDate format");
       }
 
       const date = dateFormat(new Date(dateObj));
+      const today = dateFormat(new Date());
 
       const requestData = {
         vnp_RequestId: VNPayService._generateRequestId(), // Mã yêu cầu duy nhất
@@ -307,7 +309,7 @@ const VNPayService = {
         vnp_TxnRef: orderId,
         vnp_OrderInfo: `Kiểm tra giao dịch cho đơn hàng ${orderId}`,
         vnp_TransactionDate: date,
-        vnp_CreateDate: date,
+        vnp_CreateDate: today,
       };
 
       const response = await VNPayService.vnpay.queryDr(requestData, {
@@ -327,7 +329,20 @@ const VNPayService = {
         );
       }
 
-      return response;
+      const {
+        vnp_TransactionNo,
+        vnp_Amount,
+        vnp_Message,
+        vnp_TransactionStatus,
+      } = response;
+
+      return {
+        orderId: orderId,
+        message: vnp_Message,
+        amount: vnp_Amount / 100, // VNPay trả về số tiền theo đơn vị đồng
+        transactionId: vnp_TransactionNo,
+        status: vnp_TransactionStatus === "00" ? "success" : "failed",
+      };
     } catch (error) {
       console.error("Error getting VNPay transaction status:", error);
       throw {

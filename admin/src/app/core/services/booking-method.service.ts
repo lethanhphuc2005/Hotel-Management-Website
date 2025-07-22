@@ -66,7 +66,7 @@ export class BookingMethodService {
     );
   }
 
-  deleteBookingMethod(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  deleteBookingMethod(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

@@ -31,13 +31,13 @@
     <div class="popup-section"><strong>View:</strong> {{ roomClass.view }}</div>
     <div class="popup-section">
       <strong>Loại phòng chính:</strong>
-      {{ roomClass.main_room_class[0].name }}
+      {{ roomClass.main_room_class.name }}
     </div>
     <div class="popup-section" *ngIf="roomClass.features?.length">
       <strong>Tiện nghi:</strong>
       <ul>
         <li *ngFor="let f of roomClass.features">
-          {{ f.feature_id.name }}
+          {{ f.feature.name }}
         </li>
       </ul>
     </div>

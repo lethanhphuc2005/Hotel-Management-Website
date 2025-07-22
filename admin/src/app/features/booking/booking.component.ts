@@ -81,7 +81,6 @@ export class BookingComponent implements OnInit {
     this.getAllBookingStatuses();
     this.getAllBookingMethods();
   }
-
   getAllBookings(): void {
     this.bookingService
       .getAllBookings({

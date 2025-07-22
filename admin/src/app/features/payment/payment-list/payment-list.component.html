@@ -1,0 +1,33 @@
+<div class="table-header">
+  <div>STT</div>
+  <div>Mã giao dịch</div>
+  <div>Tổng tiền</div>
+  <div>Ngày thanh toán</div>
+  <div>Trạng thái</div>
+  <div>Phương thức</div>
+  <div>Thao tác</div>
+</div>
+
+<div *ngFor="let payment of payments; let i = index" class="table-row">
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ payment.transaction_id }}</div>
+  <!-- <div>{{ payment.booking[0]?.phone_number }}</div> -->
+  <div>{{ payment.amount | currency : "VND" }}</div>
+  <div>{{ payment.payment_date | formatDate }}</div>
+  <div>
+    <span
+      [ngClass]="{
+        'text-success': payment.status === 'completed',
+        'text-danger': payment.status !== 'completed'
+      }"
+    >
+      {{ payment.status === "completed" ? "Hoàn tất" : "Lỗi/Chờ xử lý" }}
+    </span>
+  </div>
+  <div>{{ payment.payment_method.name }}</div>
+  <div>
+    <button class="icon-button" (click)="openDetail.emit(payment)">
+      <i class="fas fa-eye"></i>
+    </button>
+  </div>
+</div>

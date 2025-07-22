@@ -1,6 +1,6 @@
 import { Booking } from './booking';
 import { Comment } from './comment';
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 import { Review } from './review';
 import { RoomClass } from './room-class';
 
@@ -25,7 +25,7 @@ export interface User {
   reviews?: Review[];
   bookings?: Booking[];
   favorites?: UserFavorite[];
-  wallet?: UserWallet[];
+  wallet?: UserWallet;
 }
 
 export interface UserFavorite {
@@ -33,7 +33,7 @@ export interface UserFavorite {
   user_id: string;
   room_class_id: RoomClass;
   createdAt: Date;
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 export interface UserWallet {

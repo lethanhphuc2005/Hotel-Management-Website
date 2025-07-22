@@ -17,6 +17,7 @@
   />
 
   <app-booking-status-popup
+    *ngIf="selectedBooking"
     [visible]="isEditPopupOpen"
     [booking]="selectedBooking"
     (onClose)="onClosePopup()"

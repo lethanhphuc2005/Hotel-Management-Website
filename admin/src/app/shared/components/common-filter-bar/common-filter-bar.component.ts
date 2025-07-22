@@ -1,3 +1,4 @@
+import { FilterParams } from '@/types/_common';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +12,12 @@ import { FormsModule } from '@angular/forms';
 export class CommonFilterBarComponent {
   @Output() filterChange = new EventEmitter();
   @Output() openAdd = new EventEmitter();
-  @Input() filter: any;
+  @Input() filter: FilterParams = {
+    search: '',
+    page: 1,
+    limit: 10,
+    sort: '',
+    order: 'asc',
+  };
   @Input() label: string = '';
 }

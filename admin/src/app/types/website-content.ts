@@ -1,4 +1,4 @@
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 import { ContentType } from './content-type';
 
 export interface WebsiteContent {
@@ -10,7 +10,7 @@ export interface WebsiteContent {
   status: boolean;
   createdAt: Date;
   updatedAt: Date;
-  content_type: ContentType[];
+  content_type: ContentType;
 }
 
 export interface WebsiteContentResponse {

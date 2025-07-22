@@ -1,108 +1,190 @@
 import { Component, OnInit } from '@angular/core';
-import { PaymentMethod } from '../../types/method';
-import { PaymentMethodService } from '../../core/services/payment-method.service';
+import {
+  PaymentMethod,
+  PaymentMethodFilter,
+  PaymentMethodRequest,
+} from '@/types/payment-method';
+import { PaymentMethodService } from '@/core/services/payment-method.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { PaymentMethodListComponent } from './payment-method-list/payment-method-list.component';
+import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { PaymentMethodFormComponent } from './payment-method-form/payment-method-form.component';
+import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-payment-method',
-  standalone:true,
+  standalone: true,
   templateUrl: './payment-method.component.html',
   styleUrls: ['./payment-method.component.scss'],
-  imports:[CommonModule, FormsModule, RouterModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    PaymentMethodListComponent,
+    CommonFilterBarComponent,
+    PaymentMethodFormComponent,
+    PaginationComponent
+  ],
 })
 export class PaymentMethodComponent implements OnInit {
   paymentMethods: PaymentMethod[] = [];
-  searchKeyword = '';
-
-  // Thêm
-  isAddPopupOpen = false;
-  newPaymentMethod: Partial<PaymentMethod> = {
-    name: '',
-    status: true,
-  };
-
-  // Chi tiết
   selectedPaymentMethod: PaymentMethod | null = null;
-  isDetailPopupOpen = false;
-
-  // Sửa
+  isAddPopupOpen = false;
   isEditPopupOpen = false;
-  editPaymentMethod: Partial<PaymentMethod> = {
-    id: '',
+  newPaymentMethod: PaymentMethodRequest = {
     name: '',
     status: true,
   };
-
-  constructor(private paymentService: PaymentMethodService) {}
+  filter: PaymentMethodFilter = {
+    search: '',
+    page: 1,
+    limit: 10,
+    sort: 'createdAt',
+    order: 'desc',
+    total: 0,
+    status: '',
+  };
+  constructor(
+    private paymentMethodService: PaymentMethodService,
+    private toastService: ToastrService
+  ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.fetchPaymentMethods();
   }
 
-  loadData(): void {
-    this.paymentService.getAll(this.searchKeyword).subscribe({
-      next: (res) => {
-        this.paymentMethods = res.data;
+  fetchPaymentMethods(): void {
+    this.paymentMethodService.getAllPaymentMethods(this.filter).subscribe({
+      next: (response) => {
+        this.paymentMethods = response.data;
+        this.filter.total = response.pagination?.total;
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
+        this.toastService.error(err.error?.message, 'Lỗi');
         this.paymentMethods = [];
       },
     });
   }
 
-  onSearch(): void {
-    this.loadData();
+  onPageChange(page: number): void {
+    this.filter.page = page;
+    this.fetchPaymentMethods();
   }
 
-  onAdd(): void {
-    this.isAddPopupOpen = true;
-    this.newPaymentMethod = {
-      name: '',
-      status: true,
-    };
+  onFilterChange(sortField?: string): void {
+    if (sortField) {
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc';
+    }
+    this.filter.page = 1; // Reset to first page on filter change
+    this.fetchPaymentMethods();
   }
 
-  closeAddPopup(): void {
+  onOpenPopup(isAdd: boolean, item?: PaymentMethod): void {
+    this.isAddPopupOpen = isAdd;
+    this.isEditPopupOpen = !isAdd;
+    if (isAdd) {
+      this.selectedPaymentMethod = null;
+      this.newPaymentMethod = { name: '', status: true };
+    } else if (item) {
+      this.selectedPaymentMethod = item;
+      this.newPaymentMethod = {
+        name: item.name,
+        status: item.status,
+      };
+    }
+  }
+
+  onClosePopup(): void {
     this.isAddPopupOpen = false;
+    this.isEditPopupOpen = false;
+    this.selectedPaymentMethod = null;
   }
 
-  onAddSubmit(): void {
-    this.paymentService.add(this.newPaymentMethod).subscribe({
+  onToggleChange(event: Event, item: PaymentMethod): void {
+    const checkbox = event.target as HTMLInputElement;
+    const originalStatus = item.status;
+    const newStatus = checkbox.checked;
+
+    // Optimistically update status
+    item.status = newStatus;
+
+    this.paymentMethodService.togglePaymentMethodStatus(item.id).subscribe({
       next: () => {
-        this.loadData();
-        this.isAddPopupOpen = false;
+        this.toastService.success(
+          `Phương thức thanh toán ${
+            newStatus ? 'được kích hoạt' : 'bị vô hiệu hóa'
+          }`,
+          'Thành công'
+        );
+      },
+      error: (err) => {
+        // Thất bại → rollback
+        item.status = originalStatus;
+        this.toastService.error(
+          err.error?.message || err.message || err.statusText,
+          'Lỗi'
+        );
       },
     });
   }
 
-  onViewDetail(method: PaymentMethod): void {
-    this.selectedPaymentMethod = method;
-    this.isDetailPopupOpen = true;
-  }
+  onAddSubmit(): void {
+    const formData = new FormData();
+    formData.append('name', this.newPaymentMethod.name || '');
+    formData.append(
+      'status',
+      this.newPaymentMethod.status?.toString() || 'true'
+    );
 
-  onEdit(method: PaymentMethod): void {
-    this.editPaymentMethod = { ...method };
-    this.isEditPopupOpen = true;
+    this.paymentMethodService.createPaymentMethod(formData).subscribe({
+      next: () => {
+        this.fetchPaymentMethods();
+        this.isAddPopupOpen = false;
+        this.newPaymentMethod = { name: '', status: true }; // Reset form
+        this.toastService.success(
+          'Thêm phương thức thanh toán thành công',
+          'Thành công'
+        );
+      },
+      error: (err) => {
+        this.toastService.error(
+          err.error?.message || err.message || err.statusText,
+          'Lỗi'
+        );
+      },
+    });
   }
 
   onEditSubmit(): void {
-    if (this.editPaymentMethod.id) {
-      this.paymentService
-        .update(this.editPaymentMethod.id, this.editPaymentMethod)
-        .subscribe({
-          next: () => {
-            this.loadData();
-            this.isEditPopupOpen = false;
-          },
-        });
-    }
-  }
+    if (!this.selectedPaymentMethod) return;
 
-  toggleStatus(method: PaymentMethod): void {
-    this.paymentService
-      .update(method.id, { status: !method.status })
-      .subscribe(() => this.loadData());
+    const formData = new FormData();
+    formData.append('name', this.newPaymentMethod.name || '');
+
+    this.paymentMethodService
+      .updatePaymentMethod(this.selectedPaymentMethod.id, formData)
+      .subscribe({
+        next: () => {
+          this.fetchPaymentMethods();
+          this.isEditPopupOpen = false;
+          this.selectedPaymentMethod = null;
+          this.newPaymentMethod = { name: '', status: true }; // Reset form
+          this.toastService.success(
+            'Cập nhật phương thức thanh toán thành công',
+            'Thành công'
+          );
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 }

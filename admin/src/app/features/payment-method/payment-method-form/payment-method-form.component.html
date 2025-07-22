@@ -1,0 +1,44 @@
+<div class="popup-add-popup" *ngIf="isVisible">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} phương thức thanh toán</h2>
+
+    <form (ngSubmit)="submitForm.emit()" #editForm="ngForm">
+      <div class="popup-section">
+        <div class="form-floating form-floating-custom mb-3">
+          <input
+            type="email"
+            class="form-control"
+            id="name"
+            name="name"
+            [(ngModel)]="paymentMethod.name"
+            required
+          />
+          <label for="name">Tên phương thức thanh toán</label>
+        </div>
+      </div>
+      <div *ngIf="!isEdit">
+        <label>Trạng thái:</label>
+        <select
+          class="form-control mb-3"
+          name="status"
+          [(ngModel)]="paymentMethod.status"
+        >
+          <option [value]="true">Đang hoạt động</option>
+          <option [value]="false">Tạm dừng</option>
+        </select>
+      </div>
+      <div class="popup-actions">
+        <button
+          class="btn btn-success"
+          type="submit"
+          [disabled]="!editForm.form.valid"
+        >
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

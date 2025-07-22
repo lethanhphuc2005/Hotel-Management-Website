@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
-import { LoginRequest } from '../../types/auth';
+import {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from '../../types/auth';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -16,17 +21,22 @@ export class AuthService {
    * Gọi API đăng nhập
    * @param body Dữ liệu đăng nhập (name và password)
    */
-  login(body: LoginRequest): Observable<any> {
-    return this.httpClient.post(`${this.baseUrl}/auth/login`, body);
-
+  login(body: LoginRequest): Observable<LoginResponse> {
+    return this.httpClient.post<LoginResponse>(
+      `${this.baseUrl}/auth/login`,
+      body
+    );
   }
 
   /**
    * Gọi API đăng ký
    * @param body Dữ liệu đăng ký
    */
-  register(body: any) {
-    return this.httpClient.post(`${this.baseUrl}/auth/register`, body);
+  register(body: FormData | RegisterRequest): Observable<RegisterResponse> {
+    return this.httpClient.post<RegisterResponse>(
+      `${this.baseUrl}/auth/register`,
+      body
+    );
   }
 
   /**
@@ -66,23 +76,22 @@ export class AuthService {
     });
   }
 
-
-   // Đăng xuất người dùng
-    logout() {
-      this.httpClient.post(`${this.baseUrl}/account/logout`, {}, { withCredentials: true })
-        .subscribe({
-          next: (res) => {
-            console.log('Đăng xuất backend:', res);
-            localStorage.removeItem('login');
-            location.assign('/login');
-          },
-          error: (err) => {
-            console.error('Lỗi khi đăng xuất:', err);
-            // Vẫn xóa localStorage và redirect
-            localStorage.removeItem('login');
-            location.assign('/login');
-          }
-        });
-    }
-
+  // Đăng xuất người dùng
+  logout() {
+    this.httpClient
+      .post(`${this.baseUrl}/account/logout`, {}, { withCredentials: true })
+      .subscribe({
+        next: (res) => {
+          console.log('Đăng xuất backend:', res);
+          localStorage.removeItem('login');
+          location.assign('/login');
+        },
+        error: (err) => {
+          console.error('Lỗi khi đăng xuất:', err);
+          // Vẫn xóa localStorage và redirect
+          localStorage.removeItem('login');
+          location.assign('/login');
+        },
+      });
+  }
 }

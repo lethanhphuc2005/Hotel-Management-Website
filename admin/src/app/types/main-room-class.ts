@@ -1,4 +1,4 @@
-import { FilterParams } from './common';
+import { FilterParams } from './_common';
 import { Image } from './image';
 import { RoomClass } from './room-class';
 

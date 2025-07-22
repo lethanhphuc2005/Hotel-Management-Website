@@ -112,21 +112,21 @@
           <p>Giờ: {{ booking.actual_check_out_date | date : "HH:mm" }}</p>
         </div>
 
-        <div *ngIf="booking.payment && booking.payment.length > 0">
+        <div *ngIf="booking.payments && booking.payments.length > 0">
           <h4 class="tw-font-bold tw-text-base tw-text-blue-600">
             💳 Thanh toán
           </h4>
-          <p>Phương thức: {{ booking.payment[0].payment_method.name }}</p>
+          <p>Phương thức: {{ booking.payments[0].payment_method.name }}</p>
           <p>
-            Mã giao dịch: {{ booking.payment[0].transaction_id || "Chưa có" }}
+            Mã giao dịch: {{ booking.payments[0].transaction_id || "Chưa có" }}
           </p>
           <p>
-            Ngày: {{ booking.payment[0].payment_date | date : "dd/MM/yyyy" }}
+            Ngày: {{ booking.payments[0].payment_date | date : "dd/MM/yyyy" }}
           </p>
           <p>
             Trạng thái:
             {{
-              getPaymentStatusName(booking.payment[0].status) || "Chưa xác định"
+              getPaymentStatusName(booking.payments[0].status) || "Chưa xác định"
             }}
           </p>
         </div>
@@ -146,10 +146,10 @@
           </div>
         </div>
 
-        <div *ngIf="booking.discount.length > 0">
+        <div *ngIf="booking.discounts.length > 0">
           <h4 class="tw-font-bold">🎁 Giảm giá:</h4>
           <ul class="tw-list-disc tw-pl-5 tw-text-sm">
-            <li *ngFor="let discount of booking.discount">
+            <li *ngFor="let discount of booking.discounts">
               {{ discount.name }} - Giảm: {{ getDiscountText(discount) }}
             </li>
           </ul>
@@ -168,22 +168,22 @@
           <img
             *ngIf="detail.room_class_id"
             class="tw-w-16 tw-h-16 tw-rounded tw-object-cover"
-            [src]="getImageUrl(detail.room_class_id.images?.[0]?.url)"
-            [alt]="detail.room_class_id.name"
+            [src]="getImageUrl(detail.room_class.images?.[0]?.url)"
+            [alt]="detail.room_class.name"
           />
           <div class="tw-flex-1">
             <p class="tw-font-medium">
-              {{ detail.room?.[0]?.name || "(chưa gán)" }}
+              {{ detail.room?.name || "(chưa gán)" }}
               <span class="tw-font-normal tw-text-gray-500">
-                - {{ detail.room_class_id.name }}
+                - {{ detail.room_class.name }}
               </span>
             </p>
             <p>
               Giá: {{ detail.price_per_night | currency : "VND" }} ×
               {{ detail.nights }} đêm
             </p>
-            <p *ngIf="detail.room?.[0]?.status?.[0]?.name">
-              Trạng thái: {{ detail.room?.[0]?.status?.[0]?.name }}
+            <p *ngIf="detail.room?.room_status?.name">
+              Trạng thái: {{ detail.room?.room_status?.name }}
             </p>
 
             <!-- Dịch vụ -->
@@ -191,8 +191,8 @@
               <strong>Dịch vụ:</strong>
               <ul class="tw-list-disc tw-pl-5">
                 <li *ngFor="let service of detail.services">
-                  {{ service.service_id.name }} ({{
-                    service.service_id.price | currency : "VND"
+                  {{ service.service.name }} ({{
+                    service.service.price | currency : "VND"
                   }})
                 </li>
               </ul>

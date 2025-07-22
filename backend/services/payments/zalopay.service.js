@@ -130,12 +130,12 @@ const ZaloPayService = {
           amount: amount,
           payment_method_id: paymentMethod._id,
           status: "pending",
-          transaction_id: result.zp_trans_token,
+          transaction_id: order.app_trans_id,
           payment_date: new Date(),
           metadata: {
             resultCode: result.return_code,
             message: result.return_message,
-            appTransId: order.app_trans_id,
+            zpTransId: result.zp_trans_id,
             zpTransToken: result.zp_trans_token, // nếu có
           },
         });
@@ -274,7 +274,7 @@ const ZaloPayService = {
 
   // === LẤY TRẠNG THÁI GIAO DỊCH ===
   handleGetTransactionStatus: async (req, res) => {
-    const { orderId } = req.body;
+    const { orderId } = req.query;
     if (!orderId) {
       throw new Error("Missing orderId in request");
     }
@@ -303,8 +303,16 @@ const ZaloPayService = {
           `ZaloPay transaction status query failed: ${result.data.return_message} (${result.data.sub_return_message})`
         );
       }
+      const data = result.data;
+      const { return_message, zp_trans_id, amount } = data;
 
-      return result.data;
+      return {
+        orderId: orderId,
+        message: return_message,
+        amount: amount,
+        transactionId: zp_trans_id,
+        status: data.return_code === 1 ? "success" : "failed",
+      };
     } catch (error) {
       console.error("Error retrieving ZaloPay transaction status:", error);
       throw error;

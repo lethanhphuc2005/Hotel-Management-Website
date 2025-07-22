@@ -29,7 +29,7 @@
         *ngFor="let feature of rc.features.slice(0, 2)"
         style="font-size: 13px"
       >
-        {{ feature.feature_id.name }}
+        {{ feature.feature.name }}
       </div>
       <div *ngIf="rc.features.length > 2" style="font-size: 13px; color: #888">
         +{{ rc.features.length - 2 }} tiện nghi nữa

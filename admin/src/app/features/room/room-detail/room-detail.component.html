@@ -17,42 +17,42 @@
 
     <div class="popup-section">
       <label>Trạng thái:</label>
-      <span>{{ room.status?.[0]?.name }}</span>
+      <span>{{ room.room_status?.name }}</span>
     </div>
 
     <div class="popup-section">
       <label>Mô tả:</label>
-      <span>{{ room.room_class?.[0]?.description }}</span>
+      <span>{{ room.room_class?.description }}</span>
     </div>
 
     <div class="popup-section">
       <label>Số giường:</label>
-      <span>{{ room.room_class?.[0]?.bed_amount }}</span>
+      <span>{{ room.room_class?.bed_amount }}</span>
     </div>
 
     <div class="popup-section">
       <label>Tên loại phòng:</label>
-      <span>{{ room.room_class?.[0]?.name }}</span>
+      <span>{{ room.room_class?.name }}</span>
     </div>
 
     <div class="popup-section">
       <label>Giá:</label>
       <span>{{
-          room.room_class?.[0]?.price | currency : "VND" : "symbol"
+          room.room_class?.price | currency : "VND" : "symbol"
       }}</span>
     </div>
 
     <div class="popup-section">
       <label>Giá giảm:</label>
       <span>{{
-          room.room_class?.[0]?.price_discount
+          room.room_class?.price_discount
             | currency : "VND" : "symbol"
       }}</span>
     </div>
 
     <div class="popup-section">
       <label>Sức chứa:</label>
-      <span>{{ room.room_class?.[0]?.capacity }} người</span>
+      <span>{{ room.room_class?.capacity }} người</span>
     </div>
 
     <button class="close-btn" (click)="close.emit()">Đóng</button>

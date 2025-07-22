@@ -31,6 +31,13 @@ router.put(
   paymentMethodController.updatePaymentMethod
 );
 
+// === KÍCH HOẠT/ VÔ HIỆU HÓA PHƯƠNG THỨC THANH TOÁN ===
+router.patch(
+  "/toggle/:id",
+  authMiddleware.authorizeRoles("admin"),
+  paymentMethodController.togglePaymentMethodStatus
+);
+
 // === XÓA PHƯƠNG THỨC THANH TOÁN ===
 router.delete(
   "/:id",

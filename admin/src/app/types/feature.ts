@@ -1,4 +1,4 @@
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 import { RoomClass } from './room-class';
 
 export interface Feature {
@@ -15,8 +15,10 @@ export interface Feature {
 
 export interface FeatureRoomClass {
   id: string;
-  room_class_id: RoomClass;
-  feature_id: Feature;
+  room_class_id: string;
+  feature_id: string;
+  room_class: RoomClass;
+  feature: Feature;
 }
 
 export interface FeatureResponse {

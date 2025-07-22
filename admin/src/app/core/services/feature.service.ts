@@ -67,7 +67,7 @@ export class FeatureService {
   }
 
   // Xóa tiện nghi
-  deleteFeature(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  deleteFeature(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

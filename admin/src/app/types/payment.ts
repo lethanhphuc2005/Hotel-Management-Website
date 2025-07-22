@@ -1,5 +1,6 @@
+import { FilterParams, PaginationResponse } from './_common';
 import { Booking } from './booking';
-import { PaymentMethod } from "./method";
+import { PaymentMethod } from "./payment-method";
 
 export interface Payment {
   id?: string;
@@ -14,4 +15,29 @@ export interface Payment {
   updatedAt: Date;
   booking: Booking;
   payment_method: PaymentMethod
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  message: string;
+  data: Payment[];
+  pagination?: PaginationResponse;
+}
+
+export interface PaymentDetailResponse {
+  success: boolean;
+  message: string;
+  data: Payment;
+}
+
+export interface PaymentFilter extends FilterParams {
+  status?: string;
+  method?: string;
+  payment_date?: string;
+}
+
+export interface PaymentTransactionStatusRequest {
+  method: string;
+  orderId: string;
+  transactionDate?: string;
 }

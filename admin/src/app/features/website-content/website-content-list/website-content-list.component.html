@@ -1,7 +1,7 @@
 <div *ngFor="let content of websiteContents; let i = index" class="table-row">
   <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
   <div>{{ content.title }}</div>
-  <div>{{ content.content_type[0].name }}</div>
+  <div>{{ content.content_type.name }}</div>
   <div>{{ content.updatedAt | formatDate }}</div>
   <div>
     <img

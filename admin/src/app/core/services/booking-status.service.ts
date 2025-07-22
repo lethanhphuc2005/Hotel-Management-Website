@@ -55,8 +55,8 @@ export class BookingStatusService {
   updateBookingStatus(
     id: string,
     data: FormData | BookingStatusRequest
-  ): Observable<any> {
-    return this.http.put<any>(
+  ): Observable<BookingStatusDetailResponse> {
+    return this.http.put<BookingStatusDetailResponse>(
       `${this.baseUrl}/${id}`,
       data
     );

@@ -33,7 +33,7 @@
     >
       <div *ngFor="let detail of booking.booking_details">
         <p class="tw-font-medium tw-text-sm tw-mb-1">
-          {{ detail.room_class_id.name }} – {{ detail.nights }} đêm
+          {{ detail.room_class.name }} – {{ detail.nights }} đêm
         </p>
         <select
           [(ngModel)]="selectedRooms[detail.id]"

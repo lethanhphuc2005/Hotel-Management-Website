@@ -1,4 +1,4 @@
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 import { WebsiteContent } from './website-content';
 
 export interface ContentType {

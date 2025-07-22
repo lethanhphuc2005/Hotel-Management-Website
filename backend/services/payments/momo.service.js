@@ -171,7 +171,7 @@ const MomoService = {
   },
 
   handleGetTransactionStatus: async (req) => {
-    const { orderId } = req.body;
+    const { orderId } = req.query;
     const requestId = uuidv4();
 
     const rawSignature = `accessKey=${MomoConfig.accessKey}&orderId=${orderId}&partnerCode=${MomoConfig.partnerCode}&requestId=${requestId}`;
@@ -199,7 +199,14 @@ const MomoService = {
     };
 
     const response = await axios(options);
-    return response.data;
+    const result = response.data;
+    const {} = result
+    return {
+      orderId,
+      message: result.message,
+      amount: result.amount,
+      transactionId: result.transId,
+      status: result.resultCode === 0 ? "success" : "failed",};
   },
 };
 

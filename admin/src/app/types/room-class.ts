@@ -1,5 +1,5 @@
 import { Comment } from './comment';
-import { FilterParams, PaginationResponse } from './common';
+import { FilterParams, PaginationResponse } from './_common';
 import { FeatureRoomClass } from './feature';
 import { Image } from './image';
 import { MainRoomClass } from './main-room-class';
@@ -19,7 +19,7 @@ export interface RoomClass {
   status: boolean;
   createdAt: Date;
   updatedAt: Date;
-  main_room_class: MainRoomClass[];
+  main_room_class: MainRoomClass;
   rooms?: Room[];
   features?: FeatureRoomClass[];
   images?: Image[];

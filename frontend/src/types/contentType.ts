@@ -1,4 +1,5 @@
 import { PaginationResponse } from "./_common";
+import { WebsiteContent } from "./websiteContent";
 
 export interface ContentType {
   id: string;
@@ -7,6 +8,7 @@ export interface ContentType {
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  website_content_list?: WebsiteContent[];
 }
 
 export interface ContentTypeResponse {
