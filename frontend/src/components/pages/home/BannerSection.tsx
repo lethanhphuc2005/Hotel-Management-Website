@@ -8,60 +8,11 @@ import "swiper/css";
 import "swiper/css/autoplay";
 import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import Link from "next/link";
+import getImageUrl from "@/utils/getImageUrl";
+import { SearchBar } from "@/types/_common";
 
-interface BannerProps {
+interface BannerProps extends SearchBar {
   banners: WebsiteContent[];
-  dateRange: any;
-  setDateRange: (range: any) => void;
-  guests: {
-    adults: number;
-    children: {
-      age0to6: number;
-      age7to17: number;
-    };
-  };
-  setGuests: React.Dispatch<
-    React.SetStateAction<{
-      adults: number;
-      children: {
-        age0to6: number;
-        age7to17: number;
-      };
-    }>
-  >;
-  showCalendar: boolean;
-  setShowCalendar: (show: boolean) => void;
-  showGuestBox: boolean;
-  setShowGuestBox: (show: boolean) => void;
-  guestBoxRef: React.RefObject<HTMLDivElement | null>;
-  calendarRef: React.RefObject<HTMLDivElement | null>;
-  maxGuests: number;
-  setMaxGuests: React.Dispatch<React.SetStateAction<number>>;
-  totalGuests: number;
-  numberOfNights: number;
-  setNumberOfNights: React.Dispatch<React.SetStateAction<number>>;
-  totalPrice: number;
-  setTotalPrice: React.Dispatch<React.SetStateAction<number>>;
-  hasSearched: boolean;
-  setHasSearched: React.Dispatch<React.SetStateAction<boolean>>;
-  numberOfAdults?: number;
-  numberOfChildren?: number;
-  pendingGuests: any;
-  setPendingGuests: React.Dispatch<React.SetStateAction<any>>;
-  pendingDateRange: any;
-  setPendingDateRange: React.Dispatch<React.SetStateAction<any>>;
-  startDate: Date;
-  setStartDate: React.Dispatch<React.SetStateAction<Date>>;
-  endDate: Date;
-  setEndDate: React.Dispatch<React.SetStateAction<Date>>;
-  numAdults?: number;
-  numChildrenUnder6?: number;
-  numChildrenOver6?: number;
-  totalEffectiveGuests?: number;
-  showExtraBedOver6?: boolean;
-  handleSearch?: () => void;
-  price: number;
-  setPrice: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function Banner(props: BannerProps) {
@@ -99,13 +50,8 @@ export default function Banner(props: BannerProps) {
   } = props;
   if (!banners || banners.length === 0) return <p>No banner</p>;
 
-  const banner = banners[1];
-  const mongoImage = banner.image;
-  const titles = ["Experience Luxury", "Relax and Enjoy", banner.title];
-
-  const defaultImages = ["banner2.jpg", "banner4.jpg"];
-  // Tạo danh sách ảnh: ảnh từ Mongo + ảnh mặc định
-  const images = [...defaultImages, mongoImage];
+  const images = banners.map((banner) => banner.image);
+  const titles = banners.map((banner) => banner.title);
 
   return (
     <section className={style.banner}>
@@ -161,7 +107,7 @@ export default function Banner(props: BannerProps) {
           <SwiperSlide key={index}>
             <section className={style.banner}>
               <img
-                src={`/img/${img}`}
+                src={getImageUrl(img)}
                 alt={`Banner ${index + 1}`}
                 className={style.bannerImage}
               />

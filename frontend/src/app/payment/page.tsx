@@ -22,6 +22,8 @@ import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { fetchPreviewDiscountBookingPrice } from "@/services/DiscountService";
 import getCancelPolicyTimeline from "@/utils/getCancelPolicy";
 import { useSearchParams } from "next/navigation";
+import { CreateBookingRequest } from "@/types/booking";
+import { AppliedDiscount, Discount } from "@/types/discount";
 
 export default function PayMent() {
   const { user } = useAuth();
@@ -37,7 +39,7 @@ export default function PayMent() {
 
   const [selectedMethod, setSelectedMethod] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
-  const [discounts, setDiscounts] = useState<any[]>([]);
+  const [discounts, setDiscounts] = useState<AppliedDiscount[]>([]);
   const [finalTotal, setFinalTotal] = useState<number>(total);
   const [promoCode, setPromoCode] = useState("");
 
@@ -197,7 +199,7 @@ export default function PayMent() {
     }
     try {
       setLoading(true);
-      const payload = {
+      const payload: CreateBookingRequest = {
         user_id: user?.id || null,
         full_name: name,
         email: email,
@@ -228,10 +230,11 @@ export default function PayMent() {
           room_class_id: room.id,
           price_per_night: room.price,
           nights: room.nights,
-          services: room.services?.map((s) => ({
-            amount: s.quantity,
-            service_id: s.id,
-          })),
+          services:
+            room.services?.map((s) => ({
+              amount: s.quantity,
+              service_id: s.id,
+            })) ?? [],
         })),
         original_price: total, // Giá gốc trước khi áp dụng khuyến mãi
         total_price: finalTotal,
@@ -250,16 +253,16 @@ export default function PayMent() {
         throw new Error("Không thể xác định mã đơn đặt phòng.");
       }
 
-      const paymentResponse = await createPayment(
-        selectedMethod,
-        data?.id as string, // orderId
-        `Đặt phòng từ ${formatDate(rooms[0].checkIn)} đến ${formatDate(
-          rooms[0].checkOut
-        )}
+      const paymentResponse = await createPayment({
+        method: selectedMethod,
+        orderId: data?.id as string, // orderId
+        orderInfo: `Đặt phòng từ ${formatDate(
+          rooms[0].checkIn
+        )} đến ${formatDate(rooms[0].checkOut)}
         - Tổng tiền: ${formatCurrencyVN(total)}
         - Phương thức: ${selectedMethod}`,
-        total
-      );
+        amount: total,
+      });
       if (!paymentResponse.success) {
         toast.error(
           paymentResponse.message || "Lỗi khi tạo yêu cầu thanh toán."

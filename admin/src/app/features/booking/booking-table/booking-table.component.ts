@@ -1,5 +1,6 @@
 import { BookingPaymentLabelPipe } from '@/shared/pipes/booking-payment-label.pipe';
 import { BookingStatusLabelPipe } from '@/shared/pipes/booking-status-label.pipe';
+import { Booking } from '@/types/booking';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
@@ -11,7 +12,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   imports: [CommonModule, BookingStatusLabelPipe, BookingPaymentLabelPipe],
 })
 export class BookingTableComponent {
-  @Input() bookings: any[] = [];
+  @Input() bookings: Booking[] = [];
   @Output() onEdit = new EventEmitter<any>();
   @Output() onViewDetail = new EventEmitter<any>();
 }

@@ -50,7 +50,11 @@ export default function ResetPasswordFlow() {
     }
     setLoading(true);
     try {
-      const res = await resetPassword(email, otp, newPassword);
+      const res = await resetPassword({
+        email,
+        verificationCode: otp,
+        newPassword,
+      });
       // console.log("Reset password response:", res);
       if (!res.success) {
         toast.error(res.message);

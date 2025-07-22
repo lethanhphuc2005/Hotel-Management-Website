@@ -16,9 +16,9 @@
     <p class="tw-mb-4 tw-text-gray-700">
       Trạng thái hiện tại:
       <strong class="tw-text-black">
-        {{ booking.booking_status[0].name }}
+        {{ booking.booking_status.name }}
         <span
-          *ngIf="booking.booking_status[0].code === 'PENDING'"
+          *ngIf="booking.booking_status.code === 'PENDING'"
           class="tw-text-sm tw-text-gray-500"
         >
           (Chờ xác nhận)
@@ -28,7 +28,7 @@
 
     <!-- PENDING: Chọn phòng -->
     <div
-      *ngIf="booking.booking_status[0].code === 'PENDING'"
+      *ngIf="booking.booking_status.code === 'PENDING'"
       class="tw-space-y-4 tw-mb-6"
     >
       <div *ngFor="let detail of booking.booking_details">
@@ -52,7 +52,7 @@
 
     <!-- CONFIRMED: Form check-in -->
     <div
-      *ngIf="booking.booking_status[0].code === 'CONFIRMED'"
+      *ngIf="booking.booking_status.code === 'CONFIRMED'"
       class="tw-mb-6 tw-space-y-2"
     >
       <label class="tw-block tw-font-medium tw-text-sm">Loại giấy tờ</label>
@@ -83,7 +83,7 @@
     </div>
 
     <!-- CHECKED_IN: Form check-out -->
-    <div *ngIf="booking.booking_status[0].code === 'CHECKED_IN'" class="tw-mb-6">
+    <div *ngIf="booking.booking_status.code === 'CHECKED_IN'" class="tw-mb-6">
       <label class="tw-block tw-font-medium tw-text-sm">Ghi chú trả phòng</label>
       <textarea
         [(ngModel)]="checkoutNote"
@@ -97,7 +97,7 @@
     <div class="tw-space-y-3">
       <!-- Xác nhận đặt phòng -->
       <button
-        *ngIf="booking.booking_status[0].code === 'PENDING'"
+        *ngIf="booking.booking_status.code === 'PENDING'"
         class="tw-w-full tw-bg-blue-600 tw-text-white tw-font-semibold tw-py-2 tw-rounded-md hover:tw-bg-blue-700 disabled:tw-opacity-50"
         [disabled]="!canConfirm()"
         (click)="confirmBooking()"
@@ -107,7 +107,7 @@
 
       <!-- Check-in -->
       <button
-        *ngIf="booking.booking_status[0].code === 'CONFIRMED'"
+        *ngIf="booking.booking_status.code === 'CONFIRMED'"
         class="tw-w-full tw-bg-green-600 tw-text-white tw-font-semibold tw-py-2 tw-rounded-md hover:tw-bg-green-700"
         [disabled]="!identityType || !identityNumber.trim() || !representativeName.trim()"
         (click)="onCheckIn.emit({ type: identityType, number: identityNumber, representative_name: representativeName })"
@@ -117,7 +117,7 @@
 
       <!-- Check-out -->
       <button
-        *ngIf="booking.booking_status[0].code === 'CHECKED_IN'"
+        *ngIf="booking.booking_status.code === 'CHECKED_IN'"
         class="tw-w-full tw-bg-yellow-500 tw-text-white tw-font-semibold tw-py-2 tw-rounded-md hover:tw-bg-yellow-600"
         (click)="onCheckOut.emit(checkoutNote)"
       >
@@ -126,7 +126,7 @@
 
       <!-- Hủy đơn -->
       <div
-        *ngIf="['PENDING', 'CONFIRMED'].includes(booking.booking_status[0].code)"
+        *ngIf="['PENDING', 'CONFIRMED'].includes(booking.booking_status.code)"
         class="tw-space-y-2"
       >
         <button

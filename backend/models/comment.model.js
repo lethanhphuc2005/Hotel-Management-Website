@@ -37,28 +37,34 @@ const CommentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-CommentSchema.virtual("parent_comment", {
-  ref: "comment",
-  localField: "_id",
-  foreignField: "parent_id",
-})
-
 CommentSchema.virtual("employee", {
   ref: "employee",
   localField: "employee_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "first_name last_name email phone_number",
+  },
 });
 
 CommentSchema.virtual("user", {
   ref: "user",
   localField: "user_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "first_name last_name email phone_number",
+  },
 });
 
 CommentSchema.virtual("room_class", {
   ref: "room_class",
   localField: "room_class_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description status",
+  },
 });
 
 CommentSchema.set("toJSON", {

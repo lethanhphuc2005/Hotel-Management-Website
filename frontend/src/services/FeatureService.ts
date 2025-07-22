@@ -2,13 +2,9 @@ import {
   getFeatures as getFeaturesApi,
   getFeatureById as getFeatureByIdApi,
 } from "@/api/featureApi";
-import { Feature } from "@/types/feature";
+import { Feature, FeatureListResponse, FeatureResponse } from "@/types/feature";
 
-export const fetchFeatures = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: Feature[];
-}> => {
+export const fetchFeatures = async (): Promise<FeatureListResponse> => {
   try {
     const response = await getFeaturesApi();
     const data = response.data;
@@ -19,13 +15,15 @@ export const fetchFeatures = async (): Promise<{
       icon: feature.icon || "", // Ensure icon is included
       description: feature.description,
       status: feature.status,
-      created_at: feature.createdAt,
-      updated_at: feature.updatedAt,
+      createdAt: feature.createdAt,
+      updatedAt: feature.updatedAt,
     }));
+
     return {
       success: true,
       message: response.message || "Features fetched successfully",
       data: features,
+      pagination: response.pagination || undefined,
     };
   } catch (error: any) {
     const message =
@@ -36,6 +34,7 @@ export const fetchFeatures = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined,
     };
   }
 };
@@ -49,23 +48,16 @@ export const fetchFeatureById = async (
 }> => {
   try {
     const response = await getFeatureByIdApi(id);
-    const featureData = response.data;
-    if (!featureData) {
-      return {
-        success: false,
-        message: "Feature not found",
-        data: null,
-      };
-    }
+    const data = response.data;
     const feature: Feature = {
-      id: featureData.id,
-      name: featureData.name,
-      image: featureData.image,
-      icon: featureData.icon || "", // Ensure icon is included
-      description: featureData.description,
-      status: featureData.status,
-      created_at: featureData.createdAt,
-      updated_at: featureData.updatedAt,
+      id: data.id,
+      name: data.name,
+      image: data.image,
+      icon: data.icon || "", // Ensure icon is included
+      description: data.description,
+      status: data.status,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
     };
     return {
       success: true,

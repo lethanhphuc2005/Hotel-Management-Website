@@ -1,10 +1,12 @@
+import { PaymentUrl } from "./payment";
+
 export interface Wallet {
   id: string;
   user_id: string;
   balance: number;
   transactions: WalletTransaction[];
-  created_at: Date;
-  updated_at: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface WalletTransaction {
@@ -12,5 +14,30 @@ export interface WalletTransaction {
   type: "refund" | "deposit" | "bonus" | "use";
   amount: number;
   note: string;
-  created_at: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface WalletResponse {
+  success: boolean;
+  message: string;
+  data: Wallet;
+}
+
+export interface DepositToWalletRequest {
+  method: string;
+  userId: string;
+  amount: number;
+}
+
+export interface DepositToWalletResponse {
+  success: boolean;
+  message: string;
+  data: PaymentUrl;
+}
+
+export interface UseWalletByUserIdRequest {
+  userId: string;
+  amount: number;
+  note: string;
 }

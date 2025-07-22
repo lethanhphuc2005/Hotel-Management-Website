@@ -1,4 +1,5 @@
 import { api } from "@/lib/axiosInstance";
+import { UpdateUserProfileRequest } from "@/types/user";
 
 export const getProfile = async (userId: string) => {
   try {
@@ -13,7 +14,10 @@ export const getProfile = async (userId: string) => {
   }
 };
 
-export const updateProfile = async (userId: string, data: any) => {
+export const updateProfile = async (
+  userId: string,
+  data: UpdateUserProfileRequest
+) => {
   try {
     const response = await api.put("/user/update/" + userId, data);
     if (response.status !== 200) {

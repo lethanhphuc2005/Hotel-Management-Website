@@ -459,53 +459,33 @@ const bookingController = {
           .skip(skip)
           .limit(parseInt(limit))
           .populate([
-            { path: "booking_status", select: "name code" },
-            { path: "booking_method", select: "name" },
-            { path: "user", select: "-createdAt -updatedAt -status" },
+            { path: "booking_status" },
+            { path: "booking_method" },
+            { path: "user" },
+            { path: "employee" },
             {
-              path: "employee",
-              select: "first_name last_name position department",
-            },
-            {
-              path: "payment",
+              path: "payments",
               populate: { path: "payment_method", select: "name" },
             },
-            {
-              path: "discount",
-              select: "name type value value_type start_date end_date",
-            },
+            { path: "discounts" },
             {
               path: "booking_details",
               populate: [
                 {
                   path: "room",
-                  select: "name floor",
-                  populate: [
-                    {
-                      path: "room_class_id",
-                      select:
-                        "-main_room_class_id -createdAt -updatedAt -description -status",
-                    },
-                    { path: "room_status_id", select: "name" },
-                  ],
+                  populate: ("room_class room_status"),
                 },
                 {
-                  path: "room_class_id",
-                  populate: [
-                    {
-                      path: "images",
-                      model: "image",
-                      select: "url",
-                      match: { status: true }, // Chỉ lấy ảnh hợp lệ
-                    },
-                  ],
+                  path: "room_class",
+                  populate: {
+                    path: "images",
+                    match: { status: true }, // Chỉ lấy ảnh hợp lệ
+                  },
                 },
                 {
                   path: "services",
-                  select: "service_id amount used_at -booking_detail_id",
                   populate: {
-                    path: "service_id",
-                    select: "name price",
+                    path: "service",
                   },
                 },
               ],
@@ -575,53 +555,33 @@ const bookingController = {
           .skip(skip)
           .limit(parseInt(limit))
           .populate([
-            { path: "booking_status", select: "name" },
-            { path: "booking_method", select: "name" },
-            { path: "user", select: "-createdAt -updatedAt -status" },
+            { path: "booking_status" },
+            { path: "booking_method" },
+            { path: "user" },
+            { path: "employee" },
             {
-              path: "employee",
-              select: "first_name last_name position department",
-            },
-            {
-              path: "payment",
-              select: "-metadata -createdAt, -updatedAt",
+              path: "payments",
               populate: { path: "payment_method", select: "name" },
             },
-            { path: "discount", select: "name type value start_date end_date" },
+            { path: "discounts" },
             {
               path: "booking_details",
               populate: [
                 {
                   path: "room",
-                  select: "name floor",
-                  populate: [
-                    {
-                      path: "room_class_id",
-                      select:
-                        "-main_room_class_id -createdAt -updatedAt -description -status",
-                    },
-                    { path: "room_status_id", select: "name" },
-                  ],
+                  populate: ("room_class", "room_status"),
                 },
                 {
-                  path: "room_class_id",
-                  select:
-                    "-main_room_class_id -createdAt -updatedAt -description -status",
-                  populate: [
-                    {
-                      path: "images",
-                      model: "image",
-                      select: "url",
-                      match: { status: true }, // Chỉ lấy ảnh hợp lệ
-                    },
-                  ],
+                  path: "room_class",
+                  populate: {
+                    path: "images",
+                    match: { status: true }, // Chỉ lấy ảnh hợp lệ
+                  },
                 },
                 {
                   path: "services",
-                  select: "service_id amount used_at -booking_detail_id",
                   populate: {
-                    path: "service_id",
-                    select: "name price",
+                    path: "service",
                   },
                 },
               ],
@@ -652,53 +612,33 @@ const bookingController = {
   getBookingById: async (req, res) => {
     try {
       const booking = await Booking.findById(req.params.id).populate([
-        { path: "booking_status", select: "name" },
-        { path: "booking_method", select: "name" },
-        { path: "user", select: "-createdAt -updatedAt -status" },
+        { path: "booking_status" },
+        { path: "booking_method" },
+        { path: "user" },
+        { path: "employee" },
         {
-          path: "employee",
-          select: "first_name last_name position department",
-        },
-        {
-          path: "payment",
+          path: "payments",
           populate: { path: "payment_method", select: "name" },
         },
-        {
-          path: "discount",
-          select: "name type value start_date end_date value_type",
-        },
+        { path: "discounts" },
         {
           path: "booking_details",
           populate: [
             {
               path: "room",
-              select: "name floor",
-              populate: [
-                {
-                  path: "room_class_id",
-                  select:
-                    "-main_room_class_id -createdAt -updatedAt -description -status",
-                },
-                { path: "room_status_id", select: "name" },
-              ],
+              populate: ("room_class", "room_status"),
             },
             {
-              path: "room_class_id",
-              select:
-                "-main_room_class_id -createdAt -updatedAt -description -status",
+              path: "room_class",
               populate: {
                 path: "images",
-                model: "image",
-                select: "url -_id",
                 match: { status: true }, // Chỉ lấy ảnh hợp lệ
               },
             },
             {
               path: "services",
-              select: "service_id amount used_at -booking_detail_id",
               populate: {
-                path: "service_id",
-                select: "name price",
+                path: "service",
               },
             },
           ],
@@ -1008,6 +948,8 @@ const bookingController = {
       booking.actual_check_out_date = new Date();
       booking.check_out_note = note || "";
       booking.booking_status_id = checkedOutStatus._id;
+      booking.payment_status = "PAID"; // Đánh dấu đã thanh toán khi check-out
+      booking.check_in_identity = null; // Xoá thông tin giấy tờ check-in
 
       await booking.save();
 
@@ -1024,15 +966,10 @@ const bookingController = {
       const bookingId = req.params.id;
       const booking = await Booking.findById(bookingId).populate({
         path: "booking_details",
-        populate: [
-          {
-            path: "services",
-            populate: {
-              path: "service_id",
-              select: "name price",
-            },
-          },
-        ],
+        populate: {
+          path: "services",
+          populate: "service",
+        },
       });
 
       if (!booking) {
@@ -1046,8 +983,8 @@ const bookingController = {
         // Tính tiền dịch vụ nếu có
         if (detail.services && detail.services.length > 0) {
           for (const service of detail.services) {
-            if (service.service_id) {
-              totalPrice += service.amount * service.service_id.price;
+            if (service.service) {
+              totalPrice += service.amount * service.service.price;
             }
           }
         }

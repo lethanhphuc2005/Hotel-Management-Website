@@ -153,17 +153,21 @@ const reviewController = {
 
       const [reviews, total] = await Promise.all([
         Review.find(query)
-          .populate({
-            path: "booking_id",
-            select: "check_in_date check_out_date booking_status_id",
-            populate: {
-              path: "booking_status_id",
-              select: "name",
+          .populate([
+            {
+              path: "booking",
+              populate: "booking_status booking_method booking_details",
             },
-          })
-          .populate("room_class_id")
-          .populate("employee_id", "-password")
-          .populate("user_id", "-password")
+            {
+              path: "room_class",
+              populate: {
+                path: "images",
+                match: { status: true }, // Chỉ lấy hình ảnh đang hoạt động
+              },
+            },
+            { path: "user" },
+            { path: "employee" },
+          ])
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -222,18 +226,21 @@ const reviewController = {
 
       const [reviews, total] = await Promise.all([
         Review.find(query)
-          .select("-status")
-          .populate({
-            path: "booking_id",
-            select: "check_in_date check_out_date booking_status_id",
-            populate: {
-              path: "booking_status_id",
-              select: "name",
+          .populate([
+            {
+              path: "booking",
+              populate: "booking_status booking_method booking_details",
             },
-          })
-          .populate("room_class_id", "name")
-          .populate("employee_id", "first_name last_name updatedAt")
-          .populate("user_id", "first_name last_name createdAt updatedAt")
+            {
+              path: "room_class",
+              populate: {
+                path: "images",
+                match: { status: true }, // Chỉ lấy hình ảnh đang hoạt động
+              },
+            },
+            { path: "user" },
+            { path: "employee" },
+          ])
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -264,17 +271,22 @@ const reviewController = {
     try {
       const { id } = req.params;
 
-      const review = await Review.findById(id)
-        .populate({
-          path: "booking_id",
-          select: "check_in_date check_out_date booking_status_id",
+      const review = await Review.findById(id).populate([
+        {
+          path: "booking",
+          populate: "booking_status booking_method booking_details",
+        },
+        {
+          path: "room_class",
           populate: {
-            path: "booking_status_id",
-            select: "name",
+            path: "images",
+            match: { status: true }, // Chỉ lấy hình ảnh đang hoạt động
           },
-        })
-        .populate("employee_id", "-password")
-        .populate("user_id", "-password");
+        },
+        { path: "user" },
+        { path: "employee" },
+      ]);
+
       if (!review) {
         return res.status(404).json({ message: "Đánh giá không tồn tại." });
       }

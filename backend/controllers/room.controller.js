@@ -122,7 +122,7 @@ const roomController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const rooms = await Room.find(query)
-        .populate([{ path: "room_class" }, { path: "status" }])
+        .populate("room_class room_status")
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
@@ -168,9 +168,17 @@ const roomController = {
       const bookingIds = bookingDetails.map((bd) => bd.booking_id);
 
       // 2. Tìm booking thỏa điều kiện thời gian và booking_id ở trên
+      const cancelStatusId = await BookingStatus.findOne({
+        code: "CANCELLED",
+      }).select("_id");
+      if (!cancelStatusId) {
+        return res
+          .status(404)
+          .json({ message: "Trạng thái hủy không tồn tại" });
+      }
       const bookings = await Booking.find({
         _id: { $in: bookingIds },
-        booking_status_id: { $ne: "683fba8d351a96315d457679" }, // trạng thái hủy hoặc trạng thái không tính
+        booking_status_id: { $ne: cancelStatusId }, // trạng thái hủy hoặc trạng thái không tính
         $or: [
           { check_in_date: { $lte: endDate, $gte: startDate } },
           { check_out_date: { $lte: endDate, $gte: startDate } },
@@ -179,7 +187,7 @@ const roomController = {
             check_out_date: { $gte: endDate },
           },
         ],
-      }).populate("booking_status_id");
+      }).populate("booking_status");
 
       // Format dữ liệu cho calendar
       const events = bookings.map((b) => ({
@@ -187,7 +195,7 @@ const roomController = {
         title: `Booking #${b._id}`,
         start: b.check_in_date,
         end: b.check_out_date,
-        status: b.booking_status_id,
+        status: b.booking_status,
       }));
 
       res.status(200).json({ events });
@@ -200,10 +208,9 @@ const roomController = {
   getRoomById: async (req, res) => {
     const roomId = req.params.id;
     try {
-      const room = await Room.findById(roomId).populate([
-        { path: "room_class" },
-        { path: "status" },
-      ]);
+      const room = await Room.findById(roomId).populate(
+        "room_class room_status"
+      );
       if (!room) {
         return res.status(404).json({ message: "Không tìm thấy phòng" });
       }
@@ -264,7 +271,10 @@ const roomController = {
       const updatedData =
         Object.keys(req.body).length === 0
           ? roomToUpdate.toObject()
-          : { ...roomToUpdate.toObject(), ...roomController.normalizeRoomData(req.body) };
+          : {
+              ...roomToUpdate.toObject(),
+              ...roomController.normalizeRoomData(req.body),
+            };
 
       const validation = await roomController.validateRoom(
         updatedData,

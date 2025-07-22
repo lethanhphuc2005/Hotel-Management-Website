@@ -87,7 +87,7 @@ const RoomClassDetail = ({ roomClass }: { roomClass: RoomClass }) => {
             <p className="tw-font-semibold tw-mb-2">Tiện nghi:</p>
             <ul className="tw-list-disc tw-ml-5 tw-text-gray-400">
               {roomClass?.features?.map((f) => (
-                <li key={f.feature_id.id}>{f.feature_id.name}</li>
+                <li key={f.feature.id}>{f.feature.name}</li>
               ))}
             </ul>
           </div>

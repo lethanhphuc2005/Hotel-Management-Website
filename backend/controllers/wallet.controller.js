@@ -16,7 +16,7 @@ const walletController = {
       // Populate transactions with type information
       const populatedWallet = await Wallet.findOne({
         user_id: userId,
-      }).populate("user_id", "first_name last_name email phone_number");
+      }).populate("user");
 
       res.status(200).json({
         message: "Lấy thông tin ví thành công",

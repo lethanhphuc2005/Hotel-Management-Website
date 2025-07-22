@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { showConfirmDialog } from "@/utils/swal";
 import { useDispatch, useSelector } from "react-redux";
-import { addRoomToCart } from "@/contexts/cartSlice";
+import { addRoomToCart, CartRoom } from "@/contexts/cartSlice";
 import { toast } from "react-toastify";
 import { RootState } from "@/contexts/store";
+import { RoomClass } from "@/types/roomClass";
+import { BookingDetail } from "@/types/booking";
 
 export default function ChatbotPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +20,7 @@ export default function ChatbotPopup() {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<ChatMessageHistory[]>([]);
   const [hasGreeted, setHasGreeted] = useState(false);
-  const [rooms, setRooms] = useState<any[]>([]); // danh sách phòng gợi ý
+  const [rooms, setRooms] = useState<RoomClass[]>([]); // danh sách phòng gợi ý
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
@@ -67,7 +69,10 @@ export default function ChatbotPopup() {
     ];
 
     try {
-      const res = await generateChatResponse(userText, updatedHistory);
+      const res = await generateChatResponse({
+        prompt: userText,
+        history: updatedHistory,
+      });
 
       if (!res.success) {
         setMessages((prev) => [
@@ -111,8 +116,8 @@ export default function ChatbotPopup() {
           Số lượng phòng: ${bookingData.booking_details.length}\n
           ${bookingData.booking_details
             .map(
-              (detail: any, idx: number) =>
-                `Phòng ${idx + 1}: ID ${detail.room_class_id}, ${
+              (detail: BookingDetail, idx: number) =>
+                `Phòng ${idx + 1}: Tên ${detail.room_class.name}, ${
                   detail.nights
                 } đêm`
             )
@@ -141,7 +146,7 @@ export default function ChatbotPopup() {
           }
 
           const isDuplicate = cartRooms.some(
-            (room: any) =>
+            (room: CartRoom) =>
               room.id === roomClassId &&
               room.checkIn === checkInISO &&
               room.checkOut === checkOutISO
@@ -195,7 +200,7 @@ export default function ChatbotPopup() {
               total: detail.price_per_night * detail.nights,
               hasSaturdayNight: hasSaturday,
               hasSundayNight: hasSunday,
-              features: roomData.features?.map((f) => f.feature_id?.name) ?? [],
+              features: roomData.features?.map((f) => f.feature.name) ?? [],
               services: detail.services ?? [],
             })
           );

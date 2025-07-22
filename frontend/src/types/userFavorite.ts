@@ -1,7 +1,34 @@
+import { RoomClass } from "./roomClass";
+import { User } from "./user";
+
 export interface UserFavorite {
-  id: String;
-  user_id: String;
-  room_class_id: String;
-  created_at?: Date;
-  updated_at?: Date;
+  id: string;
+  user_id: string;
+  room_class_id: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  room_class: RoomClass;
+  user: User;
+}
+
+export interface UserFavoriteListResponse {
+  success: boolean;
+  message?: string;
+  data: UserFavorite[];
+}
+
+export interface UserFavoriteResponse {
+  success: boolean;
+  message?: string;
+  data: UserFavorite;
+}
+
+export interface CreateUserFavoriteRequest {
+  userId: string;
+  roomClassId: string;
+}
+
+export interface DeleteUserFavoriteRequest {
+  userId: string;
+  favoriteId: string;
 }

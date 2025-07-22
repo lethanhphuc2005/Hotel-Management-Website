@@ -2,35 +2,32 @@ import {
   getProfile as getProfileApi,
   updateProfile as updateProfileApi,
 } from "@/api/profileApi";
-import { IUser } from "@/types/user";
+import {
+  User,
+  UserProfileResponse,
+  UpdateUserProfileRequest,
+  UpdateUserProfileResponse,
+} from "@/types/user";
 import { Wallet } from "@/types/wallet";
 
 export const fetchProfile = async (
   userId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: IUser;
-}> => {
+): Promise<UserProfileResponse> => {
   try {
     const response = await getProfileApi(userId);
     const data = response.data;
 
-    const wallets = data.wallet;
+    const wallet = data.wallet;
 
-    // Map qua từng ví, sort transactions bên trong
-    const sortedWallets = wallets.map((w: Wallet) => ({
-      ...w,
-      transactions: [...w.transactions].sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    const sortedWallet: Wallet = {
+      ...wallet,
+      transactions: wallet.transactions.sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       ),
-    }));
+    };
 
-    // Nếu bạn chỉ cần ví đầu tiên:
-    const sortedWallet = sortedWallets[0];
-
-    const profile: IUser = {
+    const profile: User = {
       id: data.id || data._id,
       first_name: data.first_name || "",
       last_name: data.last_name || "",
@@ -38,19 +35,19 @@ export const fetchProfile = async (
       email: data.email,
       phone_number: data.phone_number || "",
       request: data.request || "",
-      level: data.level || "user",
+      level: data.level || "",
       total_spent: data.total_spent || 0,
       total_nights: data.total_nights || 0,
       total_bookings: data.total_bookings || 0,
-      status: data.status,
-      is_verified: data.is_verified,
-      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-      updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
+      status: data.status || false,
+      is_verified: data.is_verified || false,
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
       bookings: data.bookings || [],
       comments: data.comments || [],
-      favorites: data.favorites || [],
       reviews: data.reviews || [],
-      wallet: sortedWallet,
+      favorites: data.favorites || [],
+      wallet: sortedWallet, // Chỉ lấy ví đầu tiên đã sắp xếp
     };
     return {
       success: true,
@@ -65,24 +62,19 @@ export const fetchProfile = async (
     return {
       success: false,
       message,
-      data: {} as IUser, // Return an empty IUser object on error
+      data: {} as User, // Return an empty User object on error
     };
   }
 };
 
 export const saveProfile = async (
   userId: string,
-  profileData: Partial<IUser>
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: IUser;
-}> => {
+  profileData: Partial<User>
+): Promise<UpdateUserProfileResponse> => {
   try {
     const response = await updateProfileApi(userId, profileData);
     const data = response.data;
-    const updatedProfile: IUser = {
-      id: data.id || data._id,
+    const updatedProfile: UpdateUserProfileRequest = {
       first_name: data.first_name || "",
       last_name: data.last_name || "",
       address: data.address || "",
@@ -103,7 +95,7 @@ export const saveProfile = async (
     return {
       success: false,
       message,
-      data: {} as IUser, // Return an empty IUser object on error
+      data: {} as User, // Return an empty User object on error
     };
   }
 };

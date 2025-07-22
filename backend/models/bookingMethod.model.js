@@ -28,6 +28,7 @@ BookingMethodSchema.virtual("bookings", {
   ref: "booking",
   localField: "_id",
   foreignField: "booking_method_id",
+  justOne: false,
 });
 
 BookingMethodSchema.set("toJSON", {

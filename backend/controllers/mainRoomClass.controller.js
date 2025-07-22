@@ -1,6 +1,5 @@
 const MainRoomClass = require("../models/mainRoomClass.model");
 const Image = require("../models/image.model");
-const { Room_Class_Feature } = require("../models/feature.model");
 const RoomClass = require("../models/roomClass.model");
 const {
   upload,
@@ -70,7 +69,7 @@ const mainRoomClassController = {
         sort = "createdAt",
         order = "asc",
         page = 1,
-        limit,
+        limit = 10,
         status,
       } = req.query;
 
@@ -104,7 +103,13 @@ const mainRoomClassController = {
 
       // Lấy dữ liệu với phân trang
       const mainRoomClasses = await MainRoomClass.find(query)
-        .populate([{ path: "room_class_list" }, { path: "images" }])
+        .populate([
+          { path: "room_class_list" },
+          {
+            path: "images",
+            match: { status: true }, // Chỉ lấy ảnh hợp lệ
+          },
+        ])
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
@@ -165,13 +170,11 @@ const mainRoomClassController = {
           {
             path: "room_class_list",
             match: { status: true },
-            select: "-status -createdAt -updatedAt",
-          }, // Chỉ lấy loại phòng đang hoạt động
+          },
           {
             path: "images",
-            select: "-status -createdAt -updatedAt",
             match: { status: true },
-          }, // Chỉ lấy hình ảnh đang hoạt động
+          },
         ])
         .select("-status -createdAt -updatedAt")
         .sort(sortOption)
@@ -207,7 +210,7 @@ const mainRoomClassController = {
         req.params.id
       ).populate([
         { path: "room_class_list" },
-        { path: "images", select: "url", match: { status: true } },
+        { path: "images", match: { status: true } },
       ]);
       if (!mainRoomClass) {
         return res

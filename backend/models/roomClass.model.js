@@ -61,30 +61,56 @@ RoomClassSchema.virtual("main_room_class", {
   ref: "main_room_class",
   localField: "main_room_class_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description status createdAt updatedAt",
+  },
 });
 
 RoomClassSchema.virtual("rooms", {
   ref: "room",
   localField: "_id",
   foreignField: "room_class_id",
+  justOne: false,
+  options: {
+    select: "name floor room_status_id",
+  },
 });
 
 RoomClassSchema.virtual("features", {
   ref: "room_class_feature",
   localField: "_id",
   foreignField: "room_class_id",
+  justOne: false,
+  options: {
+    select: "feature_id status createdAt updatedAt",
+    populate: {
+      path: "feature",
+      model: "feature",
+    },
+  }
 });
 
 RoomClassSchema.virtual("images", {
   ref: "image",
   localField: "_id",
   foreignField: "room_class_id",
+  match: [
+    { status: true }, // Chỉ lấy ảnh hợp lệ
+    { type: "room_class" }, // Chỉ lấy ảnh loại phòng
+  ],
+
+  justOne: false,
+  options: {
+    select: "url target status createdAt updatedAt",
+  },
 });
 
 RoomClassSchema.virtual("reviews", {
   ref: "review",
   localField: "_id",
   foreignField: "room_class_id",
+  justOne: false,
 });
 
 RoomClassSchema.virtual("comments", {
@@ -97,7 +123,7 @@ RoomClassSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    ret.id = ret._id; 
+    ret.id = ret._id;
     delete ret._id;
     return ret;
   },

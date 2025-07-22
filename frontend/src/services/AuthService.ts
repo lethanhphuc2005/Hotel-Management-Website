@@ -6,24 +6,31 @@ import {
   resetPassword as resetPasswordApi,
   resendVerificationEmail as resendVerificationEmailApi,
 } from "@/api/authApi";
+import {
+  AuthResponse,
+  ChangePasswordRequest,
+  RegisterRequest,
+  verifyEmailRequest,
+} from "@/types/auth";
+import { ResetPasswordRequest } from "../types/auth";
 
-export const register = async (
-  first_name: string,
-  last_name: string,
-  email: string,
-  password: string,
-  phone_number: string,
-  address: string
-): Promise<{ success: boolean; message: string }> => {
+export const register = async ({
+  first_name,
+  last_name,
+  email,
+  password,
+  phone_number,
+  address,
+}: RegisterRequest): Promise<AuthResponse> => {
   try {
-    const response = await registerApi(
+    const response = await registerApi({
       first_name,
       last_name,
       email,
       password,
       phone_number,
-      address
-    );
+      address,
+    });
     return {
       success: true,
       message: response.data.message || "Registration successful",
@@ -40,13 +47,13 @@ export const register = async (
   }
 };
 
-export const changePassword = async (
-  userId: string,
-  password: string,
-  newPassword: string
-): Promise<{ success: boolean; message: string }> => {
+export const changePassword = async ({
+  userId,
+  password,
+  newPassword,
+}: ChangePasswordRequest): Promise<AuthResponse> => {
   try {
-    const response = await changePasswordApi(userId, password, newPassword);
+    const response = await changePasswordApi({ userId, password, newPassword });
     return {
       success: true,
       message: response.data.message || "Password changed successfully",
@@ -63,12 +70,12 @@ export const changePassword = async (
   }
 };
 
-export const verifyEmail = async (
-  email: string,
-  verificationCode: string
-): Promise<{ success: boolean; message: string }> => {
+export const verifyEmail = async ({
+  email,
+  verificationCode,
+}: verifyEmailRequest): Promise<AuthResponse> => {
   try {
-    const response = await verifyEmailApi(email, verificationCode);
+    const response = await verifyEmailApi({ email, verificationCode });
     return {
       success: true,
       message: response.data.message || "Email verified successfully",
@@ -85,9 +92,7 @@ export const verifyEmail = async (
   }
 };
 
-export const forgotPassword = async (
-  email: string
-): Promise<{ success: boolean; message: string }> => {
+export const forgotPassword = async (email: string): Promise<AuthResponse> => {
   try {
     const response = await forgotPasswordApi(email);
     return {
@@ -106,17 +111,17 @@ export const forgotPassword = async (
   }
 };
 
-export const resetPassword = async (
-  email: string,
-  verificationCode: string,
-  newPassword: string
-): Promise<{ success: boolean; message: string }> => {
+export const resetPassword = async ({
+  email,
+  verificationCode,
+  newPassword,
+}: ResetPasswordRequest): Promise<AuthResponse> => {
   try {
-    const response = await resetPasswordApi(
+    const response = await resetPasswordApi({
       email,
       verificationCode,
-      newPassword
-    );
+      newPassword,
+    });
     return {
       success: true,
       message: response.data.message || "Password reset successfully",
@@ -135,7 +140,7 @@ export const resetPassword = async (
 
 export const resendVerificationEmail = async (
   email: string
-): Promise<{ success: boolean; message: string }> => {
+): Promise<AuthResponse> => {
   try {
     const response = await resendVerificationEmailApi(email);
     return {

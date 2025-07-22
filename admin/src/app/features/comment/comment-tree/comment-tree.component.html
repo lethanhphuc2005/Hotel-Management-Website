@@ -6,12 +6,12 @@
       <!-- reply metadata -->
       <div class="tw-text-sm tw-text-gray-500">
         Từ:
-        <span class="tw-font-semibold" *ngIf="comment.user_id">
-          {{ comment.user_id.last_name }} {{ comment.user_id.first_name }}
+        <span class="tw-font-semibold" *ngIf="comment.user">
+          {{ comment.user.last_name }} {{ comment.user.first_name }}
         </span>
-        <span class="tw-font-semibold" *ngIf="comment.employee_id">
-          {{ comment.employee_id.last_name }}
-          {{ comment.employee_id.first_name }}
+        <span class="tw-font-semibold" *ngIf="comment.employee">
+          {{ comment.employee.last_name }}
+          {{ comment.employee.first_name }}
           <strong class="tw-text-red-500">(admin)</strong>
         </span>
         <span class="tw-ml-2">

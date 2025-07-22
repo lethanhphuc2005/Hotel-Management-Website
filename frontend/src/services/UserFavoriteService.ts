@@ -1,28 +1,35 @@
 import {
+  DeleteUserFavoriteRequest,
+  UserFavoriteListResponse,
+} from "../types/userFavorite";
+import {
   createUserFavorite as createUserFavoriteApi,
   getUserFavorites as getUserFavoritesApi,
   deleteUserFavorite as deleteUserFavoriteApi,
 } from "@/api/userFavoriteApi";
-import { UserFavorite } from "@/types/userFavorite";
+import {
+  CreateUserFavoriteRequest,
+  UserFavorite,
+  UserFavoriteResponse,
+} from "@/types/userFavorite";
 
-export const createUserFavorite = async (
-  userId: string,
-  roomClassId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: UserFavorite;
-}> => {
+export const createUserFavorite = async ({
+  userId,
+  roomClassId,
+}: CreateUserFavoriteRequest): Promise<UserFavoriteResponse> => {
   try {
-    const response = await createUserFavoriteApi(userId, roomClassId);
+    const response = await createUserFavoriteApi({ userId, roomClassId });
     const data = response.data;
     const userFavorite: UserFavorite = {
       id: data._id || data.id,
       user_id: data.user_id,
       room_class_id: data.room_class_id,
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      room_class: data.room_class, // Assuming room_class is already in the correct format
+      user: data.user, // Assuming user is already in the correct format
     };
+
     return {
       success: true,
       message: response.message || "User favorite created successfully",
@@ -43,11 +50,7 @@ export const createUserFavorite = async (
 
 export const getUserFavorites = async (
   userId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: UserFavorite[];
-}> => {
+): Promise<UserFavoriteListResponse> => {
   try {
     const response = await getUserFavoritesApi(userId);
     const data = response.data;
@@ -55,8 +58,10 @@ export const getUserFavorites = async (
       id: item._id || item.id,
       user_id: item.user_id,
       room_class_id: item.room_class_id,
-      created_at: new Date(item.createdAt || item.created_at),
-      updated_at: new Date(item.updatedAt || item.updated_at),
+      createdAt: new Date(item.createdAt || item.created_at),
+      updatedAt: new Date(item.updatedAt || item.updated_at),
+      room_class: item.room_class, // Assuming room_class is already in the correct format
+      user: item.user, // Assuming user is already in the correct format
     }));
     return {
       success: true,
@@ -76,20 +81,17 @@ export const getUserFavorites = async (
   }
 };
 
-export const deleteUserFavorite = async (
-  userId: string,
-  favoriteId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data?: UserFavorite;
-}> => {
+export const deleteUserFavorite = async ({
+  userId,
+  favoriteId,
+}: DeleteUserFavoriteRequest): Promise<UserFavoriteResponse> => {
   try {
-    const response = await deleteUserFavoriteApi(userId, favoriteId);
+    const response = await deleteUserFavoriteApi({ userId, favoriteId });
 
     return {
       success: true,
       message: response.message || "User favorite deleted successfully",
+      data: null as any, // No data returned on delete
     };
   } catch (error: any) {
     const message =
@@ -99,7 +101,7 @@ export const deleteUserFavorite = async (
     return {
       success: false,
       message,
-      data: {} as UserFavorite, // Return an empty UserFavorite object on error
+      data: null as any, // Return an empty UserFavorite object on error
     };
   }
 };

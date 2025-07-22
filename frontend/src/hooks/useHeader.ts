@@ -6,7 +6,7 @@ import { Wallet } from "@/types/wallet";
 import { useAuth } from "@/contexts/AuthContext";
 import style from "@/styles/layout/header.module.css";
 import { fetchProfile } from "@/services/ProfileService";
-import { IUser } from "@/types/user";
+import { User } from "@/types/user";
 import { useRouter } from "next/navigation";
 
 interface HeaderProps {
@@ -30,10 +30,9 @@ export const useHeader = ({
   showSearch,
   setShowSearch,
 }: HeaderProps) => {
-  const router = useRouter();
   const { user, logout } = useAuth();
-  const [mainroomclass, setMainroomclass] = useState<MainRoomClass[]>([]);
-  const [userData, setUserData] = useState<IUser | null>(null);
+  const [mainRoomClass, setMainRoomClass] = useState<MainRoomClass[]>([]);
+  const [userData, setUserData] = useState<User | null>(null);
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [didFetch, setDidFetch] = useState(false);
   const { setLoading } = useLoading();
@@ -49,7 +48,6 @@ export const useHeader = ({
     setUserData(null);
     setWallet(null);
     setShowDropdown(false);
-    router.push("/login");
   };
 
   useEffect(() => {
@@ -69,7 +67,7 @@ export const useHeader = ({
                 .join(", ")
           );
         }
-        setMainroomclass(mainRoomClassData.data);
+        setMainRoomClass(mainRoomClassData.data);
         setUserData(userProfile?.data || null);
         setWallet(userProfile?.data?.wallet || null);
       } catch (error) {
@@ -115,11 +113,11 @@ export const useHeader = ({
   }, [showDropdown, setShowDropdown]);
 
   return {
-    mainroomclass,
+    mainRoomClass,
     userData,
     wallet,
     level,
-    setMainroomclass,
+    setMainRoomClass,
     setUserData,
     toggleSearch,
     handleLogout,

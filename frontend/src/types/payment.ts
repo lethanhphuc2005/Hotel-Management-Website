@@ -1,4 +1,6 @@
+import { PaginationResponse } from "./_common";
 import { Booking } from "./booking";
+import { PaymentMethod } from "./paymentMethod";
 
 export interface PaymentRequest {
   orderId: string;
@@ -13,17 +15,26 @@ export interface Payment {
   payment_method_id: string;
   status: string;
   transaction_id: string;
-  payment_date: Date | string;
-  metadata?: {};
-  created_at: Date | string;
-  updated_at: Date | string;
-  booking?: Booking[];
-  payment_method?: {
-    id: string;
-    name: string;
-  };
+  payment_date: Date;
+  metadata: {};
+  createdAt?: Date;
+  updatedAt?: Date;
+  booking: Booking[];
+  payment_method: PaymentMethod;
+}
+export interface PaymentUrl {
+  payUrl: string;
 }
 
-export interface PaymentResponse {
-  payUrl: string;
+export interface CreatePaymentResquest {
+  method: string;
+  orderId: string;
+  orderInfo: string;
+  amount: number;
+}
+
+export interface CreatePaymentResponse {
+  success: boolean;
+  message: string;
+  data: PaymentUrl;
 }

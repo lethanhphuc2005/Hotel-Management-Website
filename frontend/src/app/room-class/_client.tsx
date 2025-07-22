@@ -51,12 +51,13 @@ export default function RoomClassesPage() {
   const [selectedMainRoomClassIds, setSelectedMainRoomClassIds] = useState<
     string[]
   >([]);
-  const [showViewFilter, setShowViewFilter] = useState(false);
-  const [showFeatureFilter, setShowFeatureFilter] = useState(false);
-  const [showMainRoomClassFilter, setShowMainRoomClassFilter] = useState(false);
+  const [showViewFilter, setShowViewFilter] = useState<boolean>(false);
+  const [showFeatureFilter, setShowFeatureFilter] = useState<boolean>(false);
+  const [showMainRoomClassFilter, setShowMainRoomClassFilter] =
+    useState<boolean>(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("price_asc");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortOption, setSortOption] = useState<string>("price_asc");
   const params = useSearchParams();
   useEffect(() => {
     const mainRoomClassId = params.get("mainRoomClassId");

@@ -1,3 +1,4 @@
+import { PaginationResponse } from "./_common";
 import { ContentType } from "./contentType";
 
 export interface WebsiteContent {
@@ -8,6 +9,19 @@ export interface WebsiteContent {
   image: string;
   content_type: ContentType[];
   status: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface WebsiteContentResponse {
+  success: boolean;
+  message?: string;
+  data: WebsiteContent;
+}
+
+export interface WebsiteContentListResponse {
+  success: boolean;
+  message?: string;
+  data: WebsiteContent[];
+  pagination?: PaginationResponse;
 }

@@ -7,27 +7,17 @@ import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { formatDate } from "@/utils/dateUtils";
 import { depositToWallet } from "@/services/WalletService";
 import Pagination from "@/components/sections/Pagination";
-
-interface WalletTransaction {
-  _id: string;
-  amount: number;
-  type: "deposit" | "refund" | "bonus" | "use";
-  note: string;
-  created_at: string;
-}
+import { Wallet } from "@/types/wallet";
 
 interface Props {
-  wallet: {
-    id: string;
-    user_id: string;
-    balance: number;
-    transactions: WalletTransaction[];
-    createdAt: string;
-  };
+  wallet: Wallet | null;
   setWallet: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export default function WalletSection({ wallet, setWallet }: Props) {
+  if (!wallet) {
+    return <p className="tw-text-gray-400">Không có thông tin ví.</p>;
+  }
   const userId = wallet.user_id || "";
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -65,7 +55,7 @@ export default function WalletSection({ wallet, setWallet }: Props) {
     }
 
     try {
-      const response = await depositToWallet(method, userId, amount);
+      const response = await depositToWallet({ method, userId, amount });
       if (!response.success) {
         toast.error(response.message || "Nạp tiền thất bại. Vui lòng thử lại.");
         return;
@@ -122,13 +112,13 @@ export default function WalletSection({ wallet, setWallet }: Props) {
           ) : (
             currentTransactions.map((tx) => (
               <li
-                key={tx._id}
+                key={tx.id}
                 className="tw-border-b tw-border-gray-600 tw-pb-3 tw-flex tw-justify-between tw-items-center"
               >
                 <div>
                   <p className="tw-text-white">{tx.note}</p>
                   <p className="tw-text-xs tw-text-gray-400">
-                    {formatDate(tx.created_at)}
+                    {formatDate(tx.createdAt || new Date())}
                   </p>
                 </div>
                 <p

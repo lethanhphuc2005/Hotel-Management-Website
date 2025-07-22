@@ -28,13 +28,24 @@ MainRoomClassSchema.virtual("room_class_list", {
   ref: "room_class",
   localField: "_id",
   foreignField: "main_room_class_id",
+  justOne: false,
+  options: {
+    select: "name description status createdAt updatedAt",
+  },
 });
 
 MainRoomClassSchema.virtual("images", {
   ref: "image",
   localField: "_id",
   foreignField: "room_class_id",
-  match: { target: "main_room_class" },
+  match: [
+    { status: true }, // Chỉ lấy ảnh hợp lệ
+    { type: "main_room_class" }, // Chỉ lấy ảnh loại phòng chính
+  ],
+  justOne: false,
+  options: {
+    select: "url target status createdAt updatedAt",
+  },
 });
 
 MainRoomClassSchema.set("toJSON", {

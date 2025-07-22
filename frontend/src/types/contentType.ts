@@ -1,8 +1,23 @@
+import { PaginationResponse } from "./_common";
+
 export interface ContentType {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   status: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ContentTypeResponse {
+  success: boolean;
+  message: string;
+  data: ContentType;
+}
+
+export interface ContentTypeListResponse {
+  success: boolean;
+  message: string;
+  data: ContentType[];
+  pagination?: PaginationResponse;
 }

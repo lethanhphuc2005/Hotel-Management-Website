@@ -1,4 +1,5 @@
 import { publicApi, api } from "@/lib/axiosInstance";
+import { PreviewDiscountBookingPriceRequest } from "@/types/discount";
 
 export const getDiscounts = async () => {
   try {
@@ -26,13 +27,9 @@ export const getDiscountById = async (id: string) => {
   }
 };
 
-export const getPreviewDiscountBookingPrice = async (bookingInfo: {
-  baseTotal: number;
-  checkInDate: string;
-  checkOutDate: string;
-  roomClassId: string;
-  totalRooms: number;
-}) => {
+export const getPreviewDiscountBookingPrice = async (
+  bookingInfo: PreviewDiscountBookingPriceRequest
+) => {
   try {
     const response = await api.post(`/discount/preview`, {
       bookingInfo,

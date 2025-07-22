@@ -55,7 +55,7 @@ export default function Header() {
   };
 
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
-  const { mainroomclass, wallet, userData, toggleSearch, handleLogout, level } =
+  const { mainRoomClass, wallet, userData, toggleSearch, handleLogout, level } =
     useHeader({
       showDropdown,
       setShowDropdown,
@@ -81,6 +81,49 @@ export default function Header() {
     return () => clearTimeout(timeout);
   }, [searchValue, userData]);
 
+  const menuItems = [
+    {
+      label: "Trang chủ",
+      href: "/",
+    },
+    {
+      label: "Phòng",
+      href: "/room-class",
+      dropdown: true,
+      items: mainRoomClass.map((mainroom) => ({
+        label: mainroom.name,
+        href: `/room-class?mainRoomClassId=${mainroom.id}`,
+      })),
+    },
+    {
+      label: "Dịch vụ",
+      href: "/service",
+    },
+    {
+      label: "Khuyến mãi",
+      href: "/discount",
+    },
+    {
+      label: "Tin tức",
+      href: "/news",
+    },
+    {
+      label: "Liên hệ",
+      href: "/contact",
+    },
+  ];
+
+  const handleClick = (item: { label: string; href: string }) => {
+    if (item.href === "/") {
+      router.push("/");
+    } else {
+      router.push(item.href);
+    }
+    setShowDropdown(false);
+    setShowSearch(false);
+    setSearchValue("");
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark fixed-top">
       <div className="container">
@@ -100,66 +143,36 @@ export default function Header() {
         </button>
         <div className="collapse navbar-collapse" id="navbarScroll">
           <ul className="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
-            <li className="nav-item">
-              <Link
-                className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/"
+            {menuItems.map((item, index) => (
+              <li
+                key={index}
+                className={`nav-item ${item.dropdown ? style.dropdown : ""}`}
               >
-                Trang chủ
-              </Link>
-            </li>
-            <li className={`nav-item ${style.dropdown}`}>
-              <Link
-                className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/room-class"
-              >
-                Phòng
-              </Link>
-              <ul className={style.dropdownMenu}>
-                {mainroomclass.map((mainroom, index) => (
-                  <li key={index}>
-                    <Link
-                      href={`/room-class?mainRoomClassId=${mainroom.id}`}
-                      className={style.dropdownItem}
-                    >
-                      {mainroom.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/service"
-              >
-                Dịch vụ
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/discount"
-              >
-                Khuyến mãi
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/news"
-              >
-                Tin tức
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link active text-white fw-bold ${style.item}`}
-                href="/contact"
-              >
-                Liên hệ
-              </Link>
-            </li>
+                <Link
+                  className={`nav-link active text-white fw-bold ${style.item}`}
+                  href={item.href}
+                  onClick={() => handleClick(item)}
+                >
+                  {item.label}
+                </Link>
+
+                {item.dropdown && item.items && (
+                  <ul className={style.dropdownMenu}>
+                    {item.items.map((subItem, subIndex) => (
+                      <li key={subIndex}>
+                        <Link
+                          href={subItem.href}
+                          className={style.dropdownItem}
+                          onClick={() => handleClick(subItem)}
+                        >
+                          {subItem.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
           </ul>
 
           <div className="d-flex gap-3 align-items-center">

@@ -189,7 +189,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
         total: totalPrice,
         hasSaturdayNight: hasSaturday,
         hasSundayNight: hasSunday,
-        features: roomClass?.features?.map((f) => f.feature_id.name) ?? [],
+        features: roomClass?.features?.map((f) => f.feature.name) ?? [],
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");

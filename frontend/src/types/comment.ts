@@ -1,24 +1,52 @@
+import { PaginationResponse } from "./_common";
+import { Employee } from "./employee";
+import { RoomClass } from "./roomClass";
+import { User } from "./user";
+
 export interface Comment {
   id: string;
   room_class_id: string;
-  parent_id?: string | null;
-  employee_id?: {
-    id: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    phone_number?: string;
-    address?: string;
-    is_verified?: boolean; // Optional field for employee verification status
-  } | null;
-  user_id: any; // User can be null if the review is anonymous
+  parent_id: string | null;
+  employee_id: string | null;
+  user_id: string | null;
   content: string;
-  status?: boolean;
-  created_at?: Date;
-  updated_at?: Date;
-  parent_comment?: Comment[]; // Optional field for parent comment
+  status: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  employee: Employee | null;
+  user: User | null;
+  room_class: RoomClass | null; // Room class can be null if the comment is not related to a room class
 }
 
 export interface CommentWithReplies extends Comment {
   replies?: CommentWithReplies[];
+}
+
+export interface CommentResponse {
+  success: boolean;
+  message: string;
+  data: Comment;
+}
+
+export interface CommentListResponse {
+  success: boolean;
+  message: string;
+  data: CommentWithReplies[];
+  pagination?: PaginationResponse;
+}
+
+export interface CreateCommentRequest {
+  roomClassId: string;
+  parentId: string | null;
+  userId: string | null;
+  content: string;
+}
+
+export interface DeleteCommentRequest {
+  commentId: string;
+  userId: string;
+}
+
+export interface UpdateCommentRequest extends DeleteCommentRequest {
+  content: string;
 }

@@ -1,9 +1,13 @@
 import { api } from "@/lib/axiosInstance";
+import {
+  CreateUserFavoriteRequest,
+  DeleteUserFavoriteRequest,
+} from "@/types/userFavorite";
 
-export const createUserFavorite = async (
-  userId: string,
-  roomClassId: string
-) => {
+export const createUserFavorite = async ({
+  userId,
+  roomClassId,
+}: CreateUserFavoriteRequest) => {
   try {
     const response = await api.post("/user-favorite", {
       user_id: userId,
@@ -32,10 +36,10 @@ export const getUserFavorites = async (userId: string) => {
   }
 };
 
-export const deleteUserFavorite = async (
-  userId: string,
-  favoriteId: string
-) => {
+export const deleteUserFavorite = async ({
+  userId,
+  favoriteId,
+}: DeleteUserFavoriteRequest) => {
   try {
     const response = await api.delete(`/user-favorite/${favoriteId}`, {
       data: { user_id: userId },

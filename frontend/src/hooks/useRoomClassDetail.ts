@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 import { fetchRoomClassById } from "@/services/RoomClassService";
 import { RoomClass } from "@/types/roomClass";
 import { MainRoomClass } from "@/types/mainRoomClass";
-import { Feature } from "@/types/feature";
 import { Review } from "@/types/review";
 import { Comment } from "@/types/comment";
+import { Feature, RoomClassFeature } from "@/types/feature";
+import { Image } from "@/types/image";
 
 export const useRoomClassDetail = (roomId: string) => {
   const { setLoading } = useLoading();
   const [roomClass, setRoomClass] = useState<RoomClass>();
-  const [mainRoomClass, setMainRoomClass] = useState<MainRoomClass[]>();
-  const [features, setFeatures] = useState<any[]>([]);
-  const [images, setImages] = useState<{ id: string; url: string }[]>([]);
+  const [mainRoomClass, setMainRoomClass] = useState<MainRoomClass>();
+  const [features, setFeatures] = useState<RoomClassFeature[]>([]);
+  const [images, setImages] = useState<Image[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [didFetch, setDidFetch] = useState(false);

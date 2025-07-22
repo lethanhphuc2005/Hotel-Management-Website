@@ -3,16 +3,18 @@ import {
   useWalletByUserId as useWalletByUserIdApi,
   depositToWallet as depositToWalletApi,
 } from "@/api/walletApi";
-import { Wallet } from "@/types/wallet";
-import { PaymentResponse } from "@/types/payment";
+import {
+  DepositToWalletResponse,
+  UseWalletByUserIdRequest,
+  Wallet,
+  WalletResponse,
+} from "@/types/wallet";
+import { DepositToWalletRequest } from "../types/wallet";
+import { PaymentUrl } from "@/types/payment";
 
 export const fetchWalletByUserId = async (
   userId: string
-): Promise<{
-  success: boolean;
-  message: string;
-  data: Wallet;
-}> => {
+): Promise<WalletResponse> => {
   try {
     const response = await getWalletByUserIdApi(userId);
     const data = response.data;
@@ -25,11 +27,13 @@ export const fetchWalletByUserId = async (
         type: transaction.type,
         amount: transaction.amount,
         note: transaction.note,
-        created_at: new Date(transaction.created_at),
+        createdAt: new Date(transaction.createdAt),
+        updatedAt: new Date(transaction.updatedAt),
       })),
-      created_at: new Date(data.created_at),
-      updated_at: new Date(data.updated_at),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
     };
+
     return {
       success: true,
       message: response.message || "Wallet fetched successfully",
@@ -48,17 +52,13 @@ export const fetchWalletByUserId = async (
   }
 };
 
-export const useWalletByUserId = async (
-  userId: string,
-  amount: number,
-  note: string
-): Promise<{
-  success: boolean;
-  message: string;
-  data: Wallet;
-}> => {
+export const useWalletByUserId = async ({
+  userId,
+  amount,
+  note,
+}: UseWalletByUserIdRequest): Promise<WalletResponse> => {
   try {
-    const response = await useWalletByUserIdApi(userId, amount, note);
+    const response = await useWalletByUserIdApi({ userId, amount, note });
     const data = response.data;
     const wallet: Wallet = {
       id: data.id,
@@ -69,10 +69,11 @@ export const useWalletByUserId = async (
         type: transaction.type,
         amount: transaction.amount,
         note: transaction.note,
-        created_at: new Date(transaction.created_at),
+        createdAt: new Date(transaction.createdAt),
+        updatedAt: new Date(transaction.updatedAt),
       })),
-      created_at: new Date(data.created_at),
-      updated_at: new Date(data.updated_at),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
     };
     return {
       success: true,
@@ -92,19 +93,15 @@ export const useWalletByUserId = async (
   }
 };
 
-export const depositToWallet = async (
-  method: string,
-  userId: string,
-  amount: number
-): Promise<{
-  success: boolean;
-  message: string;
-  data: PaymentResponse;
-}> => {
+export const depositToWallet = async ({
+  method,
+  userId,
+  amount,
+}: DepositToWalletRequest): Promise<DepositToWalletResponse> => {
   try {
-    const response = await depositToWalletApi(method, userId, amount);
+    const response = await depositToWalletApi({ method, userId, amount });
     const data = response.data;
-    const payment: PaymentResponse = {
+    const payment: PaymentUrl = {
       payUrl: data.payUrl || data.order_url,
     };
     return {
@@ -120,7 +117,7 @@ export const depositToWallet = async (
     return {
       success: false,
       message,
-      data: {} as PaymentResponse,
+      data: {} as PaymentUrl,
     };
   }
 };

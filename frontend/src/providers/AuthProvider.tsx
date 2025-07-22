@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { login as loginApi, logout as logoutApi } from "@/api/authApi";
-import { IUser, IAuthContextType } from "@/types/user";
+import { User } from "@/types/user";
 import { AuthContext } from "@/contexts/AuthContext";
+import { AuthContextType, LoginData, LoginResponse } from "@/types/auth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -20,13 +21,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (
     email: string,
     password: string
-  ): Promise<{ success: boolean; message: string }> => {
+  ): Promise<LoginResponse> => {
     setIsLoading(true);
     try {
-      const response = await loginApi(email, password);
+      const response = await loginApi({ email, password });
       const data = response.data;
 
-      const loginData: IUser = {
+      const loginData: LoginData = {
         id: data.id || data._id,
         first_name: data.first_name || "",
         last_name: data.last_name || "",
@@ -46,11 +47,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return {
         success: true,
         message: "Đăng nhập thành công!",
+        data: loginData,
       };
     } catch (err: any) {
       return {
         success: false,
         message: err?.response?.data || "Đăng nhập thất bại. Vui lòng thử lại.",
+        data: {} as LoginData,
       };
     } finally {
       setIsLoading(false);
@@ -60,9 +63,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     logoutApi();
     setUser(null);
+    window.location.href = "/login";
   };
 
-  const value: IAuthContextType = {
+  const value: AuthContextType = {
     user,
     isLoading,
     login,

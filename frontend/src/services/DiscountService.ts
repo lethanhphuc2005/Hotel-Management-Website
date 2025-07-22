@@ -3,47 +3,50 @@ import {
   getDiscountById as getDiscountByIdApi,
   getPreviewDiscountBookingPrice as getPreviewDiscountBookingPriceApi,
 } from "@/api/discountApi";
-import { Discount } from "@/types/discount";
+import {
+  Discount,
+  DiscountListResponse,
+  DiscountResponse,
+  PreviewDiscountBookingPriceRequest,
+  PreviewDiscountBookingPriceResponse,
+} from "@/types/discount";
 
-export const fetchDiscounts = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: Discount[];
-}> => {
+export const fetchDiscounts = async (): Promise<DiscountListResponse> => {
   try {
     const response = await getDiscountsApi();
     const data = response.data;
-    const discounts: Discount[] = data.map((d: any) => ({
-      id: d.id,
-      name: d.name,
-      image: d.image || "",
-      description: d.description || "",
-      type: d.type || "",
-      value: d.value || 0,
-      value_type: d.value_type || "percent",
-      promo_code: d.promo_code || "",
+    const discounts: Discount[] = data.map((discount: any) => ({
+      id: discount.id,
+      name: discount.name,
+      image: discount.image || "",
+      description: discount.description || "",
+      type: discount.type || "promo_code",
+      value: discount.value || 0,
+      value_type: discount.value_type || "percent",
+      promo_code: discount.promo_code || "",
       conditions: {
-        min_advance_days: d.conditions?.min_advance_days || 0,
-        max_advance_days: d.conditions?.max_advance_days || 0,
-        min_stay_nights: d.conditions?.min_stay_nights || 0,
-        max_stay_nights: d.conditions?.max_stay_nights || 0,
-        min_rooms: d.conditions?.min_rooms || 0,
-        user_levels: d.conditions?.user_levels || [],
+        min_advance_days: discount.conditions?.min_advance_days || 0,
+        max_advance_days: discount.conditions?.max_advance_days || 0,
+        min_stay_nights: discount.conditions?.min_stay_nights || 0,
+        max_stay_nights: discount.conditions?.max_stay_nights || 0,
+        min_rooms: discount.conditions?.min_rooms || 0,
+        user_levels: discount.conditions?.user_levels || [],
       },
-      valid_from: new Date(d.valid_from),
-      valid_to: new Date(d.valid_to),
-      apply_to_room_class_ids: d.apply_to_room_class_ids || [],
-      can_be_stacked: d.can_be_stacked || false,
-      priority: d.priority || 0,
-      status: d.status || false,
-      created_at: d.createdAt ? new Date(d.createdAt) : undefined,
-      updated_at: d.updatedAt ? new Date(d.updatedAt) : undefined,
+      valid_from: new Date(discount.valid_from),
+      valid_to: new Date(discount.valid_to),
+      apply_to_room_class_ids: discount.apply_to_room_class_ids || [],
+      can_be_stacked: discount.can_be_stacked || false,
+      priority: discount.priority || 0,
+      status: discount.status || false,
+      createdAt: new Date(discount.createdAt),
+      updatedAt: new Date(discount.updatedAt),
     }));
 
     return {
       success: true,
       message: response.message || "Discounts fetched successfully",
       data: discounts,
+      pagination: response.pagination,
     };
   } catch (error: any) {
     const message =
@@ -54,17 +57,14 @@ export const fetchDiscounts = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined,
     };
   }
 };
 
 export const fetchDiscountById = async (
   id: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Discount;
-}> => {
+): Promise<DiscountResponse> => {
   try {
     const response = await getDiscountByIdApi(id);
     const data = response.data;
@@ -73,7 +73,7 @@ export const fetchDiscountById = async (
       name: data.name,
       image: data.image || "",
       description: data.description || "",
-      type: data.type || "",
+      type: data.type || "promo_code",
       value: data.value || 0,
       value_type: data.value_type || "percent",
       promo_code: data.promo_code || "",
@@ -91,8 +91,8 @@ export const fetchDiscountById = async (
       can_be_stacked: data.can_be_stacked || false,
       priority: data.priority || 0,
       status: data.status || false,
-      created_at: new Date(data.createdAt),
-      updated_at: new Date(data.updatedAt),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
     };
 
     return {
@@ -113,22 +113,9 @@ export const fetchDiscountById = async (
   }
 };
 
-export const fetchPreviewDiscountBookingPrice = async (bookingInfo: {
-  baseTotal: number;
-  checkInDate: string;
-  checkOutDate: string;
-  roomClassId: string;
-  totalRooms: number;
-}): Promise<{
-  success: boolean;
-  message?: string;
-  data: {
-    originalPrice: number;
-    finalPrice: number;
-    appliedDiscounts: string[];
-    isPromo?: boolean; // Optional field to indicate if a promo code was applied
-  };
-}> => {
+export const fetchPreviewDiscountBookingPrice = async (
+  bookingInfo: PreviewDiscountBookingPriceRequest
+): Promise<PreviewDiscountBookingPriceResponse> => {
   try {
     const response = await getPreviewDiscountBookingPriceApi(bookingInfo);
     const data = response.data;

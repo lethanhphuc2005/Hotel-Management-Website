@@ -12,13 +12,17 @@ import {
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { useRouter } from "next/navigation";
 import getImageUrl from "@/utils/getImageUrl";
+import { Booking, BookingDetail } from "@/types/booking";
+import { Payment } from "@/types/payment";
+import { Discount } from "@/types/discount";
+import { ServiceBooking } from "@/types/service";
 
 export default function BookedRoomSection({
   bookings,
   setBookings,
 }: {
-  bookings: any[];
-  setBookings: React.Dispatch<React.SetStateAction<any[]>>;
+  bookings: Booking[];
+  setBookings: React.Dispatch<React.SetStateAction<Booking[]>>;
 }) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
@@ -117,10 +121,7 @@ export default function BookedRoomSection({
         setBookings((prev) =>
           prev.map((booking) =>
             booking.id === bookingId
-              ? {
-                  ...booking,
-                  booking_status_id: { code: "CANCELLED", name: "CANCELLED" },
-                }
+              ? { ...booking, booking_status: { code: "CANCELLED" } }
               : booking
           )
         );
@@ -140,9 +141,9 @@ export default function BookedRoomSection({
       exit={{ opacity: 0, y: -20 }}
       className="tw-space-y-4"
     >
-      {currentBookings?.map((booking: any) => {
-        const isCheckedOut = booking.booking_status_id?.code === "CHECKED_OUT";
-        const payment = booking.payment;
+      {currentBookings?.map((booking: Booking) => {
+        const isCheckedOut = booking.booking_status.code === "CHECKED_OUT";
+        const payments = booking.payments;
 
         return (
           <div
@@ -155,7 +156,7 @@ export default function BookedRoomSection({
             >
               <div className="tw-space-y-2">
                 <h3 className="tw-text-lg tw-font-bold tw-text-white">
-                  {booking.booking_details?.[0].room_class_id.name ||
+                  {booking.booking_details?.[0].room_class.name ||
                     "Không rõ loại phòng"}
                 </h3>
                 <p className="tw-text-sm tw-text-gray-400">
@@ -183,20 +184,20 @@ export default function BookedRoomSection({
 
                 <span
                   className={`tw-inline-block tw-px-3 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-uppercase ${getColorClass(
-                    booking.booking_status_id.code
+                    booking.booking_status.code
                   )}`}
                 >
-                  {booking.booking_status_id.name}
+                  {booking.booking_status.name}
                 </span>
               </div>
               <div className="tw-flex-1 tw-text-right">
-                {booking.booking_status_id.code !== "CANCELLED" &&
-                  booking.booking_status_id.code !== "CHECKED_OUT" &&
-                  booking.booking_status_id.code !== "CHECKED_IN" && (
+                {booking.booking_status.code !== "CANCELLED" &&
+                  booking.booking_status.code !== "CHECKED_OUT" &&
+                  booking.booking_status.code !== "CHECKED_IN" && (
                     <AnimatedButtonPrimary
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCancelBooking(booking.id, booking.user_id);
+                        handleCancelBooking(booking.id, booking.user_id || "");
                       }}
                       className="tw-px-4 tw-py-2"
                     >
@@ -215,15 +216,12 @@ export default function BookedRoomSection({
                   className="tw-overflow-hidden tw-mt-4 tw-text-gray-300 tw-text-sm"
                 >
                   <div className="tw-w-full tw-max-w-3xl tw-mx-auto tw-flex tw-flex-col tw-gap-6">
-                    {booking.booking_details?.map((detail: any, index: any) => {
-                      const room = detail.room_id;
-                      const roomClass =
-                        room?.room_class_id || detail.room_class_id;
+                    {booking.booking_details?.map((detail: BookingDetail) => {
+                      const room = detail.room;
+                      const roomClass = detail.room_class;
                       return (
                         <div
-                          key={
-                            roomClass.main_room_clas_id || roomClass.id || index
-                          }
+                          key={detail.room_class_id}
                           className="tw-border-t tw-border-gray-600 tw-pt-4 tw-flex tw-gap-4 tw-items-start"
                         >
                           <div className="tw-w-[50%] tw-h-[300px] tw-relative tw-flex tw-items-center tw-justify-center">
@@ -251,14 +249,19 @@ export default function BookedRoomSection({
                               <strong>Dịch vụ:</strong>
                             </p>
                             <ul className="tw-list-disc tw-ml-6">
-                              {detail?.services?.length > 0 ? (
-                                detail.services.map((s: any, index: any) => (
-                                  <li key={s.id}>
-                                    {s.service_id.name} - {s.amount}x -{" "}
-                                    {s.service_id.price.toLocaleString("vi-VN")}
-                                    ₫
-                                  </li>
-                                ))
+                              {detail.services?.length > 0 ? (
+                                detail.services.map(
+                                  (service: ServiceBooking) => (
+                                    <li key={service.id}>
+                                      {service.service.name} - {service.amount}x
+                                      -{" "}
+                                      {service.service.price.toLocaleString(
+                                        "vi-VN"
+                                      )}
+                                      ₫
+                                    </li>
+                                  )
+                                )
                               ) : (
                                 <li>Không sử dụng dịch vụ</li>
                               )}
@@ -283,19 +286,20 @@ export default function BookedRoomSection({
                       </p>
                       <p>
                         <strong>Thời gian đặt:</strong>{" "}
-                        {formatDate(booking.createdAt)}
+                        {formatDate(booking.createdAt || "")}
                       </p>
                       <p>
                         <strong>Hình thức:</strong>{" "}
-                        {booking.booking_method_id.name || "Không xác định"}
+                        {booking.booking_method.name || "Không xác định"}
                       </p>
                       <strong>Thanh toán:</strong>{" "}
-                      {payment && payment.length > 0 ? (
+                      {payments && payments.length > 0 ? (
                         <ul className="tw-list-disc tw-ml-6">
-                          {payment.map((p: any) => (
-                            <li key={p.id}>
-                              {p.payment_method_id.name} -{" "}
-                              {p.amount.toLocaleString("vi-VN")}₫ - {p.status}
+                          {payments.map((payment: Payment) => (
+                            <li key={payment.id}>
+                              {payment.payment_method.name} -{" "}
+                              {payment.amount.toLocaleString("vi-VN")}₫ -{" "}
+                              {payment.status}
                             </li>
                           ))}
                         </ul>
@@ -304,7 +308,7 @@ export default function BookedRoomSection({
                       )}
                     </motion.div>
                   </div>
-                  {booking.discount_id?.length > 0 && (
+                  {booking.discounts && booking.discounts.length > 0 && (
                     <motion.div
                       initial={{ x: 30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
@@ -315,17 +319,17 @@ export default function BookedRoomSection({
                         Giảm giá áp dụng:
                       </p>
                       <ul className="tw-list-disc tw-ml-6">
-                        {booking.discount_id.map((d: any, index: any) => (
-                          <li key={d.id || index} className="tw-text-sm">
+                        {booking.discounts.map((discount: Discount, index: number) => (
+                          <li key={discount.id || index} className="tw-text-sm">
                             <p>
-                              <strong>{d.name}</strong>:{" "}
-                              {d.value_type === "percent"
-                                ? `${d.value * 100}%`
-                                : `${formatCurrencyVN(d.value)}`}
+                              <strong>{discount.name}</strong>:{" "}
+                              {discount.value_type === "percent"
+                                ? `${discount.value * 100}%`
+                                : `${formatCurrencyVN(discount.value)}`}
                               <br />
                               <span className="tw-text-gray-400">
-                                Hiệu lực từ {formatDate(d.valid_from)} đến{" "}
-                                {formatDate(d.valid_to)}
+                                Hiệu lực từ {formatDate(discount.valid_from)}{" "}
+                                đến {formatDate(discount.valid_to)}
                               </span>
                             </p>
                           </li>

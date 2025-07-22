@@ -6,15 +6,18 @@ import { FilterParams } from './common';
 
 export interface Comment {
   id: string;
-  room_class_id: RoomClass;
+  room_class_id: string;
   parent_id?: string;
-  employee_id?: Employee;
-  user_id?: User;
+  employee_id?: string;
+  user_id?: string;
   content: string;
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   children: Comment[]; // For nested comments
+  employee?: Employee | null; // Employee can be null if the comment is anonymous
+  user?: User | null; // User can be null if the comment is anonymous
+  room_class: RoomClass; // Room class can be null
 }
 
 export interface CommentResponse {

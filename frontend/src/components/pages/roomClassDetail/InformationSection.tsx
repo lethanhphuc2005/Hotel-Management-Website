@@ -13,7 +13,7 @@ import { formatCurrencyVN } from "@/utils/currencyUtils";
 import RoomBookingBox from "./BookingForm";
 import { capitalizeFirst } from "@/utils/stringUtils";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
-import { Image } from "../../../types/image";
+import { Image } from "@/types/image";
 
 const InformationSection = ({
   roomClass,
@@ -21,8 +21,8 @@ const InformationSection = ({
   images,
 }: {
   roomClass: RoomClass;
-  mainRoomClass: MainRoomClass[];
-  images: any[];
+  mainRoomClass: MainRoomClass;
+  images: Image[];
 }) => {
   const {
     dateRange,
@@ -123,7 +123,7 @@ const InformationSection = ({
           <div className="tw-flex tw-items-center tw-gap-3">
             <FontAwesomeIcon icon={faDoorOpen} className="tw-text-xl" />
             <span>
-              Loại phòng: <strong>{mainRoomClass[0].name}</strong>
+              Loại phòng: <strong>{mainRoomClass.name}</strong>
             </span>
           </div>
         </div>

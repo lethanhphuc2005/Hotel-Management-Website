@@ -3,82 +3,64 @@ import {
   getRoomClassById as getRoomClassByIdApi,
 } from "@/api/roomClassApi";
 import { Review } from "@/types/review";
-import { RoomClass } from "@/types/roomClass";
+import { RoomClass, RoomClassListResponse, RoomClassResponse } from "@/types/roomClass";
+import { Comment } from "@/types/comment";
 
-export const fetchRoomClasses = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: RoomClass[];
-}> => {
+export const fetchRoomClasses = async (): Promise<RoomClassListResponse> => {
   try {
     const response = await getRoomClassesApi();
     const data = response.data;
-    const roomClasses: RoomClass[] = data.map((rc: any) => ({
-      id: rc.id || rc._id,
-      main_room_class_id: rc.main_room_class_id || "",
-      name: rc.name,
-      bed_amount: rc.bed_amount || 0,
-      capacity: rc.capacity || 0,
-      price: rc.price || 0,
-      price_discount: rc.price_discount || 0,
-      view: rc.view || "",
-      description: rc.description || "",
-      status: rc.status || false,
-      created_at: rc.createdAt ? new Date(rc.createdAt) : undefined,
-      updated_at: rc.updated_at ? new Date(rc.updated_at) : undefined,
-      main_room_class: rc.main_room_class,
-      images: rc.images
-        ? rc.images.map((img: any) => ({
+    const roomClasses: RoomClass[] = data.map((item: any) => ({
+      id: item.id || item._id,
+      main_room_class_id: item.main_room_class_id || "",
+      name: item.name,
+      bed_amount: item.bed_amount || 0,
+      capacity: item.capacity || 0,
+      price: item.price || 0,
+      price_discount: item.price_discount || 0,
+      view: item.view || "",
+      description: item.description || "",
+      status: item.status || false,
+      createdAt: item.createdAt ? new Date(item.createdAt) : undefined,
+      updatedAt: item.updatedAt ? new Date(item.updatedAt) : undefined,
+      main_room_class: item.main_room_class || [],
+      images: item.images
+        ? item.images.map((img: any) => ({
             id: img.id || img._id,
             url: img.url,
             target: img.target || "",
-            created_at: img.createdAt ? new Date(img.createdAt) : undefined,
-            updated_at: img.updatedAt ? new Date(img.updatedAt) : undefined,
+            createdAt: img.createdAt ? new Date(img.createdAt) : undefined,
+            updatedAt: img.updatedAt ? new Date(img.updatedAt) : undefined,
           }))
         : [],
-      features: rc.features
-        ? rc.features.map((feature: any) => ({
+      features: item.features
+        ? item.features.map((feature: any) => ({
             id: feature.id || feature._id,
             room_class_id: feature.room_class_id || "",
-            feature_id: feature.feature_id
+            feature_id: feature.feature_id,
+            feature: feature.feature
               ? {
-                  id: feature.feature_id.id || feature.feature_id._id,
-                  name: feature.feature_id.name,
-                  icon: feature.feature_id.icon || "",
-                  description: feature.feature_id.description || "",
-                  image: feature.feature_id.image || "",
+                  id: feature.feature.id || feature.feature._id,
+                  name: feature.feature.name,
+                  icon: feature.feature.icon || "",
+                  image: feature.feature.image || "",
+                  description: feature.feature.description || "",
                 }
               : undefined,
           }))
         : [],
-      reviews: rc.reviews
-        ? rc.reviews.map((review: any) => ({
-            id: review.id || review._id,
-            rating: review.rating || 0,
-            comment: review.comment || "",
-            user: review.user || {},
-            created_at: review.createdAt
-              ? new Date(review.createdAt)
-              : undefined,
-            updated_at: review.updatedAt
-              ? new Date(review.updatedAt)
-              : undefined,
-          }))
-        : [],
-      comments: rc.comments
-        ? rc.comments.map((comment: any) => ({
-            id: comment.id || comment._id,
-
-            content: comment.content || "",
-            user: comment.user || {},
-            created_at: comment.createdAt
-              ? new Date(comment.createdAt)
-              : undefined,
-            updated_at: comment.updatedAt
-              ? new Date(comment.updatedAt)
-              : undefined,
-          }))
-        : [],
+      reviews:
+        item.reviews?.map((review: Review) => ({
+          ...review,
+          createdAt: review.createdAt && new Date(review.createdAt),
+          updatedAt: review.updatedAt && new Date(review.updatedAt),
+        })) || [],
+      comments:
+        item.comments?.map((comment: Comment) => ({
+          ...comment,
+          createdAt: comment.createdAt && new Date(comment.createdAt),
+          updatedAt: comment.updatedAt && new Date(comment.updatedAt),
+        })) || [],
     }));
 
     return {
@@ -101,11 +83,7 @@ export const fetchRoomClasses = async (): Promise<{
 
 export const fetchRoomClassById = async (
   id: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: RoomClass;
-}> => {
+): Promise<RoomClassResponse> => {
   try {
     const response = await getRoomClassByIdApi(id);
     const data = response.data;
@@ -120,69 +98,48 @@ export const fetchRoomClassById = async (
       view: data.view || "",
       description: data.description || "",
       status: data.status || false,
-      created_at: data.createdAt ? new Date(data.createdAt) : undefined,
-      updated_at: data.updated_at ? new Date(data.updated_at) : undefined,
-      main_room_class: data.main_room_class,
+      createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
+      updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+      main_room_class: data.main_room_class || [],
       images: data.images
         ? data.images.map((img: any) => ({
             id: img.id || img._id,
             url: img.url,
             target: img.target || "",
-            created_at: img.createdAt ? new Date(img.createdAt) : undefined,
-            updated_at: img.updatedAt ? new Date(img.updatedAt) : undefined,
+            createdAt: img.createdAt ? new Date(img.createdAt) : undefined,
+            updatedAt: img.updatedAt ? new Date(img.updatedAt) : undefined,
           }))
         : [],
       features: data.features
         ? data.features.map((feature: any) => ({
             id: feature.id || feature._id,
             room_class_id: feature.room_class_id || "",
-            feature_id: feature.feature_id
+            feature_id: feature.feature_id,
+            features: feature.feature
               ? {
-                  id: feature.feature_id.id || feature.feature_id._id,
-                  name: feature.feature_id.name,
-                  icon: feature.feature_id.icon || "",
-                  image: feature.feature_id.image || "",
-                  description: feature.feature_id.description || "",
+                  id: feature.feature.id || feature.feature._id,
+                  name: feature.feature.name,
+                  icon: feature.feature.icon || "",
+                  image: feature.feature.image || "",
+                  description: feature.feature.description || "",
                 }
               : undefined,
           }))
         : [],
-      reviews: data.reviews
-        ? data.reviews.map((review: Review) => ({
-            id: review.id,
-            room_class_id: review.room_class_id || "",
-            parent_id: review.parent_id || null,
-            employee_id: review.employee_id || null,
-            user_id: review.user_id || null,
-            rating: review.rating || null,
-            content: review.content || "",
-            status: review.status || false,
-            created_at: review.created_at
-              ? new Date(review.created_at)
-              : undefined,
-            updated_at: review.updated_at
-              ? new Date(review.updated_at)
-              : undefined,
-          }))
-        : [],
-      comments: data.comments
-        ? data.comments.map((comment: any) => ({
-            id: comment.id || comment._id,
-            room_class_id: comment.room_class_id || "",
-            parent_id: comment.parent_id || null,
-            employee_id: comment.employee_id || null,
-            user_id: comment.user_id || {},
-            content: comment.content || "",
-            status: comment.status || false,
-            created_at: comment.createdAt
-              ? new Date(comment.createdAt)
-              : undefined,
-            updated_at: comment.updatedAt
-              ? new Date(comment.updatedAt)
-              : undefined,
-          }))
-        : [],
+      reviews:
+        data.reviews?.map((review: Review) => ({
+          ...review,
+          createdAt: review.createdAt && new Date(review.createdAt),
+          updatedAt: review.updatedAt && new Date(review.updatedAt),
+        })) || [],
+      comments:
+        data.comments?.map((comment: Comment) => ({
+          ...comment,
+          createdAt: comment.createdAt && new Date(comment.createdAt),
+          updatedAt: comment.updatedAt && new Date(comment.updatedAt),
+        })) || [],
     };
+
     return {
       success: true,
       message: response.message || "Room class fetched successfully",

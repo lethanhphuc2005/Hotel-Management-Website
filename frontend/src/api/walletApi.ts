@@ -1,4 +1,8 @@
 import { api } from "@/lib/axiosInstance";
+import {
+  DepositToWalletRequest,
+  UseWalletByUserIdRequest,
+} from "@/types/wallet";
 
 export const getWalletByUserId = async (userId: string) => {
   try {
@@ -13,11 +17,11 @@ export const getWalletByUserId = async (userId: string) => {
   }
 };
 
-export const useWalletByUserId = async (
-  userId: string,
-  amount: number,
-  note: string
-) => {
+export const useWalletByUserId = async ({
+  userId,
+  amount,
+  note,
+}: UseWalletByUserIdRequest) => {
   try {
     const response = await api.post(`/wallet/use/${userId}`, {
       amount,
@@ -33,11 +37,11 @@ export const useWalletByUserId = async (
   }
 };
 
-export const depositToWallet = async (
-  method: string,
-  userId: string,
-  amount: number
-) => {
+export const depositToWallet = async ({
+  method,
+  userId,
+  amount,
+}: DepositToWalletRequest) => {
   try {
     const response = await api.post(`/wallet/deposit/${method}`, {
       user_id: userId,

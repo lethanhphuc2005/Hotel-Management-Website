@@ -6,30 +6,15 @@ import { formatDate } from "@/utils/dateUtils";
 import { useState } from "react";
 import { capitalizeFirst } from "@/utils/stringUtils";
 import Pagination from "@/components/sections/Pagination";
-import getImageUrl from '../../../utils/getImageUrl';
-
-type Favorite = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  user_id: string;
-  room_class_id: {
-    id: string;
-    name: string;
-    images: { url: string }[];
-    description: string;
-    price: number;
-    view: string;
-    main_room_class_id?: { name: string };
-  };
-};
+import getImageUrl from "../../../utils/getImageUrl";
+import { UserFavorite } from "@/types/userFavorite";
 
 export default function FavoriteSection({
   favorites,
   setFavorites,
 }: {
-  favorites: Favorite[];
-  setFavorites: React.Dispatch<React.SetStateAction<Favorite[]>>;
+  favorites: UserFavorite[];
+  setFavorites: React.Dispatch<React.SetStateAction<UserFavorite[]>>;
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -55,7 +40,7 @@ export default function FavoriteSection({
   const handleDelete = async (userId: string, favoriteId: string) => {
     setDeletingId(favoriteId);
     try {
-      await deleteUserFavorite(userId, favoriteId);
+      await deleteUserFavorite({ userId, favoriteId });
       toast.success("Xóa mục yêu thích thành công");
       setFavorites((prev) => prev.filter((f) => f.id !== favoriteId));
     } catch (error) {
@@ -78,29 +63,27 @@ export default function FavoriteSection({
           <div className="tw-flex tw-justify-between tw-gap-4 tw-items-start">
             {/* Hình ảnh */}
             <img
-              src={getImageUrl(favorite.room_class_id.images?.[0]?.url)}
-              alt={favorite.room_class_id.name}
+              src={getImageUrl(favorite.room_class.images?.[0]?.url)}
+              alt={favorite.room_class.name}
               className="tw-w-28 tw-h-20 tw-object-cover tw-rounded-lg tw-flex-shrink-0 tw-border tw-border-gray-600"
             />
 
             {/* Thông tin */}
             <div className="tw-flex-1">
               <h3 className="tw-text-lg tw-font-bold tw-text-white">
-                {favorite.room_class_id.name}
+                {favorite.room_class.name}
               </h3>
 
               <p className="tw-text-sm tw-text-gray-400">
-                Ngày thêm: {formatDate(favorite.createdAt)}
+                Ngày thêm: {formatDate(favorite.createdAt || "")}
               </p>
               <p className="tw-text-sm tw-text-gray-400">
-                View:{" "}
-                {capitalizeFirst(favorite.room_class_id.view) || "Không rõ"} -
-                Loại:{" "}
-                {favorite.room_class_id.main_room_class_id?.name || "Không rõ"}
+                View: {capitalizeFirst(favorite.room_class.view) || "Không rõ"}{" "}
+                - Loại:{" "}
+                {favorite.room_class.main_room_class?.name || "Không rõ"}
               </p>
               <p className="tw-text-sm tw-text-gray-400 tw-mb-2">
-                Giá: {favorite.room_class_id.price.toLocaleString("vi-VN")}₫ /
-                đêm
+                Giá: {favorite.room_class.price.toLocaleString("vi-VN")}₫ / đêm
               </p>
             </div>
             {/* Nút xoá */}

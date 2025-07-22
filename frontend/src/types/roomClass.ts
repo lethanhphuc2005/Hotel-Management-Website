@@ -3,6 +3,7 @@ import { MainRoomClass } from "./mainRoomClass";
 import { Image } from "./image";
 import { Comment } from "./comment";
 import { Review } from "./review";
+import { PaginationResponse } from "./_common";
 
 export interface RoomClass {
   id: string;
@@ -14,13 +15,26 @@ export interface RoomClass {
   price_discount?: number;
   view: string;
   description: string;
-  status?: boolean;
-  created_at?: Date;
-  updated_at?: Date;
-  main_room_class?: MainRoomClass[];
+  status: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  main_room_class: MainRoomClass;
   images?: Image[];
   features?: RoomClassFeature[];
   comments?: Comment[];
   reviews?: Review[];
   rating?: number; // Thêm rating nếu cần
+}
+
+export interface RoomClassResponse {
+  success: boolean;
+  message?: string;
+  data: RoomClass;
+}
+
+export interface RoomClassListResponse {
+  success: boolean;
+  message: string;
+  data: RoomClass[];
+  pagination?: PaginationResponse;
 }

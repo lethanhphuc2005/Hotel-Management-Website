@@ -57,10 +57,10 @@ const ReviewSection = ({ reviews }: { reviews: Review[] }) => {
           >
             <div className="tw-flex tw-items-center tw-gap-3 tw-mb-2">
               <div className="tw-font-medium tw-text-primary">
-                {review.user_id
-                  ? `${review.user_id.last_name} ${review.user_id.first_name}`
-                  : review.employee_id
-                  ? `Nhân viên: ${review.employee_id.last_name} ${review.employee_id.first_name}`
+                {review.user
+                  ? `${review.user.last_name} ${review.user.first_name}`
+                  : review.employee
+                  ? `Nhân viên: ${review.employee.last_name} ${review.employee.first_name}`
                   : "Ẩn danh"}
               </div>
               {!review.parent_id && review.rating && (
@@ -89,9 +89,9 @@ const ReviewSection = ({ reviews }: { reviews: Review[] }) => {
                     className="tw-bg-gray-800 tw-rounded-lg tw-p-3"
                   >
                     <div className="tw-text-sm tw-text-yellow-400 tw-font-medium">
-                      {reply.employee_id
-                        ? `${reply.employee_id.last_name} ${reply.employee_id.first_name} (Nhân viên)`
-                        : `${reply.user_id?.last_name} ${reply.user_id?.first_name}`}
+                      {reply.employee
+                        ? `${reply.employee.last_name} ${reply.employee.first_name} (Nhân viên)`
+                        : `${reply.user?.last_name} ${reply.user?.first_name}`}
                     </div>
                     <p className="tw-text-sm tw-text-gray-200">
                       {reply.content}

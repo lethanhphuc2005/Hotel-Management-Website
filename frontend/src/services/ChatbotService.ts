@@ -2,20 +2,18 @@ import {
   generateChatResponse as generateChatResponseApi,
   fetchSuggestionsFromGemini as fetchSuggestionsFromGeminiApi,
 } from "@/api/chatbotApi";
-import { ChatMessageHistory } from "@/types/chatbot";
+import {
+  ChatbotResponse,
+  ChatbotSuggestionResponse,
+  ChatMessageHistory,
+  ChatMessageRequest,
+} from "@/types/chatbot";
 import { RoomClass } from "@/types/roomClass";
 
-export const generateChatResponse = async (
-  prompt: string,
-  history: ChatMessageHistory[]
-): Promise<{
-  success: boolean;
-  data: string;
-  rooms?: RoomClass[];
-  isBooking?: boolean;
-  bookingData?: any;
-  history?: ChatMessageHistory[];
-}> => {
+export const generateChatResponse = async ({
+  prompt,
+  history,
+}: ChatMessageRequest): Promise<ChatbotResponse> => {
   try {
     const response = await generateChatResponseApi(prompt, history);
 
@@ -36,21 +34,19 @@ export const generateChatResponse = async (
   }
 };
 
-export const fetchSuggestionsFromGemini = async (): Promise<{
-  success: boolean;
-  data: RoomClass[];
-}> => {
-  try {
-    const response = await fetchSuggestionsFromGeminiApi();
-    return {
-      success: true,
-      data: response.roomClasses || [],
-    };
-  } catch (error) {
-    console.error("Error fetching suggestions from Gemini:", error);
-    return {
-      success: false,
-      data: [],
-    };
-  }
-};
+export const fetchSuggestionsFromGemini =
+  async (): Promise<ChatbotSuggestionResponse> => {
+    try {
+      const response = await fetchSuggestionsFromGeminiApi();
+      return {
+        success: true,
+        data: response.roomClasses || [],
+      };
+    } catch (error) {
+      console.error("Error fetching suggestions from Gemini:", error);
+      return {
+        success: false,
+        data: [],
+      };
+    }
+  };

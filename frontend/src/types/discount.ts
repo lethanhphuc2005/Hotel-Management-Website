@@ -1,3 +1,5 @@
+import { PaginationResponse } from "./_common";
+
 export interface Discount {
   id: string;
   name: string;
@@ -14,20 +16,61 @@ export interface Discount {
   value: number;
   value_type: "percent" | "fixed";
   promo_code?: string;
-  conditions: {
-    min_advance_days: Number;
-    max_advance_days: Number;
-    min_stay_nights: Number;
-    max_stay_nights: Number;
-    min_rooms: Number;
-    user_levels: [String];
-  };
+  conditions: DiscountCondition;
   valid_from: Date;
   valid_to: Date;
-  apply_to_room_class_ids: string[];
+  apply_to_room_class_ids?: string[];
   can_be_stacked: boolean;
   priority: number;
   status: boolean;
-  created_at: Date;
-  updated_at: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface DiscountCondition {
+  min_advance_days?: Number;
+  max_advance_days?: Number;
+  min_stay_nights?: Number;
+  max_stay_nights?: Number;
+  min_rooms?: Number;
+  user_levels?: [String];
+}
+
+export interface DiscountResponse {
+  success: boolean;
+  message: string;
+  data: Discount;
+}
+
+export interface DiscountListResponse {
+  success: boolean;
+  message: string;
+  data: Discount[];
+  pagination?: PaginationResponse;
+}
+
+export interface PreviewDiscountBookingPriceRequest {
+  baseTotal: number;
+  checkInDate: string;
+  checkOutDate: string;
+  roomClassId: string;
+  totalRooms: number;
+}
+
+export interface PreviewDiscountBookingPriceResponse {
+  success: boolean;
+  message: string;
+  data: {
+    originalPrice: number;
+    finalPrice: number;
+    appliedDiscounts: AppliedDiscount[];
+    isPromo?: boolean;
+  };
+}
+
+export interface AppliedDiscount {
+  discountId: string;
+  name: string;
+  amount: number;
+  reason: string;
 }

@@ -164,36 +164,59 @@ bookingSchema.virtual("booking_status", {
   ref: "booking_status",
   localField: "booking_status_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name code status",
+  },
 });
 
 bookingSchema.virtual("booking_method", {
   ref: "booking_method",
   localField: "booking_method_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name status",
+  },
 });
 
 bookingSchema.virtual("user", {
   ref: "user",
   localField: "user_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "first_name last_name email phone_number",
+  },
 });
 
-bookingSchema.virtual("discount", {
+bookingSchema.virtual("discounts", {
   ref: "discount",
   localField: "discount_id",
   foreignField: "_id",
+  options: {
+    select: "name promo_code type value_type value status valid_from valid_to",
+  },
+  justOne: false,
 });
 
-bookingSchema.virtual("payment", {
+bookingSchema.virtual("payments", {
   ref: "payment",
   localField: "_id",
   foreignField: "booking_id",
+  options: {
+    select: "payment_method_id status amount transaction_id payment_date",
+  },
 });
 
 bookingSchema.virtual("employee", {
   ref: "employee",
   localField: "employee_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "first_name last_name email phone_number",
+  },
 });
 
 bookingSchema.virtual("booking_details", {
@@ -206,8 +229,18 @@ bookingSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
+    ret.id = ret._id;
     delete ret._id;
+
+    // Map id trong discounts (mảng)
+    if (Array.isArray(ret.discounts)) {
+      ret.discounts = ret.discounts.map((d) => ({
+        ...d,
+        id: d._id,
+        _id: undefined,
+      }));
+    }
+
     return ret;
   },
 });

@@ -5,31 +5,38 @@ import {
   updateComment as updateCommentApi,
   deleteComment as deleteCommentApi,
 } from "@/api/commentApi";
-import { Comment } from "@/types/comment";
+import {
+  Comment,
+  CommentListResponse,
+  CommentResponse,
+  CreateCommentRequest,
+  DeleteCommentRequest,
+  UpdateCommentRequest,
+} from "@/types/comment";
 
-export const fetchComments = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: Comment[];
-}> => {
+export const fetchComments = async (): Promise<CommentListResponse> => {
   try {
     const response = await getCommnetsApi();
     const data = response.data;
-    const comments: Comment[] = data.map((c: any) => ({
-      id: c.id,
-      room_class_id: c.room_class_id,
-      parent_id: c.parent_id || null,
-      employee_id: c.employee_id || null,
-      user_id: c.user_id || null,
-      content: c.content,
-      status: c.status || true, // Default to true if status is not provided
-      created_at: new Date(c.createdAt || c.created_at),
-      updated_at: new Date(c.updatedAt || c.updated_at),
+    const comments: Comment[] = data.map((comment: any) => ({
+      id: comment.id,
+      room_class_id: comment.room_class_id,
+      parent_id: comment.parent_id || null,
+      employee_id: comment.employee_id || null,
+      user_id: comment.user_id || null,
+      content: comment.content,
+      status: comment.status || true, // Default to true if status is not provided
+      created_at: new Date(comment.createdAt || comment.created_at),
+      updated_at: new Date(comment.updatedAt || comment.updated_at),
+      employee: comment.employee || null, // Assuming employee is included in the response
+      user: comment.user || null, // Assuming user is included in the response
+      room_class: comment.room_class || null, // Assuming room_class is included
     }));
     return {
       success: true,
       message: response.message || "Comments fetched successfully",
       data: comments,
+      pagination: response.pagination, // Assuming pagination is included in the response
     };
   } catch (error: any) {
     const message =
@@ -40,17 +47,14 @@ export const fetchComments = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined, // Return null for pagination in case of error
     };
   }
 };
 
 export const fetchCommentById = async (
   commentId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Comment | null;
-}> => {
+): Promise<CommentResponse> => {
   try {
     const response = await getCommentByIdApi(commentId);
     const data = response.data;
@@ -62,9 +66,13 @@ export const fetchCommentById = async (
       user_id: data.user_id || null,
       content: data.content,
       status: data.status || true, // Default to true if status is not provided
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      employee: data.employee || null, // Assuming employee is included in the response
+      user: data.user || null, // Assuming user is included in the response
+      room_class: data.room_class || null, // Assuming room_class is included
     };
+
     return {
       success: true,
       message: response.message || "Comment fetched successfully",
@@ -78,30 +86,25 @@ export const fetchCommentById = async (
     return {
       success: false,
       message,
-      data: null, // Return null if fetching fails
+      data: null as any, // Return null if comment not found
     };
   }
 };
 
-export const createComment = async (
-  room_class_id: string,
-  parent_id: string | null,
-  user_id: string | null,
-  content: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Comment;
-}> => {
+export const createComment = async ({
+  roomClassId,
+  parentId,
+  userId,
+  content,
+}: CreateCommentRequest): Promise<CommentResponse> => {
   try {
-    const response = await createCommentApi(
-      room_class_id,
-      parent_id,
-      user_id,
-      content
-    );
+    const response = await createCommentApi({
+      roomClassId,
+      parentId,
+      userId,
+      content,
+    });
     const data = response.data;
-    console.log("Comment created:", data);
     const comment: Comment = {
       id: data.id,
       room_class_id: data.room_class_id,
@@ -110,8 +113,11 @@ export const createComment = async (
       user_id: data.user_id || null,
       content: data.content,
       status: data.status || true, // Default to true if status is not provided
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      employee: data.employee || null, // Assuming employee is included in the response
+      user: data.user || null, // Assuming user is included in the response
+      room_class: data.room_class || null, // Assuming room_class is included
     };
     return {
       success: true,
@@ -127,22 +133,18 @@ export const createComment = async (
     return {
       success: false,
       message,
-      data: {} as Comment, // Return null if creation fails
+      data: null as any, // Return null if creation fails
     };
   }
 };
 
-export const updateComment = async (
-  commentId: string,
-  userId: string,
-  content: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Comment | null;
-}> => {
+export const updateComment = async ({
+  commentId,
+  userId,
+  content,
+}: UpdateCommentRequest): Promise<CommentResponse> => {
   try {
-    const response = await updateCommentApi(commentId, userId, content); // Assuming this API can also handle updates
+    const response = await updateCommentApi({ commentId, userId, content }); // Assuming this API can also handle updates
     const data = response.data;
     const comment: Comment = {
       id: data.id,
@@ -152,8 +154,11 @@ export const updateComment = async (
       user_id: data.user_id || null,
       content: data.content,
       status: data.status || true, // Default to true if status is not provided
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      employee: data.employee || null, // Assuming employee is included in the response
+      user: data.user || null, // Assuming user is included in the response
+      room_class: data.room_class || null, // Assuming room_class is included
     };
     return {
       success: true,
@@ -169,24 +174,22 @@ export const updateComment = async (
     return {
       success: false,
       message,
-      data: null, // Return null if update fails
+      data: null as any, // Return null if update fails
     };
   }
 };
 
-export const deleteComment = async (
-  commentId: string,
-  userId: string
-): Promise<{
-  success: boolean;
-  message: string | null;
-}> => {
+export const deleteComment = async ({
+  commentId,
+  userId,
+}: DeleteCommentRequest): Promise<CommentResponse> => {
   try {
-    const response = await deleteCommentApi(commentId, userId);
+    const response = await deleteCommentApi({ commentId, userId });
 
     return {
       success: true,
       message: response.message || "Comment deleted successfully",
+      data: null as any, // Return null as there's no data to return after deletion
     };
   } catch (error: any) {
     const message =
@@ -196,6 +199,7 @@ export const deleteComment = async (
     return {
       success: false,
       message,
+      data: null as any, // Return null if deletion fails
     };
   }
 };

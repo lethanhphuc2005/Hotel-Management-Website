@@ -2,53 +2,48 @@ import {
   getWebsiteContents as getWebsiteContentsApi,
   getWebsiteContentById as getWebsiteContentByIdApi,
 } from "@/api/websiteContentApi";
-import { WebsiteContent } from "@/types/websiteContent";
+import { WebsiteContent, WebsiteContentListResponse, WebsiteContentResponse } from "@/types/websiteContent";
 
-export const fetchWebsiteContents = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: WebsiteContent[];
-}> => {
-  try {
-    const response = await getWebsiteContentsApi();
-    const data = response.data;
-    const websiteContents: WebsiteContent[] = data.map((wc: any) => ({
-      id: wc.id || wc._id,
-      title: wc.title,
-      content_type_id: wc.content_type_id,
-      content: wc.content,
-      image: wc.image || "",
-      content_type: wc.content_type || [],
-      status: wc.status || false,
-      created_at: new Date(wc.createdAt),
-      updated_at: new Date(wc.updatedAt),
-    }));
+export const fetchWebsiteContents =
+  async (): Promise<WebsiteContentListResponse> => {
+    try {
+      const response = await getWebsiteContentsApi();
+      const data = response.data;
+      const websiteContents: WebsiteContent[] = data.map((item: any) => ({
+        id: item.id || item._id,
+        title: item.title,
+        content_type_id: item.content_type_id,
+        content: item.content,
+        image: item.image || "",
+        content_type: item.content_type || [],
+        status: item.status || false,
+        createdAt: new Date(item.createdAt),
+        updatedAt: new Date(item.updatedAt),
+      }));
 
-    return {
-      success: true,
-      message: response.message || "Website contents fetched successfully",
-      data: websiteContents,
-    };
-  } catch (error: any) {
-    const message =
-      error.response?.data?.message ||
-      error.response?.data ||
-      "An error occurred while fetching website contents";
-    return {
-      success: false,
-      message,
-      data: [],
-    };
-  }
-};
+      return {
+        success: true,
+        message: response.message || "Website contents fetched successfully",
+        data: websiteContents,
+        pagination: response.pagination || undefined,
+      };
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "An error occurred while fetching website contents";
+      return {
+        success: false,
+        message,
+        data: [],
+        pagination: undefined,
+      };
+    }
+  };
 
 export const fetchWebsiteContentById = async (
   id: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: WebsiteContent;
-}> => {
+): Promise<WebsiteContentResponse> => {
   try {
     const response = await getWebsiteContentByIdApi(id);
     const data = response.data;
@@ -60,8 +55,8 @@ export const fetchWebsiteContentById = async (
       image: data.image || "",
       content_type: data.content_type || [],
       status: data.status || false,
-      created_at: new Date(data.createdAt),
-      updated_at: new Date(data.updatedAt),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
     };
 
     return {

@@ -13,7 +13,7 @@ import {
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
-import { IUser } from "@/types/user";
+import { User } from "@/types/user";
 
 interface Props {
   formData: {
@@ -26,7 +26,7 @@ interface Props {
     request?: string;
     is_verified?: boolean;
   };
-  profile?: IUser; // Optional profile prop for additional data
+  profile?: User; // Optional profile prop for additional data
 }
 
 const validateUser = (user: any) => {

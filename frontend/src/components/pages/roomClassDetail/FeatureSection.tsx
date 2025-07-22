@@ -3,7 +3,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as solidIcons from "@fortawesome/free-solid-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { Feature } from "@/types/feature";
+import { Feature, RoomClassFeature } from "@/types/feature";
 
 type DefaultFeature = {
   name: string;
@@ -24,7 +24,7 @@ const defaultFeatures: DefaultFeature[] = [
   { name: "Ban công / cửa sổ", icon: "faWindowMaximize" },
 ];
 
-const FeatureSection = ({ features }: { features: Feature[] }) => {
+const FeatureSection = ({ features }: { features: RoomClassFeature[] }) => {
   return (
     <section className="tw-max-w-[1320px] tw-mx-auto tw-mt-10 tw-p-6 tw-shadow-xl  tw-border-t tw-border-white">
       <h3 className="tw-text-2xl tw-font-playfair tw-text-primary tw-font-bold tw-mb-4">

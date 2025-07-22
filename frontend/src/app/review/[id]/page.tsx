@@ -11,25 +11,25 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { getBookingById } from "@/services/BookingService";
 import { useLoading } from "@/contexts/LoadingContext";
-import { Booking } from "@/types/booking";
+import { Booking, BookingDetail } from "@/types/booking";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { createReview } from "@/services/ReviewService";
-import { useRouter } from "next/navigation";
-import getImageUrl from '../../../utils/getImageUrl';
+import getImageUrl from "@/utils/getImageUrl";
+import { ServiceBooking } from "@/types/service";
+import { Discount } from "@/types/discount";
 
 export default function RateAfterBookingPage() {
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
-  const [comments, setComments] = useState<{ [key: string]: string }>({});
+  const [reviews, setReviews] = useState<{ [key: string]: string }>({});
 
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [roomClass, setRoomClass] = useState<any[] | null>(null);
+  const [roomClass, setRoomClass] = useState<BookingDetail[] | null>(null);
   const [didFetch, setDidFetch] = useState(false);
   const searchParams = useParams();
 
   const { setLoading } = useLoading();
   const { user, isLoading: isAuthLoading } = useAuth();
   const bookingId = searchParams.id?.toLocaleString();
-  const router = useRouter();
 
   if (!user) {
     return (
@@ -59,7 +59,7 @@ export default function RateAfterBookingPage() {
       setLoading(true);
       // Lấy thông tin đặt phòng từ API
       const fetchBooking = async () => {
-        const response = await getBookingById(bookingId, user.id);
+        const response = await getBookingById(bookingId);
         if (!response.success) {
           toast.error(response.message || "Không thể lấy thông tin đặt phòng.");
           return;
@@ -91,7 +91,7 @@ export default function RateAfterBookingPage() {
     roomClassId: string
   ) => {
     const rating = ratings[bookingDetailId];
-    const comment = comments[bookingDetailId];
+    const review = reviews[bookingDetailId];
 
     if (!rating) {
       toast.warning("Vui lòng chọn số sao đánh giá.");
@@ -99,14 +99,14 @@ export default function RateAfterBookingPage() {
     }
 
     try {
-      const response = await createReview(
-        booking.id || "",
-        roomClassId,
-        null,
-        user.id,
+      const response = await createReview({
+        bookingId: booking.id,
+        roomClassId: roomClassId,
+        parentId: null,
+        userId: user.id,
         rating,
-        comment
-      );
+        content: review,
+      });
 
       if (!response.success) {
         toast.error(response.message || "Không thể gửi đánh giá.");
@@ -115,11 +115,11 @@ export default function RateAfterBookingPage() {
 
       toast.success("Đánh giá đã được gửi!");
       setRatings((prev) => ({ ...prev, [bookingDetailId]: 0 }));
-      setComments((prev) => ({ ...prev, [bookingDetailId]: "" }));
+      setReviews((prev) => ({ ...prev, [bookingDetailId]: "" }));
     } catch (error) {
       console.error("Lỗi gửi đánh giá:", error);
       toast.error("Không thể gửi đánh giá. Vui lòng thử lại sau.");
-    } 
+    }
   };
 
   return (
@@ -140,10 +140,11 @@ export default function RateAfterBookingPage() {
               Mã đặt phòng: <strong>{booking.id}</strong>
             </li>
             <li>
-              Ngày đặt: <strong>{formatDate(booking.created_at ?? new Date)}</strong>
+              Ngày đặt:{" "}
+              <strong>{formatDate(booking.booking_date ?? new Date())}</strong>
             </li>
             <li>
-              Hình thức: <strong>{booking.booking_method?.[0].name}</strong>
+              Hình thức: <strong>{booking.booking_method?.name}</strong>
             </li>
             <li>
               Họ tên: <strong>{booking.full_name}</strong>
@@ -167,11 +168,11 @@ export default function RateAfterBookingPage() {
               Trả phòng: <strong>{formatDate(checkOutDate)}</strong>
             </li>
 
-            {booking.discount && booking.discount?.length > 0 ? (
+            {booking.discounts && booking.discounts.length > 0 ? (
               <li>
                 <p className="tw-mt-2">Khuyến mãi áp dụng:</p>
                 <ul className="tw-list-disc tw-ml-5">
-                  {booking.discount.map((discount: any) => (
+                  {booking.discounts.map((discount: Discount) => (
                     <li key={discount.id}>
                       {discount.name} -{" "}
                       {discount.value_type === "percent"
@@ -214,20 +215,25 @@ export default function RateAfterBookingPage() {
             <div key={item.id}>
               <div className="tw-bg-[#1a1a1a] tw-p-4 tw-rounded-2xl tw-flex tw-gap-4 tw-shadow-md">
                 <Image
-                  src={getImageUrl(item.room_class_id?.images[0]?.url)}
-                  alt={item.room_class_id?.name || "Phòng"}
+                  src={
+                    getImageUrl(item.room_class.images?.[0].url) ||
+                    "/img/default-room.jpg"
+                  }
+                  alt={item.room_class.name || "Phòng"}
                   width={120}
                   height={120}
                   className="tw-rounded-lg tw-object-cover tw-w-[120px] tw-h-[120px]"
                 />
                 <div className="tw-flex-1 tw-space-y-1 tw-text-sm">
                   <h3 className="tw-text-lg tw-font-semibold tw-text-primary">
-                    {item.room_class_id?.name || "Phòng"}
+                    {item.room_class.name || "Phòng"}
                   </h3>
                   <p>
                     Dịch vụ:{" "}
                     {item.services?.length > 0
-                      ? item.services.map((s: any) => s.name).join(", ")
+                      ? item.services
+                          .map((s: ServiceBooking) => s.service.name)
+                          .join(", ")
                       : "Không có"}
                   </p>
                   <p>
@@ -267,9 +273,9 @@ export default function RateAfterBookingPage() {
 
                 <textarea
                   placeholder="Viết nhận xét của bạn..."
-                  value={comments[item.id] || ""}
+                  value={reviews[item.id] || ""}
                   onChange={(e) =>
-                    setComments((prev) => ({
+                    setReviews((prev) => ({
                       ...prev,
                       [item.id]: e.target.value,
                     }))
@@ -280,7 +286,7 @@ export default function RateAfterBookingPage() {
 
                 <AnimatedButtonPrimary
                   onClick={() =>
-                    handleSubmitReview(item.id, item.room_class_id?.id)
+                    handleSubmitReview(item.id, item.room_class_id)
                   }
                   className="tw-px-6 tw-py-2"
                 >

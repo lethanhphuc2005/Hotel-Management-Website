@@ -11,7 +11,7 @@ export default function RoomInfo({
   numchildrenOver6?: number;
   numAdults?: number;
 }) {
-
+  console.log("RoomInfo", rci);
   const extraBedTeens = Math.max(
     0,
     numchildrenOver6 - ((rci.bed_amount * 2) - numAdults)
@@ -33,7 +33,7 @@ export default function RoomInfo({
           Tiện nghi:
           {rci.features.slice(0, 3).map((feature, index) => (
             <span key={index} className="badge bg-secondary ms-1">
-              {feature.feature_id.name}
+              {feature.feature.name}
             </span>
           ))}
           {rci.features.length > 3 && (

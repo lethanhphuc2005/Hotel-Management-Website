@@ -5,45 +5,41 @@ import {
   updateReview as updateReviewApi,
   deleteReview as deleteReviewApi,
 } from "@/api/reviewApi";
-import { Review } from "@/types/review";
+import {
+  Review,
+  CreateReviewRequest,
+  DeleteReviewRequest,
+  ReviewListResponse,
+  ReviewResponse,
+  UpdateReviewRequest,
+} from "@/types/review";
 
-export const fetchReviews = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: Review[];
-}> => {
+export const fetchReviews = async (): Promise<ReviewListResponse> => {
   try {
     const response = await getReviewsApi();
     const data = response.data;
-    const reviews: Review[] = data.map((r: any) => ({
-      id: r.id || r.id,
-      booking_id: r.booking_id || null, // booking_id may not be present in some reviews
-      room_class_id: r.room_class_id,
-      parent_id: r.parent_id || null,
-      employee_id: r.employee_id || null,
-      user_id: r.user_id || null,
-      rating: r.rating || null, // Rating can be null if not provided
-      content: r.content,
-      status: r.status || true, // Default to true if status is not provided
-      created_at: new Date(r.createdAt || r.created_at),
-      updated_at: new Date(r.updatedAt || r.updated_at),
-      parent_review: r.parent_review
-        ? r.parent_review.map((pr: any) => ({
-            id: pr._id || pr.id,
-            room_class_id: pr.room_class_id,
-            parent_id: pr.parent_id || null,
-            employee_id: pr.employee_id || null,
-            user_id: pr.user_id || null,
-            content: pr.content,
-            created_at: new Date(pr.createdAt || pr.created_at),
-            updated_at: new Date(pr.updatedAt || pr.updated_at),
-          }))
-        : [],
+    const reviews: Review[] = data.map((item: any) => ({
+      id: item._id || item.id,
+      booking_id: item.booking_id || null, // booking_id may not be present in some reviews
+      room_class_id: item.room_class_id,
+      parent_id: item.parent_id || null,
+      employee_id: item.employee_id || null,
+      user_id: item.user_id || null,
+      rating: item.rating || null, // Rating can be null if not provided
+      content: item.content,
+      status: item.status || true, // Default to true if status is not provided
+      createdAt: new Date(item.createdAt || item.created_at),
+      updatedAt: new Date(item.updatedAt || item.updated_at),
+      employee: data.employee || null, // Employee can be null if the review is not related to an employee
+      user: data.user || null, // User can be null if the review is anonymous
+      booking: data.booking || null, // Booking can be null if not provided
+      room_class: data.room_class || null, // Room class can be null if not provided
     }));
     return {
       success: true,
       message: response.message || "Reviews fetched successfully",
       data: reviews,
+      pagination: response.pagination || undefined, // Include pagination if available
     };
   } catch (error: any) {
     const message =
@@ -54,17 +50,14 @@ export const fetchReviews = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined, // No pagination on error
     };
   }
 };
 
 export const fetchReviewById = async (
   reviewId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Review;
-}> => {
+): Promise<ReviewResponse> => {
   try {
     const response = await getReviewByIdApi(reviewId);
     const data = response.data;
@@ -78,9 +71,14 @@ export const fetchReviewById = async (
       rating: data.rating || null, // Rating can be null if not provided
       content: data.content,
       status: data.status || true, // Default to true if status is not provided
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      employee: data.employee || null, // Employee can be null if the review is not related to an employee
+      user: data.user || null, // User can be null if the review is anonymous
+      booking: data.booking || null, // Booking can be null if not provided
+      room_class: data.room_class || null, // Room class can be null if not provided
     };
+
     return {
       success: true,
       message: response.message || "Review fetched successfully",
@@ -99,41 +97,42 @@ export const fetchReviewById = async (
   }
 };
 
-export const createReview = async (
-  bookingId: string,
-  roomClassId: string,
-  parentId: string | null,
-  userId: string,
-  rating: number | null,
-  content: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Review;
-}> => {
+export const createReview = async ({
+  bookingId,
+  roomClassId,
+  parentId,
+  userId,
+  rating,
+  content,
+}: CreateReviewRequest): Promise<ReviewResponse> => {
   try {
-    const response = await createReviewApi(
+    const response = await createReviewApi({
       bookingId,
       roomClassId,
       parentId,
       userId,
       rating,
-      content
-    );
+      content,
+    });
     const data = response.data;
     const review: Review = {
       id: data._id || data.id,
-      booking_id: data.booking_id || bookingId,
+      booking_id: data.booking_id || null, // booking_id may not be present in some reviews
       room_class_id: data.room_class_id,
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
-      rating: data.rating || null,
+      rating: data.rating || null, // Rating can be null if not provided
       content: data.content,
       status: data.status || true, // Default to true if status is not provided
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      employee: data.employee || null, // Employee can be null if the review is not related to an employee
+      user: data.user || null, // User can be null if the review is anonymous
+      booking: data.booking || null, // Booking can be null if not provided
+      room_class: data.room_class || null, // Room class can be null if not provided
     };
+
     return {
       success: true,
       message: response.message || "Review created successfully",
@@ -152,32 +151,38 @@ export const createReview = async (
   }
 };
 
-export const updateReview = async (
-  reviewId: string,
-  userId: string,
-  rating: number | null,
-  content: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Review;
-}> => {
+export const updateReview = async ({
+  reviewId,
+  userId,
+  rating,
+  content,
+}: UpdateReviewRequest): Promise<ReviewResponse> => {
   try {
-    const response = await updateReviewApi(reviewId, userId, rating, content);
+    const response = await updateReviewApi({
+      reviewId,
+      userId,
+      rating,
+      content,
+    });
     const data = response.data;
     const review: Review = {
       id: data._id || data.id,
-      booking_id: data.booking_id || null, // booking_id may not be present in update
+      booking_id: data.booking_id || null, // booking_id may not be present in some reviews
       room_class_id: data.room_class_id,
       parent_id: data.parent_id || null,
       employee_id: data.employee_id || null,
       user_id: data.user_id || null,
-      rating: data.rating || null,
+      rating: data.rating || null, // Rating can be null if not provided
       content: data.content,
       status: data.status || true, // Default to true if status is not provided
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      employee: data.employee || null, // Employee can be null if the review is not related to an employee
+      user: data.user || null, // User can be null if the review is anonymous
+      booking: data.booking || null, // Booking can be null if not provided
+      room_class: data.room_class || null, // Room class can be null if not provided
     };
+
     return {
       success: true,
       message: response.message || "Review updated successfully",
@@ -196,18 +201,16 @@ export const updateReview = async (
   }
 };
 
-export const deleteReview = async (
-  reviewId: string,
-  userId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-}> => {
+export const deleteReview = async ({
+  reviewId,
+  userId,
+}: DeleteReviewRequest): Promise<ReviewResponse> => {
   try {
-    const response = await deleteReviewApi(reviewId, userId);
+    const response = await deleteReviewApi({ reviewId, userId });
     return {
       success: true,
       message: response.message || "Review deleted successfully",
+      data: null as any, // No data returned on delete
     }; // { success: true }
   } catch (error: any) {
     const message =
@@ -217,6 +220,7 @@ export const deleteReview = async (
     return {
       success: false,
       message,
+      data: null as any, // No data returned on error
     }; // { success: false, message: string
   }
 };

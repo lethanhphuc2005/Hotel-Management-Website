@@ -138,7 +138,7 @@ export default function RoomClassItem({
         total: totalPrice,
         hasSaturdayNight: hasSaturday,
         hasSundayNight: hasSunday,
-        features: rci?.features?.map((f) => f.feature_id.name) ?? [],
+        features: rci?.features?.map((f) => f.feature.name) ?? [],
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");

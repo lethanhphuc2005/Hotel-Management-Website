@@ -33,6 +33,10 @@ ImageSchema.virtual("room_class", {
   ref: (doc) => doc.target,
   localField: "room_class_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description status",
+  },
 });
 
 ImageSchema.set("toJSON", {

@@ -1,22 +1,28 @@
 import { createPayment as createPaymentApi } from "@/api/paymentApi";
-import { Payment, PaymentRequest, PaymentResponse } from "@/types/payment";
+import {
+  CreatePaymentResponse,
+  CreatePaymentResquest,
+  PaymentUrl,
+} from "@/types/payment";
 
-export const createPayment = async (
-  method: string,
-  orderId: string,
-  orderInfo: string,
-  amount: number
-): Promise<{
-  success: boolean;
-  message: string;
-  data: PaymentResponse;
-}> => {
+export const createPayment = async ({
+  method,
+  orderId,
+  orderInfo,
+  amount,
+}: CreatePaymentResquest): Promise<CreatePaymentResponse> => {
   try {
-    const response = await createPaymentApi(method, orderId, orderInfo, amount);
+    const response = await createPaymentApi({
+      method,
+      orderId,
+      orderInfo,
+      amount,
+    });
     const data = response.data;
-    const payment: PaymentResponse = {
-      payUrl: data.payUrl || data.order_url,
+    const payment: PaymentUrl = {
+      payUrl: data.payUrl,
     };
+
     return {
       success: true,
       message: "Payment created successfully",
@@ -25,12 +31,14 @@ export const createPayment = async (
   } catch (error: any) {
     const message =
       error.response?.data?.message ||
-      error.response?.message || 
+      error.response?.message ||
       "Failed to create payment";
     return {
       success: false,
       message,
-      data: {} as PaymentResponse, // Return an empty object for data
+      data: {
+        payUrl: "",
+      },
     };
   }
 };

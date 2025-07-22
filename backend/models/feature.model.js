@@ -52,29 +52,40 @@ FeatureSchema.set("toJSON", {
   },
 });
 
-const Room_Class_FeatureSchema = new mongoose.Schema({
-  room_class_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "room_class",
-    required: true,
+const Room_Class_FeatureSchema = new mongoose.Schema(
+  {
+    room_class_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "room_class",
+      required: true,
+    },
+    feature_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "feature",
+      required: true,
+    },
   },
-  feature_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "feature",
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 Room_Class_FeatureSchema.virtual("room_class", {
   ref: "room_class",
   localField: "room_class_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description status",
+  },
 });
 
 Room_Class_FeatureSchema.virtual("feature", {
   ref: "feature",
   localField: "feature_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description image icon status",
+  },
 });
 
 Room_Class_FeatureSchema.set("toJSON", {

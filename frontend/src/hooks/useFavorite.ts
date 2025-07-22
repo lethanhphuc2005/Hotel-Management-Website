@@ -28,11 +28,11 @@ export function useFavorite(
       return;
     }
     const parsed = JSON.parse(loginData);
-    const uid = parsed.id;
+    const userId = parsed.id;
 
     try {
       if (!liked) {
-        const res = await createUserFavorite(uid, roomClassId);
+        const res = await createUserFavorite({ userId, roomClassId });
         setLiked(true);
         setFavoriteId(String(res.data.id));
         toast.success("Đã thêm vào yêu thích!");
@@ -41,7 +41,7 @@ export function useFavorite(
           toast.error("Không tìm thấy mục yêu thích để xoá!");
           return;
         }
-        await deleteUserFavorite(uid, favoriteId);
+        await deleteUserFavorite({ userId, favoriteId });
         setLiked(false);
         setFavoriteId(null);
         toast.success("Đã xoá khỏi yêu thích!");

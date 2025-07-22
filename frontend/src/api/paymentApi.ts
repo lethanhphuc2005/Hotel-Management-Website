@@ -1,16 +1,17 @@
 import { publicApi } from "@/lib/axiosInstance";
+import { CreatePaymentResquest } from "@/types/payment";
 
-export const createPayment = async (
-  method: string,
-  orderId: string,
-  orderInfo: string,
-  amount: number
-) => {
+export const createPayment = async ({
+  method,
+  orderId,
+  orderInfo,
+  amount,
+}: CreatePaymentResquest) => {
   try {
     const response = await publicApi.post(`/payment/${method}/create`, {
-      orderId: orderId,
-      orderInfo: orderInfo,
-      amount: amount,
+      orderId,
+      orderInfo,
+      amount,
     });
     if (response.status !== 200 && response.status !== 201) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);

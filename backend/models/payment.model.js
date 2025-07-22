@@ -48,6 +48,9 @@ PaymentSchema.virtual("payment_method", {
   localField: "payment_method_id",
   foreignField: "_id",
   justOne: true,
+  options: {
+    select: "name status",
+  },
 });
 
 PaymentSchema.set("toJSON", {

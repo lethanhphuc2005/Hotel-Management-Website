@@ -4,29 +4,29 @@
     <div class="popup-section">
       <strong>Người gửi:</strong>
       <span>
-        {{ comment.user_id?.last_name }}
-        {{ comment.user_id?.first_name }}
+        {{ comment.user?.last_name }}
+        {{ comment.user?.first_name }}
       </span>
     </div>
 
     <div class="popup-section">
       <strong>Email: </strong>
-      <span>{{ comment.user_id?.email }}</span>
+      <span>{{ comment.user?.email }}</span>
     </div>
 
     <div class="popup-section">
       <strong>SĐT: </strong>
-      <span>{{ comment.user_id?.phone_number }}</span>
+      <span>{{ comment.user?.phone_number }}</span>
     </div>
 
     <div class="popup-section">
       <strong>Địa chỉ: </strong>
-      <span>{{ comment.user_id?.address }}</span>
+      <span>{{ comment.user?.address }}</span>
     </div>
 
     <div class="popup-section">
       <strong>Phòng: </strong>
-      <span>{{ comment.room_class_id.name }}</span>
+      <span>{{ comment.room_class.name }}</span>
     </div>
 
     <div class="popup-section">

@@ -28,6 +28,10 @@ ContentTypeSchema.virtual("website_content_list", {
   ref: "website_content",
   localField: "_id",
   foreignField: "content_type_id",
+  justOne: false,
+  options: {
+    select: "title content status createdAt updatedAt",
+  },
 });
 
 ContentTypeSchema.set("toJSON", {

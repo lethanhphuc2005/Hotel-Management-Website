@@ -1,3 +1,5 @@
+import { RoomClass } from "./roomClass";
+
 export interface ChatMessage {
   sender: "user" | "bot";
   text: string;
@@ -21,3 +23,16 @@ export interface ChatMessageResponse {
   isBooking?: boolean;   // Để biết có nhảy sang thanh toán không
 }
 
+export interface ChatbotResponse {
+  success: boolean;
+  data: string;
+  rooms?: RoomClass[];
+  isBooking?: boolean;
+  bookingData?: any;
+  history?: ChatMessageHistory[];
+}
+
+export interface ChatbotSuggestionResponse {
+  success: boolean;
+  data: RoomClass[];
+}

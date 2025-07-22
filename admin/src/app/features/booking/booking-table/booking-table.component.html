@@ -21,7 +21,7 @@
     {{ booking.check_out_date | date : "dd/MM/yyyy" }}
   </div>
   <div>{{ booking.booking_date | date : "dd/MM/yyyy" }}</div>
-  <div>{{ booking.booking_status[0].code | bookingStatusLabel }}</div>
+  <div>{{ booking.booking_status.code | bookingStatusLabel }}</div>
   <div>{{ booking.payment_status | bookingPaymentLabel }}</div>
   <div>{{ booking.total_price | currency : "VND" }}</div>
   <div class="actions">

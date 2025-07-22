@@ -27,7 +27,8 @@ const ProfilePage = () => {
     logout,
   } = useProfile();
 
-  const [activeTab, setActiveTab] = useState("account");
+  const [activeTab, setActiveTab] = useState("account"); // ✅ GỌI HOOK NGAY TRÊN
+
   const handleLogout = () => {
     logout();
   };
@@ -42,10 +43,19 @@ const ProfilePage = () => {
         return <PasswordSection formData={formData} />;
       case "booked-rooms":
         return (
-          <BookingSection bookings={bookedRooms} setBookings={setBookedRooms} />
+          <BookingSection
+            bookings={bookedRooms}
+            setBookings={setBookedRooms}
+          />
         );
       case "comments":
-        return <CommentSection comments={comments} setComments={setComments} />;
+        return (
+          <CommentSection
+            userId={profile?.id || ""}
+            comments={comments}
+            setComments={setComments}
+          />
+        );
       case "reviews":
         return <ReviewSection reviews={reviews} setReviews={setReviews} />;
       case "favorites":
@@ -53,12 +63,12 @@ const ProfilePage = () => {
           <FavoriteSection favorites={favorites} setFavorites={setFavorites} />
         );
       default:
-        return <AccountSection formData={formData} />;
+        return <AccountSection formData={formData} profile={profile} />;
     }
   };
 
   if (!profile)
-    return <div className={styles.loading}>Đang tải dữ liệu...</div>;
+    return <div className={styles.loading}>Đang tải dữ liệu...</div>; // ✅ RETURN SAU HOOK
 
   return (
     <div className={styles.container}>

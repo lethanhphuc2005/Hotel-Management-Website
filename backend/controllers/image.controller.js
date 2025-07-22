@@ -77,7 +77,7 @@ const imageController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const images = await Image.find(query)
-        .populate([{ path: "room_class" }])
+        .populate("room_class")
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
@@ -127,13 +127,11 @@ const imageController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const images = await Image.find(query)
-        .populate([
-          {
-            path: "room_class",
-            match: { status: true }, // Chỉ lấy loại phòng có trạng thái true
-            select: "-status -createdAt -updatedAt", // Loại bỏ các trường không cần thiết
-          },
-        ])
+        .populate({
+          path: "room_class",
+          match: { status: true }, // Chỉ lấy loại phòng có trạng thái true
+          select: "-status -createdAt -updatedAt", // Loại bỏ các trường không cần thiết
+        })
         .select("-status -createdAt -updatedAt") // Loại bỏ các trường không cần thiết
         .sort(sortOption)
         .skip(skip)
@@ -164,7 +162,7 @@ const imageController = {
   getImageById: async (req, res) => {
     try {
       const imageData = await Image.findById(req.params.id)
-        .populate([{ path: "room_class" }])
+        .populate("room_class")
         .exec();
       if (!imageData) {
         return res

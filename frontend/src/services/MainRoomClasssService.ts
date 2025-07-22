@@ -2,68 +2,61 @@ import {
   getMainRoomClasses as getMainRoomClassesApi,
   getMainRoomClassById as getMainRoomClassByIdApi,
 } from "@/api/mainRoomClassApi";
-import { MainRoomClass } from "@/types/mainRoomClass";
+import { MainRoomClass, MainRoomClassListResponse, MainRoomClassResponse } from "@/types/mainRoomClass";
 
-export const fetchMainRoomClasses = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: MainRoomClass[];
-}> => {
-  try {
-    const response = await getMainRoomClassesApi();
-    const data = response.data;
-    const mainRoomClasses: MainRoomClass[] = data.map((mrc: any) => ({
-      id: mrc.id,
-      name: mrc.name,
-      description: mrc.description || "",
-      status: mrc.status || false,
-      created_at: new Date(mrc.createdAt),
-      updated_at: new Date(mrc.updatedAt),
-      room_class_list: mrc.room_class_list
-        ? mrc.room_class_list.map((rc: any) => ({
-            id: rc.id,
-            name: rc.name,
-            description: rc.description || "",
-            status: rc.status || false,
-            created_at: new Date(rc.createdAt),
-            updated_at: new Date(rc.updatedAt),
-          }))
-        : [],
-      images: mrc.images
-        ? mrc.images.map((img: any) => ({
-            id: img.id,
-            url: img.url,
-            target: img.target || "",
-            created_at: new Date(img.createdAt),
-            updated_at: new Date(img.updatedAt),
-          }))
-        : [],
-    }));
-    return {
-      success: true,
-      message: response.message || "Main room classes fetched successfully",
-      data: mainRoomClasses,
-    };
-  } catch (error: any) {
-    const message =
-      error.response?.data?.message ||
-      error.response?.data ||
-      "An error occurred while fetching main room classes";
-    return {
-      success: false,
-      message,
-      data: [],
-    };
-  }
-};
+export const fetchMainRoomClasses =
+  async (): Promise<MainRoomClassListResponse> => {
+    try {
+      const response = await getMainRoomClassesApi();
+      const data = response.data;
+      const mainRoomClasses: MainRoomClass[] = data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || "",
+        status: item.status || false,
+        createdAt: new Date(item.createdAt),
+        updatedAt: new Date(item.updatedAt),
+        room_class_list: item.room_class_list
+          ? item.room_class_list.map((rc: any) => ({
+              id: rc.id,
+              name: rc.name,
+              description: rc.description || "",
+              status: rc.status || false,
+            }))
+          : [],
+        images: item.images
+          ? item.images.map((img: any) => ({
+              id: img.id,
+              url: img.url,
+              target: img.target || "",
+              createdAt: new Date(img.createdAt),
+              updatedAt: new Date(img.updatedAt),
+            }))
+          : [],
+      }));
+      return {
+        success: true,
+        message: response.message || "Main room classes fetched successfully",
+        data: mainRoomClasses,
+        pagination: response.pagination || undefined,
+      };
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "An error occurred while fetching main room classes";
+      return {
+        success: false,
+        message,
+        data: [],
+        pagination: undefined,
+      };
+    }
+  };
 
 export const fetchMainRoomClassById = async (
   id: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: MainRoomClass | null;
-}> => {
+): Promise<MainRoomClassResponse> => {
   try {
     const response = await getMainRoomClassByIdApi(id);
     const data = response.data;
@@ -72,16 +65,14 @@ export const fetchMainRoomClassById = async (
       name: data.name,
       description: data.description || "",
       status: data.status || false,
-      created_at: new Date(data.createdAt),
-      updated_at: new Date(data.updatedAt),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
       room_class_list: data.room_class_list
         ? data.room_class_list.map((rc: any) => ({
             id: rc.id,
             name: rc.name,
             description: rc.description || "",
             status: rc.status || false,
-            created_at: new Date(rc.createdAt),
-            updated_at: new Date(rc.updatedAt),
           }))
         : [],
       images: data.images
@@ -89,8 +80,8 @@ export const fetchMainRoomClassById = async (
             id: img.id,
             url: img.url,
             target: img.target || "",
-            created_at: new Date(img.createdAt),
-            updated_at: new Date(img.updatedAt),
+            createdAt: new Date(img.createdAt),
+            updatedAt: new Date(img.updatedAt),
           }))
         : [],
     };
@@ -108,7 +99,7 @@ export const fetchMainRoomClassById = async (
     return {
       success: false,
       message,
-      data: null,
+      data: null as any, // Adjust type as necessary
     };
   }
 };

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { RoomClass } from "@/types/roomClass";
+import { DateRange } from "@/types/_common";
 
 interface FilterParams {
   roomClasses: RoomClass[];
@@ -16,7 +17,7 @@ interface FilterParams {
       age7to17: number;
     };
   };
-  dateRange: { startDate: Date; endDate: Date; key: string }[];
+  dateRange: DateRange[];
 }
 
 export function useRoomFilterLogic({
@@ -32,7 +33,11 @@ export function useRoomFilterLogic({
 }: FilterParams) {
   return useMemo(() => {
     // thuật toán tính số giường cần
-    function calculateMinBedsNeeded(adults: number, teens: number, kidsUnder6: number) {
+    function calculateMinBedsNeeded(
+      adults: number,
+      teens: number,
+      kidsUnder6: number
+    ) {
       let beds = 0;
       let remainingAdults = adults;
       let remainingTeens = teens;
@@ -97,7 +102,11 @@ export function useRoomFilterLogic({
       numChildrenUnder6 - maxChildrenCanShare
     );
     const totalNeedBed = numAdults + numChildrenOver6 + numChildrenNeedBed;
-    const minBedsNeeded = calculateMinBedsNeeded(numAdults, numChildrenOver6, numChildrenUnder6);
+    const minBedsNeeded = calculateMinBedsNeeded(
+      numAdults,
+      numChildrenOver6,
+      numChildrenUnder6
+    );
 
     const isSpecialCase =
       (numAdults === 1 && numChildrenOver6 === 1 && numChildrenUnder6 === 1) ||
@@ -118,7 +127,7 @@ export function useRoomFilterLogic({
       const matchFeatures =
         selectedFeatureIds.length === 0 ||
         selectedFeatureIds.every((selectedId) =>
-          item.features?.some((f) => f.feature_id.id === selectedId)
+          item.features?.some((f) => f.feature.id === selectedId)
         );
 
       const matchMainRoomClass =
@@ -136,8 +145,7 @@ export function useRoomFilterLogic({
 
     // --- Lọc theo số giường phù hợp ---
     const suitableRoomClass = filteredRoomClass.filter(
-      (room) =>
-        room.bed_amount >= minBedsNeeded
+      (room) => room.bed_amount >= minBedsNeeded
     );
 
     // --- Ưu tiên phòng ít giường nhất ---
@@ -155,15 +163,15 @@ export function useRoomFilterLogic({
     const displayRoomClass = isSpecialCase
       ? [...topRooms, ...otherRooms]
       : suitableRoomClass
-        .map((room) => ({
-          ...room,
-          isSuitable: room.bed_amount >= minBedsNeeded,
-        }))
-        .sort((a, b) => {
-          if (a.isSuitable && !b.isSuitable) return -1;
-          if (!a.isSuitable && b.isSuitable) return 1;
-          return a.bed_amount - b.bed_amount;
-        });
+          .map((room) => ({
+            ...room,
+            isSuitable: room.bed_amount >= minBedsNeeded,
+          }))
+          .sort((a, b) => {
+            if (a.isSuitable && !b.isSuitable) return -1;
+            if (!a.isSuitable && b.isSuitable) return 1;
+            return a.bed_amount - b.bed_amount;
+          });
 
     // --- Check quá tải ---
     const maxCapacity = filteredRoomClass.reduce(
@@ -183,25 +191,30 @@ export function useRoomFilterLogic({
     //   numChildrenOver6 > 0 && totalNeedBed > minBedsNeeded * 2;
 
     // --- Sắp xếp displayRoomClass theo sortOption ---
-    const displayRoomClassSorted = [...displayRoomClass].map((room) => {
-      const reviews = room.reviews || [];
-      const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
-      const rating = reviews.length ? totalRating / reviews.length : 0;
-      return { ...room, rating };
-    }).sort((a, b) => {
-      switch (sortOption) {
-        case "price_asc":
-          return a.price - b.price;
-        case "price_desc":
-          return b.price - a.price;
-        case "rating_asc":
-          return (a.rating || 0) - (b.rating || 0);
-        case "rating_desc":
-          return (b.rating || 0) - (a.rating || 0);
-        default:
-          return 0;
-      }
-    });
+    const displayRoomClassSorted = [...displayRoomClass]
+      .map((room) => {
+        const reviews = room.reviews || [];
+        const totalRating = reviews.reduce(
+          (sum, r) => sum + (r.rating || 0),
+          0
+        );
+        const rating = reviews.length ? totalRating / reviews.length : 0;
+        return { ...room, rating };
+      })
+      .sort((a, b) => {
+        switch (sortOption) {
+          case "price_asc":
+            return a.price - b.price;
+          case "price_desc":
+            return b.price - a.price;
+          case "rating_asc":
+            return (a.rating || 0) - (b.rating || 0);
+          case "rating_desc":
+            return (b.rating || 0) - (a.rating || 0);
+          default:
+            return 0;
+        }
+      });
 
     return {
       filteredRoomClass,

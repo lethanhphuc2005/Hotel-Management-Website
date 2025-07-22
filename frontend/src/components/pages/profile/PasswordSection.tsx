@@ -58,7 +58,7 @@ export function PasswordSection({ formData }: Props) {
         });
         return;
       }
-      const res = await changePassword(user.id, password, newPassword);
+      const res = await changePassword({userId: user.id, password, newPassword});
       if (!res.success) {
         toast.error(res.message);
         return;

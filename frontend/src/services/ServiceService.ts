@@ -2,31 +2,28 @@ import {
   getServices as getServicesApi,
   getServiceById as getServiceByIdApi,
 } from "@/api/serviceApi";
-import { Service } from "@/types/service";
+import { Service, ServiceListResponse, ServiceResponse } from "@/types/service";
 
-export const fetchServices = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: Service[];
-}> => {
+export const fetchServices = async (): Promise<ServiceListResponse> => {
   try {
     const response = await getServicesApi();
     const data = response.data;
-    const services: Service[] = data.map((s: any) => ({
-      id: s.id || s._id,
-      name: s.name,
-      price: s.price,
-      description: s.description || "",
-      image: s.image || "",
-      status: s.status || false,
-      created_at: new Date(s.createdAt),
-      updated_at: new Date(s.updatedAt),
+    const services: Service[] = data.map((item: any) => ({
+      id: item.id || item._id,
+      name: item.name,
+      price: item.price,
+      description: item.description || "",
+      image: item.image || "",
+      status: item.status || false,
+      createdAt: new Date(item.createdAt),
+      updatedAt: new Date(item.updatedAt),
     }));
 
     return {
       success: true,
       message: response.message || "Services fetched successfully",
       data: services,
+      pagination: response.pagination || undefined,
     };
   } catch (error: any) {
     const message =
@@ -37,17 +34,14 @@ export const fetchServices = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined,
     };
   }
 };
 
 export const fetchServiceById = async (
   id: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: Service;
-}> => {
+): Promise<ServiceResponse> => {
   try {
     const response = await getServiceByIdApi(id);
     const data = response.data;
@@ -58,8 +52,8 @@ export const fetchServiceById = async (
       description: data.description || "",
       image: data.image || "",
       status: data.status || false,
-      created_at: new Date(data.createdAt),
-      updated_at: new Date(data.updatedAt),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
     };
 
     return {

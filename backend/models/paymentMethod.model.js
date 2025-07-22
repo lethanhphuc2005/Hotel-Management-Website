@@ -23,8 +23,8 @@ const PaymentMethodSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-PaymentMethodSchema.virtual("bookings", {
-  ref: "booking",
+PaymentMethodSchema.virtual("payments", {
+  ref: "payment",
   localField: "_id",
   foreignField: "payment_method_id",
 });

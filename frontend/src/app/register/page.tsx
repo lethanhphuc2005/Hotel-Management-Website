@@ -79,14 +79,14 @@ const RegisterPage = () => {
 
       try {
         // Gửi yêu cầu tạo tài khoản và gửi OTP
-        const res = await register(
+        const res = await register({
           first_name,
           last_name,
           email,
           password,
-          phone,
-          address
-        );
+          phone_number: phone,
+          address,
+        });
 
         if (!res.success) {
           toast.error(res.message);
@@ -108,7 +108,7 @@ const RegisterPage = () => {
       }
 
       try {
-        const res = await verifyEmail(email, otp);
+        const res = await verifyEmail({ email, verificationCode: otp });
         if (!res.success) {
           toast.error(res.message);
           return;

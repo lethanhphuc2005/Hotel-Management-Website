@@ -1,4 +1,9 @@
 import { api, publicApi } from "@/lib/axiosInstance";
+import {
+  CreateReviewRequest,
+  DeleteReviewRequest,
+  UpdateReviewRequest,
+} from "@/types/review";
 
 export const getReviews = async () => {
   const response = await publicApi.get(`/review/user`);
@@ -16,14 +21,14 @@ export const getReviewById = async (reviewId: string) => {
   return response.data; // { reviewId, content, createdAt, ... }
 };
 
-export const createReview = async (
-  bookingId: string,
-  roomClassId: string,
-  parentId: string | null,
-  userId: string,
-  rating: number | null,
-  content: string
-) => {
+export const createReview = async ({
+  bookingId,
+  roomClassId,
+  parentId,
+  userId,
+  rating,
+  content,
+}: CreateReviewRequest) => {
   const response = await api.post("/review", {
     booking_id: bookingId,
     room_class_id: roomClassId,
@@ -38,14 +43,14 @@ export const createReview = async (
   return response.data; // { reviewId, content, createdAt, ... }
 };
 
-export const updateReview = async (
-  reviewId: string,
-  user_id: string,
-  rating: number | null,
-  content: string
-) => {
+export const updateReview = async ({
+  reviewId,
+  userId,
+  rating,
+  content,
+}: UpdateReviewRequest) => {
   const response = await api.put(`/review/${reviewId}`, {
-    user_id,
+    user_id: userId,
     rating,
     content,
   });
@@ -55,7 +60,10 @@ export const updateReview = async (
   return response.data; // { reviewId, content, updatedAt, ... }
 };
 
-export const deleteReview = async (reviewId: string, userId: string) => {
+export const deleteReview = async ({
+  reviewId,
+  userId,
+}: DeleteReviewRequest) => {
   const response = await api.put(`/review/toggle/${reviewId}`, {
     user_id: userId,
   });

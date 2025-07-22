@@ -3,6 +3,12 @@ import { useLoading } from "@/contexts/LoadingContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchProfile } from "@/services/ProfileService";
+import { User } from "@/types/user";
+import { Booking } from "@/types/booking";
+import { Review } from "@/types/review";
+import { UserFavorite } from "@/types/userFavorite";
+import { Wallet } from "@/types/wallet";
+import { Comment } from "@/types/comment";
 
 export const useProfile = () => {
   const { user, isLoading: isAuthLoading, logout } = useAuth();
@@ -11,7 +17,7 @@ export const useProfile = () => {
 
   const [didFetch, setDidFetch] = useState(false);
 
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<User>();
   const [formData, setFormData] = useState({
     id: "",
     first_name: "",
@@ -23,55 +29,22 @@ export const useProfile = () => {
     is_verified: false,
   });
 
-  const [bookedRooms, setBookedRooms] = useState<any[]>([]);
-  const [comments, setComments] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [favorites, setFavorites] = useState<any[]>([]);
-  const [wallet, setWallet] = useState<any>(null);
-
-  const refreshProfile = async () => {
-    if (!user) return;
-    try {
-      setLoading(true);
-      const response = await fetchProfile(user.id);
-      if (!response.success) {
-        console.error("Lỗi khi refresh profile:", response.message);
-        return;
-      }
-      const data = response.data;
-
-      setProfile(data);
-      setFormData({
-        id: data.id,
-        first_name: data.first_name || "",
-        last_name: data.last_name || "",
-        address: data.address || "",
-        email: data.email || "",
-        phone_number: data.phone_number || "",
-        request: data.request || "",
-        is_verified: Boolean(data.is_verified),
-      });
-      setBookedRooms(data.bookings || []);
-      setComments(data.comments || []);
-      setReviews(data.reviews || []);
-      setFavorites(data.favorites || []);
-      setWallet(data.wallet || null);
-    } catch (err) {
-      console.error("Lỗi khi refresh profile:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [bookedRooms, setBookedRooms] = useState<Booking[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [favorites, setFavorites] = useState<UserFavorite[]>([]);
+  const [wallet, setWallet] = useState<Wallet | null>(null);
 
   useEffect(() => {
-    if (isAuthLoading || didFetch) return;
-
-    if (!user) {
+    if (!isAuthLoading && !user) {
       router.push("/login");
-      return;
     }
+  }, [isAuthLoading, user]);
 
+  useEffect(() => {
     const fetchProfileData = async () => {
+      if (!user || isAuthLoading || didFetch) return;
+
       try {
         setLoading(true);
         const response = await fetchProfile(user.id);
@@ -97,16 +70,16 @@ export const useProfile = () => {
         setReviews(data.reviews || []);
         setFavorites(data.favorites || []);
         setWallet(data.wallet || null);
+        setDidFetch(true); // ✅ set sau thành công
       } catch (err) {
         console.error("Lỗi khi fetch profile:", err);
       } finally {
         setLoading(false);
-        setDidFetch(true); // ✅ tránh gọi lại liên tục
       }
     };
 
     fetchProfileData();
-  }, [user]);
+  }, [user, isAuthLoading, didFetch]);
 
   return {
     user,
@@ -124,6 +97,5 @@ export const useProfile = () => {
     wallet,
     setWallet,
     logout,
-    refreshProfile,
   };
 };

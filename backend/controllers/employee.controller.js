@@ -140,17 +140,7 @@ const employeeController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const users = await Employee.find(query)
-        .populate([
-          {
-            path: "comments",
-          },
-          {
-            path: "reviews",
-          },
-          {
-            path: "bookings",
-          },
-        ])
+        .populate("comments reviews bookings")
         .sort(sort)
         .skip(skip)
         .limit(parseInt(limit))
@@ -182,7 +172,9 @@ const employeeController = {
   // ====== LẤY NHÂN VIÊN THEO ID =====
   getEmployeeById: async (req, res) => {
     try {
-      const checkUser = await Employee.findById(req.params.id);
+      const checkUser = await Employee.findById(req.params.id).populate(
+        "comments reviews bookings"
+      );
       if (!checkUser) {
         return res.status(404).json({ message: "Không tìm thấy nhân viên" });
       }

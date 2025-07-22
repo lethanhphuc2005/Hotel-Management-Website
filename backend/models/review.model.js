@@ -54,28 +54,41 @@ const ReviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+ReviewSchema.virtual("room_class", {
+  ref: "room_class",
+  localField: "room_class_id",
+  foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description status",
+  },
+});
+
 ReviewSchema.virtual("booking", {
   ref: "booking",
   localField: "booking_id",
   foreignField: "_id",
+  justOne: true,
 });
 
 ReviewSchema.virtual("user", {
   ref: "user",
   localField: "user_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "first_name last_name email phone_number",
+  },
 });
 
 ReviewSchema.virtual("employee", {
   ref: "employee",
   localField: "employee_id",
   foreignField: "_id",
-});
-
-ReviewSchema.virtual("parent_review", {
-  ref: "review",
-  localField: "parent_id",
-  foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "first_name last_name email phone_number",
+  },
 });
 
 ReviewSchema.set("toJSON", {

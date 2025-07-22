@@ -175,26 +175,12 @@ const roomClassController = {
         .skip(skip)
         .limit(parseInt(limit))
         .populate([
-          {
-            path: "main_room_class",
-          },
-          {
-            path: "features",
-            populate: {
-              path: "feature_id",
-              model: "feature",
-            },
-          },
-          { path: "images", select: "url" },
-          {
-            path: "rooms",
-          },
-          {
-            path: "comments",
-          },
-          {
-            path: "reviews",
-          },
+          { path: "main_room_class" },
+          { path: "features" },
+          { path: "images", match: { status: true } },
+          { path: "rooms" },
+          { path: "comments" },
+          { path: "reviews" },
         ])
         .exec();
       // --- Lọc theo tiện nghi
@@ -410,50 +396,12 @@ const roomClassController = {
         .skip(skip)
         .limit(parseInt(limit))
         .populate([
-          {
-            path: "main_room_class",
-            select: "-status -createdAt -updatedAt",
-            match: { status: true },
-          },
-          {
-            path: "features",
-            populate: {
-              path: "feature_id",
-              model: "feature",
-              select: "-status -createdAt -updatedAt",
-              match: { status: true },
-            },
-          },
-          { path: "images", select: "url", match: { status: true } },
-
-          {
-            path: "comments",
-            select: "-status",
-            populate: [
-              {
-                path: "user_id",
-                select: "first_name last_name email phone_number",
-              },
-              {
-                path: "employee_id",
-                select: "first_name last_name email phone_number",
-              },
-            ],
-          },
-          {
-            path: "reviews",
-            select: "-status",
-            populate: [
-              {
-                path: "user_id",
-                select: "first_name last_name email phone_number",
-              },
-              {
-                path: "employee_id",
-                select: "first_name last_name email phone_number",
-              },
-            ],
-          },
+          { path: "main_room_class" },
+          { path: "features" },
+          { path: "images", match: { status: true } },
+          { path: "rooms" },
+          { path: "comments" },
+          { path: "reviews" },
         ])
         .exec();
       // --- Lọc theo tiện nghi
@@ -471,13 +419,17 @@ const roomClassController = {
       if (check_in_date && check_out_date) {
         const checkIn = new Date(check_in_date);
         const checkOut = new Date(check_out_date);
+        const excludedStatuses = await BookingStatus.find({
+          code: { $in: ["CANCELLED", "CHECKED_OUT"] },
+        }).select("_id");
 
-        // Lấy tất cả booking nằm trong khoảng ngày check-in - check-out, trừ trạng thái huỷ
+        const excludedStatusIds = excludedStatuses.map((s) => s._id);
+
         const bookings = await Booking.find({
           check_in_date: { $lt: checkOut },
           check_out_date: { $gt: checkIn },
           booking_status_id: {
-            $nin: ["683fba8d351a96315d457679", "683fba8d351a96315d457678"],
+            $nin: excludedStatusIds,
           },
         });
         const bookingIds = bookings.map((b) => b._id);

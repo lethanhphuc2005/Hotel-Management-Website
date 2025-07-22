@@ -149,7 +149,7 @@ export const RoomClassListForSearch = ({
                     Tiện nghi:
                     {room.features.slice(0, 3).map((feature, index) => (
                       <span key={index} className="badge bg-secondary ms-1">
-                        {feature.feature_id.name}
+                        {feature.feature.name}
                       </span>
                     ))}
                     {room.features.length > 3 && (

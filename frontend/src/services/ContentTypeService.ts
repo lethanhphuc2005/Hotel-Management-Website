@@ -2,29 +2,26 @@ import {
   getContentTypes as getContentTypesApi,
   getContentTypeById as getContentTypeByIdApi,
 } from "@/api/contentTypeApi";
-import { ContentType } from "@/types/contentType";
+import { ContentType, ContentTypeListResponse, ContentTypeResponse } from "@/types/contentType";
 
-export const fetchContentTypes = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: ContentType[];
-}> => {
+export const fetchContentTypes = async (): Promise<ContentTypeListResponse> => {
   try {
     const response = await getContentTypesApi();
     const data = response.data;
-    const contentTypes: ContentType[] = data.map((ct: any) => ({
-      id: ct.id || ct._id,
-      name: ct.name,
-      description: ct.description || "",
-      status: ct.status || false,
-      created_at: new Date(ct.createdAt),
-      updated_at: new Date(ct.updatedAt),
+    const contentTypes: ContentType[] = data.map((item: any) => ({
+      id: item.id || item._id,
+      name: item.name,
+      description: item.description || "",
+      status: item.status || false,
+      createdAt: new Date(item.createdAt),
+      updatedAt: new Date(item.updatedAt),
     }));
 
     return {
       success: true,
       message: response.message || "Content types fetched successfully",
       data: contentTypes,
+      pagination: response.pagination,
     };
   } catch (error: any) {
     const message =
@@ -35,17 +32,14 @@ export const fetchContentTypes = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined, // Assuming pagination is not handled here
     };
   }
 };
 
 export const fetchContentTypeById = async (
   id: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: ContentType | null;
-}> => {
+): Promise<ContentTypeResponse> => {
   try {
     const response = await getContentTypeByIdApi(id);
     const data = response.data;
@@ -54,8 +48,8 @@ export const fetchContentTypeById = async (
       name: data.name,
       description: data.description || "",
       status: data.status || false,
-      created_at: new Date(data.createdAt),
-      updated_at: new Date(data.updatedAt),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
     };
 
     return {
@@ -71,7 +65,7 @@ export const fetchContentTypeById = async (
     return {
       success: false,
       message,
-      data: null,
+      data: null as any, // Adjust type as necessary
     };
   }
 };

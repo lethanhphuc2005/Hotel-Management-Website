@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import { IAuthContextType } from "@/types/user";
+import { AuthContextType } from "@/types/auth";
 
 // Tạo context rỗng ban đầu
-export const AuthContext = createContext<IAuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   login: async () => false,

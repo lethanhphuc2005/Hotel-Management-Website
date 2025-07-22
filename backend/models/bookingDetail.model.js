@@ -32,12 +32,27 @@ BookingDetailSchema.virtual("room", {
   ref: "room",
   localField: "room_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name floor status",
+  },
+});
+
+BookingDetailSchema.virtual("room_class", {
+  ref: "room_class",
+  localField: "room_class_id",
+  foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name description status",
+  },
 });
 
 BookingDetailSchema.virtual("booking", {
   ref: "booking",
   localField: "booking_id",
   foreignField: "_id",
+  justOne: true,
 });
 
 BookingDetailSchema.virtual("services", {
@@ -85,12 +100,17 @@ Booking_Detail_ServiceSchema.virtual("booking_detail", {
   ref: "booking_detail",
   localField: "booking_detail_id",
   foreignField: "_id",
+  justOne: true,
 });
 
 Booking_Detail_ServiceSchema.virtual("service", {
   ref: "service",
   localField: "service_id",
   foreignField: "_id",
+  justOne: true,
+  options: {
+    select: "name price image description status",
+  },
 });
 
 Booking_Detail_ServiceSchema.set("toJSON", {

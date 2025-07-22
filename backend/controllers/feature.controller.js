@@ -83,8 +83,11 @@ const featureController = {
         .populate({
           path: "room_class_used_list",
           populate: {
-            path: "room_class_id", // Trong bảng trung gian -> roomType_Feature
-            model: "room_class",
+            path: "room_class",
+            populate: {
+              path: "images",
+              match: { status: true }, // Chỉ lấy ảnh hợp lệ
+            },
           },
         })
         .exec();
@@ -147,10 +150,8 @@ const featureController = {
         .populate({
           path: "room_class_used_list",
           populate: {
-            path: "room_class_id", //
-            model: "room_class",
-            match: { status: true }, // Chỉ lấy loại phòng đang hoạt động
-            select: "-status -createdAt -updatedAt", // Loại bỏ các trường không cần thiết
+            path: "room_class",
+            match: { status: true },
           },
         })
         .exec();
@@ -179,10 +180,10 @@ const featureController = {
     try {
       const { id } = req.params;
       const feature = await Feature.findById(id).populate({
-        path: "room_class_used_list", // Virtual field từ Feature -> RoomType_Feature
+        path: "room_class_used_list",
         populate: {
-          path: "room_class_id", // Trong bảng trung gian -> roomType
-          model: "room_class",
+          path: "room_class",
+          match: { status: true },
         },
       });
       if (!feature) {
@@ -347,7 +348,7 @@ const featureController = {
       await Feature.findByIdAndDelete(req.params.id);
 
       // Xoá tiện nghi khỏi bảng trung gian nếu có
-      await Room_Class_Feature.deleteMany({ MaTN: req.params.id });
+      await Room_Class_Feature.deleteMany({ feature_id: req.params.id });
 
       res.status(200).json({
         message: "Xoá tiện nghi thành công",

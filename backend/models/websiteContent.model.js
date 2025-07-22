@@ -38,6 +38,10 @@ WebsiteContentSchema.virtual("content_type", {
   ref: "content_type",
   localField: "content_type_id",
   foreignField: "_id",
+  justOne: true, // Chỉ lấy một đối tượng
+  options: {
+    select: "name description", // Chọn các trường cần thiết
+  },
 });
 
 WebsiteContentSchema.set("toJSON", {

@@ -8,26 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import Pagination from "@/components/sections/Pagination";
 import { showConfirmDialog } from "@/utils/swal";
-
-type Review = {
-  id: string;
-  content: string;
-  rating: number | null;
-  createdAt: string;
-  updatedAt: string;
-  user_id: string;
-  user: [{ first_name: string; last_name: string }];
-  booking_id: {
-    booking_details: [
-      {
-        room_class_id: {
-          name: string;
-          // add other fields if needed
-        };
-      }
-    ];
-  };
-};
+import { Review } from "@/types/review";
 
 export default function ReviewSection({
   reviews,
@@ -58,12 +39,12 @@ export default function ReviewSection({
   }
   const handleEdit = async (review: Review) => {
     try {
-      const response = await updateReview(
-        review.id,
-        review.user_id,
-        editRating ?? review.rating,
-        editContent
-      );
+      const response = await updateReview({
+        reviewId: review.id,
+        userId: review.user_id ?? "",
+        rating: editRating ?? review.rating,
+        content: editContent,
+      });
       if (!response.success) {
         toast.error(response.message || "Cập nhật đánh giá thất bại.");
         return;
@@ -77,7 +58,7 @@ export default function ReviewSection({
                 ...r,
                 content: updatedReview.content,
                 rating: updatedReview.rating,
-                updated_at: updatedReview.updated_at,
+                updated_at: updatedReview.updatedAt,
               }
             : r
         )
@@ -100,7 +81,7 @@ export default function ReviewSection({
       if (!result) {
         return;
       }
-      await deleteReview(reviewId, userId);
+      await deleteReview({ reviewId, userId });
       toast.success("Xóa đánh giá thành công");
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
     } catch {
@@ -122,17 +103,17 @@ export default function ReviewSection({
             <div className="tw-flex tw-justify-between tw-items-center">
               <div>
                 <h3 className="tw-text-lg tw-font-bold tw-text-white">
-                  {review.user[0].last_name + " " + review.user[0].first_name ||
+                  {review.user?.last_name + " " + review.user?.first_name ||
                     "Anonymous"}
                 </h3>
                 <p className="tw-text-sm tw-text-gray-400">
-                  Ngày tạo: {formatDate(review.createdAt)}
+                  Ngày tạo: {formatDate(review.createdAt || "")}
                 </p>
                 <p className="tw-text-sm tw-text-gray-400 tw-mb-3">
-                  Ngày cập nhật: {formatDate(review.updatedAt)}
+                  Ngày cập nhật: {formatDate(review.updatedAt || "")}
                 </p>
                 <h2 className="tw-text-base tw-font-medium tw-text-blue-400">
-                  {review.booking_id.booking_details[0].room_class_id.name ||
+                  {review.booking.booking_details[0].room_class.name ||
                     "Unknown Room Type"}
                 </h2>
                 <div className="tw-flex tw-items-center tw-mt-2">
@@ -194,7 +175,7 @@ export default function ReviewSection({
                       whileTap={{ scale: 0.95, opacity: 0.6 }}
                       className="tw-text-red-500 tw-border tw-border-red-500 tw-rounded-lg tw-px-3 tw-py-1.5 tw-text-sm"
                       onClick={(e) => {
-                        handleDelete(review.id, review.user_id);
+                        handleDelete(review.id, review.user_id ?? "");
                         e.stopPropagation();
                       }}
                     >

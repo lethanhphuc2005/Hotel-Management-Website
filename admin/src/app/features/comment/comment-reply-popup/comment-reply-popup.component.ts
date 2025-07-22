@@ -22,7 +22,7 @@ export class CommentReplyPopupComponent {
       this.submitForm.emit({
         content: this.content,
         parent_id: this.comment.id,
-        room_class_id: this.comment.room_class_id.id,
+        room_class_id: this.comment.room_class?.id,
       });
       this.content = '';
     }

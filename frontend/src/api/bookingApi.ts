@@ -1,7 +1,11 @@
 import { api, publicApi } from "@/lib/axiosInstance";
-import { Booking } from "@/types/booking";
+import {
+  CancelBookingRequest,
+  CreateBookingRequest,
+  PreviewCancellationFeeRequest,
+} from "@/types/booking";
 
-export const createBooking = async (data: Booking) => {
+export const createBooking = async (data: CreateBookingRequest) => {
   try {
     const response = await publicApi.post("/booking", data);
     if (response.status !== 200 && response.status !== 201) {
@@ -43,9 +47,12 @@ export const getBookingById = async (id: string) => {
   }
 };
 
-export const previewCancellationFee = async (id: string, userId: string) => {
+export const previewCancellationFee = async ({
+  bookingId,
+  userId,
+}: PreviewCancellationFeeRequest) => {
   try {
-    const response = await api.get(`/booking/cancellation-fee/${id}`, {
+    const response = await api.get(`/booking/cancellation-fee/${bookingId}`, {
       params: { user_id: userId },
     });
 
@@ -59,13 +66,13 @@ export const previewCancellationFee = async (id: string, userId: string) => {
   }
 };
 
-export const cancelBooking = async (
-  id: string,
-  userId: string,
-  cancelReason: string
-) => {
+export const cancelBooking = async ({
+  bookingId,
+  userId,
+  cancelReason,
+}: CancelBookingRequest) => {
   try {
-    const response = await api.put(`/booking/cancel/${id}`, {
+    const response = await api.put(`/booking/cancel/${bookingId}`, {
       user_id: userId,
       cancel_reason: cancelReason,
     });
@@ -75,7 +82,7 @@ export const cancelBooking = async (
 
     return response.data;
   } catch (error) {
-    console.error(`Error canceling booking with ID ${id}:`, error);
+    console.error(`Error canceling booking with ID ${bookingId}:`, error);
     throw error;
   }
 };

@@ -62,23 +62,7 @@ const userController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const users = await User.find(query)
-        .populate([
-          {
-            path: "comments",
-          },
-          {
-            path: "reviews",
-          },
-          {
-            path: "bookings",
-          },
-          {
-            path: "favorites",
-          },
-          {
-            path: "wallet",
-          },
-        ])
+        .populate("bookings reviews comments favorites wallet")
         .sort(sortOption)
         .select("-password") // Loại bỏ trường password và __v
         .skip(skip)
@@ -108,133 +92,102 @@ const userController = {
   // ==== LẤY USER THEO ID ====
   getUserById: async (req, res) => {
     try {
-      const user = await User.findById(req.params.id)
-        .select("-password -status")
-        .populate([
-          {
-            path: "comments",
-            match: { status: true }, // Chỉ lấy các comment đang hoạt động
-            populate: [
-              {
-                path: "room_class",
-                select: "-image -description -status", // Chỉ lấy các trường cần thiết, tránh l
+      const user = await User.findById(req.params.id).populate([
+        {
+          path: "comments",
+          match: { status: true },
+          populate: [
+            {
+              path: "room_class",
+              populate: {
+                path: "images",
+                match: { status: true },
               },
-              {
-                path: "employee",
-                select: "first_name last_name",
-              },
-              {
-                path: "user",
-                select: "first_name last_name",
-              },
-              {
-                path: "parent_comment",
-                select: "-status",
-              },
-            ],
-          },
-          {
-            path: "reviews",
-            match: { status: true }, // Chỉ lấy các review đang hoạt động
-            populate: [
-              {
-                path: "booking_id",
-                populate: {
-                  path: "booking_details",
-                  populate: {
-                    path: "room_class_id",
-                    select: "name description view price bed_amount",
-                  },
-                },
-              },
-              {
-                path: "employee",
-                select: "first_name last_name",
-              },
-              {
-                path: "user",
-                select: "first_name last_name",
-              },
-              {
-                path: "parent_review",
-                select: "-status",
-              },
-            ],
-          },
-          {
-            path: "bookings",
-            populate: [
-              {
-                path: "discount_id",
-                select: "name value value_type code valid_from valid_to ",
-              },
-              {
-                path: "booking_status_id",
-                select: "name code",
-              },
-              {
-                path: "booking_method_id",
-                select: "name",
-              },
-              {
-                path: "payment",
-                select: " -metadata",
-                populate: {
-                  path: "payment_method_id",
-                  select: "name",
-                },
-              },
-              {
+            },
+            {
+              path: "employee",
+            },
+            {
+              path: "user",
+            },
+          ],
+        },
+        {
+          path: "reviews",
+          match: { status: true },
+          populate: [
+            {
+              path: "booking",
+              populate: {
                 path: "booking_details",
-                populate: [
-                  {
-                    path: "room_id",
-                    select: "name floor room_class_id",
+                populate: {
+                  path: "room_class",
+                  populate: {
+                    path: "images",
+                    match: { status: true },
                   },
-                  {
-                    path: "room_class_id",
-                    select: "name description view price bed_amount ",
-                    populate: {
-                      path: "images",
-                      match: { status: true }, // Chỉ lấy các hình ảnh đang hoạt động
-                      select: "url",
-                    },
-                  },
-                  {
-                    path: "services",
-                    populate: {
-                      path: "service_id",
-                      select: "name description price",
-                    },
-                  },
-                ],
+                },
               },
-            ],
-          },
-          {
-            path: "favorites",
+            },
+            {
+              path: "user",
+            },
+            {
+              path: "employee",
+            },
+          ],
+        },
+        {
+          path: "favorites",
+          populate: {
+            path: "room_class",
             populate: [
               {
-                path: "room_class_id",
-                select: "name description view price bed_amount",
-                populate: [
-                  {
-                    path: "images",
-                    select: "url",
-                  },
-                  {
-                    path: "main_room_class_id",
-                    select: "name description",
-                  },
-                ],
+                path: "images",
+                match: { status: true },
+              },
+              {
+                path: "main_room_class",
               },
             ],
           },
-          {
-            path: "wallet",
-            select: "balance transactions",
-          },
-        ]);
+        },
+        { path: "wallet" },
+        {
+          path: "bookings",
+          populate: [
+            { path: "booking_status" },
+            { path: "booking_method" },
+            { path: "discounts" },
+            { path: "employee" },
+            {
+              path: "payments",
+              populate: {
+                path: "payment_method",
+              },
+            },
+            {
+              path: "booking_details",
+              populate: [
+                { path: "room" },
+                {
+                  path: "room_class",
+                  populate: {
+                    path: "images",
+                    match: { status: true }, // Chỉ lấy các hình ảnh đang hoạt động
+                  },
+                },
+                {
+                  path: "services",
+                  populate: {
+                    path: "service",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
       if (!user) {
         return res.status(404).json("Không tìm thấy user");
       }

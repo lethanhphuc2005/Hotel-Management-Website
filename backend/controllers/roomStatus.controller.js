@@ -50,7 +50,7 @@ const roomStatusController = {
   // === LẤY TRẠNG THÁI THEO ID ===
   getRoomStatusById: async (req, res) => {
     try {
-      const statusData = await RoomStatus.findById(req.params.id);
+      const statusData = await RoomStatus.findById(req.params.id).populate("rooms");
       if (!statusData) {
         return res
           .status(404)

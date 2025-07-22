@@ -59,7 +59,7 @@ export class BookingStatusPopupComponent implements OnInit {
     this.bookingStatusService.getAllBookingStatus({}).subscribe((res) => {
       this.statuses = res.data;
 
-      if (this.booking?.booking_status[0]?.code === 'PENDING') {
+      if (this.booking?.booking_status.code === 'PENDING') {
         this.booking.booking_details.forEach((detail: any) => {
           this.selectedRooms[detail.id] = '';
           this.loadAvailableRooms(detail);
@@ -85,7 +85,7 @@ export class BookingStatusPopupComponent implements OnInit {
   }
 
   canConfirm(): boolean {
-    if (!this.booking || this.booking.booking_status[0].code !== 'PENDING') {
+    if (!this.booking || this.booking.booking_status.code !== 'PENDING') {
       return false;
     }
     return this.booking.booking_details.every(

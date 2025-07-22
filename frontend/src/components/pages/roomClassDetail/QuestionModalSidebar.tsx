@@ -48,7 +48,12 @@ const QuestionModalSidebar = ({
     if (!question.trim()) return;
 
     try {
-      const response = await createComment(roomClassId, null, userId, question);
+      const response = await createComment({
+        room_class_id: roomClassId,
+        parent_id: null,
+        user_id: userId,
+        content: question,
+      });
       toast.success("Câu hỏi đã được gửi thành công!");
       setCommentsData((prev) => [response.data, ...prev]);
       setQuestion("");
@@ -62,16 +67,16 @@ const QuestionModalSidebar = ({
     if (!replyContent.trim()) return;
 
     try {
-      const res = await createComment(
-        roomClassId,
-        parentId,
-        userId,
-        replyContent
-      );
+      const res = await createComment({
+        room_class_id: roomClassId,
+        parent_id: parentId,
+        user_id: userId,
+        content: replyContent,
+      });
 
       const createdReply = {
         ...res.data,
-        user_id: user || null, // thêm user hiện tại để hiển thị ngay
+        user: user || null, // thêm user hiện tại để hiển thị ngay
       };
 
       toast.success("Phản hồi đã được gửi thành công!");
@@ -91,13 +96,13 @@ const QuestionModalSidebar = ({
       >
         {/* Người gửi */}
         <div className="tw-font-bold">
-          {c.user_id && c.user_id.first_name
-            ? `${c.user_id.last_name} ${c.user_id.first_name}`
-            : c.employee_id
-            ? `Nhân viên: ${c.employee_id.last_name} ${c.employee_id.first_name}`
+          {c.user && c.user.first_name
+            ? `${c.user.last_name} ${c.user.first_name}`
+            : c.employee
+            ? `Nhân viên: ${c.employee.last_name} ${c.employee.first_name}`
             : "Ẩn danh"}
           <div className="tw-text-xs tw-text-gray-400">
-            ({c.created_at ? formatDate(c.created_at) : "Vừa xong"})
+            ({c.createdAt ? formatDate(c.createdAt) : "Vừa xong"})
           </div>
         </div>
 

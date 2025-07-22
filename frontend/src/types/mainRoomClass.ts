@@ -1,3 +1,4 @@
+import { PaginationResponse } from "./_common";
 import { Image } from "./image";
 import { RoomClass } from "./roomClass";
 
@@ -5,9 +6,22 @@ export interface MainRoomClass {
   id: string;
   name: string;
   description: string;
-  status?: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  status: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
   room_class_list?: RoomClass[];
   images: Image[];
+}
+
+export interface MainRoomClassResponse {
+  success: boolean;
+  message: string;
+  data: MainRoomClass;
+}
+
+export interface MainRoomClassListResponse {
+  success: boolean;
+  message: string;
+  data: MainRoomClass[];
+  pagination?: PaginationResponse;
 }

@@ -118,10 +118,17 @@ const commentController = {
 
       const [comments, total] = await Promise.all([
         Comment.find(query)
-          .populate("room_class_id", "-image -description")
-          .populate("employee_id", "-password")
-          .populate("user_id", "-password")
-          .populate("parent_comment")
+          .populate([
+            {
+              path: "room_class",
+              populate: {
+                path: "images",
+                match: { status: true }, // Chỉ lấy ảnh hợp lệ
+              },
+            },
+            { path: "employee" },
+            { path: "user" },
+          ])
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit))
@@ -179,10 +186,17 @@ const commentController = {
       const [comments, total] = await Promise.all([
         Comment.find(query)
           .select("-status")
-          .populate("room_class_id", "-image -description -status")
-          .populate("employee_id", "first_name last_name")
-          .populate("user_id", "first_name last_name")
-          .populate("parent_comment", "-status")
+          .populate([
+            {
+              path: "room_class",
+              populate: {
+                path: "images",
+                match: { status: true }, // Chỉ lấy ảnh hợp lệ
+              },
+            },
+            { path: "employee" },
+            { path: "user" },
+          ])
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit))
@@ -216,10 +230,9 @@ const commentController = {
     try {
       const { id } = req.params;
       const comment = await Comment.findById(id)
-        .populate("room_class_id", "-image -description")
-        .populate("employee_id", "-password")
-        .populate("user_id", "-password")
-        .populate("parent_comment");
+        .populate("room_class", "-image -description")
+        .populate("employee")
+        .populate("user");
 
       // Trả về bình luận
       res.status(200).json({
@@ -245,7 +258,7 @@ const commentController = {
         // Lưu bình luận vào cơ sở dữ liệu
         const savedComment = await newComment.save();
         const populatedComment = await savedComment.populate(
-          "room_class_id employee_id user_id"
+          "room_class employee user"
         );
         // Cập nhật thông tin người dùng hoặc nhân viên nếu có
 
@@ -293,10 +306,13 @@ const commentController = {
         // Cập nhật chỉ trường content
         commentToUpdate.content = content;
         const updatedComment = await commentToUpdate.save();
+        const populatedComment = await updatedComment.populate(
+          "room_class employee user"
+        );
 
         res.status(200).json({
           message: "Cập nhật bình luận thành công.",
-          data: updatedComment,
+          data: populatedComment,
         });
       } catch (error) {
         res.status(500).json(error);

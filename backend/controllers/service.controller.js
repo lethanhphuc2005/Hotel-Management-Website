@@ -135,7 +135,6 @@ const serviceController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const total = await Service.countDocuments(query);
       const services = await Service.find(query)
-        .select("-status -createdAt -updatedAt")
         .sort(sortObj)
         .skip(skip)
         .limit(limit);

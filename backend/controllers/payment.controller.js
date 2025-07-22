@@ -252,24 +252,53 @@ const PaymentController = {
   // === LẤY DANH SÁCH ĐƠN THANH TOÁN ===
   getAllPayments: async (req, res) => {
     try {
-      const payments = await Payment.find().populate([
-        {
-          path: "booking",
-        },
-        {
-          path: "payment_method",
-          select: "name",
-        },
+      const {
+        search = "",
+        page = 1,
+        limit,
+        sort = "createdAt",
+        order = "desc",
+      } = req.query;
+
+      const query = {};
+      if (search) {
+        query.$or = [
+          { booking_id: { $regex: search, $options: "i" } },
+          { transaction_id: { $regex: search, $options: "i" } },
+          { status: { $regex: search, $options: "i" } },
+        ];
+      }
+      const sortOption = {};
+      if (sort === "status") {
+        sortOption.status = order === "asc" ? 1 : -1;
+      } else {
+        sortOption[sort] = order === "asc" ? 1 : -1;
+      }
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const [payments, total] = await Promise.all([
+        Payment.find(query)
+          .populate("booking payment_method")
+          .sort(sortOption)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        Payment.countDocuments(query),
       ]);
+
       if (!payments || payments.length === 0) {
-        return res.status(404).json({
-          error: "No payments found",
-        });
+        return res.status(404).json({ message: "Không có giao dịch nào" });
       }
 
       return res.status(200).json({
         message: "Payments retrieved successfully",
         data: payments,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       console.error("Get all payments error:", error.message);

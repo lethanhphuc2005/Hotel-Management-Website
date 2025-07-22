@@ -79,18 +79,27 @@ EmployeeSchema.virtual("comments", {
   ref: "comment",
   localField: "_id",
   foreignField: "employee_id",
+  justOne: false,
+  options: {
+    select: "content status createdAt updatedAt",
+  },
 });
 
 EmployeeSchema.virtual("reviews", {
   ref: "review",
   localField: "_id",
   foreignField: "employee_id",
+  justOne: false,
+  options: {
+    select: "rating content status createdAt updatedAt",
+  },
 });
 
 EmployeeSchema.virtual("bookings", {
   ref: "booking",
   localField: "_id",
   foreignField: "employee_id",
+  justOne: false,
 });
 
 EmployeeSchema.set("toJSON", {

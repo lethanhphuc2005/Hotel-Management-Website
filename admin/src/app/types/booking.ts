@@ -37,12 +37,12 @@ export interface Booking {
   check_in_identity?: BookingIndentity;
   actual_check_out_date?: Date;
   check_out_note?: string;
-  booking_status: BookingStatus[];
-  booking_method: BookingMethod[];
-  user?: User[];
+  booking_status: BookingStatus;
+  booking_method: BookingMethod;
+  user?: User;
   discount: Discount[];
   payment: Payment[];
-  employee?: Employee[];
+  employee?: Employee;
   booking_details: BookingDetail[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -55,7 +55,7 @@ export interface BookingDetail {
   room_class_id: RoomClass;
   price_per_night: number;
   nights: number;
-  room?: Room[];
+  room?: Room;
   services: ServiceBooking[];
 }
 

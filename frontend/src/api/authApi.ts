@@ -1,14 +1,21 @@
 // api/authApi.ts
 import { publicApi, api } from "@/lib/axiosInstance";
+import {
+  ChangePasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+  verifyEmailRequest,
+} from "@/types/auth";
 
-export const register = async (
-  first_name: string,
-  last_name: string,
-  email: string,
-  password: string,
-  phone_number: string,
-  address: string
-) => {
+export const register = async ({
+  first_name,
+  last_name,
+  email,
+  password,
+  phone_number,
+  address,
+}: RegisterRequest) => {
   const response = await publicApi.post("/account/register", {
     first_name,
     last_name,
@@ -24,7 +31,7 @@ export const register = async (
   return response.data; // { success: boolean, message: string }
 };
 
-export const login = async (email: string, password: string) => {
+export const login = async ({ email, password }: LoginRequest) => {
   const response = await publicApi.post("/account/login", { email, password });
   if (response.status !== 200) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -48,15 +55,16 @@ export const refreshAccessToken = async () => {
 
 export const logout = async () => {
   // Xoá refresh token khỏi cookie
-  await api.post("/account/logout")
+  await api.post("/account/logout");
+  // Xoá thông tin đăng nhập khỏi localStorage
   localStorage.removeItem("login");
 };
 
-export const changePassword = async (
-  userId: string,
-  password: string,
-  newPassword: string
-) => {
+export const changePassword = async ({
+  userId,
+  password,
+  newPassword,
+}: ChangePasswordRequest) => {
   const response = await api.put("/user/change-password/" + userId, {
     password,
     newPassword,
@@ -68,7 +76,10 @@ export const changePassword = async (
   return response.data;
 };
 
-export const verifyEmail = async (email: string, verificationCode: string) => {
+export const verifyEmail = async ({
+  email,
+  verificationCode,
+}: verifyEmailRequest) => {
   const response = await publicApi.post("/user/verify", {
     email,
     verificationCode,
@@ -89,11 +100,11 @@ export const forgotPassword = async (email: string) => {
   return response.data; // { success: boolean, message: string }
 };
 
-export const resetPassword = async (
-  email: string,
-  verificationCode: string,
-  newPassword: string
-) => {
+export const resetPassword = async ({
+  email,
+  verificationCode,
+  newPassword,
+}: ResetPasswordRequest) => {
   const response = await publicApi.post("/user/reset-password", {
     email,
     verificationCode,

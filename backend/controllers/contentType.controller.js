@@ -131,7 +131,6 @@ const contentTypeController = {
           .populate({
             path: "website_content_list",
             match: { status: true },
-            select: "-status -createdAt -updatedAt",
           })
           .sort(sortOption)
           .skip(skip)

@@ -11,7 +11,7 @@ const TransactionSchema = new mongoose.Schema({
     required: true,
   },
   note: String,
-  created_at: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },
@@ -32,6 +32,16 @@ const WalletSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+WalletSchema.virtual("user", {
+  ref: "user",
+  localField: "user_id",
+  foreignField: "_id",
+  justOne: true, // Chỉ lấy một đối tượng
+  options: {
+    select: "first_name last_name email phone_number", // Chọn các trường cần thiết
+  },
+});
 
 TransactionSchema.set("toJSON", {
   virtuals: true,

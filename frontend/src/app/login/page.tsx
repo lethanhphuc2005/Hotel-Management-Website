@@ -66,7 +66,7 @@ const LoginPage = () => {
   const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await verifyEmail(email, otp);
+      const res = await verifyEmail({ email, verificationCode: otp });
       if (!res.success) {
         toast.error(res.message);
         return;

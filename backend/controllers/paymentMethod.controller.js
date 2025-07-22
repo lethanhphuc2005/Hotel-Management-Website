@@ -75,7 +75,7 @@ const paymentMethodController = {
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
-        .populate("bookings");
+        .populate("payments");
 
       if (!paymentMethods || paymentMethods.length === 0) {
         return res
@@ -105,7 +105,7 @@ const paymentMethodController = {
     try {
       const paymentMethod = await PaymentMethod.findById(
         req.params.id
-      ).populate("bookings");
+      ).populate("payments");
       if (!paymentMethod) {
         return res
           .status(404)

@@ -1,10 +1,22 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  Dispatch,
+  SetStateAction,
+} from "react";
 
-const LoadingContext = createContext({
+// Khai báo type rõ ràng hơn
+interface LoadingContextType {
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+}
+
+const LoadingContext = createContext<LoadingContextType>({
   loading: false,
-  setLoading: (loading: boolean) => { },
+  setLoading: () => {},
 });
 
 export function LoadingProvider({ children }: { children: React.ReactNode }) {

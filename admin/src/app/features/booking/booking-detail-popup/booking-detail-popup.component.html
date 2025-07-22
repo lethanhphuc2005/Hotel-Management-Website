@@ -23,8 +23,8 @@
         <p>
           <strong>Nhân viên:</strong>
           <span *ngIf="booking.employee_id && booking.employee">
-            {{ booking.employee[0].last_name }}
-            {{ booking.employee[0].first_name }}
+            {{ booking.employee.last_name }}
+            {{ booking.employee.first_name }}
           </span>
           <span *ngIf="!booking.employee_id" class="tw-text-gray-500"
             >Chưa xác định</span
@@ -48,14 +48,14 @@
 
         <p>
           <strong>Phương thức đặt:</strong>
-          {{ booking.booking_method[0].name || "Chưa xác định" }}
+          {{ booking.booking_method.name || "Chưa xác định" }}
         </p>
 
         <p>
           <strong>Trạng thái:</strong>
           <span class="tw-font-semibold">
             {{
-              getBookingStatusName(booking.booking_status[0].code) ||
+              getBookingStatusName(booking.booking_status.code) ||
                 "Chưa xác định"
             }}
           </span>

@@ -7,7 +7,10 @@ import {
   getSearchLogsForAI as getSearchLogsForAIFromApi,
   getSearchLogsByAI as getSearchLogsByAIFromApi,
 } from "@/api/searchApi";
-import { SuggestionResponse } from "@/types/suggestion";
+import {
+  SuggestionByKeywordResponse,
+  SuggestionResponse,
+} from "@/types/suggestion";
 
 export const fetchSuggestions = async (
   query: string
@@ -24,7 +27,7 @@ export const fetchSuggestions = async (
 export const fetchSuggestionsByKeyword = async (
   type: string = "keyword",
   query: string
-): Promise<any> => {
+): Promise<SuggestionByKeywordResponse> => {
   try {
     const response = await getSuggestionsByKeywordFromApi(type, query);
     const data = response.data;
@@ -32,10 +35,14 @@ export const fetchSuggestionsByKeyword = async (
       roomClasses: data.roomClasses || [],
       features: data.features || [],
       services: data.services || [],
-    }
+    };
   } catch (error: any) {
     console.error("Error fetching suggestions by keyword:", error);
-    return [];
+    return {
+      roomClasses: [],
+      features: [],
+      services: [],
+    };
   }
 };
 

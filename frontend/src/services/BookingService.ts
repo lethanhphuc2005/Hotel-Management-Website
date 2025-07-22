@@ -5,15 +5,17 @@ import {
   previewCancellationFee as previewCancellationFeeApi,
   cancelBooking as cancelBookingApi,
 } from "@/api/bookingApi";
-import { Booking } from "@/types/booking";
+import {
+  Booking,
+  BookingCancelResponse,
+  BookingListResponse,
+  BookingResponse,
+  CreateBookingRequest,
+} from "@/types/booking";
 
 export const createBooking = async (
-  bookingData: Booking
-): Promise<{
-  success: boolean;
-  message: string;
-  data?: Booking;
-}> => {
+  bookingData: CreateBookingRequest
+): Promise<BookingResponse> => {
   try {
     const response = await getBookingApi(bookingData);
     const data = response.data;
@@ -31,143 +33,94 @@ export const createBooking = async (
     return {
       success: false,
       message,
+      data: null as any, // Adjust type as necessary
     };
   }
 };
 
-export const getBookings = async (): Promise<{
-  success: boolean;
-  message?: string;
-  data: Booking[];
-}> => {
+export const getBookings = async (): Promise<BookingListResponse> => {
   try {
     const response = await getBookingsApi();
     const data = response.data;
-    const bookings: Booking[] = data.map((b: any) => ({
-      id: b.id,
-      employee_id: b.employee_id,
-      user_id: b.user_id,
-      discount_id: b.discount_id || null,
-      booking_method_id: b.booking_method_id,
-      booking_status_id: b.booking_status_id,
-      full_name: b.full_name,
-      email: b.email,
-      phone_number: b.phone_number,
-      booking_date: new Date(b.booking_date),
-      check_in_date: new Date(b.check_in_date),
-      check_out_date: new Date(b.check_out_date),
-      adult_amount: b.adult_amount,
-      child_amount: b.child_amount || 0,
-      request: b.request || "",
-      extra_fee: b.extra_fee || 0,
-      note: b.note || "",
-      original_price: b.original_price, // Giá gốc trước khi áp dụng khuyến mãi
-      total_price: b.total_price,
-      discount_value: b.discount_value || 0,
-      cancel_reason: b.cancel_reason || null,
-      cancel_date: new Date(b.cancel_date) || null,
-      created_at: new Date(b.createdAt || b.created_at),
-      updated_at: new Date(b.updatedAt || b.updated_at),
-      booking_status: b.booking_status
-        ? b.booking_status.map((status: any) => ({
-            id: status.id,
-            name: status.name,
-          }))
-        : [],
-      booking_method: b.booking_method
-        ? b.booking_method.map((method: any) => ({
-            id: method.id,
-            name: method.name,
-          }))
-        : [],
-      user: b.user
-        ? b.user.map((user: any) => ({
-            id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: user.email,
-            phone_number: user.phone_number,
-            address: user.address || "",
-            request: user.request || "",
-          }))
-        : [],
-      discount: b.discount
-        ? b.discount.map((discount: any) => ({
+    const bookings: Booking[] = data.map((booking: any) => ({
+      id: booking.id,
+      employee_id: booking.employee_id,
+      user_id: booking.user_id,
+      discount_id: booking.discount_id || null,
+      booking_method_id: booking.booking_method_id,
+      booking_status_id: booking.booking_status_id,
+      full_name: booking.full_name,
+      email: booking.email,
+      phone_number: booking.phone_number,
+      booking_date: new Date(booking.booking_date),
+      check_in_date: new Date(booking.check_in_date),
+      check_out_date: new Date(booking.check_out_date),
+      adult_amount: booking.adult_amount,
+      child_amount: booking.child_amount || 0,
+      request: booking.request || "",
+      extra_fee: booking.extra_fee || 0,
+      note: booking.note || "",
+      original_price: booking.original_price,
+      total_price: booking.total_price,
+      discount_value: booking.discount_value || 0,
+      cancel_reason: booking.cancel_reason || null,
+      cancel_date: booking.cancel_date ? new Date(booking.cancel_date) : null,
+      createdAt: new Date(booking.createdAt || booking.created_at),
+      updatedAt: new Date(booking.updatedAt || booking.updated_at),
+      booking_status: booking.booking_status,
+      booking_method: booking.booking_method,
+      user: booking.user,
+      discounts: booking.discounts
+        ? booking.discounts.map((discount: any) => ({
             id: discount.id,
             name: discount.name,
             value: discount.value,
-            type: discount.type, // e.g., 'percentage' or 'fixed'
-            value_type: discount.value_type, // e.g., 'percent' or 'fixed'
-            status: discount.status || true,
-            created_at: new Date(discount.createdAt || discount.created_at),
-            updated_at: new Date(discount.updatedAt || discount.updated_at),
+            type: discount.type,
+            value_type: discount.value_type,
+            status: discount.status ? discount.status : true,
+            createdAt: new Date(discount.createdAt || discount.created_at),
+            updatedAt: new Date(discount.updatedAt || discount.updated_at),
           }))
         : [],
-      payment: b.payment
-        ? b.payment.map((payment: any) => ({
-            id: payment.payment.id,
-            booking_id: payment.payment.booking_id,
-            payment_method_id: payment.payment.payment_method_id,
-            amount: payment.payment.amount,
-            status: payment.payment.status || "pending",
-            created_at: new Date(
-              payment.payment.createdAt || payment.payment.created_at
-            ),
-            updated_at: new Date(
-              payment.payment.updatedAt || payment.payment.updated_at
-            ),
-            payment_method: payment.payment.payment_method
-              ? payment.payment.payment_method.map((method: any) => ({
-                  id: method.id,
-                  name: method.name,
-                }))
-              : [],
+      payments: booking.payments
+        ? booking.payments.map((payment: any) => ({
+            id: payment.id,
+            booking_id: payment.booking_id,
+            payment_method_id: payment.payment_method_id,
+            amount: payment.amount,
+            status: payment.status || "pending",
+            createdAt: new Date(payment.createdAt),
+            updatedAt: new Date(payment.updatedAt),
+            payment_method: payment.payment_method,
           }))
         : [],
-      employee: b.employee
-        ? b.employee.map((emp: any) => ({
-            id: emp.id,
-            first_name: emp.first_name,
-            last_name: emp.last_name,
-            email: emp.email,
-            phone_number: emp.phone_number || "",
-          }))
-        : [],
-      booking_details: b.booking_details
-        ? b.booking_details.map((detail: any) => ({
+      employee: booking.employee,
+      booking_details: booking.booking_details
+        ? booking.booking_details.map((detail: any) => ({
             id: detail.id,
             booking_id: detail.booking_id,
-            room_class_id: detail.room_class_id,
             room_id: detail.room_id || null,
+            room_class_id: detail.room_class_id,
             price_per_night: detail.price_per_night,
             nights: detail.nights,
-            room: detail.room
-              ? detail.room.map((room: any) => ({
-                  id: room.id,
-                  floor: room.floor,
-                  room_class_id: room.room_class_id,
-                  name: room.name,
-                }))
-              : [],
+            room: detail.room,
             services: detail.services
               ? detail.services.map((service: any) => ({
                   id: service.id,
-                  amount: service.amount,
-                  service_id: {
-                    id: service.service_id.id,
-                    name: service.service_id.name,
-                    price: service.service_id.price,
-                    used_at: new Date(service.service_id.used_at),
-                  },
+                  name: service.name,
+                  price: service.price,
+                  quantity: service.quantity,
                 }))
               : [],
           }))
         : [],
     }));
+
     return {
       success: true,
       message: response.message || "Bookings fetched successfully",
       data: bookings,
+      pagination: response.pagination,
     };
   } catch (error: any) {
     const message =
@@ -178,18 +131,14 @@ export const getBookings = async (): Promise<{
       success: false,
       message,
       data: [],
+      pagination: undefined,
     };
   }
 };
 
 export const getBookingById = async (
-  bookingId: string,
-  userId: string
-): Promise<{
-  success: boolean;
-  message: string;
-  data: Booking | null;
-}> => {
+  bookingId: string
+): Promise<BookingResponse> => {
   try {
     const response = await getBookingByIdApi(bookingId);
     const data = response.data;
@@ -211,95 +160,56 @@ export const getBookingById = async (
       request: data.request || "",
       extra_fee: data.extra_fee || 0,
       note: data.note || "",
-      original_price: data.original_price, // Giá gốc trước khi áp dụng khuyến mãi
+      original_price: data.original_price,
       total_price: data.total_price,
       discount_value: data.discount_value || 0,
       cancel_reason: data.cancel_reason || null,
-      cancel_date: new Date(data.cancel_date) || null,
-      created_at: new Date(data.createdAt || data.created_at),
-      updated_at: new Date(data.updatedAt || data.updated_at),
-      booking_status: data.booking_status
-        ? data.booking_status.map((status: any) => ({
-            id: status.id,
-            name: status.name,
-          }))
-        : [],
-      booking_method: data.booking_method
-        ? data.booking_method.map((method: any) => ({
-            id: method.id,
-            name: method.name,
-          }))
-        : [],
-      user: data.user
-        ? data.user.map((user: any) => ({
-            id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: user.email,
-            phone_number: user.phone_number,
-            address: user.address || "",
-            request: user.request || "",
-          }))
-        : [],
-      discount: data.discount
-        ? data.discount.map((discount: any) => ({
+      cancel_date: data.cancel_date ? new Date(data.cancel_date) : undefined,
+      createdAt: new Date(data.createdAt || data.created_at),
+      updatedAt: new Date(data.updatedAt || data.updated_at),
+      booking_status: data.booking_status,
+      booking_method: data.booking_method,
+      user: data.user,
+      discounts: data.discounts
+        ? data.discounts.map((discount: any) => ({
             id: discount.id,
             name: discount.name,
             value: discount.value,
-            type: discount.type, // e.g., 'percentage' or 'fixed'
-            value_type: discount.value_type, // e.g., 'percent' or 'fixed'
-            status: discount.status ? discount.status : true, // Default to true if status is not provided
-            created_at: new Date(discount.createdAt || discount.created_at),
-            updated_at: new Date(discount.updatedAt || discount.updated_at),
+            type: discount.type,
+            value_type: discount.value_type,
+            status: discount.status ? discount.status : true,
+            createdAt: new Date(discount.createdAt || discount.created_at),
+            updatedAt: new Date(discount.updatedAt || discount.updated_at),
           }))
         : [],
-      payment: data.payment
-        ? data.payment.map((payment: any) => ({
+      payments: data.payments
+        ? data.payments.map((payment: any) => ({
             id: payment.id,
             booking_id: payment.booking_id,
             payment_method_id: payment.payment_method_id,
             amount: payment.amount,
             status: payment.status || "pending",
-            created_at: new Date(payment.createdAt),
-            updated_at: new Date(payment.updatedAt),
+            createdAt: new Date(payment.createdAt),
+            updatedAt: new Date(payment.updatedAt),
             payment_method: payment.payment_method,
           }))
         : [],
-      employee: data.employee
-        ? data.employee.map((emp: any) => ({
-            id: emp.id,
-            first_name: emp.first_name,
-            last_name: emp.last_name,
-            email: emp.email,
-            phone_number: emp.phone_number || "",
-          }))
-        : [],
+      employee: data.employee,
       booking_details: data.booking_details
         ? data.booking_details.map((detail: any) => ({
             id: detail.id,
             booking_id: detail.booking_id,
-            room_class_id: detail.room_class_id,
             room_id: detail.room_id || null,
+            room_class_id: detail.room_class_id,
             price_per_night: detail.price_per_night,
             nights: detail.nights,
-            room: detail.room
-              ? detail.room.map((room: any) => ({
-                  id: room.id,
-                  floor: room.floor,
-                  room_class_id: room.room_class_id,
-                  name: room.name,
-                }))
-              : [],
+            room: detail.room,
             services: detail.services
               ? detail.services.map((service: any) => ({
                   id: service.id,
-                  amount: service.amount,
-                  service_id: {
-                    id: service.service_id.id,
-                    name: service.service_id.name,
-                    price: service.service_id.price,
-                    used_at: new Date(service.service_id.used_at),
-                  },
+                  name: service.name,
+                  price: service.price,
+                  quantity: service.quantity,
                 }))
               : [],
           }))
@@ -318,7 +228,7 @@ export const getBookingById = async (
     return {
       success: false,
       message,
-      data: null,
+      data: null as any, // Adjust type as necessary
     };
   }
 };
@@ -326,14 +236,14 @@ export const getBookingById = async (
 export const previewCancellationFee = async (
   bookingId: string,
   userId: string
-): Promise<{
-  success: boolean;
-  message?: string;
-  data: { can_cancel: boolean; fee_percent: number; fee_amount: number };
-}> => {
+): Promise<BookingCancelResponse> => {
   try {
-    const response = await previewCancellationFeeApi(bookingId, userId);
+    const response = await previewCancellationFeeApi({
+      bookingId,
+      userId,
+    });
     const data = response.data;
+
     return {
       success: true,
       message: response.message || "Cancellation fee previewed successfully",
@@ -360,15 +270,18 @@ export const cancelBooking = async (
   bookingId: string,
   userId: string,
   cancelReason: string
-): Promise<{
-  success: boolean;
-  message?: string;
-}> => {
+): Promise<BookingResponse> => {
   try {
-    const response = await cancelBookingApi(bookingId, userId, cancelReason);
+    const response = await cancelBookingApi({
+      bookingId,
+      userId,
+      cancelReason,
+    });
+
     return {
       success: true,
       message: response.message || "Booking cancelled successfully",
+      data: response.data,
     };
   } catch (error: any) {
     const message =
@@ -378,6 +291,7 @@ export const cancelBooking = async (
     return {
       success: false,
       message,
+      data: null as any, // Adjust type as necessary
     };
   }
 };

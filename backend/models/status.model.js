@@ -22,6 +22,10 @@ RoomStatusSchema.virtual("rooms", {
   ref: "room",
   localField: "_id",
   foreignField: "room_status_id",
+  justOne: false,
+  options: {
+    select: "name floor room_class_id",
+  },
 });
 
 RoomStatusSchema.set("toJSON", {
