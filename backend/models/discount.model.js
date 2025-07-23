@@ -43,7 +43,15 @@ const DiscountSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+DiscountSchema.virtual("booking_count", {
+  ref: "booking",
+  localField: "_id",
+  foreignField: "discount_id",
+  count: true,
+});
+
 DiscountSchema.set("toJSON", {
+  virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
     ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi

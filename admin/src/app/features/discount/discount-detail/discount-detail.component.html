@@ -1,0 +1,86 @@
+<div class="popup-overlay">
+  <div class="popup-content">
+    <h2>Chi tiết giảm giá</h2>
+
+    <div class="popup-section">
+      <label>Tên:</label>
+      <span>{{ discount.name }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="discount.image">
+      <label>Ảnh:</label>
+      <img
+        [src]="getImageUrl(discount.image)"
+        alt="Discount Image"
+        style="max-width: 100px; border-radius: 4px"
+      />
+    </div>
+
+    <div class="popup-section">
+      <label>Mô tả:</label>
+      <span>{{ discount.description }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Loại:</label>
+      <span>{{ getDiscounTypeName(discount.type) }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Giá trị:</label>
+      <span *ngIf="discount.value_type === 'percent'">
+        {{ discount.value * 100 }}%
+      </span>
+      <span *ngIf="discount.value_type === 'fixed'">
+        {{ discount.value | currency : "VND" }}
+      </span>
+    </div>
+
+    <div class="popup-section" *ngIf="discount.promo_code">
+      <label>Mã khuyến mãi:</label>
+      <span>{{ discount.promo_code }}</span>
+    </div>
+    <div class="popup-section" *ngIf="discount.conditions">
+      <label>Điều kiện:</label>
+      <span>
+        {{ getConditionText(discount.conditions) }}
+      </span>
+    </div>
+    <div class="popup-section">
+      <label>Ngày bắt đầu:</label>
+      <span>{{ discount.valid_from | formatDate }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Ngày kết thúc:</label>
+      <span>{{ discount.valid_to | formatDate }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Ưu tiên:</label>
+      <span>{{ discount.priority }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Cho phép cộng dồn:</label>
+      <span>{{ discount.can_be_stacked ? "Có" : "Không" }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="discount.apply_to_room_class_ids">
+      <label>Áp dụng cho loại phòng:</label>
+      <span>{{ getRoomClassNames() }}</span>
+    </div>
+
+    <div class="popup-section">
+      <label>Trạng thái:</label>
+      <span>{{ discount.status ? "Đang hoạt động" : "Ngừng áp dụng" }}</span>
+    </div>
+
+    <div class="popup-section" *ngIf="discount.booking_count !== undefined">
+      <label>Lượt áp dụng:</label>
+      <span>{{ discount.booking_count }}</span>
+    </div>
+
+    <button class="close-btn" (click)="close.emit()">Đóng</button>
+  </div>
+</div>

@@ -52,10 +52,27 @@ const DiscountController = {
       valid: true,
     };
   },
+
+  parseJSONFields: (body, fields) => {
+    for (const field of fields) {
+      if (typeof body[field] === "string") {
+        try {
+          body[field] = JSON.parse(body[field]);
+        } catch (e) {
+          // Nếu lỗi parse thì bỏ qua
+        }
+      }
+    }
+  },
+
   createDiscount: [
     upload.single("image"),
     async (req, res) => {
       try {
+        DiscountController.parseJSONFields(req.body, [
+          "conditions",
+          "apply_to_room_class_ids",
+        ]);
         const discount = new Discount(req.body);
         const validate = await DiscountController.validateDiscount(
           discount,
@@ -174,7 +191,11 @@ const DiscountController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const [discounts, total] = await Promise.all([
-        Discount.find(query).sort(sortOption).skip(skip).limit(parseInt(limit)),
+        Discount.find(query)
+          .sort(sortOption)
+          .populate("booking_count")
+          .skip(skip)
+          .limit(parseInt(limit)),
         Discount.countDocuments(query),
       ]);
 
@@ -206,7 +227,9 @@ const DiscountController = {
         status: true,
         valid_from: { $lte: now },
         valid_to: { $gte: now },
-      }).sort({ createdAt: -1 });
+      })
+        .sort({ createdAt: -1 })
+        .populate("booking_count");
       if (!list || list.length === 0) {
         return res.status(404).json({ message: "No discounts found" });
       }
@@ -221,7 +244,7 @@ const DiscountController = {
 
   getDiscountById: async (req, res) => {
     try {
-      const discount = await Discount.findById(req.params.id);
+      const discount = await Discount.findById(req.params.id).populate("booking_count");
       if (!discount) {
         return res.status(404).json({ message: "Discount not found" });
       }
@@ -238,6 +261,11 @@ const DiscountController = {
     upload.single("image"),
     async (req, res) => {
       try {
+        DiscountController.parseJSONFields(req.body, [
+          "conditions",
+          "apply_to_room_class_ids",
+        ]);
+
         const updated = await Discount.findById(req.params.id);
         if (!updated) {
           return res.status(404).json({ message: "Discount not found" });
@@ -249,8 +277,8 @@ const DiscountController = {
 
         const updatedData =
           Object.keys(req.body).length === 0
-            ? featureToUpdate.toObject()
-            : { ...featureToUpdate.toObject(), ...req.body };
+            ? updated.toObject()
+            : { ...updated.toObject(), ...req.body };
 
         if (!validate.valid) {
           if (req.file) {

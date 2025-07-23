@@ -1,0 +1,230 @@
+<div class="popup-add-popup">
+  <div class="popup-content">
+    <h2>{{ isEdit ? "Sửa" : "Thêm" }} khuyến mãi</h2>
+    <form (ngSubmit)="submitForm.emit()" #form="ngForm">
+      <div
+        class="form-floating form-floating-custom mb-3"
+        style="position: relative; flex: 1"
+      >
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+          style="width: 100%; padding-right: 30px"
+          name="name"
+          [(ngModel)]="discount.name"
+        />
+        <label for="floatingInput">Tên khuyến mãi</label>
+      </div>
+      <div>
+        <label for="description">Mô tả</label>
+        <textarea
+          class="form-control mb-3"
+          name="description"
+          [(ngModel)]="discount.description"
+          rows="3"
+        ></textarea>
+      </div>
+      <div>
+        <label>Loại khuyến mãi:</label>
+        <select
+          class="form-control mb-3"
+          name="type"
+          [(ngModel)]="discount.type"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option value="">-- Chọn loại khuyến mãi --</option>
+          <option value="early_bird">Đặt sớm</option>
+          <option value="last_minute">Đặt sát ngày</option>
+          <option value="length_of_stay">Đặt theo số đêm</option>
+          <option value="promo_code">Mã khuyến mãi</option>
+          <option value="seasonal">Theo mùa</option>
+          <option value="multi_room">Đặt nhiều phòng</option>
+          <option value="user_level">Theo cấp độ người dùng</option>
+        </select>
+      </div>
+      <div *ngIf="discount.type === 'early_bird'">
+        <label for="earlyBirdDays">Số ngày đặt sớm:</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="earlyBirdDays"
+          [(ngModel)]="discount.conditions.min_advance_days"
+        />
+      </div>
+      <div *ngIf="discount.type === 'last_minute'">
+        <label for="lastMinuteDays">Số ngày đặt sát ngày:</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="lastMinuteDays"
+          [(ngModel)]="discount.conditions.max_advance_days"
+        />
+      </div>
+      <div *ngIf="discount.type === 'length_of_stay'">
+        <label for="minNights">Số đêm tối thiểu:</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="minNights"
+          [(ngModel)]="discount.conditions.min_stay_nights"
+        />
+        <label for="maxNights">Số đêm tối đa:</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="maxNights"
+          [(ngModel)]="discount.conditions.max_stay_nights"
+        />
+      </div>
+      <div *ngIf="discount.type === 'promo_code'">
+        <label for="promoCode">Mã khuyến mãi:</label>
+        <input
+          type="text"
+          class="form-control mb-3"
+          name="promoCode"
+          [(ngModel)]="discount.promo_code"
+        />
+      </div>
+      <div *ngIf="discount.type === 'multi_room'">
+        <label for="minRooms">Số phòng tối thiểu:</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="minRooms"
+          [(ngModel)]="discount.conditions.min_rooms"
+        />
+      </div>
+      <div *ngIf="discount.type === 'user_level'">
+        <label for="userLevels">Cấp độ người dùng:</label>
+        <select
+          class="form-control mb-3"
+          name="userLevels"
+          [(ngModel)]="discount.conditions.user_levels"
+        >
+          <option value="">Tất cả</option>
+          <option value="normal">Thường</option>
+          <option value="bronze">Đồng</option>
+          <option value="silver">Bạc</option>
+          <option value="gold">Vàng</option>
+          <option value="diamond">Kim cương</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="type">Loại giảm giá:</label>
+        <select
+          class="form-control mb-3"
+          name="type"
+          [(ngModel)]="discount.value_type"
+        >
+          <option value="">-- Chọn loại giảm giá --</option>
+          <option value="percent">Phần trăm</option>
+          <option value="fixed">Số tiền cố định</option>
+        </select>
+        <label for="value">Giá trị:</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="value"
+          [(ngModel)]="discount.value"
+          required
+        />
+      </div>
+      <div>
+        <label for="validFrom">Ngày bắt đầu:</label>
+        <input
+          type="date"
+          class="form-control mb-3"
+          name="validFrom"
+          [ngModel]="formatDateForInput(discount.valid_from)"
+          (ngModelChange)="onDateChange($event, 'valid_from')"
+        />
+        <label for="validTo">Ngày kết thúc:</label>
+        <input
+          type="date"
+          class="form-control mb-3"
+          name="validTo"
+          [ngModel]="formatDateForInput(discount.valid_to)"
+          (ngModelChange)="onDateChange($event, 'valid_to')"
+        />
+      </div>
+      <div>
+        <label for="roomClass">Áp dụng cho phòng:</label>
+        <div *ngFor="let roomClass of roomClasses">
+          <input
+            type="checkbox"
+            [id]="'roomClass_' + roomClass.id"
+            [value]="roomClass.id"
+            class="form-check-input mb-3"
+            [checked]="discount.apply_to_room_class_ids.includes(roomClass.id)"
+            (change)="onRoomClassCheckboxChange($event, roomClass.id)"
+          />
+
+          <label [for]="'roomClass_' + roomClass.id">{{
+            roomClass.name
+          }}</label>
+        </div>
+      </div>
+
+      <div>
+        <label for="stacked">Có thể cộng dồn:</label>
+        <select
+          id="stacked"
+          class="form-control mb-3"
+          name="stacked"
+          [(ngModel)]="discount.can_be_stacked"
+        >
+          <option value="true">Có</option>
+          <option value="false">Không</option>
+        </select>
+      </div>
+      <div>
+        <label for="priority">Mức độ ưu tiên</label>
+        <input
+          type="number"
+          class="form-control mb-3"
+          name="priority"
+          [(ngModel)]="discount.priority"
+          min="0"
+          max="100"
+        />
+      </div>
+      <div class="popup-section">
+        <label for="image">Ảnh (file):</label>
+        <input
+          type="file"
+          id="image"
+          name="image"
+          (change)="onFileInputChange($event)"
+          class="form-control mb-3"
+        />
+        <!-- Ưu tiên preview nếu có -->
+        <div *ngIf="imagePreview; else currentImage">
+          <label>Ảnh preview:</label>
+          <img [src]="imagePreview" width="120px" height="100px" />
+        </div>
+
+        <ng-template #currentImage>
+          <div *ngIf="discount.image">
+            <label>Ảnh hiện tại:</label>
+            <img
+              [src]="getImageUrl(discount.image)"
+              width="120px"
+              height="100px"
+            />
+          </div>
+        </ng-template>
+      </div>
+      <div class="popup-actions">
+        <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+          Lưu
+        </button>
+        <button class="btn btn-danger" type="button" (click)="close.emit()">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -25,6 +25,7 @@ export interface Discount {
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  booking_count?: number;
 }
 
 export interface DiscountCondition {

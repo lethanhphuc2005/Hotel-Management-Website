@@ -86,7 +86,7 @@ const UserSchema = new mongoose.Schema(
     },
     level: {
       type: String,
-      enum: ["bronze", "silver", "gold", "diamond", "newbie", "normal"],
+      enum: ["bronze", "silver", "gold", "diamond", "normal"],
       default: "normal",
     },
     verfitication_expired: {

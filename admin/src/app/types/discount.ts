@@ -18,15 +18,16 @@ export interface Discount {
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  booking_count?: number;
 }
 
 export interface DiscountCondition {
-  min_advance_days?: Number;
-  max_advance_days?: Number;
-  min_stay_nights?: Number;
-  max_stay_nights?: Number;
-  min_rooms?: Number;
-  user_levels?: [String];
+  min_advance_days?: number;
+  max_advance_days?: number;
+  min_stay_nights?: number;
+  max_stay_nights?: number;
+  min_rooms?: number;
+  user_levels?: [string];
 }
 
 export interface DiscountResponse {
@@ -42,16 +43,17 @@ export interface DiscountDetailResponse {
 
 export interface DiscountRequest {
   name?: string;
-  image?: File | null;
+  image?: string | null;
+  uploadImage?: File | null;
   description?: string;
   type?: string;
   value?: number;
   value_type?: string;
-  conditions?: DiscountCondition;
+  conditions: DiscountCondition;
   promo_code?: string;
   valid_from?: Date;
   valid_to?: Date;
-  apply_to_room_class_ids?: string[];
+  apply_to_room_class_ids: string[];
   can_be_stacked?: boolean;
   priority?: number;
   status?: boolean;

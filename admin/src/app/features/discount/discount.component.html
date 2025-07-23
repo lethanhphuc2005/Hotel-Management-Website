@@ -22,4 +22,33 @@
     [limit]="filter.limit"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
+
+  <app-discount-detail
+    *ngIf="isDetailPopupOpen && selectedDiscount"
+    [discount]="selectedDiscount"
+    [roomClasses]="roomClasses"
+    (close)="onClosePopup()"
+  ></app-discount-detail>
+
+  <app-discount-form
+    *ngIf="isAddPopupOpen"
+    [discount]="newDiscount"
+    [roomClasses]="roomClasses"
+    [isEdit]="false"
+    [imagePreview]="imagePreview"
+    (submitForm)="onAddSubmit()"
+    (close)="onClosePopup()"
+    (fileSelected)="onFileSelected($event)"
+  ></app-discount-form>
+
+  <app-discount-form
+    *ngIf="isEditPopupOpen"
+    [discount]="newDiscount"
+    [roomClasses]="roomClasses"
+    [isEdit]="true"
+    [imagePreview]="imagePreview"
+    (submitForm)="onEditSubmit()"
+    (close)="onClosePopup()"
+    (fileSelected)="onFileSelected($event)"
+  ></app-discount-form>
 </div>
