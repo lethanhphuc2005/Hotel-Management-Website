@@ -26,7 +26,7 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
     PaymentMethodListComponent,
     CommonFilterBarComponent,
     PaymentMethodFormComponent,
-    PaginationComponent
+    PaginationComponent,
   ],
 })
 export class PaymentMethodComponent implements OnInit {
@@ -60,7 +60,9 @@ export class PaymentMethodComponent implements OnInit {
     this.paymentMethodService.getAllPaymentMethods(this.filter).subscribe({
       next: (response) => {
         this.paymentMethods = response.data;
-        this.filter.total = response.pagination?.total;
+        if (response.pagination) {
+          this.filter.total = response.pagination.total;
+        }
       },
       error: (err) => {
         console.error(err);
@@ -103,6 +105,7 @@ export class PaymentMethodComponent implements OnInit {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
     this.selectedPaymentMethod = null;
+    this.newPaymentMethod = { name: '', status: true };
   }
 
   onToggleChange(event: Event, item: PaymentMethod): void {
@@ -134,46 +137,35 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   onAddSubmit(): void {
-    const formData = new FormData();
-    formData.append('name', this.newPaymentMethod.name || '');
-    formData.append(
-      'status',
-      this.newPaymentMethod.status?.toString() || 'true'
-    );
-
-    this.paymentMethodService.createPaymentMethod(formData).subscribe({
-      next: () => {
-        this.fetchPaymentMethods();
-        this.isAddPopupOpen = false;
-        this.newPaymentMethod = { name: '', status: true }; // Reset form
-        this.toastService.success(
-          'Thêm phương thức thanh toán thành công',
-          'Thành công'
-        );
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.paymentMethodService
+      .createPaymentMethod(this.newPaymentMethod)
+      .subscribe({
+        next: () => {
+          this.fetchPaymentMethods();
+          this.onClosePopup();
+          this.toastService.success(
+            'Thêm phương thức thanh toán thành công',
+            'Thành công'
+          );
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 
   onEditSubmit(): void {
     if (!this.selectedPaymentMethod) return;
 
-    const formData = new FormData();
-    formData.append('name', this.newPaymentMethod.name || '');
-
     this.paymentMethodService
-      .updatePaymentMethod(this.selectedPaymentMethod.id, formData)
+      .updatePaymentMethod(this.selectedPaymentMethod.id, this.newPaymentMethod)
       .subscribe({
         next: () => {
           this.fetchPaymentMethods();
-          this.isEditPopupOpen = false;
-          this.selectedPaymentMethod = null;
-          this.newPaymentMethod = { name: '', status: true }; // Reset form
+          this.onClosePopup();
           this.toastService.success(
             'Cập nhật phương thức thanh toán thành công',
             'Thành công'

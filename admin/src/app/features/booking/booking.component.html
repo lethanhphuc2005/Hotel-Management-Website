@@ -17,8 +17,7 @@
   />
 
   <app-booking-status-popup
-    *ngIf="selectedBooking"
-    [visible]="isEditPopupOpen"
+    *ngIf="isEditPopupOpen && selectedBooking"
     [booking]="selectedBooking"
     (onClose)="onClosePopup()"
     (onConfirm)="handleConfirm($event)"
@@ -28,7 +27,7 @@
   />
 
   <app-booking-detail-popup
-    [visible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedBooking"
     [booking]="selectedBooking"
     (onClose)="onClosePopup()"
   ></app-booking-detail-popup>

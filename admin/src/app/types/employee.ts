@@ -40,15 +40,15 @@ export interface EmployeeFilter extends FilterParams {
 }
 
 export interface EmployeeRequest {
-  first_name: string;
-  last_name: string;
-  position: string;
-  department: string;
-  address: string;
-  email: string;
-  phone_number: string;
-  role: string;
-  status: boolean;
+  first_name?: string;
+  last_name?: string;
+  position?: string;
+  department?: string;
+  address?: string;
+  email?: string;
+  phone_number?: string;
+  role?: string;
+  status?: boolean;
   password?: string; // Optional for registration
   secret_key?: string; // Optional for registration
 }

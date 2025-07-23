@@ -33,11 +33,11 @@ export interface FeatureDetailResponse {
 }
 
 export interface FeatureRequest {
-  name: string;
+  name?: string;
   description?: string;
-  image?: File | null; // Có thể là File hoặc URL
+  image?: File | null; // Có thể là File hoặc null nếu không có ảnh
   icon?: string; // Có thể là URL của icon
-  status: boolean;
+  status?: boolean;
 }
 
 export interface FeatureFilter extends FilterParams {

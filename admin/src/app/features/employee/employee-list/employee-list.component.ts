@@ -1,4 +1,4 @@
-import { Employee } from '@/types/employee';
+import { Employee, EmployeeFilter } from '@/types/employee';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,11 +10,16 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './employee-list.component.scss',
 })
 export class EmployeeListComponent {
-  @Input() employees: Employee[] = [];
+  @Input() employees!: Employee[];
+  @Input() filter: EmployeeFilter = {
+    page: 1,
+    limit: 10,
+    total: 0,
+  };
   @Output() viewDetail = new EventEmitter<Employee>();
   @Output() toggleStatusChange = new EventEmitter<{
     $event: Event;
     employee: Employee;
   }>();
-  @Output() openPopup = new EventEmitter();
+  @Output() openPopup = new EventEmitter<Employee>();
 }

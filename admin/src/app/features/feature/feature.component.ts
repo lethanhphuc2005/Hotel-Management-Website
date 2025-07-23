@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Feature, FeatureRequest } from '@/types/feature';
+import { Feature, FeatureFilter, FeatureRequest } from '@/types/feature';
 import { FeatureService } from '@/core/services/feature.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -41,27 +41,18 @@ export class FeatureComponent implements OnInit {
     status: true,
     image: null,
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: FeatureFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
   };
 
   constructor(
     private featureService: FeatureService,
-    private imageHelperService: ImageHelperService,
     private toastService: ToastrService
   ) {}
 
@@ -69,31 +60,18 @@ export class FeatureComponent implements OnInit {
     this.getAllFeatures();
   }
 
-  getImageUrl(image?: string): string {
-    return this.imageHelperService.getImageUrl(image);
-  }
-
   getAllFeatures(): void {
-    this.featureService
-      .getAllFeatures({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-      })
-      .subscribe({
-        next: (res) => {
-          this.features = res.data;
-          this.filter.total = res.pagination.total;
-        },
-        error: (err) => {
-          console.error(err);
-          this.toastService.error(err.error?.message, 'Lỗi');
-          this.features = [];
-        },
-      });
+    this.featureService.getAllFeatures(this.filter).subscribe({
+      next: (res) => {
+        this.features = res.data;
+        this.filter.total = res.pagination.total;
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.features = [];
+      },
+    });
   }
 
   onPageChange(newPage: number): void {
@@ -103,8 +81,8 @@ export class FeatureComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc';
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc';
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.getAllFeatures();
@@ -122,7 +100,9 @@ export class FeatureComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          'Thay đổi trạng thái loại phòng chính thành công',
+          `Trạng thái tiện nghi đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
           'Thành công'
         );
       },
@@ -139,7 +119,6 @@ export class FeatureComponent implements OnInit {
 
   onViewDetail(f: Feature) {
     this.selectedFeature = f;
-    // Reset preview image
     this.imagePreview = null;
     this.isDetailPopupOpen = true;
   }
@@ -175,6 +154,13 @@ export class FeatureComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedFeature = null;
+    this.newFeature = {
+      name: '',
+      description: '',
+      icon: '',
+      status: true,
+      image: null,
+    };
   }
 
   onFileSelected(file: File): void {
@@ -206,11 +192,11 @@ export class FeatureComponent implements OnInit {
     this.featureService.createFeature(formData).subscribe({
       next: () => {
         this.getAllFeatures();
-        this.isAddPopupOpen = false;
         this.toastService.success(
-          'Thêm loại phòng chính thành công',
+          'Thêm tiện nghi thành công',
           'Thành công'
         );
+        this.onClosePopup();
       },
       error: (err) => {
         this.toastService.error(
@@ -242,14 +228,11 @@ export class FeatureComponent implements OnInit {
       .subscribe({
         next: () => {
           this.getAllFeatures();
-          this.isEditPopupOpen = false;
-          this.selectedFeature = null;
-          this.imagePreview = null; // Reset preview image
-          this.newFeature.image = null; // Reset new image
           this.toastService.success(
-            'Cập nhật loại phòng chính thành công',
+            'Cập nhật tiện nghi thành công',
             'Thành công'
           );
+          this.onClosePopup();
         },
         error: (err) => {
           this.toastService.error(

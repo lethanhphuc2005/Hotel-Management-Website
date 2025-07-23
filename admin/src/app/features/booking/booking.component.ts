@@ -4,7 +4,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Booking } from '@/types/booking';
+import { Booking, BookingFilter } from '@/types/booking';
 import { BookingStatusService } from '@/core/services/booking-status.service';
 import { BookingMethodService } from '@/core/services/booking-method.service';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
@@ -40,24 +40,10 @@ export class BookingComponent implements OnInit {
   selectedBooking: Booking | null = null;
   isDetailPopupOpen = false;
   isEditPopupOpen = false;
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status: string;
-    user: string;
-    method: string;
-    payment_status?: string;
-    check_in_date?: string;
-    check_out_date?: string;
-    booking_date?: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: BookingFilter = {
+    search: '',
+    sort: 'createdAt',
+    order: 'desc',
     page: 1,
     limit: 10,
     total: 0,
@@ -84,15 +70,7 @@ export class BookingComponent implements OnInit {
   getAllBookings(): void {
     this.bookingService
       .getAllBookings({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-        user: this.filter.user,
-        method: this.filter.method,
-        payment_status: this.filter.payment_status,
+        ...this.filter,
         check_in_date: this.filter.check_in_date
           ? new Date(this.filter.check_in_date).toISOString()
           : undefined,
@@ -117,7 +95,12 @@ export class BookingComponent implements OnInit {
   }
 
   getAllBookingStatuses(): void {
-    this.bookingStatusService.getAllBookingStatus({}).subscribe({
+    this.bookingStatusService.getAllBookingStatus({
+      page: 1,
+      limit: 100,
+      total: 0,
+      status: 'true',
+    }).subscribe({
       next: (res) => {
         this.bookingStatuses = res.data;
       },
@@ -129,7 +112,12 @@ export class BookingComponent implements OnInit {
   }
 
   getAllBookingMethods(): void {
-    this.bookingMethodService.getAllBookingMethod({}).subscribe({
+    this.bookingMethodService.getAllBookingMethod({
+      page: 1,
+      limit: 100,
+      total: 0,
+      status: 'true',
+    }).subscribe({
       next: (res) => {
         this.bookingMethods = res.data;
       },
@@ -153,9 +141,9 @@ export class BookingComponent implements OnInit {
 
   onResetFilter(): void {
     this.filter = {
-      keyword: '',
-      sortField: 'createdAt',
-      sortOrder: 'desc',
+      search: '',
+      sort: 'createdAt',
+      order: 'desc',
       page: 1,
       limit: 10,
       total: 0,
@@ -173,10 +161,9 @@ export class BookingComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
-    console.log('Filter changed:', this.filter);
     this.filter.page = 1; // Reset to first page on filter change
     this.getAllBookings();
     this.toastr.info('Đã cập nhật bộ lọc', 'Thông báo');
@@ -215,8 +202,7 @@ export class BookingComponent implements OnInit {
         next: () => {
           this.toastr.success('Đã xác nhận và gán phòng', 'Thành công');
           this.getAllBookings();
-          this.selectedBooking = null;
-          this.isEditPopupOpen = false;
+          this.onClosePopup();
         },
         error: (err) => {
           this.toastr.error(err?.error?.message || 'Lỗi xác nhận', 'Lỗi');
@@ -233,8 +219,7 @@ export class BookingComponent implements OnInit {
         next: () => {
           this.toastr.success('Đã hủy đơn đặt phòng', 'Thành công');
           this.getAllBookings();
-          this.isEditPopupOpen = false;
-          this.selectedBooking = null;
+          this.onClosePopup();
         },
         error: (err) => {
           this.toastr.error(err?.error?.message || 'Lỗi khi hủy đơn', 'Lỗi');
@@ -262,8 +247,7 @@ export class BookingComponent implements OnInit {
         next: () => {
           this.toastr.success('Khách đã nhận phòng', 'Thành công');
           this.getAllBookings();
-          this.isEditPopupOpen = false;
-          this.selectedBooking = null;
+          this.onClosePopup();
         },
         error: (err) => {
           this.toastr.error(err?.error?.message || 'Lỗi khi check-in', 'Lỗi');
@@ -280,8 +264,7 @@ export class BookingComponent implements OnInit {
         next: () => {
           this.toastr.success('Khách đã trả phòng', 'Thành công');
           this.getAllBookings();
-          this.isEditPopupOpen = false;
-          this.selectedBooking = null;
+          this.onClosePopup();
         },
         error: (err) => {
           this.toastr.error(err?.error?.message || 'Lỗi khi check-out', 'Lỗi');

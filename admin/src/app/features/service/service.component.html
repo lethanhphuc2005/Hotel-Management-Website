@@ -24,7 +24,7 @@
   ></app-pagination>
 
   <app-service-form
-    [isVisible]="isAddPopupOpen"
+    *ngIf="isAddPopupOpen"
     [service]="newService"
     [isEdit]="false"
     [imagePreview]="imagePreview"
@@ -34,7 +34,7 @@
   ></app-service-form>
 
   <app-service-form
-    [isVisible]="isEditPopupOpen"
+    *ngIf="isEditPopupOpen"
     [service]="newService"
     [isEdit]="true"
     [imagePreview]="imagePreview"

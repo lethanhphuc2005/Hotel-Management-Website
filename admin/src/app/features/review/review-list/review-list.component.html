@@ -2,11 +2,11 @@
   <div class="table-row" *ngFor="let review of reviews; let i = index">
     <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
     <div>
-      {{ review.user_id.last_name }}
-      {{ review.user_id.first_name }}
+      {{ review.user?.last_name }}
+      {{ review.user?.first_name }}
     </div>
     <div>
-      {{ review.user_id.email }}
+      {{ review.user?.email }}
     </div>
 
     <div>
@@ -24,7 +24,7 @@
       {{ review.content }}
     </div>
     <div>
-      {{ review.booking_id.id }}
+      {{ review.booking_id }}
     </div>
     <div>{{ review.createdAt | formatDate }}</div>
     <div class="status-column">

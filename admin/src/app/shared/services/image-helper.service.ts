@@ -7,7 +7,12 @@ import { environment } from '../../../environments/environment'; // Đảm bảo
 export class ImageHelperService {
   private readonly imgUrl = environment.imgUrl;
 
-  getImageUrl(image?: string): string {
-    return `${this.imgUrl}/${image}`;
+  getImageUrl(image: string | File): string {
+    if (typeof image === 'string') {
+      return `${this.imgUrl}/${image}`;
+    } else if (image instanceof File) {
+      return URL.createObjectURL(image);
+    }
+    return '';
   }
 }

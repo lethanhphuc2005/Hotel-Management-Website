@@ -12,7 +12,6 @@ import { CommentTreeComponent } from '../comment-tree/comment-tree.component';
   styleUrl: './comment-detail-popup.component.scss',
 })
 export class CommentDetailPopupComponent {
-  @Input() comment: Comment | null = null;
-  @Input() isVisible: boolean = false;
-  @Output() closePopup = new EventEmitter();
+  @Input() comment!: Comment;
+  @Output() closePopup = new EventEmitter<void>();
 }

@@ -15,8 +15,7 @@
 
   <!-- Popup chi tiết -->
   <app-payment-detail
-    *ngIf="selectedPayment"
-    [isVisible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedPayment"
     [payment]="selectedPayment"
     (close)="onClosePopup()"
   ></app-payment-detail>

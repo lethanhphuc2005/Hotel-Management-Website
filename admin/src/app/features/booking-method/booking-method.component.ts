@@ -3,7 +3,11 @@ import { BookingMethodService } from '../../core/services/booking-method.service
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BookingMethod, BookingMethodRequest } from '@/types/booking-method';
+import {
+  BookingMethod,
+  BookingMethodFilter,
+  BookingMethodRequest,
+} from '@/types/booking-method';
 import { ToastrService } from 'ngx-toastr';
 import { BookingMethodListComponent } from '@/features/booking-method/booking-method-list/booking-method-list.component';
 import { BookingMethodFormComponent } from '@/features/booking-method/booking-method-form/booking-method-form.component';
@@ -22,7 +26,7 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
     BookingMethodListComponent,
     BookingMethodFormComponent,
     CommonFilterBarComponent,
-    PaginationComponent
+    PaginationComponent,
   ],
 })
 export class BookingMethodComponent implements OnInit {
@@ -35,22 +39,14 @@ export class BookingMethodComponent implements OnInit {
     description: '',
     status: true,
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status?: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: BookingMethodFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
-    status: '', // Optional filter for status
+    status: '',
+    sort: 'createdAt',
+    order: 'desc',
   };
 
   constructor(
@@ -64,14 +60,7 @@ export class BookingMethodComponent implements OnInit {
 
   getAllBookingMethods(): void {
     this.bookingMethodService
-      .getAllBookingMethod({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        status: this.filter.status,
-        order: this.filter.sortOrder,
-        sort: this.filter.sortField,
-      })
+      .getAllBookingMethod(this.filter)
       .subscribe({
         next: (response) => {
           this.bookingMethods = response.data;
@@ -90,8 +79,8 @@ export class BookingMethodComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.getAllBookingMethods();
@@ -109,7 +98,7 @@ export class BookingMethodComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          'Thay đổi trạng thái đặt phòng thành công',
+          `Phương thức đặt phòng ${newStatus ? 'kích hoạt' : 'vô hiệu hóa'} thành công`,
           'Thành công'
         );
       },
@@ -137,7 +126,6 @@ export class BookingMethodComponent implements OnInit {
         status: true,
       };
     } else if (item) {
-      console.log('Selected item for edit:', item);
       this.selectedBookingMethod = item;
       this.newBookingMethod = {
         name: item.name,
@@ -151,39 +139,37 @@ export class BookingMethodComponent implements OnInit {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
     this.selectedBookingMethod = null;
+    this.newBookingMethod = {
+      name: '',
+      description: '',
+      status: true,
+    };
   }
 
   onAddSubmit(): void {
-    const formData = new FormData();
-    formData.append('name', this.newBookingMethod.name || '');
-    formData.append('description', this.newBookingMethod.description || '');
-    formData.append('status', String(this.newBookingMethod.status) || 'true');
-
-    this.bookingMethodService.createBookingMethod(formData).subscribe({
-      next: (res) => {
-        this.toastService.success(
-          res.message || 'Thêm phương thức đặt phòng thành công',
-          'Thành công'
-        );
-        this.getAllBookingMethods();
-        this.onClosePopup();
-      },
-      error: (err) => {
-        console.error('Error adding booking status:', err);
-        this.toastService.error(err.error?.message || err.message, 'Lỗi');
-      },
-    });
+    this.bookingMethodService
+      .createBookingMethod(this.newBookingMethod)
+      .subscribe({
+        next: (res) => {
+          this.toastService.success(
+            res.message || 'Thêm phương thức đặt phòng thành công',
+            'Thành công'
+          );
+          this.getAllBookingMethods();
+          this.onClosePopup();
+        },
+        error: (err) => {
+          console.error('Error adding booking status:', err);
+          this.toastService.error(err.error?.message || err.message, 'Lỗi');
+        },
+      });
   }
 
   onEditSubmit(): void {
     if (!this.selectedBookingMethod) return;
 
-    const formData = new FormData();
-    formData.append('name', this.newBookingMethod.name || '');
-    formData.append('description', this.newBookingMethod.description || '');
-
     this.bookingMethodService
-      .updateBookingMethod(this.selectedBookingMethod.id, formData)
+      .updateBookingMethod(this.selectedBookingMethod.id, this.newBookingMethod)
       .subscribe({
         next: (res) => {
           this.toastService.success(

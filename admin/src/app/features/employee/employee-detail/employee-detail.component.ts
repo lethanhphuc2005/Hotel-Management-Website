@@ -10,7 +10,6 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './employee-detail.component.scss',
 })
 export class EmployeeDetailComponent {
-  @Input() isVisible: boolean = false;
   @Input() employee!: Employee;
-  @Output() closePopup = new EventEmitter();
+  @Output() closePopup = new EventEmitter<void>();
 }

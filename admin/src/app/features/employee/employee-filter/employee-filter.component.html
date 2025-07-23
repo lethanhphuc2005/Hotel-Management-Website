@@ -17,8 +17,8 @@
   <button class="add-room" (click)="filterChange.emit()">
     <i class="fa-solid fa-magnifying-glass"></i>
   </button>
-  <button class="add-room" (click)="openAdd.emit()" *ngIf="label">
-    + {{ label || "none" }}
+  <button class="add-room" (click)="openAdd.emit()">
+    + Thêm nhân viên
   </button>
 </div>
 <!-- Filter -->
@@ -55,7 +55,7 @@
   <div>
     <label>Sắp xếp:</label>
     <button (click)="filterChange.emit('status')">
-      Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
+      Trạng thái: {{ filter.order === "asc" ? "↑" : "↓" }}
     </button>
   </div>
 </div>

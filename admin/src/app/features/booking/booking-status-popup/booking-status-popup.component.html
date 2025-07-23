@@ -1,6 +1,5 @@
 <!-- Overlay -->
 <div
-  *ngIf="visible && booking"
   class="tw-fixed tw-inset-0 tw-bg-black/50 tw-z-50 tw-flex tw-items-center tw-justify-center"
 >
   <!-- Modal -->
@@ -72,9 +71,7 @@
         placeholder="Nhập số giấy tờ"
       />
 
-      <label class="tw-block tw-font-medium tw-text-sm"
-        >Người nhận phòng</label
-      >
+      <label class="tw-block tw-font-medium tw-text-sm">Người nhận phòng</label>
       <input
         [(ngModel)]="representativeName"
         class="tw-w-full tw-border tw-rounded tw-px-3 tw-py-2 tw-text-sm"
@@ -84,7 +81,9 @@
 
     <!-- CHECKED_IN: Form check-out -->
     <div *ngIf="booking.booking_status.code === 'CHECKED_IN'" class="tw-mb-6">
-      <label class="tw-block tw-font-medium tw-text-sm">Ghi chú trả phòng</label>
+      <label class="tw-block tw-font-medium tw-text-sm"
+        >Ghi chú trả phòng</label
+      >
       <textarea
         [(ngModel)]="checkoutNote"
         class="tw-w-full tw-border tw-rounded-md tw-px-3 tw-py-2 tw-text-sm tw-resize-none"
@@ -109,8 +108,16 @@
       <button
         *ngIf="booking.booking_status.code === 'CONFIRMED'"
         class="tw-w-full tw-bg-green-600 tw-text-white tw-font-semibold tw-py-2 tw-rounded-md hover:tw-bg-green-700"
-        [disabled]="!identityType || !identityNumber.trim() || !representativeName.trim()"
-        (click)="onCheckIn.emit({ type: identityType, number: identityNumber, representative_name: representativeName })"
+        [disabled]="
+          !identityType || !identityNumber.trim() || !representativeName.trim()
+        "
+        (click)="
+          onCheckIn.emit({
+            type: identityType,
+            number: identityNumber,
+            representative_name: representativeName
+          })
+        "
       >
         🏨 Check-in
       </button>

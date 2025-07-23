@@ -8,16 +8,13 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-room-class-detail',
   imports: [CommonModule, FormsModule],
   templateUrl: './room-class-detail.component.html',
-  styleUrl: './room-class-detail.component.scss'
+  styleUrl: './room-class-detail.component.scss',
 })
 export class RoomClassDetailComponent {
-  @Input() isVisible: boolean = false;
-  @Input() roomClass: RoomClass | null = null;
-  @Output() closePopup = new EventEmitter();
+  @Input() roomClass!: RoomClass;
+  @Output() closePopup = new EventEmitter<void>();
 
-  constructor(
-    private imageHelperService: ImageHelperService,
-  ) {}
+  constructor(private imageHelperService: ImageHelperService) {}
 
   getImageUrl(imagePath: string): string {
     return this.imageHelperService.getImageUrl(imagePath);

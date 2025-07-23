@@ -4,10 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { WebsiteContentService } from '@/core/services/website-content.service';
 import { ContentTypeService } from '@/core/services/content-type.service';
-import { WebsiteContent, WebsiteContentRequest } from '@/types/website-content';
+import {
+  WebsiteContent,
+  WebsiteContentFilter,
+  WebsiteContentRequest,
+} from '@/types/website-content';
 import { ContentType } from '@/types/content-type';
 import { ToastrService } from 'ngx-toastr';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { WebsiteContentListComponent } from './website-content-list/website-content-list.component';
 import { WebsiteContentFormComponent } from './website-content-form/website-content-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
@@ -17,10 +20,12 @@ import { compressImage } from '@/shared/utils/image.utils';
 @Component({
   selector: 'app-website-content',
   imports: [
+    CommonModule,
+    FormsModule,
     WebsiteContentListComponent,
     WebsiteContentFormComponent,
     CommonFilterBarComponent,
-    PaginationComponent
+    PaginationComponent,
   ],
   templateUrl: './website-content.component.html',
   styleUrl: './website-content.component.scss',
@@ -39,73 +44,58 @@ export class WebsiteContentComponent implements OnInit {
     image: undefined,
     status: true,
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: WebsiteContentFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
   };
 
   constructor(
     private websitecontentService: WebsiteContentService,
     private contentTypeService: ContentTypeService,
-    private toastService: ToastrService,
-    private imageHelperService: ImageHelperService
+    private toastService: ToastrService
   ) {}
   ngOnInit(): void {
     this.loadAllContentTypes();
     this.loadAllWebsiteContents();
   }
 
-  getImageUrl(imageName: string): string {
-    return this.imageHelperService.getImageUrl(imageName);
-  }
-
   loadAllWebsiteContents() {
-    this.websitecontentService
-      .getAllWebsiteContents({
-        search: this.filter.keyword,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        status: this.filter.status,
-      })
-      .subscribe({
-        next: (response) => {
-          this.websiteContents = response.data;
-          this.filter.total = response.pagination.total;
-        },
-        error: (error) => {
-          console.error('Error fetching website contents:', error);
-          this.toastService.error(error.error?.message, 'Lỗi');
-          this.websiteContents = [];
-        },
-      });
+    this.websitecontentService.getAllWebsiteContents(this.filter).subscribe({
+      next: (response) => {
+        this.websiteContents = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (error) => {
+        console.error('Error fetching website contents:', error);
+        this.toastService.error(error.error?.message, 'Lỗi');
+        this.websiteContents = [];
+      },
+    });
   }
 
   loadAllContentTypes() {
-    this.contentTypeService.getAllContentTypes({}).subscribe({
-      next: (response) => {
-        this.contentTypes = response.data;
-      },
-      error: (error) => {
-        console.error('Error fetching content types:', error);
-        this.toastService.error(error.error?.message, 'Lỗi');
-        this.contentTypes = [];
-      },
-    });
+    this.contentTypeService
+      .getAllContentTypes({
+        page: 1,
+        limit: 100,
+        total: 0,
+        status: 'true',
+      })
+      .subscribe({
+        next: (response) => {
+          this.contentTypes = response.data;
+        },
+        error: (error) => {
+          console.error('Error fetching content types:', error);
+          this.toastService.error(error.error?.message, 'Lỗi');
+          this.contentTypes = [];
+        },
+      });
   }
 
   onPageChange(page: number): void {
@@ -115,8 +105,8 @@ export class WebsiteContentComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.loadAllWebsiteContents();
@@ -134,7 +124,9 @@ export class WebsiteContentComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          'Thay đổi trạng thái loại phòng chính thành công',
+          `Trạng thái nội dung "${item.title}" đã được cập nhật thành ${
+            newStatus ? 'Kích hoạt' : 'Vô hiệu hóa'
+          }.`,
           'Thành công'
         );
       },
@@ -183,7 +175,7 @@ export class WebsiteContentComponent implements OnInit {
   }
 
   onFileSelected(file: File): void {
-    this.newWebsiteContent.image = file;
+    this.newWebsiteContent.uploadImage = file;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -205,9 +197,9 @@ export class WebsiteContentComponent implements OnInit {
       this.newWebsiteContent.status?.toString() || 'true'
     );
 
-    if (this.newWebsiteContent.image) {
+    if (this.newWebsiteContent.uploadImage) {
       const compressedFile = await compressImage(
-        this.newWebsiteContent.image,
+        this.newWebsiteContent.uploadImage,
         1,
         1920
       );
@@ -242,9 +234,9 @@ export class WebsiteContentComponent implements OnInit {
       'content_type_id',
       this.selectedWebsiteContent.content_type_id?.toString() || ''
     );
-    if (this.newWebsiteContent.image) {
+    if (this.newWebsiteContent.uploadImage) {
       const compressedFile = await compressImage(
-        this.newWebsiteContent.image,
+        this.newWebsiteContent.uploadImage,
         1,
         1920
       );

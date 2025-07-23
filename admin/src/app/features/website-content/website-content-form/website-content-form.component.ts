@@ -1,4 +1,6 @@
 import { ImageHelperService } from '@/shared/services/image-helper.service';
+import { ContentType } from '@/types/content-type';
+import { WebsiteContentRequest } from '@/types/website-content';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,12 +12,12 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './website-content-form.component.scss',
 })
 export class WebsiteContentFormComponent {
-  @Input() contentTypes: any = {};
-  @Input() websiteContent: any = {};
+  @Input() contentTypes: ContentType[] = [];
+  @Input() websiteContent: WebsiteContentRequest = {};
   @Input() isEdit: boolean = false;
   @Input() imagePreview: string | null = null;
-  @Output() submitForm = new EventEmitter();
-  @Output() close = new EventEmitter();
+  @Output() submitForm = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
 
   constructor(private imageHelperService: ImageHelperService) {}
@@ -27,7 +29,7 @@ export class WebsiteContentFormComponent {
     }
   }
 
-  getImageUrl(image: string): string {
+  getImageUrl(image: string| File): string {
     return this.imageHelperService.getImageUrl(image);
   }
 }

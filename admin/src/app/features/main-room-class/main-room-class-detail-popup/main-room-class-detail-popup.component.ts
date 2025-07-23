@@ -11,8 +11,7 @@ import { ImageHelperService } from '@/shared/services/image-helper.service';
   styleUrl: './main-room-class-detail-popup.component.scss',
 })
 export class MainRoomClassDetailPopupComponent {
-  @Input() mainRoomClass: MainRoomClass | null = null;
-  @Input() isVisible: boolean = false;
+  @Input() mainRoomClass!: MainRoomClass;
   @Output() closePopup = new EventEmitter();
 
   constructor(private imageHelperService: ImageHelperService) {}

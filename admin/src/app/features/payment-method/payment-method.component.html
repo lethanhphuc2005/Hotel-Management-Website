@@ -16,7 +16,6 @@
   ></app-payment-method-list>
 
   <app-pagination
-    *ngIf="filter.total && filter.limit && filter.page"
     [limit]="filter.limit"
     [total]="filter.total"
     [page]="filter.page"
@@ -24,7 +23,7 @@
   ></app-pagination>
 
   <app-payment-method-form
-    [isVisible]="isAddPopupOpen"
+    *ngIf="isAddPopupOpen"
     [paymentMethod]="newPaymentMethod"
     (close)="onClosePopup()"
     (submit)="onAddSubmit()"
@@ -32,7 +31,7 @@
   ></app-payment-method-form>
 
   <app-payment-method-form
-    [isVisible]="isEditPopupOpen"
+    *ngIf="isEditPopupOpen"
     [paymentMethod]="newPaymentMethod"
     (close)="onClosePopup()"
     (submit)="onEditSubmit()"

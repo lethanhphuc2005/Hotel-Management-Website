@@ -9,7 +9,7 @@
       id="floatingInput"
       placeholder="name@example.com"
       style="width: 100%; padding-right: 30px"
-      [(ngModel)]="filter.keyword"
+      [(ngModel)]="filter.search"
       (keyup.enter)="filterChange.emit()"
     />
     <label for="floatingInput">Tìm kiếm</label>
@@ -17,9 +17,7 @@
   <button class="add-room" (click)="filterChange.emit()">
     <i class="fa-solid fa-magnifying-glass"></i>
   </button>
-  <button class="add-room" (click)="openAdd.emit(true)" *ngIf="label">
-    + {{ label || "none" }}
-  </button>
+  <button class="add-room" (click)="openAdd.emit()">+ Thêm khuyến mãi</button>
 </div>
 
 <div class="filter-bar">

@@ -1,5 +1,5 @@
 import { ImageHelperService } from '@/shared/services/image-helper.service';
-import { WebsiteContent } from '@/types/website-content';
+import { WebsiteContent, WebsiteContentFilter } from '@/types/website-content';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
@@ -11,11 +11,18 @@ import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
   styleUrl: './website-content-list.component.scss',
 })
 export class WebsiteContentListComponent {
-  @Input() websiteContents: WebsiteContent[] = [];
-  @Input() filter: any;
-  @Output() toggleStatus = new EventEmitter();
-  @Output() openEdit = new EventEmitter();
-  @Output() openDelete = new EventEmitter();
+  @Input() websiteContents!: WebsiteContent[];
+  @Input() filter: WebsiteContentFilter = {
+    page: 1,
+    limit: 10,
+    total: 0,
+  };
+  @Output() toggleStatus = new EventEmitter<{
+    $event: Event;
+    content: WebsiteContent;
+  }>();
+  @Output() openEdit = new EventEmitter<WebsiteContent>();
+  @Output() openDelete = new EventEmitter<string>();
 
   constructor(private imageHelper: ImageHelperService) {}
 

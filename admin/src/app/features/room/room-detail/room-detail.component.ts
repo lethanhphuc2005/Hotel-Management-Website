@@ -13,8 +13,7 @@ import interactionPlugin from '@fullcalendar/interaction';
   styleUrl: './room-detail.component.scss',
 })
 export class RoomDetailComponent {
-  @Input() room: Room | null = null;
-  @Input() isVisible: boolean = false;
+  @Input() room!: Room;
   @Input() calendarOptions: any = {
     initialView: 'dayGridMonth',
     plugins: [dayGridPlugin, interactionPlugin],

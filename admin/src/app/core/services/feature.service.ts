@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import {
   FeatureDetailResponse,
   FeatureFilter,
+  FeatureRequest,
   FeatureResponse,
 } from '../../types/feature';
 import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
@@ -42,23 +43,20 @@ export class FeatureService {
     return this.http.get<FeatureDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  // Tạo tiện nghi mới (dùng FormData)
-  createFeature(formData: FormData): Observable<FeatureDetailResponse> {
-    return this.http.post<FeatureDetailResponse>(`${this.baseUrl}`, formData);
+  createFeature(data: FormData | FeatureRequest): Observable<FeatureDetailResponse> {
+    return this.http.post<FeatureDetailResponse>(`${this.baseUrl}`, data);
   }
 
-  // Cập nhật tiện nghi (dùng FormData)
   updateFeature(
     id: string,
-    formData: FormData
+    data: FormData | FeatureRequest
   ): Observable<FeatureDetailResponse> {
     return this.http.patch<FeatureDetailResponse>(
       `${this.baseUrl}/${id}`,
-      formData
+      data
     );
   }
 
-  // Cập nhật trạng thái (kích hoạt / vô hiệu hóa)
   updateStatus(id: string): Observable<FeatureDetailResponse> {
     return this.http.patch<FeatureDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,

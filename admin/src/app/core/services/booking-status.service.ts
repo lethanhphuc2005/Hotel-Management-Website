@@ -47,14 +47,14 @@ export class BookingStatusService {
   }
 
   createBookingStatus(
-    data: FormData | BookingStatusRequest
+    data: BookingStatusRequest
   ): Observable<BookingStatusDetailResponse> {
     return this.http.post<BookingStatusDetailResponse>(`${this.baseUrl}`, data);
   }
 
   updateBookingStatus(
     id: string,
-    data: FormData | BookingStatusRequest
+    data: BookingStatusRequest
   ): Observable<BookingStatusDetailResponse> {
     return this.http.patch<BookingStatusDetailResponse>(
       `${this.baseUrl}/${id}`,

@@ -37,15 +37,15 @@
 
   <!-- popup xem chi tiết -->
   <app-review-detail-popup
+    *ngIf="isDetailPopupOpen && selectedReview"
     [review]="selectedReview"
-    [isVisible]="isDetailPopupOpen"
     (closePopup)="onClosePopup()"
   ></app-review-detail-popup>
 
   <!-- popup phản hồi bình luận -->
   <app-review-reply-popup
+    *ngIf="isReplyPopupOn && selectedReview"
     [review]="selectedReview"
-    [isVisible]="isReplyPopupOn"
     (submitForm)="onReplySubmit({
       booking_id: $event.booking_id,
       content: $event.content,

@@ -1,4 +1,4 @@
-import { PaymentMethod } from '@/types/payment-method';
+import { PaymentMethod, PaymentMethodRequest } from '@/types/payment-method';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,8 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class PaymentMethodFormComponent {
   @Input() isEdit: boolean = false;
-  @Input() isVisible: boolean = false;
-  @Input() paymentMethod: any = {};
-  @Output() submitForm = new EventEmitter<PaymentMethod>();
+  @Input() paymentMethod: PaymentMethodRequest = {};
+  @Output() submitForm = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
 }

@@ -11,7 +11,7 @@
 
   <!-- Popup Thêm tiện nghi -->
   <app-feature-form
-    [isVisible]="isAddPopupOpen"
+    *ngIf="isAddPopupOpen"
     [feature]="newFeature"
     [isEdit]="false"
     [imagePreview]="imagePreview"
@@ -38,16 +38,15 @@
 
   <!-- Popup chi tiết tiện nghi -->
   <app-feature-detail
-    *ngIf="selectedFeature"
-    [isVisible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedFeature"
     [feature]="selectedFeature"
     (close)="onClosePopup()"
   ></app-feature-detail>
 
   <!-- Popup Sửa tiện nghi -->
   <app-feature-form
-    [isVisible]="isEditPopupOpen"
-    [feature]="selectedFeature"
+    *ngIf="isEditPopupOpen"
+    [feature]="newFeature"
     [isEdit]="true"
     [imagePreview]="imagePreview"
     (close)="onClosePopup()"

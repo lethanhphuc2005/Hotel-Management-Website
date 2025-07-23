@@ -1,32 +1,32 @@
-<div class="popup-add-popup" *ngIf="isVisible && review">
+<div class="popup-add-popup" *ngIf="review">
   <div class="popup-content tw-animate-fadeIn">
     <h2>Phản hồi bình luận</h2>
     <div class="popup-section">
       <strong>Người gửi:</strong>
       <span>
-        {{ review.user_id.last_name }}
-        {{ review.user_id.first_name }}
+        {{ review.user?.last_name }}
+        {{ review.user?.first_name }}
       </span>
     </div>
 
     <div class="popup-section">
       <strong>Email: </strong>
-      <span>{{ review.user_id.email }}</span>
+      <span>{{ review.user?.email }}</span>
     </div>
 
     <div class="popup-section">
       <strong>SĐT: </strong>
-      <span>{{ review.user_id.phone_number }}</span>
+      <span>{{ review.user?.phone_number }}</span>
     </div>
 
     <div class="popup-section">
       <strong>Địa chỉ: </strong>
-      <span>{{ review.user_id.address }}</span>
+      <span>{{ review.user?.address }}</span>
     </div>
 
     <div class="popup-section">
       <strong>Phòng: </strong>
-      <span>{{ review.room_class_id.name }}</span>
+      <span>{{ review.room_class.name }}</span>
     </div>
 
     <div class="popup-section">

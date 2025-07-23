@@ -49,11 +49,18 @@ RoomSchema.virtual("room_status", {
   },
 });
 
+RoomSchema.virtual("booking_count", {
+  ref: "booking_detail",
+  localField: "_id",
+  foreignField: "room_id",
+  count: true,
+});
+
 RoomSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-     ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
+    ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
     delete ret._id;
     return ret;
   },

@@ -1,4 +1,4 @@
-import { Room } from '@/types/room';
+import { Room, RoomFilter } from '@/types/room';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,12 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './room-list.component.scss',
 })
 export class RoomListComponent {
-  @Input() rooms: Room[] = [];
-  @Output() openPopup = new EventEmitter();
-  @Output() viewDetail = new EventEmitter();
+  @Input() rooms!: Room[];
+  @Input() filter: RoomFilter = {
+    page: 1,
+    limit: 10,
+    total: 0,
+  };
+  @Output() openPopup = new EventEmitter<Room>();
+  @Output() viewDetail = new EventEmitter<Room>();
 }

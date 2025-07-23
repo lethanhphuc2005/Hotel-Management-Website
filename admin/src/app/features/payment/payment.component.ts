@@ -55,7 +55,9 @@ export class PaymentComponent implements OnInit {
     this.paymentService.getAllPayments(this.filter).subscribe({
       next: (response) => {
         this.payments = response.data;
-        this.filter.total = response.pagination?.total;
+        if (response.pagination) {
+          this.filter.total = response.pagination.total;
+        }
       },
       error: (err) => {
         console.error(err);
@@ -66,15 +68,22 @@ export class PaymentComponent implements OnInit {
   }
 
   fetchPaymentMethods(): void {
-    this.paymentMethodService.getAllPaymentMethods({}).subscribe({
-      next: (response) => {
-        this.paymentMethods = response.data;
-      },
-      error: (err) => {
-        console.error(err);
-        this.toastService.error(err.error?.message, 'Lỗi');
-      },
-    });
+    this.paymentMethodService
+      .getAllPaymentMethods({
+        status: 'true',
+        limit: 1000,
+        total: 0,
+        page: 1,
+      })
+      .subscribe({
+        next: (response) => {
+          this.paymentMethods = response.data;
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastService.error(err.error?.message, 'Lỗi');
+        },
+      });
   }
 
   onPageChange(page: number): void {

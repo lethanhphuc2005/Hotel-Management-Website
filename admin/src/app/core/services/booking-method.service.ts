@@ -42,7 +42,7 @@ export class BookingMethodService {
   }
 
   createBookingMethod(
-    data: FormData | BookingMethodRequest
+    data: BookingMethodRequest
   ): Observable<BookingMethodDetailResponse> {
     return this.http.post<BookingMethodDetailResponse>(this.baseUrl, data);
   }
@@ -58,7 +58,7 @@ export class BookingMethodService {
 
   updateBookingMethod(
     id: string,
-    data: FormData | BookingMethodRequest
+    data: BookingMethodRequest
   ): Observable<BookingMethodDetailResponse> {
     return this.http.patch<BookingMethodDetailResponse>(
       `${this.baseUrl}/${id}`,

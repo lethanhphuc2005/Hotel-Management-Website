@@ -1,4 +1,4 @@
-<div class="popup-overlay tw-animate-fadeIn" *ngIf="isVisible && room">
+<div class="popup-overlay tw-animate-fadeIn">
   <div class="popup-content">
     <h2>Chi tiết phòng: {{ room.name }}</h2>
 
@@ -37,16 +37,13 @@
 
     <div class="popup-section">
       <label>Giá:</label>
-      <span>{{
-          room.room_class?.price | currency : "VND" : "symbol"
-      }}</span>
+      <span>{{ room.room_class?.price | currency : "VND" : "symbol" }}</span>
     </div>
 
     <div class="popup-section">
       <label>Giá giảm:</label>
       <span>{{
-          room.room_class?.price_discount
-            | currency : "VND" : "symbol"
+        room.room_class?.price_discount | currency : "VND" : "symbol"
       }}</span>
     </div>
 

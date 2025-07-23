@@ -1,9 +1,9 @@
-<div class="popup-add-popup" *ngIf="isVisible && employee">
+<div class="popup-add-popup">
   <div class="popup-content">
     <h2>{{ isEdit ? "Sửa" : "Thêm" }} thông tin nhân viên</h2>
 
     <form (ngSubmit)="formSubmit.emit()" #editForm="ngForm">
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="first_name">Họ:</label>
         <input
           type="text"
@@ -13,7 +13,7 @@
           required
         />
       </div>
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="last_name">Tên:</label>
         <input
           type="text"
@@ -23,7 +23,7 @@
           required
         />
       </div>
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="position">Chức vụ:</label>
         <input
           type="text"
@@ -32,7 +32,7 @@
           [(ngModel)]="employee.position"
         />
       </div>
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="department">Bộ phận:</label>
         <input
           type="text"
@@ -41,7 +41,7 @@
           [(ngModel)]="employee.department"
         />
       </div>
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="address">Địa chỉ:</label>
         <input
           type="text"
@@ -60,7 +60,7 @@
           required
         />
       </div>
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="phone_number">SĐT:</label>
         <input
           type="text"
@@ -87,7 +87,7 @@
           [(ngModel)]="employee.secret_key"
         />
       </div>
-      <div class="popup-section">
+      <div class="popup-section" *ngIf="!isEdit">
         <label for="role">Vai trò:</label>
         <select id="role" name="role" [(ngModel)]="employee.role">
           <option value="staff">Nhân viên</option>

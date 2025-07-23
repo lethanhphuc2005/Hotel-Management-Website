@@ -49,7 +49,7 @@
   <!-- Popup Sửa -->
   <app-content-type-form
     *ngIf="isEditPopupOpen"
-    [contentType]="selectedContentType"
+    [contentType]="newContentType"
     [isEdit]="true"
     (submitForm)="onEditSubmit()"
     (close)="onClosePopup()"

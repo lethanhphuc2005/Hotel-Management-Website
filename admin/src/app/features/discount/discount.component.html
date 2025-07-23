@@ -3,7 +3,6 @@
 
   <app-discount-filter
     [filter]="filter"
-    [label]="'Thêm khuyến mãi'"
     (filterChange)="onFilterChange($event)"
     (openAdd)="onOpenPopup(true)"
   ></app-discount-filter>
@@ -13,7 +12,7 @@
     [filter]="filter"
     (toggleStatus)="onToggleChange($event.$event, $event.discount)"
     (viewDetail)="onViewDetail($event)"
-    (openEdit)="onOpenPopup($event)"
+    (openEdit)="onOpenPopup(false, $event)"
   ></app-discount-list>
 
   <app-pagination

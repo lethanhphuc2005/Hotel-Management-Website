@@ -1,37 +1,37 @@
-<div class="popup-overlay" *ngIf="isVisible && review">
+<div class="popup-overlay" *ngIf="review">
   <div class="popup-content tw-animate-fadeIn">
     <h2>Chi tiết {{ review.parent_id ? "phản hồi" : "bình luận" }}</h2>
     <div class="popup-section">
       <label>Người gửi:</label>
       <span>
-        {{ review.user_id.last_name }}
-        {{ review.user_id.first_name }}
+        {{ review.user?.last_name }}
+        {{ review.user?.first_name }}
       </span>
     </div>
 
     <div class="popup-section">
       <label>Email:</label>
-      <span>{{ review.user_id.email }}</span>
+      <span>{{ review.user?.email }}</span>
     </div>
 
     <div class="popup-section">
       <label>SĐT:</label>
-      <span>{{ review.user_id.phone_number }}</span>
+      <span>{{ review.user?.phone_number }}</span>
     </div>
 
     <div class="popup-section">
       <label>Địa chỉ:</label>
-      <span>{{ review.user_id.address }}</span>
+      <span>{{ review.user?.address }}</span>
     </div>
 
     <div class="popup-section">
       <label>Mã đơn:</label>
-      <span>{{ review.booking_id.id }}</span>
+      <span>{{ review.booking_id }}</span>
     </div>
 
     <div class="popup-section">
       <label>Phòng:</label>
-      <span>{{ review.room_class_id.name }}</span>
+      <span>{{ review.room_class.name }}</span>
     </div>
 
     <div class="popup-section">
@@ -58,7 +58,7 @@
     </div>
     <div class="popup-section">
       <label>Trạng thái:</label>
-      <span>{{ review.status ? 'Hiển thị' : 'Ẩn' }}</span>
+      <span>{{ review.status ? "Hiển thị" : "Ẩn" }}</span>
     </div>
     <ul *ngIf="review.children?.length">
       <app-review-tree [reviews]="review.children"></app-review-tree>

@@ -6,7 +6,7 @@ import {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
-} from '../../types/auth';
+} from '@/types/auth';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -32,7 +32,7 @@ export class AuthService {
    * Gọi API đăng ký
    * @param body Dữ liệu đăng ký
    */
-  register(body: FormData | RegisterRequest): Observable<RegisterResponse> {
+  register(body: RegisterRequest): Observable<RegisterResponse> {
     return this.httpClient.post<RegisterResponse>(
       `${this.baseUrl}/auth/register`,
       body

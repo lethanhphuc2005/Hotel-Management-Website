@@ -1,4 +1,4 @@
-<div class="popup-overlay" *ngIf="isVisible">
+<div class="popup-overlay">
   <div class="popup-content">
     <h2>Chi tiết tiện nghi</h2>
 
@@ -23,7 +23,7 @@
       <label>Loại phòng sử dụng:</label>
       <ul>
         <li *ngFor="let item of feature.room_class_used_list">
-          {{ item.room_class_id.name || "(chưa gán)" }}
+          {{ item.room_class.name || "(chưa gán)" }}
         </li>
       </ul>
     </div>

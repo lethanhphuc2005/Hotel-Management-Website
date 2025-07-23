@@ -6,6 +6,7 @@ import { BookingStatusService } from '@/core/services/booking-status.service';
 import { Booking, BookingDetail } from '@/types/booking';
 import { BookingStatus } from '@/types/booking-status';
 import { ToastrService } from 'ngx-toastr';
+import { Room } from '@/types/room';
 
 @Component({
   selector: 'app-booking-status-popup',
@@ -15,11 +16,15 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
 })
 export class BookingStatusPopupComponent implements OnInit {
-  @Input() visible = false;
-  @Input() booking!: Booking | null;
+  @Input() booking!: Booking;
 
-  @Output() onClose = new EventEmitter();
-  @Output() onConfirm = new EventEmitter<any>(); // { detail_id, room_id }[]
+  @Output() onClose = new EventEmitter<void>();
+  @Output() onConfirm = new EventEmitter<
+    {
+      detail_id: string;
+      room_id: string;
+    }[]
+  >(); // { detail_id, room_id }[]
   @Output() onCheckIn = new EventEmitter<{
     type: 'CMND' | 'CCCD' | 'Passport';
     number: string;
@@ -28,7 +33,7 @@ export class BookingStatusPopupComponent implements OnInit {
   @Output() onCheckOut = new EventEmitter<string>(); // note
   @Output() onCancel = new EventEmitter<string>(); // cancel reason
 
-  availableRooms: { [key: string]: any[] } = {}; // detail.id -> room[]
+  availableRooms: { [key: string]: Room[] } = {}; // detail.id -> room[]
   selectedRooms: { [key: string]: string } = {}; // detail.id -> room_id
   statuses: BookingStatus[] = [];
 
@@ -37,8 +42,6 @@ export class BookingStatusPopupComponent implements OnInit {
   identityType: 'CMND' | 'CCCD' | 'Passport' = 'CCCD';
   identityNumber = '';
   representativeName = '';
-
-  // Check-out
   checkoutNote = '';
 
   constructor(
@@ -52,21 +55,29 @@ export class BookingStatusPopupComponent implements OnInit {
   }
 
   loadBookingStatuses() {
-    this.bookingStatusService.getAllBookingStatus({}).subscribe({
-      next: (res) => {
-        this.statuses = res.data;
+    this.bookingStatusService
+      .getAllBookingStatus({
+        page: 1,
+        limit: 100,
+        total: 0,
+        status: 'true',
+      })
+      .subscribe({
+        next: (res) => {
+          this.statuses = res.data;
 
-        if (this.booking?.booking_status.code === 'PENDING') {
-          this.booking.booking_details.forEach((detail: any) => {
-            this.selectedRooms[detail.id] = '';
-            this.loadAvailableRooms(detail);
-          });
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load booking statuses', err);
-        this.toastr.error(err.error.message || err.error, 'Lỗi');},
-    });
+          if (this.booking?.booking_status.code === 'PENDING') {
+            this.booking.booking_details.forEach((detail: BookingDetail) => {
+              this.selectedRooms[detail.id] = '';
+              this.loadAvailableRooms(detail);
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load booking statuses', err);
+          this.toastr.error(err.error.message || err.error, 'Lỗi');
+        },
+      });
   }
 
   loadAvailableRooms(detail: BookingDetail) {
@@ -76,6 +87,9 @@ export class BookingStatusPopupComponent implements OnInit {
 
     this.roomService
       .getAllRooms({
+        page: 1,
+        limit: 100,
+        total: 0,
         type: classId,
         check_in_date: new Date(check_in_date).toISOString(),
         check_out_date: new Date(check_out_date).toISOString(),
@@ -84,14 +98,15 @@ export class BookingStatusPopupComponent implements OnInit {
         next: (res) => {
           this.availableRooms[detail.id] = res.data;
           if (this.availableRooms[detail.id].length > 0) {
-            this.selectedRooms[detail.id] = this.availableRooms[detail.id][0].id;
+            this.selectedRooms[detail.id] =
+              this.availableRooms[detail.id][0].id;
           }
         },
         error: (err) => {
           console.error('Failed to load available rooms', err);
           this.toastr.error(err.error.message || err.error, 'Lỗi');
         },
-      })
+      });
   }
 
   canConfirm(): boolean {

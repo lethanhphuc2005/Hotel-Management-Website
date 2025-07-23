@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Room, RoomRequest } from '../../types/room';
+import { Room, RoomFilter, RoomRequest } from '../../types/room';
 import { RoomService } from '../../core/services/room.service';
 import { RoomStatusService } from '../../core/services/room-status.service';
 import { RoomClassService } from '../../core/services/room-class.service';
@@ -14,12 +14,16 @@ import { RoomFilterComponent } from './room-filter/room-filter.component';
 import { RoomListComponent } from './room-list/room-list.component';
 import { RoomDetailComponent } from './room-detail/room-detail.component';
 import { RoomFormComponent } from './room-form/room-form.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
   imports: [
+    CommonModule,
+    FormsModule,
     FullCalendarModule,
     PaginationComponent,
     RoomFilterComponent,
@@ -39,29 +43,23 @@ export class RoomComponent implements OnInit {
   isEditPopupOpen = false;
   statusFilterString: string = '';
   statusFilter: boolean | undefined = undefined;
-  newRoom: RoomRequest = {};
-  filter: {
-    keyword: string;
-    check_in_date?: string;
-    check_out_date?: string;
-    total: number;
-    page: number;
-    limit: number;
-    type: string;
-    status: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-  } = {
-    keyword: '',
-    check_in_date: undefined,
-    check_out_date: undefined,
-    total: 0,
+  newRoom: RoomRequest = {
+    name: '',
+    floor: 0,
+    room_class_id: '',
+    room_status_id: '',
+  };
+  filter: RoomFilter = {
+    search: '',
     page: 1,
     limit: 10,
+    total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     type: '',
     status: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+    check_in_date: undefined,
+    check_out_date: undefined,
   };
   calendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin],
@@ -84,37 +82,26 @@ export class RoomComponent implements OnInit {
   }
 
   getAllRooms(): void {
-    this.roomService
-      .getAllRooms({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        type: this.filter.type,
-        status: this.filter.status,
-        check_in_date: this.filter.check_in_date,
-        check_out_date: this.filter.check_out_date,
-      })
-      .subscribe({
-        next: (res: any) => {
-          this.rooms = res.data;
-          this.filter.total = res.pagination.total;
-        },
-        error: (err) => {
-          console.error('Lỗi khi lấy danh sách phòng:', err);
-          this.toastService.error(err.error?.message, 'Lỗi');
-          this.rooms = [];
-          this.filter.total = 0;
-        },
-      });
+    this.roomService.getAllRooms(this.filter).subscribe({
+      next: (res: any) => {
+        this.rooms = res.data;
+        this.filter.total = res.pagination.total;
+      },
+      error: (err) => {
+        console.error('Lỗi khi lấy danh sách phòng:', err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.rooms = [];
+        this.filter.total = 0;
+      },
+    });
   }
 
   getAllRoomClasses(): void {
     this.roomClassService
       .getAllRoomClass({
         page: 1,
-        limit: 100, // Lấy tất cả loại phòng
+        limit: 100,
+        total: 0,
       })
       .subscribe({
         next: (res: any) => {
@@ -180,22 +167,19 @@ export class RoomComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedRoom = null;
+    this.newRoom = {
+      name: '',
+      floor: 0,
+      room_class_id: '',
+      room_status_id: '',
+    };
   }
 
   onAddSubmit(): void {
-    const formData = new FormData();
-    formData.append('name', this.newRoom.name || '');
-    formData.append(
-      'floor',
-      this.newRoom.floor ? this.newRoom.floor.toString() : '0'
-    );
-    formData.append('room_class_id', this.newRoom.room_class_id || '');
-    formData.append('room_status_id', this.newRoom.room_status_id || '');
-
-    this.roomService.addRoom(formData).subscribe({
+    this.roomService.addRoom(this.newRoom).subscribe({
       next: (res: any) => {
         this.getAllRooms();
-        this.isAddPopupOpen = false;
+        this.onClosePopup();
         this.toastService.success('Thêm phòng thành công', 'Thành công');
       },
       error: (err) => {
@@ -210,30 +194,19 @@ export class RoomComponent implements OnInit {
   onEditSubmit(): void {
     if (!this.selectedRoom) return;
 
-    const formData = new FormData();
-    formData.append('name', this.selectedRoom.name || '');
-    formData.append(
-      'floor',
-      this.selectedRoom.floor ? this.selectedRoom.floor.toString() : '0'
-    );
-    formData.append('room_class_id', this.selectedRoom.room_class_id || '');
-    formData.append('room_status_id', this.selectedRoom.room_status_id || '');
-
-    this.roomService
-      .updateRoom(this.selectedRoom.id ?? '', formData)
-      .subscribe({
-        next: (res: any) => {
-          this.getAllRooms();
-          this.isEditPopupOpen = false;
-          this.toastService.success('Cập nhật phòng thành công', 'Thành công');
-        },
-        error: (err) => {
-          this.toastService.error(
-            err.error?.message || err.message || err.statusText,
-            'Lỗi'
-          );
-        },
-      });
+    this.roomService.updateRoom(this.selectedRoom.id, this.newRoom).subscribe({
+      next: (res: any) => {
+        this.getAllRooms();
+        this.onClosePopup();
+        this.toastService.success('Cập nhật phòng thành công', 'Thành công');
+      },
+      error: (err) => {
+        this.toastService.error(
+          err.error?.message || err.message || err.statusText,
+          'Lỗi'
+        );
+      },
+    });
   }
 
   loadCalendarData(roomId: string) {

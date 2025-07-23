@@ -44,7 +44,7 @@
 
   <!-- Popup chi tiết loại phòng -->
   <app-room-class-detail
-    [isVisible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedRoomClass"
     [roomClass]="selectedRoomClass"
     (closePopup)="onClosePopup()"
   ></app-room-class-detail>
@@ -67,9 +67,9 @@
 
   <!-- Sửa loại phòng -->
   <app-room-class-form
-    *ngIf="isEditPopupOpen && selectedRoomClass"
+    *ngIf="isEditPopupOpen"
     [isEdit]="true"
-    [formData]="selectedRoomClass"
+    [formData]="newRoomClass"
     [features]="features"
     [mainRoomClasses]="mainRoomClasses"
     [imagePreview]="imagePreview"

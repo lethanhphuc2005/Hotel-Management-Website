@@ -48,9 +48,7 @@ export class CommentService {
   }
 
   // Thêm bình luận mới
-  createComment(
-    data: FormData | CommentRequest
-  ): Observable<CommentDetailResponse> {
+  createComment(data: CommentRequest): Observable<CommentDetailResponse> {
     return this.http.post<CommentDetailResponse>(this.baseUrl, data);
   }
 
@@ -65,9 +63,12 @@ export class CommentService {
   // Cập nhật bình luận
   updateComment(
     id: string,
-    data: FormData | CommentRequest
+    data: CommentRequest
   ): Observable<CommentDetailResponse> {
-    return this.http.patch<CommentDetailResponse>(`${this.baseUrl}/${id}`, data);
+    return this.http.patch<CommentDetailResponse>(
+      `${this.baseUrl}/${id}`,
+      data
+    );
   }
 
   // Xóa bình luận

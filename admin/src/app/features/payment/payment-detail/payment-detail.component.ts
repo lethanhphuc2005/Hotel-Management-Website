@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './payment-detail.component.scss'
 })
 export class PaymentDetailComponent {
-  @Input() isVisible: boolean = false;
   @Input() payment!: Payment;
   @Output() close = new EventEmitter<void>();
 }

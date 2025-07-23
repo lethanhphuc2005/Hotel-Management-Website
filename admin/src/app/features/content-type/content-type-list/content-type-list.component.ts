@@ -1,5 +1,5 @@
 import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
-import { ContentType } from '@/types/content-type';
+import { ContentType, ContentTypeFilter } from '@/types/content-type';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
@@ -10,9 +10,20 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './content-type-list.component.scss',
 })
 export class ContentTypeListComponent {
-  @Input() contentTypes: ContentType[] = [];
-  @Input() filter: any;
-  @Output() toggleStatus = new EventEmitter();
-  @Output() openEdit = new EventEmitter();
-  @Output() openDelete = new EventEmitter();
+  @Input() contentTypes!: ContentType[];
+  @Input() filter: ContentTypeFilter = {
+    search: '',
+    page: 1,
+    limit: 10,
+    total: 0,
+    sort: 'createdAt',
+    order: 'desc',
+    status: '',
+  };
+  @Output() toggleStatus = new EventEmitter<{
+    $event: Event;
+    contentType: ContentType;
+  }>();
+  @Output() openEdit = new EventEmitter<ContentType>();
+  @Output() openDelete = new EventEmitter<string>();
 }

@@ -5,7 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { RoomClassService } from '../../core/services/room-class.service';
 import { FeatureService } from '../../core/services/feature.service';
 import { MainRoomClassService } from '../../core/services/main-room-class.service';
-import { RoomClass, RoomClassRequest } from '../../types/room-class';
+import {
+  RoomClass,
+  RoomClassFilter,
+  RoomClassRequest,
+} from '../../types/room-class';
 import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { Feature } from '../../types/feature';
 import { MainRoomClass } from '../../types/main-room-class';
@@ -44,28 +48,27 @@ export class RoomClassComponent implements OnInit {
   isEditPopupOpen = false;
   imagePreview: string[] | null = null;
   selectedFiles: File[] = []; // Danh sách file thực tế
-  newRoomClass: RoomClassRequest = {};
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status?: string;
-    feature?: string;
-    type?: string;
-    minBed?: number;
-    maxBed?: number;
-    minCapacity?: number;
-    maxCapacity?: number;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  newRoomClass: RoomClassRequest = {
+    name: '',
+    description: '',
+    status: true,
+    images: null,
+    main_room_class_id: '',
+    bed_amount: 0,
+    capacity: 0,
+    price: 0,
+    price_discount: 0,
+    view: '',
+    features: [],
+    uploadImages: null,
+  };
+  filter: RoomClassFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
     feature: '',
     type: '',
@@ -85,37 +88,18 @@ export class RoomClassComponent implements OnInit {
     this.getAllMainRoomClasses();
   }
 
-  getImageUrl(image?: string): string {
-    return this.imageHelperService.getImageUrl(image);
-  }
-
   getAllRoomClasses(): void {
-    this.roomClassService
-      .getAllRoomClass({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-        feature: this.filter.feature,
-        type: this.filter.type,
-        minBed: this.filter.minBed,
-        maxBed: this.filter.maxBed,
-        minCapacity: this.filter.minCapacity,
-        maxCapacity: this.filter.maxCapacity,
-      })
-      .subscribe({
-        next: (res) => {
-          this.roomClasses = res.data;
-          this.filter.total = res.pagination.total; // Cập nhật tổng số loại phòng
-        },
-        error: (err) => {
-          console.error(err);
-          this.toastService.error(err.error?.message, 'Lỗi');
-          this.roomClasses = [];
-        },
-      });
+    this.roomClassService.getAllRoomClass(this.filter).subscribe({
+      next: (res) => {
+        this.roomClasses = res.data;
+        this.filter.total = res.pagination.total; // Cập nhật tổng số loại phòng
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.roomClasses = [];
+      },
+    });
   }
 
   getAllFeatures(): void {
@@ -123,6 +107,8 @@ export class RoomClassComponent implements OnInit {
       .getAllFeatures({
         status: 'true',
         limit: 1000,
+        total: 0,
+        page: 1,
       })
       .subscribe({
         next: (res) => {
@@ -139,6 +125,8 @@ export class RoomClassComponent implements OnInit {
       .getAllMainRoomClasses({
         status: 'true',
         limit: 1000,
+        total: 0,
+        page: 1,
       })
       .subscribe({
         next: (res) => {
@@ -152,8 +140,8 @@ export class RoomClassComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
     this.filter.page = 1;
     this.getAllRoomClasses();
@@ -218,6 +206,15 @@ export class RoomClassComponent implements OnInit {
         description: '',
         status: true,
         images: null,
+        main_room_class_id: '',
+        bed_amount: 0,
+        capacity: 0,
+        price: 0,
+        price_discount: 0,
+        view: '',
+        features: [],
+        uploadImages: null,
+        
       };
     } else if (item) {
       this.selectedRoomClass = item;
@@ -225,6 +222,14 @@ export class RoomClassComponent implements OnInit {
         name: item.name,
         description: item.description,
         status: item.status,
+        main_room_class_id: item.main_room_class_id,
+        bed_amount: item.bed_amount,
+        capacity: item.capacity,
+        price: item.price,
+        price_discount: item.price_discount,
+        view: item.view,
+        features: item.features?.map((f) => f.feature_id.toString()) || [],
+        uploadImages: null, // Reset upload images
         images: null,
       };
       this.imagePreview =
@@ -267,11 +272,11 @@ export class RoomClassComponent implements OnInit {
       }
 
       // Gán lại images cho FormData
-      this.newRoomClass.images = [...this.selectedFiles];
+      this.newRoomClass.uploadImages = [...this.selectedFiles];
     } else {
       this.selectedFiles = [];
       this.imagePreview = null;
-      this.newRoomClass.images = [];
+      this.newRoomClass.uploadImages = [];
     }
   }
 
@@ -283,7 +288,7 @@ export class RoomClassComponent implements OnInit {
       this.imagePreview.splice(index, 1);
     }
 
-    this.newRoomClass.images = [...this.selectedFiles];
+    this.newRoomClass.uploadImages = [...this.selectedFiles];
   }
 
   async onAddRoomClass(): Promise<void> {
@@ -318,11 +323,7 @@ export class RoomClassComponent implements OnInit {
     this.roomClassService.addRoomClass(formData).subscribe({
       next: (res) => {
         this.getAllRoomClasses();
-        this.isAddPopupOpen = false;
-        this.selectedFiles = []; // Reset selected files
-        this.imagePreview = null; // Reset image preview
-        this.newRoomClass = {}; // Reset form data
-        this.selectedFeatureIds = []; // Reset selected feature IDs
+        this.onClosePopup();
         this.toastService.success(res.message, 'Thành công');
       },
       error: (err) => {
@@ -370,12 +371,7 @@ export class RoomClassComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.getAllRoomClasses();
-          this.isEditPopupOpen = false;
-          this.selectedFiles = []; // Reset selected files
-          this.imagePreview = null; // Reset image preview
-          this.newRoomClass = {}; // Reset form data
-          this.selectedRoomClass = null; // Reset selected room class
-          this.selectedFeatureIds = []; // Reset selected feature IDs
+          this.onClosePopup
           this.toastService.success(res.message, 'Thành công');
         },
         error: (err) => {

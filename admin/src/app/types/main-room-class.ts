@@ -27,7 +27,8 @@ export interface MainRoomClassDetailResponse {
 export interface MainRoomClassRequest {
   name?: string;
   description?: string;
-  image?: File | null;
+  images?: Image[] | null;
+  uploadImage?: File | null;
   status?: boolean;
 }
 

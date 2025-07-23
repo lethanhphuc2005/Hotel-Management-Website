@@ -6,11 +6,11 @@ export interface PaginationResponse {
 }
 
 export interface FilterParams {
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
   sort?: string;
   order?: 'asc' | 'desc';
   search?: string;
-  total?: number;
+  total: number;
   status?: string;
 }

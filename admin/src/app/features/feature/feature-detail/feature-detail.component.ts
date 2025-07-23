@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './feature-detail.component.scss'
 })
 export class FeatureDetailComponent {
-  @Input() isVisible: boolean = false;
   @Input() feature!: Feature;
   @Output() close = new EventEmitter<void>();
 

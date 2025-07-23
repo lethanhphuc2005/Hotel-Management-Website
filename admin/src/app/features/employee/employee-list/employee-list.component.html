@@ -9,10 +9,8 @@
 </div>
 
 <div *ngFor="let employee of employees; let i = index" class="table-row">
-  <div>{{ i + 1 }}</div>
-  <div (click)="viewDetail.emit(employee)" style="cursor: pointer">
-    {{ employee.last_name }} {{ employee.first_name }}
-  </div>
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
+  <div>{{ employee.last_name }} {{ employee.first_name }}</div>
   <div>{{ employee.position }}</div>
   <div>{{ employee.department }}</div>
   <div>{{ employee.email }}</div>
@@ -21,7 +19,9 @@
       <input
         type="checkbox"
         [checked]="employee.status"
-        (change)="toggleStatusChange.emit({$event: $event, employee: employee })"
+        (change)="
+          toggleStatusChange.emit({ $event: $event, employee: employee })
+        "
       />
       <span class="slider"></span>
     </label>

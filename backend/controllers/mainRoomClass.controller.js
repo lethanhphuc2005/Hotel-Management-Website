@@ -228,7 +228,7 @@ const mainRoomClassController = {
 
   // === THÊM LOẠI PHÒNG CHÍNH ===
   addMainRoomClass: [
-    upload.array("image", 5),
+    upload.array("images", 5),
     async (req, res) => {
       try {
         const newMainRoomClass = new MainRoomClass(req.body);
@@ -283,7 +283,7 @@ const mainRoomClassController = {
 
   // === CẬP NHẬT LOẠI PHÒNG CHÍNH ===
   updateMainRoomClass: [
-    upload.array("image", 5),
+    upload.array("images", 5),
     async (req, res) => {
       try {
         const mainRoomClassToUpdate = await MainRoomClass.findById(

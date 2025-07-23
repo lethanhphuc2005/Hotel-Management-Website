@@ -1,13 +1,12 @@
 <div class="table-row" *ngFor="let room of rooms; let i = index">
-  <div>{{ i + 1 }}</div>
+  <div>{{ (filter.page - 1) * filter.limit + i + 1 }}</div>
   <div>
     {{ room.name }}
   </div>
   <div>{{ room.floor }}</div>
   <div>{{ room.room_class?.name || "Không rõ" }}</div>
   <div>{{ room.room_status?.name || "Không rõ" }}</div>
-  <div>{{ room.room_class?.bed_amount }}</div>
-  <div>{{ room.room_class?.price | currency : "VND" }}</div>
+  <div>{{ room.booking_count }}</div>
   <div class="actions">
     <button class="icon-button" (click)="viewDetail.emit(room)">
       <i class="fas fa-eye"></i>

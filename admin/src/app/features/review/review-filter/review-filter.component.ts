@@ -1,3 +1,4 @@
+import { Review, ReviewFilter } from '@/types/review';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -9,8 +10,18 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './review-filter.component.scss',
 })
 export class ReviewFilterComponent {
-  @Output() filterChange = new EventEmitter();
-  @Output() openAdd = new EventEmitter();
-  @Input() filter: any;
-  @Input() label: string = '';
+  @Output() filterChange = new EventEmitter<string>();
+  @Input() filter: ReviewFilter = {
+    search: '',
+    page: 1,
+    limit: 10,
+    total: 0,
+    sort: 'createdAt',
+    order: 'desc',
+    status: '',
+    booking_id: '',
+    user_id: '',
+    employee_id: '',
+    rating: 0,
+  };
 }

@@ -47,7 +47,7 @@
 
   <!-- Popup chi tiết -->
   <app-main-room-class-detail-popup
-    [isVisible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedMainRoomClass"
     [mainRoomClass]="selectedMainRoomClass"
     (closePopup)="onClosePopup()"
   ></app-main-room-class-detail-popup>
@@ -57,7 +57,7 @@
     *ngIf="isEditPopupOpen"
     [imagePreview]="imagePreview"
     [isEdit]="true"
-    [mainRoomClass]="selectedMainRoomClass"
+    [mainRoomClass]="newMainRoom"
     (submitForm)="onEditSubmit()"
     (close)="onClosePopup()"
     (fileSelected)="onFileSelected($event)"

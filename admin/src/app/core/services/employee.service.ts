@@ -53,7 +53,7 @@ export class EmployeeService {
   // ✅ Cập nhật nhân viên
   updateEmployee(
     id: string,
-    data: FormData | EmployeeRequest
+    data: EmployeeRequest
   ): Observable<EmployeeDetailResponse> {
     return this.http.patch<EmployeeDetailResponse>(
       `${this.baseUrl}/update/${id}`,
@@ -64,7 +64,7 @@ export class EmployeeService {
   // ✅ Đổi mật khẩu
   changePassword(
     id: string,
-    data: FormData | ChangePasswordRequest
+    data: ChangePasswordRequest
   ): Observable<EmployeeDetailResponse> {
     return this.http.post<EmployeeDetailResponse>(
       `${this.baseUrl}/change-password/${id}`,

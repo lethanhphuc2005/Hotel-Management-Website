@@ -37,15 +37,15 @@
 
   <!-- popup xem chi tiết -->
   <app-comment-detail-popup
+    *ngIf="isDetailPopupOpen && selectedComment"
     [comment]="selectedComment"
-    [isVisible]="isDetailPopupOpen"
     (closePopup)="onClosePopup()"
   ></app-comment-detail-popup>
 
   <!-- popup phản hồi bình luận -->
   <app-comment-reply-popup
+    *ngIf="isReplyPopupOn && selectedComment"
     [comment]="selectedComment"
-    [isVisible]="isReplyPopupOn"
     (submitForm)="onReplySubmit({
       content: $event.content,
       room_class_id: $event.room_class_id,

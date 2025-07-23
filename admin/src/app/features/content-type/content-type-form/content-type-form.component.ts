@@ -1,3 +1,4 @@
+import { ContentTypeRequest } from '@/types/content-type';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -9,8 +10,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './content-type-form.component.scss',
 })
 export class ContentTypeFormComponent {
-  @Input() contentType: any = {};
+  @Input() contentType: ContentTypeRequest = {};
   @Input() isEdit: boolean = false;
-  @Output() submitForm = new EventEmitter();
-  @Output() close = new EventEmitter();
+  @Output() submitForm = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 }

@@ -44,7 +44,7 @@ export class ContentTypeService {
   }
 
   createContentType(
-    data: FormData | ContentTypeRequest
+    data: ContentTypeRequest
   ): Observable<ContentTypeDetailResponse> {
     return this.http.post<ContentTypeDetailResponse>(this.baseUrl, data);
   }
@@ -58,7 +58,7 @@ export class ContentTypeService {
 
   updateContentType(
     id: string,
-    data: FormData | ContentTypeRequest
+    data: ContentTypeRequest
   ): Observable<ContentTypeDetailResponse> {
     return this.http.patch<ContentTypeDetailResponse>(
       `${this.baseUrl}/${id}`,

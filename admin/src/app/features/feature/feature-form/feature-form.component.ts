@@ -1,4 +1,5 @@
 import { ImageHelperService } from '@/shared/services/image-helper.service';
+import { FeatureRequest } from '@/types/feature';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,12 +11,11 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './feature-form.component.scss',
 })
 export class FeatureFormComponent {
-  @Input() isVisible: boolean = false;
-  @Input() feature: any = {};
+  @Input() feature: FeatureRequest = {};
   @Input() isEdit: boolean = false;
   @Input() imagePreview: string | null = null;
-  @Output() submitForm = new EventEmitter();
-  @Output() close = new EventEmitter();
+  @Output() submitForm = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
 
   constructor(private imageHelperService: ImageHelperService) {}
@@ -27,7 +27,7 @@ export class FeatureFormComponent {
     }
   }
 
-  getImageUrl(image: string): string {
+  getImageUrl(image: string | File): string {
     return this.imageHelperService.getImageUrl(image);
   }
 }

@@ -40,7 +40,7 @@ export class PaymentMethodService {
   }
 
   createPaymentMethod(
-    data: FormData | PaymentMethodRequest
+    data: PaymentMethodRequest
   ): Observable<PaymentMethodDetailResponse> {
     return this.http.post<PaymentMethodDetailResponse>(this.baseUrl, data);
   }
@@ -56,7 +56,7 @@ export class PaymentMethodService {
 
   updatePaymentMethod(
     id: string,
-    data: FormData | PaymentMethodRequest
+    data: PaymentMethodRequest
   ): Observable<PaymentMethodDetailResponse> {
     return this.http.patch<PaymentMethodDetailResponse>(
       `${this.baseUrl}/${id}`,

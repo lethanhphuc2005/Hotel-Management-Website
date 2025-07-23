@@ -12,7 +12,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   imports: [CommonModule, BookingStatusLabelPipe, BookingPaymentLabelPipe],
 })
 export class BookingTableComponent {
-  @Input() bookings: Booking[] = [];
-  @Output() onEdit = new EventEmitter<any>();
-  @Output() onViewDetail = new EventEmitter<any>();
+  @Input() bookings!: Booking[];
+  @Output() onEdit = new EventEmitter<Booking>();
+  @Output() onViewDetail = new EventEmitter<Booking>();
 }

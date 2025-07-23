@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { DiscountListComponent } from './discount-list/discount-list.component';
 import { DiscountFilterComponent } from './discount-filter/discount-filter.component';
 
@@ -55,16 +54,11 @@ export class DiscountComponent implements OnInit {
   };
   constructor(
     private discountService: DiscountService,
-    private toastr: ToastrService,
-    private imageHelperService: ImageHelperService
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.fetchDiscounts();
-  }
-
-  getImageUrl(image?: string): string {
-    return this.imageHelperService.getImageUrl(image);
   }
 
   fetchDiscounts(): void {
@@ -107,7 +101,9 @@ export class DiscountComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastr.success(
-          'Thay đổi trạng thái loại phòng chính thành công',
+          `Trạng thái giảm giá đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
           'Thành công'
         );
       },
@@ -124,7 +120,6 @@ export class DiscountComponent implements OnInit {
 
   onViewDetail(discount: Discount): void {
     this.selectedDiscount = discount;
-    // Reset preview image
     this.imagePreview = null;
     this.isDetailPopupOpen = true;
   }
@@ -192,6 +187,29 @@ export class DiscountComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedDiscount = null;
+    this.newDiscount = {
+      name: '',
+      image: null,
+      description: '',
+      type: '',
+      value: undefined,
+      value_type: '',
+      conditions: {
+        min_advance_days: undefined,
+        max_advance_days: undefined,
+        min_stay_nights: undefined,
+        max_stay_nights: undefined,
+        min_rooms: undefined,
+        user_levels: [''],
+      },
+      promo_code: '',
+      valid_from: undefined,
+      valid_to: undefined,
+      apply_to_room_class_ids: [],
+      can_be_stacked: false,
+      priority: 0,
+      status: true,
+    };
   }
 
   onFileSelected(file: File): void {

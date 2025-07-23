@@ -11,19 +11,23 @@ import { Review } from '@/types/review';
 })
 export class ReviewReplyPopupComponent {
   content: string = '';
-  @Input() review: Review | null = null;
-  @Input() isVisible: boolean = false;
+  @Input() review!: Review;
   @Input() replyContent: string = '';
-  @Output() submitForm = new EventEmitter();
-  @Output() close = new EventEmitter();
+  @Output() submitForm = new EventEmitter<{
+    content: string;
+    parent_id: string;
+    room_class_id: string;
+    booking_id: string;
+  }>();
+  @Output() close = new EventEmitter<void>();
 
   onSubmit() {
     if (this.review) {
       this.submitForm.emit({
         content: this.content,
         parent_id: this.review.id,
-        room_class_id: this.review.room_class_id.id,
-        booking_id: this.review.booking_id.id,
+        room_class_id: this.review.room_class_id,
+        booking_id: this.review.booking_id,
       });
       this.content = '';
     }

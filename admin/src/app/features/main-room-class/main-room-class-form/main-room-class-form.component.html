@@ -52,7 +52,7 @@
         </div>
 
         <ng-template #currentImage>
-          <div *ngIf="mainRoomClass.images[0].url">
+          <div *ngIf="mainRoomClass.images">
             <label>Ảnh hiện tại:</label>
             <img
               [src]="getImageUrl(mainRoomClass.images[0].url)"

@@ -1,5 +1,4 @@
 const PaymentMethod = require("../models/paymentMethod.model");
-const { upload } = require("../middlewares/upload.middleware");
 
 const paymentMethodController = {
   // === KIỂM TRA ĐIỀU KIỆN PHƯƠNG THỨC THANH TOÁN ===
@@ -122,69 +121,61 @@ const paymentMethodController = {
   },
 
   // === THÊM PHƯƠNG THỨC THANH TOÁN ===
-  addPaymentMethod: [
-    upload.none(),
-    async (req, res) => {
-      try {
-        const newPaymentMethod = new PaymentMethod(req.body);
+  addPaymentMethod: async (req, res) => {
+    try {
+      const newPaymentMethod = new PaymentMethod(req.body);
 
-        const validation = await paymentMethodController.validatePaymentMethod(
-          newPaymentMethod
-        );
+      const validation = await paymentMethodController.validatePaymentMethod(
+        newPaymentMethod
+      );
 
-        if (!validation.valid) {
-          return res.status(400).json({ message: validation.message });
-        }
-
-        await newPaymentMethod.save();
-        res.status(201).json({
-          message: "Thêm phương thức thanh toán thành công",
-          data: newPaymentMethod,
-        });
-      } catch (error) {
-        res.status(500).json(error);
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+
+      await newPaymentMethod.save();
+      res.status(201).json({
+        message: "Thêm phương thức thanh toán thành công",
+        data: newPaymentMethod,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 
   // === CẬP NHẬT PHƯƠNG THỨC THANH TOÁN ===
-  updatePaymentMethod: [
-    upload.none(),
-    async (req, res) => {
-      try {
-        const paymentMethodToUpdate = await PaymentMethod.findById(
-          req.params.id
-        );
-        if (!paymentMethodToUpdate) {
-          return res
-            .status(404)
-            .json({ message: "Phương thức thanh toán không tồn tại" });
-        }
-
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? paymentMethodToUpdate.toObject()
-            : { ...paymentMethodToUpdate.toObject(), ...req.body };
-
-        const validation = await paymentMethodController.validatePaymentMethod(
-          updatedData,
-          req.params.id
-        );
-        if (!validation.valid) {
-          return res.status(400).json({ message: validation.message });
-        }
-
-        await paymentMethodToUpdate.updateOne({ $set: updatedData });
-
-        res.status(200).json({
-          message: "Cập nhật phương thức thanh toán thành công",
-          data: updatedData,
-        });
-      } catch (error) {
-        res.status(500).json(error);
+  updatePaymentMethod: async (req, res) => {
+    try {
+      const paymentMethodToUpdate = await PaymentMethod.findById(req.params.id);
+      if (!paymentMethodToUpdate) {
+        return res
+          .status(404)
+          .json({ message: "Phương thức thanh toán không tồn tại" });
       }
-    },
-  ],
+
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? paymentMethodToUpdate.toObject()
+          : { ...paymentMethodToUpdate.toObject(), ...req.body };
+
+      const validation = await paymentMethodController.validatePaymentMethod(
+        updatedData,
+        req.params.id
+      );
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      await paymentMethodToUpdate.updateOne({ $set: updatedData });
+
+      res.status(200).json({
+        message: "Cập nhật phương thức thanh toán thành công",
+        data: updatedData,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 
   // === KÍCH HOẠT/DỪNG PHƯƠNG THỨC THANH TOÁN ===
   togglePaymentMethodStatus: async (req, res) => {

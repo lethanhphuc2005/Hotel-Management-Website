@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Service, ServiceRequest } from '@/types/service';
+import { Service, ServiceFilter, ServiceRequest } from '@/types/service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ServiceService } from '@/core/services/service.service';
@@ -37,22 +37,15 @@ export class ServiceComponent implements OnInit {
     description: '',
     status: true,
     image: null,
+    uploadImage: null, // Reset upload image
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: ServiceFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
   };
 
@@ -71,24 +64,15 @@ export class ServiceComponent implements OnInit {
   }
 
   loadAllServices(): void {
-    this.serviceService
-      .getAllServices({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-      })
-      .subscribe({
-        next: (response) => {
-          this.services = response.data;
-          this.filter.total = response.pagination.total;
-        },
-        error: (error) => {
-          this.toastService.error(error.message || 'Failed to load services');
-        },
-      });
+    this.serviceService.getAllServices(this.filter).subscribe({
+      next: (response) => {
+        this.services = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (error) => {
+        this.toastService.error(error.message || 'Failed to load services');
+      },
+    });
   }
 
   onPageChange(newPage: number): void {
@@ -98,8 +82,8 @@ export class ServiceComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc';
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc';
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.loadAllServices();
@@ -117,7 +101,9 @@ export class ServiceComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          'Thay đổi trạng thái loại phòng chính thành công',
+          `Trạng thái dịch vụ ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          } thành công`,
           'Thành công'
         );
       },
@@ -134,7 +120,6 @@ export class ServiceComponent implements OnInit {
 
   onViewDetail(s: Service) {
     this.selectedService = s;
-    // Reset preview image
     this.imagePreview = null;
     this.isDetailPopupOpen = true;
   }
@@ -150,6 +135,7 @@ export class ServiceComponent implements OnInit {
         description: '',
         status: true,
         image: null,
+        uploadImage: null, // Reset upload image
       };
     } else if (item) {
       // Mở form chỉnh sửa
@@ -160,6 +146,7 @@ export class ServiceComponent implements OnInit {
         description: item.description,
         status: item.status,
         image: null, // Reset image to allow new upload
+        uploadImage: null, // Reset upload image
       };
     }
   }
@@ -169,10 +156,17 @@ export class ServiceComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedService = null;
+    this.newService = {
+      name: '',
+      description: '',
+      status: true,
+      image: null,
+      uploadImage: null, // Reset upload image
+    };
   }
 
   onFileSelected(file: File): void {
-    this.newService.image = file;
+    this.newService.uploadImage = file;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -187,9 +181,9 @@ export class ServiceComponent implements OnInit {
     formData.append('description', this.newService.description || '');
     formData.append('status', this.newService.status?.toString() || 'true');
 
-    if (this.newService.image) {
+    if (this.newService.uploadImage) {
       const compressedFile = await compressImage(
-        this.newService.image,
+        this.newService.uploadImage,
         1,
         1920
       );
@@ -199,11 +193,8 @@ export class ServiceComponent implements OnInit {
     this.serviceService.createService(formData).subscribe({
       next: () => {
         this.loadAllServices();
-        this.isAddPopupOpen = false;
-        this.toastService.success(
-          'Thêm loại phòng chính thành công',
-          'Thành công'
-        );
+        this.onClosePopup();
+        this.toastService.success('Thêm dịch vụ thành công', 'Thành công');
       },
       error: (err) => {
         this.toastService.error(
@@ -220,9 +211,9 @@ export class ServiceComponent implements OnInit {
     const formData = new FormData();
     formData.append('name', this.newService.name || '');
     formData.append('description', this.newService.description || '');
-    if (this.newService.image) {
+    if (this.newService.uploadImage) {
       const compressedFile = await compressImage(
-        this.newService.image,
+        this.newService.uploadImage,
         1,
         1920
       );
@@ -234,14 +225,8 @@ export class ServiceComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loadAllServices();
-          this.isEditPopupOpen = false;
-          this.selectedService = null;
-          this.imagePreview = null; // Reset preview image
-          this.newService.image = null; // Reset new image
-          this.toastService.success(
-            'Cập nhật loại phòng chính thành công',
-            'Thành công'
-          );
+          this.onClosePopup();
+          this.toastService.success('Cập nhật dịch vụ thành công', 'Thành công');
         },
         error: (err) => {
           this.toastService.error(

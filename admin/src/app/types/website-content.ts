@@ -28,7 +28,8 @@ export interface WebsiteContentRequest {
   title?: string;
   content_type_id?: string;
   content?: string;
-  image?: File | null; // Có thể là null nếu không có hình ảnh
+  image?: string | null;
+  uploadImage?: File | null; // For image upload
   status?: boolean;
 }
 

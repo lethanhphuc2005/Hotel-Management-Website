@@ -3,7 +3,11 @@ import { ContentTypeService } from '../../core/services/content-type.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ContentType, ContentTypeRequest } from '@/types/content-type';
+import {
+  ContentType,
+  ContentTypeFilter,
+  ContentTypeRequest,
+} from '@/types/content-type';
 import { ToastrService } from 'ngx-toastr';
 import { ContentTypeListComponent } from './content-type-list/content-type-list.component';
 import { ContentTypeFormComponent } from './content-type-form/content-type-form.component';
@@ -16,13 +20,12 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
   templateUrl: './content-type.component.html',
   styleUrls: ['./content-type.component.scss'],
   imports: [
-    RouterModule,
     CommonModule,
     FormsModule,
     ContentTypeListComponent,
     ContentTypeFormComponent,
     CommonFilterBarComponent,
-    PaginationComponent
+    PaginationComponent,
   ],
 })
 export class ContentTypeComponent implements OnInit {
@@ -35,21 +38,13 @@ export class ContentTypeComponent implements OnInit {
     description: '',
     status: true,
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: ContentTypeFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
   };
 
@@ -63,26 +58,17 @@ export class ContentTypeComponent implements OnInit {
   }
 
   loadAllContentTypes() {
-    this.contentTypeService
-      .getAllContentTypes({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-      })
-      .subscribe({
-        next: (response) => {
-          this.contentTypes = response.data;
-          this.filter.total = response.pagination.total;
-        },
-        error: (err) => {
-          console.error('Error fetching content types:', err);
-          this.toastService.error(err.error?.message, 'Lỗi');
-          this.contentTypes = [];
-        },
-      });
+    this.contentTypeService.getAllContentTypes(this.filter).subscribe({
+      next: (response) => {
+        this.contentTypes = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (err) => {
+        console.error('Error fetching content types:', err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.contentTypes = [];
+      },
+    });
   }
 
   onPageChange(page: number) {
@@ -92,8 +78,8 @@ export class ContentTypeComponent implements OnInit {
 
   onFilterChange(sortField?: string) {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.loadAllContentTypes();
@@ -111,7 +97,9 @@ export class ContentTypeComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          'Cập nhật trạng thái thành công',
+          `Trạng thái loại nội dung đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
           'Thành công'
         );
       },
@@ -153,18 +141,18 @@ export class ContentTypeComponent implements OnInit {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
     this.selectedContentType = null;
+    this.newContentType = {
+      name: '',
+      description: '',
+      status: true,
+    };
   }
 
   onAddSubmit(): void {
-    const formData = new FormData();
-    formData.append('name', this.newContentType.name || '');
-    formData.append('description', this.newContentType.description || '');
-    formData.append('status', this.newContentType.status?.toString() || 'true');
-
-    this.contentTypeService.createContentType(formData).subscribe({
+    this.contentTypeService.createContentType(this.newContentType).subscribe({
       next: () => {
         this.loadAllContentTypes();
-        this.isAddPopupOpen = false;
+        this.onClosePopup();
         this.toastService.success(
           'Thêm loại nội dung thành công',
           'Thành công'
@@ -181,17 +169,12 @@ export class ContentTypeComponent implements OnInit {
 
   onEditSubmit(): void {
     if (!this.selectedContentType) return;
-
-    const formData = new FormData();
-    formData.append('name', this.selectedContentType.name || '');
-    formData.append('description', this.selectedContentType.description || '');
-
     this.contentTypeService
-      .updateContentType(this.selectedContentType.id, formData)
+      .updateContentType(this.selectedContentType.id, this.newContentType)
       .subscribe({
         next: () => {
           this.loadAllContentTypes();
-          this.isEditPopupOpen = false;
+          this.onClosePopup();
           this.toastService.success(
             'Cập nhật loại nội dung thành công',
             'Thành công'
@@ -211,6 +194,7 @@ export class ContentTypeComponent implements OnInit {
       this.contentTypeService.deleteContentType(id).subscribe({
         next: () => {
           this.loadAllContentTypes();
+          this.onClosePopup();
           this.toastService.success(
             'Xóa loại nội dung thành công',
             'Thành công'

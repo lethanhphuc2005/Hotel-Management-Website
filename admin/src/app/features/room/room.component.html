@@ -13,7 +13,6 @@
   <!-- popup thêm phòng -->
   <app-room-form
     *ngIf="isAddPopupOpen"
-    [isVisible]="isAddPopupOpen"
     [room]="newRoom"
     [roomClasses]="roomClasses"
     [roomStatuses]="roomStatuses"
@@ -29,8 +28,7 @@
     <div>Tầng</div>
     <div>Tên loại phòng</div>
     <div>Trạng thái</div>
-    <div>Số giường</div>
-    <div>Giá</div>
+    <div>Số lần book</div>
     <div>Hành động</div>
   </div>
 
@@ -51,9 +49,8 @@
 
   <!-- popup chi tiết -->
   <app-room-detail
-    *ngIf="selectedRoom"
+    *ngIf="isDetailPopupOpen && selectedRoom"
     [room]="selectedRoom"
-    [isVisible]="isDetailPopupOpen"
     (close)="onClosePopup()"
     [calendarOptions]="calendarOptions"
   ></app-room-detail>
@@ -61,8 +58,7 @@
   <!-- popup sửa phòng -->
   <app-room-form
     *ngIf="isEditPopupOpen"
-    [isVisible]="isEditPopupOpen"
-    [room]="selectedRoom"
+    [room]="newRoom"
     [roomClasses]="roomClasses"
     [roomStatuses]="roomStatuses"
     [isEdit]="true"

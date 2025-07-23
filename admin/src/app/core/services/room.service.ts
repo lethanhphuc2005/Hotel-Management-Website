@@ -7,7 +7,7 @@ import {
   RoomFilter,
   RoomRequest,
   RoomResponse,
-} from '../../types/room';
+} from '@/types/room';
 import { environment } from '@env/environment'; // Import từ file cấu hình môi trường
 
 @Injectable({
@@ -58,15 +58,18 @@ export class RoomService {
   }
 
   // Thêm phòng
-  addRoom(roomData: FormData | RoomRequest): Observable<RoomDetailResponse> {
+  addRoom(roomData: RoomRequest): Observable<RoomDetailResponse> {
     return this.http.post<RoomDetailResponse>(`${this.baseUrl}`, roomData);
   }
 
   // Cập nhật phòng
   updateRoom(
     id: string,
-    roomData: FormData | RoomRequest
+    roomData: RoomRequest
   ): Observable<RoomDetailResponse> {
-    return this.http.patch<RoomDetailResponse>(`${this.baseUrl}/${id}`, roomData);
+    return this.http.patch<RoomDetailResponse>(
+      `${this.baseUrl}/${id}`,
+      roomData
+    );
   }
 }

@@ -9,7 +9,7 @@
       id="floatingInput"
       placeholder="name@example.com"
       style="width: 100%; padding-right: 30px"
-      [(ngModel)]="filter.keyword"
+      [(ngModel)]="filter.search"
       (ngModelChange)="filterChange.emit()"
     />
     <label for="floatingInput">Tìm kiếm</label>
@@ -62,7 +62,7 @@
   <div>
     <label>Sắp xếp:</label>
     <button (click)="filterChange.emit('status')">
-      Trạng thái: {{ filter.sortOrder === "asc" ? "↑" : "↓" }}
+      Trạng thái: {{ filter.order === "asc" ? "↑" : "↓" }}
     </button>
   </div>
 </div>

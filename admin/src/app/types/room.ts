@@ -13,6 +13,7 @@ export interface Room {
   updatedAt?: Date;
   room_class?: RoomClass;
   room_status?: RoomStatus;
+  booking_count?: number;
 }
 
 export interface RoomResponse {

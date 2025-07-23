@@ -64,9 +64,7 @@ export class RoomClassService {
   toggleRoomClassStatus(id: string): Observable<RoomClassDetailResponse> {
     return this.http.patch<RoomClassDetailResponse>(
       `${this.baseUrl}/toggle/${id}`,
-      {
-        status: true,
-      }
+      {}
     );
   }
 

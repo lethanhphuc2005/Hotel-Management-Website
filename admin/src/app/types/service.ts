@@ -35,7 +35,8 @@ export interface ServiceRequest {
   price?: number;
   description?: string;
   status?: boolean;
-  image?: File | null; // Optional for file upload
+  image?: string | null;
+  uploadImage?: File | null;
 }
 
 export interface ServiceFilter extends FilterParams {

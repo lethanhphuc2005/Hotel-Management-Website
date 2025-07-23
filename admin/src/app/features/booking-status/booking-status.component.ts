@@ -3,7 +3,11 @@ import { BookingStatusService } from '@/core/services/booking-status.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BookingStatus, BookingStatusRequest } from '@/types/booking-status';
+import {
+  BookingStatus,
+  BookingStatusFilter,
+  BookingStatusRequest,
+} from '@/types/booking-status';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { BookingStatusListComponent } from '@/features/booking-status/booking-status-list/booking-status-list.component';
@@ -22,7 +26,7 @@ import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/
     PaginationComponent,
     BookingStatusListComponent,
     BookingStatusFormComponent,
-    CommonFilterBarComponent
+    CommonFilterBarComponent,
   ],
 })
 export class BookingStatusComponent implements OnInit {
@@ -34,22 +38,14 @@ export class BookingStatusComponent implements OnInit {
     name: '',
     status: true,
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status?: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: BookingStatusFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
-    status: '', // Optional filter for status
+    status: '',
+    sort: 'createdAt',
+    order: 'desc',
   };
 
   constructor(
@@ -62,26 +58,17 @@ export class BookingStatusComponent implements OnInit {
   }
 
   getAllBookingStatuses(): void {
-    this.bookingStatusService
-      .getAllBookingStatus({
-        search: this.filter.keyword,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        status: this.filter.status,
-      })
-      .subscribe({
-        next: (res) => {
-          this.bookingStatuses = res.data;
-          this.filter.total = res.pagination.total;
-        },
-        error: (err) => {
-          console.error('Error fetching booking statuses:', err);
-          this.toastService.error(err.error?.message, 'Lỗi');
-          this.bookingStatuses = [];
-        },
-      });
+    this.bookingStatusService.getAllBookingStatus(this.filter).subscribe({
+      next: (res) => {
+        this.bookingStatuses = res.data;
+        this.filter.total = res.pagination.total;
+      },
+      error: (err) => {
+        console.error('Error fetching booking statuses:', err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.bookingStatuses = [];
+      },
+    });
   }
 
   onPageChange(page: number): void {
@@ -91,8 +78,8 @@ export class BookingStatusComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.getAllBookingStatuses();
@@ -108,11 +95,13 @@ export class BookingStatusComponent implements OnInit {
 
     this.bookingStatusService.toggleBookingStatus(item.id).subscribe({
       next: () => {
-        // Thành công → giữ nguyên status
         this.toastService.success(
-          'Thay đổi trạng thái đặt phòng thành công',
+          `Trạng thái đặt phòng đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
           'Thành công'
         );
+        this.getAllBookingStatuses();
       },
       error: (err) => {
         // Thất bại → rollback
@@ -130,7 +119,6 @@ export class BookingStatusComponent implements OnInit {
     this.isEditPopupOpen = !isAddForm;
 
     if (isAddForm) {
-      // Reset form thêm mới
       this.selectedBookingStatus = null;
       this.newBookingStatus = {
         name: '',
@@ -138,7 +126,6 @@ export class BookingStatusComponent implements OnInit {
         code: '',
       };
     } else if (item) {
-      console.log('Selected item for edit:', item);
       this.selectedBookingStatus = item;
       this.newBookingStatus = {
         name: item.name,
@@ -152,39 +139,37 @@ export class BookingStatusComponent implements OnInit {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
     this.selectedBookingStatus = null;
+    this.newBookingStatus = {
+      name: '',
+      status: true,
+      code: '',
+    };
   }
 
   onAddSubmit(): void {
-    const formData = new FormData();
-    formData.append('name', this.newBookingStatus.name || '');
-    formData.append('status', String(this.newBookingStatus.status) || 'true');
-    formData.append('code', this.newBookingStatus.code || '');
-
-    this.bookingStatusService.createBookingStatus(formData).subscribe({
-      next: (res) => {
-        this.toastService.success(
-          'Thêm trạng thái đặt phòng thành công',
-          'Thành công'
-        );
-        this.getAllBookingStatuses();
-        this.onClosePopup();
-      },
-      error: (err) => {
-        console.error('Error adding booking status:', err);
-        this.toastService.error(err.error?.message || err.message, 'Lỗi');
-      },
-    });
+    this.bookingStatusService
+      .createBookingStatus(this.newBookingStatus)
+      .subscribe({
+        next: (res) => {
+          this.toastService.success(
+            'Thêm trạng thái đặt phòng thành công',
+            'Thành công'
+          );
+          this.getAllBookingStatuses();
+          this.onClosePopup();
+        },
+        error: (err) => {
+          console.error('Error adding booking status:', err);
+          this.toastService.error(err.error?.message || err.message, 'Lỗi');
+        },
+      });
   }
 
   onEditSubmit(): void {
     if (!this.selectedBookingStatus) return;
 
-    const formData = new FormData();
-    formData.append('name', this.newBookingStatus.name || '');
-    formData.append('code', this.newBookingStatus.code || '');
-
     this.bookingStatusService
-      .updateBookingStatus(this.selectedBookingStatus.id, formData)
+      .updateBookingStatus(this.selectedBookingStatus.id, this.newBookingStatus)
       .subscribe({
         next: (res) => {
           this.toastService.success(

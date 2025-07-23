@@ -14,20 +14,23 @@ import { RoomClass, RoomClassRequest } from '../../../types/room-class';
 })
 export class RoomClassFormComponent {
   @Input() isEdit = false;
-  @Input() formData!: RoomClassRequest | RoomClass;
+  @Input() formData: RoomClassRequest = {};
   @Input() features: Feature[] = [];
   @Input() mainRoomClasses: MainRoomClass[] = [];
   @Input() imagePreview: string[] | null = null;
   @Input() selectedFeatureIds: string[] = [];
 
-  @Output() close = new EventEmitter();
-  @Output() formSubmit = new EventEmitter();
+  @Output() close = new EventEmitter<void>();
+  @Output() formSubmit = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<Event>();
   @Output() removeImage = new EventEmitter<{
     index: number;
     event: MouseEvent;
   }>();
-  @Output() featureToggle = new EventEmitter();
+  @Output() featureToggle = new EventEmitter<{
+    id: string;
+    event: Event;
+  }>();
 
   onSubmit(form: NgForm) {
     if (form.valid) {

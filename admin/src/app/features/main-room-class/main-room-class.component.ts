@@ -2,10 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MainRoomClassService } from '@/core/services/main-room-class.service';
-import { MainRoomClass, MainRoomClassRequest } from '@/types/main-room-class';
+import {
+  MainRoomClass,
+  MainRoomClassFilter,
+  MainRoomClassRequest,
+} from '@/types/main-room-class';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { MainRoomClassListComponent } from './main-room-class-list/main-room-class-list.component';
@@ -40,60 +43,39 @@ export class MainRoomClassComponent implements OnInit {
     name: '',
     description: '',
     status: true,
-    image: null,
+    images: null,
+    uploadImage: null,
   };
-  filter: {
-    keyword: string;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    page: number;
-    limit: number;
-    total: number;
-    status: string;
-  } = {
-    keyword: '',
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+  filter: MainRoomClassFilter = {
+    search: '',
     page: 1,
     limit: 10,
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
   };
 
   constructor(
     private mainRoomClassService: MainRoomClassService,
-    private toastService: ToastrService,
-    private imageHelperService: ImageHelperService
+    private toastService: ToastrService
   ) {}
   ngOnInit(): void {
     this.getAllMainRoomClasses();
   }
 
-  getImageUrl(image?: string): string {
-    return this.imageHelperService.getImageUrl(image);
-  }
-
   getAllMainRoomClasses(): void {
-    this.mainRoomClassService
-      .getAllMainRoomClasses({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-      })
-      .subscribe({
-        next: (res) => {
-          this.mainRoomClasses = res.data;
-          this.filter.total = res.pagination.total;
-        },
-        error: (err) => {
-          console.error(err);
-          this.toastService.error(err.error?.message, 'Lỗi');
-          this.mainRoomClasses = [];
-        },
-      });
+    this.mainRoomClassService.getAllMainRoomClasses(this.filter).subscribe({
+      next: (res) => {
+        this.mainRoomClasses = res.data;
+        this.filter.total = res.pagination.total;
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastService.error(err.error?.message, 'Lỗi');
+        this.mainRoomClasses = [];
+      },
+    });
   }
 
   onPageChange(page: number): void {
@@ -103,8 +85,8 @@ export class MainRoomClassComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc'; // Toggle sort order
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc'; // Toggle sort order
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.getAllMainRoomClasses();
@@ -122,7 +104,9 @@ export class MainRoomClassComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          'Thay đổi trạng thái loại phòng chính thành công',
+          `Trạng thái loại phòng chính đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
           'Thành công'
         );
       },
@@ -153,7 +137,8 @@ export class MainRoomClassComponent implements OnInit {
         name: '',
         description: '',
         status: true,
-        image: null,
+        images: null,
+        uploadImage: null,
       };
     } else if (item) {
       // Mở form chỉnh sửa
@@ -162,7 +147,8 @@ export class MainRoomClassComponent implements OnInit {
         name: item.name,
         description: item.description,
         status: item.status,
-        image: null, // nếu bạn cho phép upload ảnh mới
+        images: item.images,
+        uploadImage: null,
       };
     }
   }
@@ -172,10 +158,17 @@ export class MainRoomClassComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedMainRoomClass = null;
+    this.newMainRoom = {
+      name: '',
+      description: '',
+      status: true,
+      images: null,
+      uploadImage: null,
+    };
   }
 
   onFileSelected(file: File): void {
-    this.newMainRoom.image = file;
+    this.newMainRoom.uploadImage = file;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -190,9 +183,9 @@ export class MainRoomClassComponent implements OnInit {
     formData.append('description', this.newMainRoom.description || '');
     formData.append('status', this.newMainRoom.status?.toString() || 'true');
 
-    if (this.newMainRoom.image) {
+    if (this.newMainRoom.uploadImage) {
       const compressedFile = await compressImage(
-        this.newMainRoom.image,
+        this.newMainRoom.uploadImage,
         1,
         1920
       );
@@ -202,11 +195,11 @@ export class MainRoomClassComponent implements OnInit {
     this.mainRoomClassService.addMainRoomClass(formData).subscribe({
       next: () => {
         this.getAllMainRoomClasses();
-        this.isAddPopupOpen = false;
         this.toastService.success(
           'Thêm loại phòng chính thành công',
           'Thành công'
         );
+        this.onClosePopup();
       },
       error: (err) => {
         this.toastService.error(
@@ -223,9 +216,9 @@ export class MainRoomClassComponent implements OnInit {
     const formData = new FormData();
     formData.append('name', this.newMainRoom.name || '');
     formData.append('description', this.newMainRoom.description || '');
-    if (this.newMainRoom.image) {
+    if (this.newMainRoom.uploadImage) {
       const compressedFile = await compressImage(
-        this.newMainRoom.image,
+        this.newMainRoom.uploadImage,
         1,
         1920
       );
@@ -237,7 +230,7 @@ export class MainRoomClassComponent implements OnInit {
       .subscribe({
         next: () => {
           this.getAllMainRoomClasses();
-          this.isEditPopupOpen = false;
+          this.onClosePopup();
           this.toastService.success(
             'Cập nhật loại phòng chính thành công',
             'Thành công'

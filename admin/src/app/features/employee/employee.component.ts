@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '@/core/services/employee.service';
 import { AuthService } from '@/core/services/auth.service';
-import { Employee, EmployeeRequest } from '@/types/employee';
+import { Employee, EmployeeFilter, EmployeeRequest } from '@/types/employee';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeFilterComponent } from './employee-filter/employee-filter.component';
 import { EmployeeListComponent } from './employee-list/employee-list.component';
 import { EmployeeFormComponent } from './employee-form/employee-form.component';
 import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { RegisterRequest } from '@/types/auth';
 
 @Component({
   selector: 'app-employee',
@@ -21,7 +22,7 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
     EmployeeListComponent,
     EmployeeFormComponent,
     EmployeeDetailComponent,
-    PaginationComponent
+    PaginationComponent,
   ],
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.scss'],
@@ -32,6 +33,11 @@ export class EmployeeComponent implements OnInit {
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
+  newRegisterEmployee: RegisterRequest = {
+    email: '',
+    password: '',
+    secret_key: '',
+  };
   newEmployee: EmployeeRequest = {
     first_name: '',
     last_name: '',
@@ -45,28 +51,17 @@ export class EmployeeComponent implements OnInit {
     password: '',
     secret_key: '',
   };
-  filter: {
-    search: string;
-    page: number;
-    limit: number;
-    sortField: string;
-    sortOrder: 'desc' | 'asc';
-    total: number;
-    status?: string;
-    role?: string;
-    department?: string;
-    position?: string;
-  } = {
+  filter: EmployeeFilter = {
     search: '',
     page: 1,
     limit: 10,
-    sortField: 'createdAt',
-    sortOrder: 'desc',
+    total: 0,
+    sort: 'createdAt',
+    order: 'desc',
     status: '',
     role: '',
     department: '',
     position: '',
-    total: 0,
   };
 
   constructor(
@@ -80,38 +75,26 @@ export class EmployeeComponent implements OnInit {
   }
 
   loadAllEmployees(): void {
-    this.employeeService
-      .getAllEmployees({
-        search: this.filter.search,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        status: this.filter.status,
-        role: this.filter.role,
-        department: this.filter.department,
-        position: this.filter.position,
-      })
-      .subscribe({
-        next: (response) => {
-          this.employees = response.data;
-          this.filter.total = response.pagination.total;
-        },
-        error: (error) => {
-          console.error('Error loading employees:', error);
-          this.toastService.error(
-            error.error.message || 'Failed to load employees',
-            'Error'
-          );
-          this.employees = [];
-        },
-      });
+    this.employeeService.getAllEmployees(this.filter).subscribe({
+      next: (response) => {
+        this.employees = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (error) => {
+        console.error('Error loading employees:', error);
+        this.toastService.error(
+          error.error.message || 'Failed to load employees',
+          'Error'
+        );
+        this.employees = [];
+      },
+    });
   }
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'desc' ? 'asc' : 'desc';
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'desc' ? 'asc' : 'desc';
     }
 
     this.filter.page = 1;
@@ -164,6 +147,22 @@ export class EmployeeComponent implements OnInit {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
     this.selectedEmployee = null;
+    this.newEmployee = {
+      first_name: '',
+      last_name: '',
+      position: '',
+      department: '',
+      address: '',
+      email: '',
+      phone_number: '',
+      role: '',
+      status: true,
+    };
+    this.newRegisterEmployee = {
+      email: '',
+      password: '',
+      secret_key: '',
+    };
   }
 
   onToggleStatusChange(event: Event, employee: Employee): void {
@@ -173,10 +172,11 @@ export class EmployeeComponent implements OnInit {
 
     this.employeeService.toggleEmployeeStatus(employee.id).subscribe({
       next: (res) => {
-        employee.status = newStatus;
         this.toastService.success(
-          res.message || 'Status updated successfully',
-          'Success'
+          `Trạng thái nhân viên đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
+          'Thành công'
         );
       },
       error: (error) => {
@@ -189,23 +189,11 @@ export class EmployeeComponent implements OnInit {
     });
   }
   onAddSubmit(): void {
-    const formData = new FormData();
-    formData.append('first_name', this.newEmployee.first_name);
-    formData.append('last_name', this.newEmployee.last_name);
-    formData.append('position', this.newEmployee.position);
-    formData.append('department', this.newEmployee.department);
-    formData.append('address', this.newEmployee.address);
-    formData.append('email', this.newEmployee.email);
-    formData.append('phone_number', this.newEmployee.phone_number);
-    formData.append('role', this.newEmployee.role);
-    formData.append('status', String(this.newEmployee.status));
-    formData.append('password', this.newEmployee.password || '');
-    formData.append('secret_key', this.newEmployee.secret_key || '');
-    this.authService.register(formData).subscribe({
+    this.authService.register(this.newRegisterEmployee).subscribe({
       next: (res) => {
         this.toastService.success('Employee added successfully', 'Success');
-        this.isAddPopupOpen = false;
         this.loadAllEmployees();
+        this.onClosePopup();
       },
       error: (error) => {
         console.error('Error adding employee:', error);
@@ -217,28 +205,15 @@ export class EmployeeComponent implements OnInit {
     });
   }
   onEditSubmit(): void {
-    if (!this.selectedEmployee) {
-      this.toastService.error('No employee selected for editing', 'Error');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('first_name', this.selectedEmployee.first_name);
-    formData.append('last_name', this.selectedEmployee.last_name);
-    formData.append('position', this.selectedEmployee.position);
-    formData.append('department', this.selectedEmployee.department);
-    formData.append('address', this.selectedEmployee.address);
-    formData.append('email', this.selectedEmployee.email);
-    formData.append('phone_number', this.selectedEmployee.phone_number);
-    formData.append('role', this.selectedEmployee.role);
+    if (!this.selectedEmployee) return;
 
     this.employeeService
-      .updateEmployee(this.selectedEmployee!.id, formData)
+      .updateEmployee(this.selectedEmployee.id, this.newEmployee)
       .subscribe({
         next: (res) => {
           this.toastService.success('Employee updated successfully', 'Success');
-          this.isEditPopupOpen = false;
-          this.selectedEmployee = null;
           this.loadAllEmployees();
+          this.onClosePopup();
         },
         error: (error) => {
           console.error('Error updating employee:', error);

@@ -10,8 +10,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './user-detail.component.scss',
 })
 export class UserDetailComponent {
-  @Input() isVisible: boolean = false;
-  @Input() user: User | null = null;
+  @Input() user!: User;
   @Output() closeDetail = new EventEmitter<void>();
 
   getUserLevelName(level: string): string {

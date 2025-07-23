@@ -57,9 +57,7 @@ export class ReviewService {
     return this.http.get<ReviewDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  createReview(
-    data: FormData | ReviewRequest
-  ): Observable<ReviewDetailResponse> {
+  createReview(data: ReviewRequest): Observable<ReviewDetailResponse> {
     return this.http.post<ReviewDetailResponse>(this.baseUrl, data);
   }
 
@@ -72,7 +70,7 @@ export class ReviewService {
 
   updateReview(
     id: string,
-    data: FormData | ReviewRequest
+    data: ReviewRequest
   ): Observable<ReviewDetailResponse> {
     return this.http.patch<ReviewDetailResponse>(`${this.baseUrl}/${id}`, data);
   }

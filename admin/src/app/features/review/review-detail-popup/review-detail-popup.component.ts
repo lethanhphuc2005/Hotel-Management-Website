@@ -13,7 +13,6 @@ import { Review } from '@/types/review';
 })
 
 export class ReviewDetailPopupComponent {
-  @Input() review: Review | null = null;
-  @Input() isVisible: boolean = false;
+  @Input() review!: Review;
   @Output() closePopup = new EventEmitter<void>();
 }

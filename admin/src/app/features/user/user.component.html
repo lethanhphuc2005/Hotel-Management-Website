@@ -8,7 +8,7 @@
   ></app-user-filter>
   <!-- User Detail Popup -->
   <app-user-detail
-    [isVisible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedUser"
     [user]="selectedUser"
     (closeDetail)="onClosePopup()"
   ></app-user-detail>

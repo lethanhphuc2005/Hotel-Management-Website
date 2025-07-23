@@ -7,11 +7,11 @@
       <div class="tw-text-sm tw-text-gray-500">
         Từ:
         <span class="tw-font-semibold" *ngIf="review.user_id">
-          {{ review.user_id.last_name }} {{ review.user_id.first_name }}
+          {{ review.user?.last_name }} {{ review.user?.first_name }}
         </span>
         <span class="tw-font-semibold" *ngIf="review.employee_id">
-          {{ review.employee_id.last_name }}
-          {{ review.employee_id.first_name }}
+          {{ review.employee?.last_name }}
+          {{ review.employee?.first_name }}
           <strong class="tw-text-red-500">(admin)</strong>
         </span>
         <span class="tw-ml-2">

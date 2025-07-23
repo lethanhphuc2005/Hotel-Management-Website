@@ -4,14 +4,13 @@
   <app-employee-filter
     (filterChange)="onFilterChange($event)"
     [filter]="filter"
-    [label]="'Thêm nhân viên'"
     (openAdd)="onOpenPopup(true)"
   ></app-employee-filter>
 
   <!-- Popup Thêm nhân viên -->
   <app-employee-form
-    [employee]="newEmployee"
-    [isVisible]="isAddPopupOpen"
+    *ngIf="isAddPopupOpen"
+    [employee]="newRegisterEmployee"
     [isEdit]="false"
     (formSubmit)="onAddSubmit()"
     (closePopup)="onClosePopup()"
@@ -35,16 +34,15 @@
 
   <!-- Popup chi tiết nhân viên -->
   <app-employee-detail
-    *ngIf="selectedEmployee"
-    [isVisible]="isDetailPopupOpen"
+    *ngIf="isDetailPopupOpen && selectedEmployee"
     [employee]="selectedEmployee"
     (closePopup)="onClosePopup()"
   ></app-employee-detail>
 
   <!-- Popup Sửa nhân viên -->
   <app-employee-form
-    [isVisible]="isEditPopupOpen"
-    [employee]="selectedEmployee"
+    *ngIf="isEditPopupOpen"
+    [employee]="newEmployee"
     [isEdit]="true"
     (formSubmit)="onEditSubmit()"
     (closePopup)="onClosePopup()"

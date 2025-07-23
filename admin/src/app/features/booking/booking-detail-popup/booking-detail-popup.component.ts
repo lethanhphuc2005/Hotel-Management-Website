@@ -12,15 +12,12 @@ import { Discount } from '@/types/discount';
   styleUrls: ['./booking-detail-popup.component.scss'],
 })
 export class BookingDetailPopupComponent {
-  @Input() booking!: Booking | null;
-  @Input() visible = false;
+  @Input() booking!: Booking;
   @Output() onClose = new EventEmitter();
 
   constructor(private imageHelper: ImageHelperService) {}
 
-  OnInit() {
-    console.log('Booking Detail Popup Initialized', this.booking);
-  }
+  OnInit() {}
 
   getBookingStatusName(status: string): string {
     switch (status) {
@@ -63,7 +60,7 @@ export class BookingDetailPopupComponent {
     }
   }
 
-  getImageUrl(imagePath?: string): string {
+  getImageUrl(imagePath: string): string {
     return this.imageHelper.getImageUrl(imagePath);
   }
 

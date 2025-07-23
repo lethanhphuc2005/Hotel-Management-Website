@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '@/core/services/user.service';
-import { User } from '@/types/user';
+import { User, UserFilter } from '@/types/user';
 import { ToastrService } from 'ngx-toastr';
 import { UserListComponent } from './user-list/user-list.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { UserFilterComponent } from './user-filter/user-filter.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-user',
@@ -13,6 +15,8 @@ import { UserFilterComponent } from './user-filter/user-filter.component';
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
   imports: [
+    CommonModule,
+    FormsModule,
     UserListComponent,
     UserDetailComponent,
     PaginationComponent,
@@ -23,27 +27,17 @@ export class UserComponent implements OnInit {
   users: User[] = [];
   selectedUser: User | null = null;
   isDetailPopupOpen = false;
-  filter: {
-    keyword: string;
-    page: number;
-    limit: number;
-    sort: string;
-    total: number;
-    order: 'desc' | 'asc';
-    status?: string;
-    is_verified?: string;
-    level?: string;
-  } = {
-    keyword: '',
+  filter: UserFilter = {
+    search: '',
     page: 1,
     limit: 10,
+    total: 0,
     sort: 'createdAt',
     order: 'desc',
-    total: 0,
     status: '',
     is_verified: '',
     level: '',
-  };
+  }
 
   constructor(
     private userService: UserService,
@@ -56,16 +50,7 @@ export class UserComponent implements OnInit {
 
   loadAllUsers() {
     this.userService
-      .getAllUsers({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sort,
-        order: this.filter.order,
-        status: this.filter.status,
-        is_verified: this.filter.is_verified,
-        level: this.filter.level,
-      })
+      .getAllUsers(this.filter)
       .subscribe({
         next: (response) => {
           this.users = response.data;
@@ -112,10 +97,10 @@ export class UserComponent implements OnInit {
 
     this.userService.toggleUserStatus(item.id).subscribe({
       next: () => {
+        // Successfully toggled status
         this.toastrService.success(
-          `Trạng thái phòng "${item.id}" đã được cập nhật thành ${
-            newStatus ? 'Kích hoạt' : 'Vô hiệu hóa'
-          }.`
+          `Trạng thái người dùng đã được cập nhật thành ${newStatus ? 'hoạt động' : 'không hoạt động'}`,
+          'Thành công'
         );
       },
       error: (err) => {

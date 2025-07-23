@@ -122,7 +122,7 @@ const roomController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
       const rooms = await Room.find(query)
-        .populate("room_class room_status")
+        .populate("room_class room_status booking_count")
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
@@ -209,7 +209,7 @@ const roomController = {
     const roomId = req.params.id;
     try {
       const room = await Room.findById(roomId).populate(
-        "room_class room_status"
+        "room_class room_status booking_count"
       );
       if (!room) {
         return res.status(404).json({ message: "Không tìm thấy phòng" });
@@ -285,10 +285,9 @@ const roomController = {
       }
 
       await roomToUpdate.updateOne(updatedData);
-      const updatedRoom = await Room.findById(req.params.id).populate([
-        { path: "room_class" },
-        { path: "status" },
-      ]);
+      const updatedRoom = await Room.findById(req.params.id).populate(
+        "room_class room_status booking_count"
+      );
       res.status(200).json({
         message: "Cập nhật phòng thành công",
         data: updatedRoom,

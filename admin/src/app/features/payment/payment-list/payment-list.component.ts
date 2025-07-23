@@ -1,5 +1,5 @@
 import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
-import { Payment } from '@/types/payment';
+import { Payment, PaymentFilter } from '@/types/payment';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,11 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './payment-list.component.scss',
 })
 export class PaymentListComponent {
-  @Input() payments: Payment[] = [];
-  @Input() filter: any;
+  @Input() payments!: Payment[];
+  @Input() filter: PaymentFilter = {
+    page: 1,
+    limit: 10,
+    total: 0,
+  };
   @Output() openDetail = new EventEmitter<Payment>();
 }

@@ -1,5 +1,5 @@
 const { BookingStatus } = require("../models/status.model");
-const { upload } = require("../middlewares/upload.middleware");
+
 const bookingStatusController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TRẠNG THÁI ===
   validateBookingStatus: async (statusData, statusId) => {
@@ -109,64 +109,58 @@ const bookingStatusController = {
   },
 
   // === THÊM TRẠNG THÁI MỚI ===
-  addBookingStatus: [
-    upload.none(),
-    async (req, res) => {
-      try {
-        const newBookingStatus = new BookingStatus(req.body);
-        const validation = await bookingStatusController.validateBookingStatus(
-          newBookingStatus
-        );
-        if (!validation.valid) {
-          return res.status(400).json({ message: validation.message });
-        }
-        const saveBookingStatus = await newBookingStatus.save();
-        res.status(200).json({
-          message: "Thêm trạng thái đặt phòng thành công",
-          data: saveBookingStatus,
-        });
-      } catch (error) {
-        res.status(500).json(error);
+  addBookingStatus: async (req, res) => {
+    try {
+      const newBookingStatus = new BookingStatus(req.body);
+      const validation = await bookingStatusController.validateBookingStatus(
+        newBookingStatus
+      );
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+      const saveBookingStatus = await newBookingStatus.save();
+      res.status(200).json({
+        message: "Thêm trạng thái đặt phòng thành công",
+        data: saveBookingStatus,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 
   // === CẬP NHẬT TRẠNG THÁI ===
-  updateBookingStatus: [
-    upload.none(),
-    async (req, res) => {
-      try {
-        const statusToUpdate = await BookingStatus.findById(req.params.id);
-        if (!statusToUpdate) {
-          return res
-            .status(404)
-            .json({ message: "Trạng thái đặt phòng không tồn tại" });
-        }
-
-        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? statusToUpdate.toObject()
-            : { ...statusToUpdate.toObject(), ...req.body };
-
-        const validation = await bookingStatusController.validateBookingStatus(
-          updatedData,
-          req.params.id
-        );
-        if (!validation.valid) {
-          return res.status(400).json({ message: validation.message });
-        }
-
-        await statusToUpdate.updateOne({ $set: req.body });
-        res.status(200).json({
-          message: "Cập nhật trạng thái đặt phòng thành công",
-          data: updatedData,
-        });
-      } catch (error) {
-        res.status(500).json(error);
+  updateBookingStatus: async (req, res) => {
+    try {
+      const statusToUpdate = await BookingStatus.findById(req.params.id);
+      if (!statusToUpdate) {
+        return res
+          .status(404)
+          .json({ message: "Trạng thái đặt phòng không tồn tại" });
       }
-    },
-  ],
+
+      // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? statusToUpdate.toObject()
+          : { ...statusToUpdate.toObject(), ...req.body };
+
+      const validation = await bookingStatusController.validateBookingStatus(
+        updatedData,
+        req.params.id
+      );
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      await statusToUpdate.updateOne({ $set: req.body });
+      res.status(200).json({
+        message: "Cập nhật trạng thái đặt phòng thành công",
+        data: updatedData,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 
   // === KÍCH HOẠT/VÔ HIỆU HOÁ TRẠNG THÁI ===
   toggleBookingStatus: async (req, res) => {

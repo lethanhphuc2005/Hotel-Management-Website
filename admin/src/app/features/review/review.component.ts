@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { buildCommentTree } from '@/shared/utils/reply.utils';
-import { Review } from '@/types/review';
+import { Review, ReviewFilter, ReviewRequest } from '@/types/review';
 import { ReviewService } from '@/core/services/review.service';
 import { ReviewDetailPopupComponent } from './review-detail-popup/review-detail-popup.component';
 import { ReviewListComponent } from './review-list/review-list.component';
 import { ReviewReplyPopupComponent } from './review-reply-popup/review-reply-popup.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { ReviewFilterComponent } from './review-filter/review-filter.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-review',
@@ -15,6 +17,8 @@ import { ReviewFilterComponent } from './review-filter/review-filter.component';
   templateUrl: './review.component.html',
   styleUrls: ['./review.component.scss'],
   imports: [
+    CommonModule,
+    FormsModule,
     ReviewDetailPopupComponent,
     ReviewListComponent,
     ReviewReplyPopupComponent,
@@ -29,32 +33,25 @@ export class ReviewComponent implements OnInit {
   selectedReview: Review | null = null;
   isDetailPopupOpen = false;
   isReplyPopupOn = false;
-  filter: {
-    keyword: string;
-    page: number;
-    limit: number;
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-    total: number;
-    booking_id: string;
-    user_id: string;
-    employee_id?: string;
-    status: string;
-    rating: number;
-  } = {
-    keyword: '',
+  filter: ReviewFilter = {
+    search: '',
     page: 1,
     limit: 10,
-    sortField: 'createdAt',
-    sortOrder: 'desc',
     total: 0,
+    sort: 'createdAt',
+    order: 'desc',
+    status: '',
     booking_id: '',
     user_id: '',
     employee_id: '',
-    status: '',
     rating: 0,
   };
-
+  newReview: ReviewRequest = {
+    content: '',
+    room_class_id: '',
+    parent_id: '',
+    booking_id: '',
+  };
   constructor(
     private reviewService: ReviewService,
     private toastService: ToastrService
@@ -70,38 +67,23 @@ export class ReviewComponent implements OnInit {
   }
 
   loadAllReviews(): void {
-    this.reviewService
-      .getAllReviews({
-        search: this.filter.keyword,
-        page: this.filter.page,
-        limit: this.filter.limit,
-        sort: this.filter.sortField,
-        order: this.filter.sortOrder,
-        booking_id: this.filter.booking_id,
-        user_id: this.filter.user_id,
-        employee_id: this.filter.employee_id,
-        status: this.filter.status,
-        rating: this.filter.rating,
-      })
-      .subscribe({
-        next: (response) => {
-          this.reviews = response.data;
-          this.filter.total = response.pagination.total;
-          this.reviewsTree = buildCommentTree(this.reviews);
-          this.userReviews = this.reviews.filter(
-            (comment) => !!comment.user_id
-          );
-        },
-        error: (error) => {
-          console.error('Error loading reviews:', error);
-          this.toastService.error(
-            error.error?.message || 'Failed to load reviews',
-            'Error'
-          );
-          this.reviews = [];
-          this.userReviews = [];
-        },
-      });
+    this.reviewService.getAllReviews(this.filter).subscribe({
+      next: (response) => {
+        this.reviews = response.data;
+        this.filter.total = response.pagination.total;
+        this.reviewsTree = buildCommentTree(this.reviews);
+        this.userReviews = this.reviews.filter((comment) => !!comment.user_id);
+      },
+      error: (error) => {
+        console.error('Error loading reviews:', error);
+        this.toastService.error(
+          error.error?.message || 'Failed to load reviews',
+          'Error'
+        );
+        this.reviews = [];
+        this.userReviews = [];
+      },
+    });
   }
 
   findReviewWithChildren(tree: Review[], id: string): Review | null {
@@ -122,8 +104,8 @@ export class ReviewComponent implements OnInit {
 
   onFilterChange(sortField?: string): void {
     if (sortField) {
-      this.filter.sortField = sortField;
-      this.filter.sortOrder = this.filter.sortOrder === 'asc' ? 'desc' : 'asc';
+      this.filter.sort = sortField;
+      this.filter.order = this.filter.order === 'asc' ? 'desc' : 'asc';
     }
     this.filter.page = 1; // Reset to first page on filter change
     this.loadAllReviews();
@@ -146,22 +128,37 @@ export class ReviewComponent implements OnInit {
     this.isDetailPopupOpen = false;
     this.isReplyPopupOn = false;
     this.selectedReview = null;
+    this.newReview = {
+      content: '',
+      room_class_id: '',
+      parent_id: '',
+      booking_id: '',
+    };
   }
 
-  onToggleChange(event: Event, comment: Review): void {
-    const isChecked = (event.target as HTMLInputElement).checked;
-    this.reviewService.toggleReviewStatus(comment.id).subscribe({
+  onToggleChange(event: Event, item: Review): void {
+    const checkbox = event.target as HTMLInputElement;
+    const originalStatus = item.status;
+    const newStatus = checkbox.checked;
+
+    // Optimistically update status
+    item.status = newStatus;
+
+    this.reviewService.toggleReviewStatus(item.id).subscribe({
       next: () => {
-        comment.status = isChecked;
         this.toastService.success(
-          'Cập nhật trạng thái thành công',
+          `Trạng thái đánh giá đã được ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          }`,
           'Thành công'
         );
+        this.loadAllReviews(); // Reload reviews to reflect changes
       },
-      error: (error) => {
-        console.error('Error updating comment status:', error);
+      error: (err) => {
+        // Thất bại → rollback
+        item.status = originalStatus;
         this.toastService.error(
-          error.error?.message || 'Cập nhật trạng thái thất bại',
+          err.error?.message || err.message || err.statusText,
           'Lỗi'
         );
       },
@@ -173,24 +170,19 @@ export class ReviewComponent implements OnInit {
     room_class_id,
     parent_id,
     booking_id,
-  }: {
-    content: string;
-    room_class_id: string;
-    parent_id: string;
-    booking_id: string;
-  }): void {
+  }: ReviewRequest): void {
     if (!this.selectedReview) {
       this.toastService.error('Vui lòng chọn bình luận để trả lời', 'Lỗi');
       return;
     }
-    const formData = new FormData();
-    formData.append('booking_id', booking_id);
-    formData.append('room_class_id', room_class_id);
-    formData.append('parent_id', parent_id);
-    formData.append('employee_id', this.getEmployeeId());
-    formData.append('content', content);
-    formData.append('status', true as any);
-    this.reviewService.createReview(formData).subscribe({
+    this.newReview = {
+      content,
+      room_class_id,
+      parent_id: parent_id || this.selectedReview.id,
+      booking_id: booking_id || this.selectedReview.booking_id,
+    };
+
+    this.reviewService.createReview(this.newReview).subscribe({
       next: (response) => {
         this.toastService.success('Phản hồi thành công', 'Thành công');
         this.isReplyPopupOn = false;
