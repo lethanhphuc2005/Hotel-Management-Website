@@ -10,6 +10,13 @@ router.get(
   userController.getAllUsers
 );
 
+// === LẤY USER TỪ ACCESS TOKEN ===
+router.get(
+  "/me",
+  authMiddleware.verifyToken,
+  userController.getUserFromAccessToken
+);
+
 // === LẤY USER THEO ID ===
 router.get(
   "/user-info/:id",
@@ -39,27 +46,15 @@ router.patch(
 );
 
 // === XÁC MINH TÀI KHOẢN QUA EMAIL ===
-router.post(
-  "/verify",
-  userController.verifyUser
-);
+router.post("/verify", userController.verifyUser);
 
 // === GỬI LẠI MÃ XÁC MINH QUA EMAIL ===
-router.post(
-  "/resend-verification",
-  userController.resendEmailVerification
-);
+router.post("/resend-verification", userController.resendEmailVerification);
 
 // === QUÊN MẬT KHẨU ===
-router.post(
-  "/forgot-password",
-  userController.forgotPassword
-);
+router.post("/forgot-password", userController.forgotPassword);
 
 // === ĐẶT LẠI MẬT KHẨU ===
-router.post(
-  "/reset-password",
-  userController.resetPassword
-);
+router.post("/reset-password", userController.resetPassword);
 
 module.exports = router;

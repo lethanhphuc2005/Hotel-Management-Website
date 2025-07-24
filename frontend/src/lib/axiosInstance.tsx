@@ -3,26 +3,27 @@ import axios from "axios";
 import { refreshAccessToken } from "@/api/authApi";
 import { toast } from "react-toastify";
 // ========== Helpers ==========
-const getAccessToken = () => {
-  const loginData = localStorage.getItem("login");
-  return loginData ? JSON.parse(loginData).accessToken : null;
+const updateAccessToken = (newToken: string) => {
+  localStorage.setItem("accessToken", JSON.stringify(newToken));
 };
 
-const updateAccessToken = (newToken: string) => {
-  const loginData = localStorage.getItem("login");
-  if (loginData) {
-    const updated = { ...JSON.parse(loginData), accessToken: newToken };
-    localStorage.setItem("login", JSON.stringify(updated));
+const getAccessToken = () => {
+  try {
+    return JSON.parse(localStorage.getItem("accessToken") || "null");
+  } catch (err) {
+    return null;
   }
 };
 
 // ========== Axios Instance ==========
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true, // Để gửi cookie
 });
 
 const publicApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true, // Để gửi cookie
 });
 
 // Gắn access token vào mọi request
@@ -30,10 +31,6 @@ api.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    toast.error(
-      "Chưa đăng nhập hoặc token không hợp lệ. Vui lòng đăng nhập lại."
-    );
   }
   return config;
 });
@@ -76,21 +73,20 @@ api.interceptors.response.use(
         const response = await refreshAccessToken();
         const data = response.data;
         const accessToken = data.accessToken;
-        const loginData = JSON.parse(localStorage.getItem("login") || "{}");
-        localStorage.setItem(
-          "login",
-          JSON.stringify({ ...loginData, accessToken })
-        );
+        updateAccessToken(accessToken);
 
         api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
         processQueue(null, accessToken);
 
         originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+        console.log(JSON.stringify(originalRequest.headers, null, 2));
+
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem("login");
+        localStorage.removeItem("accessToken");
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

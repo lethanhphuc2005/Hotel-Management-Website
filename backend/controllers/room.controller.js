@@ -300,30 +300,28 @@ const roomController = {
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ PHÒNG ===
   toggleRoomStatus: async (req, res) => {
     try {
-      const roomToToggle = await Room.findById(req.params.id).populate(
-        "status"
-      );
-      if (!roomToToggle) {
+      const room = await Room.findById(req.params.id);
+      if (!room) {
         return res.status(404).json({ message: "Không tìm thấy phòng" });
       }
 
-      const statusExists = await RoomStatus.findById(req.body.room_status_id);
-      if (!statusExists) {
+      const { room_status_id } = req.body;
+      if (!room_status_id) {
         return res
           .status(400)
-          .json({ message: "Trạng thái phòng không hợp lệ" });
+          .json({ message: "Vui lòng cung cấp trạng thái phòng" });
       }
 
-      roomToToggle.room_status_id =
-        req.body.room_status_id || roomToToggle.room_status_id;
-      await roomToToggle.save();
-      const newRoomToggle = await Room.findById(roomToToggle._id).populate(
-        "status"
+      room.room_status_id = room_status_id;
+      await room.save();
+
+      const updatedRoom = await Room.findById(req.params.id).populate(
+        "room_class room_status booking_count"
       );
 
       res.status(200).json({
         message: "Thay đổi trạng thái phòng thành công",
-        data: newRoomToggle,
+        data: updatedRoom,
       });
     } catch (error) {
       res

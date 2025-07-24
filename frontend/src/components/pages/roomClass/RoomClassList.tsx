@@ -18,6 +18,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import getImageUrl from "@/utils/getImageUrl";
+import Pagination from "@/components/sections/Pagination";
 
 export function RoomClassList({
   rcl,
@@ -47,9 +48,8 @@ export function RoomClassList({
   showExtraBedOver6?: boolean;
 }) {
   const [favorites, setFavorites] = useState<UserFavorite[]>([]);
-
   useEffect(() => {
-    const data = localStorage.getItem("login");
+    const data = localStorage.getItem("accessToken");
     const userId = data ? JSON.parse(data).id : null;
     if (!userId) return;
     getUserFavorites(userId).then((res) => {

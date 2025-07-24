@@ -8,6 +8,8 @@ const SearchLog = require("../models/searchLog.model");
 const removeVietnameseTones = require("../utils/removeVietnameseTones");
 const NodeCache = require("node-cache");
 const geminiCache = new NodeCache({ stdTTL: 3600 }); // TTL 1h
+const dayjs = require("dayjs");
+const { BookingStatus } = require("../models/status.model");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 async function getAvailableGeminiModel() {
@@ -32,37 +34,29 @@ async function getAvailableGeminiModel() {
 
 const getFilteredRooms = async (filters) => {
   const { check_in_date, check_out_date } = filters;
-  // Nếu không có ngày check-in/check-out thì lấy tất cả phòng đang hoạt động
   const query = { status: true };
 
-  let roomClasses = await RoomClass.find(query).populate([
-    {
-      path: "main_room_class",
-      select: "-status -createdAt -updatedAt",
-      match: { status: true },
-    },
-    {
-      path: "features",
-      populate: {
-        path: "feature_id",
-        model: "feature",
-        select: "-status -createdAt -updatedAt",
-        match: { status: true },
-      },
-    },
-    { path: "images", select: "url", match: { status: true } },
-  ]);
-
+  let roomClasses = await RoomClass.find(query)
+    .populate([
+      { path: "main_room_class", match: { status: true } },
+      { path: "features" },
+      { path: "images", match: { status: true } },
+    ])
+    .exec();
   if (check_in_date && check_out_date) {
     const checkIn = new Date(check_in_date);
     const checkOut = new Date(check_out_date);
 
-    // Lấy tất cả booking nằm trong khoảng ngày check-in - check-out, trừ trạng thái huỷ
+    const excludedStatuses = await BookingStatus.find({
+      code: { $in: ["CANCELLED", "CHECKED_OUT"] },
+    }).select("_id");
+
+    const excludedStatusIds = excludedStatuses.map((s) => s._id);
     const bookings = await Booking.find({
       check_in_date: { $lt: checkOut },
       check_out_date: { $gt: checkIn },
       booking_status_id: {
-        $nin: ["683fba8d351a96315d457679", "683fba8d351a96315d457678"],
+        $nin: excludedStatusIds,
       },
     });
     const bookingIds = bookings.map((b) => b._id);
@@ -83,13 +77,11 @@ const getFilteredRooms = async (filters) => {
         },
       },
     ]);
-
     // Map: room_class_id => tổng phòng
     const totalRoomsMap = {};
     totalRoomsByClass.forEach((r) => {
       totalRoomsMap[r._id.toString()] = r.total;
     });
-
     // Tạo map đếm số phòng đã book từng ngày theo từng loại phòng
     // Format: { room_class_id: { "yyyy-mm-dd": count } }
     const bookedCountMap = {};
@@ -139,7 +131,6 @@ const getFilteredRooms = async (filters) => {
       });
     });
   }
-
   return roomClasses;
 };
 
@@ -161,7 +152,6 @@ function sanitizeHistory(history) {
     return isValid;
   });
 }
-
 function extractFiltersFromPrompt(prompt) {
   const filters = {};
   const text = prompt.toLowerCase();
@@ -173,31 +163,23 @@ function extractFiltersFromPrompt(prompt) {
   if (matchDates.length >= 1) {
     const [d1, m1, y1] = matchDates[0].slice(1);
     const [d2, m2, y2] = (matchDates[1] || matchDates[0]).slice(1);
-    filters.check_in_date = `${d1.padStart(2, "0")}/${m1.padStart(
-      2,
-      "0"
-    )}/${y1}`;
-    filters.check_out_date = `${d2.padStart(2, "0")}/${m2.padStart(
-      2,
-      "0"
-    )}/${y2}`;
+
+    filters.check_in_date = dayjs(`${y1}-${m1}-${d1}`, "YYYY-MM-DD").toDate();
+    filters.check_out_date = dayjs(`${y2}-${m2}-${d2}`, "YYYY-MM-DD").toDate();
     return filters;
   }
 
-  // Nếu không có năm → giả định năm 2025
   matchDates = [...text.matchAll(shortDateRegex)];
   if (matchDates.length >= 1) {
     const [d1, m1] = matchDates[0].slice(1);
     const [d2, m2] = (matchDates[1] || matchDates[0]).slice(1);
     const year = "2025";
-    filters.check_in_date = `${d1.padStart(2, "0")}/${m1.padStart(
-      2,
-      "0"
-    )}/${year}`;
-    filters.check_out_date = `${d2.padStart(2, "0")}/${m2.padStart(
-      2,
-      "0"
-    )}/${year}`;
+
+    filters.check_in_date = dayjs(`${year}-${m1}-${d1}`, "YYYY-MM-DD").toDate();
+    filters.check_out_date = dayjs(
+      `${year}-${m2}-${d2}`,
+      "YYYY-MM-DD"
+    ).toDate();
   }
 
   return filters;
@@ -230,6 +212,24 @@ async function sendMessageWithRetry(chat, prompt, retries = 3, delay = 1000) {
   }
 }
 
+function getLastValidFiltersFromHistory(history) {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const text = history[i]?.parts?.[0]?.text || "";
+    const filters = extractFiltersFromPrompt(text);
+    if (
+      filters.check_in_date &&
+      filters.check_out_date &&
+      filters.check_in_date instanceof Date &&
+      !isNaN(filters.check_in_date.getTime()) &&
+      filters.check_out_date instanceof Date &&
+      !isNaN(filters.check_out_date.getTime())
+    ) {
+      return filters;
+    }
+  }
+  return null;
+}
+
 const generateResponseWithDB = async (req, res) => {
   const { prompt, history = [] } = req.body;
 
@@ -249,57 +249,75 @@ const generateResponseWithDB = async (req, res) => {
   }
 
   try {
-    const filters = extractFiltersFromPrompt(prompt);
-    const allRooms = await getFilteredRooms(filters); // phòng còn trống theo ngày & số người
+    // ====== 1. Xử lý ngày, fallback mặc định ======
+    const fallbackDates = {
+      check_in_date: new Date(),
+      check_out_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      adult_amount: 2,
+      child_amount: 0,
+    };
 
-    const infoText = history
+    const extracted = extractFiltersFromPrompt(prompt);
+    const hasValidNewDates =
+      extracted.check_in_date instanceof Date &&
+      !isNaN(extracted.check_in_date) &&
+      extracted.check_out_date instanceof Date &&
+      !isNaN(extracted.check_out_date);
+
+    let filters = hasValidNewDates
+      ? extracted
+      : getLastValidFiltersFromHistory(history) || fallbackDates;
+
+    // ====== 2. Lấy danh sách phòng phù hợp ======
+    const allRooms = await getFilteredRooms(filters);
+
+    // ====== 3. Kiểm tra thông tin cá nhân khách ======
+    const combinedText = history
       .map((h) => h.parts?.map((p) => p.text || "").join(" "))
       .join(" ");
-    const hasName = /tên[:\s]+[^\s]+/i.test(infoText);
+    const hasName = /tên[:\s]+[^\s]+/i.test(combinedText);
     const hasEmail = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(
-      infoText
+      combinedText
     );
-    const hasPhone = /((09|03|07|08|05)+([0-9]{8}))/i.test(infoText);
+    const hasPhone = /((09|03|07|08|05)+([0-9]{8}))/i.test(combinedText);
     const userInfoStatus =
       hasName && hasEmail && hasPhone ? "Đầy đủ" : "Thiếu thông tin";
 
-    const confirmationPhrases = [
+    // ====== 4. Kiểm tra xác nhận đặt phòng ======
+    const confirmPhrases = [
       "tôi xác nhận",
-      "tôi đồng ý",
       "tôi muốn đặt",
       "xác nhận đặt phòng",
-      "đặt phòng",
       "ok đặt luôn",
       "đặt luôn",
       "yes",
       "ok",
+      "tôi đồng ý",
       "tôi muốn xác nhận",
     ];
-    const lastUserInput =
+    const lastInput =
       history
         .filter((h) => h.role === "user")
         .pop()
-        ?.parts?.[0]?.text?.toLowerCase()
-        .trim() || "";
-
-    const normalizeText = (str) =>
-      removeVietnameseTones(str).toLowerCase().trim();
-
-    const isConfirmed = confirmationPhrases.some((phrase) =>
-      normalizeText(lastUserInput).includes(normalizeText(phrase))
+        ?.parts?.[0]?.text?.toLowerCase() || "";
+    const normalize = (s) => removeVietnameseTones(s).toLowerCase().trim();
+    const isConfirmed = confirmPhrases.some((p) =>
+      normalize(lastInput).includes(normalize(p))
     );
 
     const nights = Math.ceil(
       (new Date(filters.check_out_date) - new Date(filters.check_in_date)) /
         (1000 * 60 * 60 * 24)
     );
-
+    // ====== 5. Prompt hệ thống (cho Gemini) ======
     const systemPrompt = `
       Bạn là trợ lý AI của khách sạn The Moon Hotel, hỗ trợ khách đặt phòng qua hội thoại từng bước.
 
       🎯 MỤC TIÊU:
       1. Hỏi khách về yêu cầu đặt phòng: ngày check-in, check-out, số người lớn/trẻ em.
-      2. Dựa trên danh sách phòng có sẵn (**không hiển thị toàn bộ**), chọn tối đa 2 loại phòng phù hợp nhất và gợi ý cho khách.
+      2. Dựa trên danh sách phòng có sẵn (**không hiển thị toàn bộ**):
+      - Lọc phòng theo ngày check-in/check-out và số lượng người dựa trên capacity.
+      - Gợi ý tối đa 3 loại phòng phù hợp với yêu cầu.
       3. Nếu khách muốn đặt, kiểm tra xem đã đủ thông tin cá nhân chưa:
         - Họ tên
         - Email
@@ -324,13 +342,20 @@ const generateResponseWithDB = async (req, res) => {
       - ✅ Thông tin cá nhân: ${userInfoStatus}
       - ✅ Xác nhận đặt phòng: ${isConfirmed ? "Đã xác nhận" : "Chưa xác nhận"}
 
-      📌 Danh sách phòng (để AI chọn, KHÔNG hiển thị lên chat):
-      ${allRooms
-        .map(
-          (r) =>
-            `ID: ${r._id} | Name: ${r.name} | Price: ${r.price} | Capacity: ${r.capacity} | View: ${r.view}`
-        )
-        .join("\n")}
+      📌 Danh sách phòng (chỉ để AI chọn, KHÔNG hiển thị lên chat):
+        ${JSON.stringify(
+          allRooms.map((r) => ({
+            room_class_id: r.id,
+            name: r.name,
+            price: r.price,
+            capacity: r.capacity,
+            view: r.view,
+            images: r.images.map((img) => img.url),
+            features: r.features.map((f) => f.feature.name),
+          })),
+          null,
+          2
+        )}
 
       ---
 
@@ -338,7 +363,8 @@ const generateResponseWithDB = async (req, res) => {
 
       \`\`\`json
       {
-        "suggested_room_ids": ["id1", "id2"],
+        "suggested_room_ids": ["ID1", "ID2", "ID3"], // Tối đa 3 loại phòng gợi ý
+        "booking": null // Chỉ tạo booking khi khách đã xác nhận rõ ràng
         "booking": {
           "full_name": "Tên khách",
           "email": "Email",
@@ -351,10 +377,16 @@ const generateResponseWithDB = async (req, res) => {
           "total_price": 0,
           "booking_details": [
             {
-              "room_class_id": "ID đã chọn",
+              "room_class_id": "ID của phòng đã chọn",
               "price_per_night": 0,
               "nights": ${nights},
-              "services": []
+              "services": [],
+              "room_class": {
+                "name": "Tên loại phòng",
+                "description": "Mô tả loại phòng",
+                "images": ["URL ảnh 1", "URL ảnh 2"],
+                "features": ["Tiện nghi 1", "Tiện nghi 2"]
+              }
             }
           ]
         }
@@ -364,14 +396,18 @@ const generateResponseWithDB = async (req, res) => {
       🚫 Nếu khách chưa xác nhận rõ ràng, chỉ cần gợi ý phòng và KHÔNG tạo phần "booking".
     `;
 
-    const cacheKey = `gemini:${prompt}:${JSON.stringify(history.slice(-5))}`;
+    // ====== 6. Tránh cache nếu prompt khác nhiều (có thể disable hoàn toàn nếu cần) ======
+    const cacheKey = `gemini:${JSON.stringify(filters)}:${JSON.stringify(
+      history.slice(-5)
+    )}`;
     const cached = geminiCache.get(cacheKey);
-    if (cached) {
+    if (cached && !prompt.toLowerCase().includes("khác") && !isConfirmed) {
       return res.json(cached);
     }
 
-    const validHistory = sanitizeHistory(history).slice(-9);
-    const model = await getAvailableGeminiModel(); // 👈 gọi model phù hợp
+    // ====== 7. Gọi Gemini Chat & Xử lý phản hồi ======
+    const validHistory = sanitizeHistory(history).slice(-19);
+    const model = await getAvailableGeminiModel();
     const chat = model.startChat({ history: validHistory });
 
     const aiText = await sendMessageWithRetry(chat, systemPrompt);
@@ -382,44 +418,52 @@ const generateResponseWithDB = async (req, res) => {
       { role: "model", parts: [{ text: aiText }] },
     ];
 
-    // Tách JSON
     const jsonMatch = aiText.match(/```json\s*([\s\S]*?)```/);
     let bookingData = null;
     let suggestedRoomIds = [];
-    // console.log(jsonMatch)
 
-    if (jsonMatch && jsonMatch[1]) {
+    if (jsonMatch?.[1]) {
       try {
-        const jsonStr = jsonMatch[1].trim();
-        const parsed = JSON.parse(jsonStr);
+        const parsed = JSON.parse(jsonMatch[1].trim());
         bookingData = parsed.booking || null;
         suggestedRoomIds = Array.isArray(parsed.suggested_room_ids)
           ? parsed.suggested_room_ids
           : [];
       } catch (err) {
-        console.warn("❌ Không parse được booking JSON:", err.message);
+        console.warn("❌ JSON parse error:", err.message);
       }
     }
 
     const suggestedRooms = await RoomClass.find({
       _id: { $in: suggestedRoomIds },
-    });
+    })
+      .populate([
+        { path: "main_room_class" },
+        { path: "images", match: { status: true } },
+        {
+          path: "features",
+          populate: {
+            path: "feature",
+          },
+        },
+      ])
+      .sort({ createdAt: -1 });
 
-    const cleanedAiText = aiText.replace(/```json[\s\S]*?```/, "").trim();
+    const cleanedText = aiText.replace(/```json[\s\S]*?```/, "").trim();
     const isBookingConfirmed =
       !!bookingData?.full_name && !!bookingData?.booking_details?.length;
 
-    const resultData = {
-      response: cleanedAiText,
+    const result = {
+      response: cleanedText,
       history: updatedHistory,
       rooms: suggestedRooms,
       isBooking: isBookingConfirmed,
       bookingData,
     };
-    geminiCache.set(cacheKey, resultData);
-    return res.json(resultData);
+    geminiCache.set(cacheKey, result);
+    return res.json(result);
   } catch (err) {
-    console.error("❌ generateResponseWithDB Error:", err);
+    console.error("❌ generateResponseWithDB error:", err);
     return res.status(500).json({
       response: "Đã có lỗi xảy ra.",
       error: err.message || "Unknown error",

@@ -514,6 +514,118 @@ const userController = {
       };
     }
   },
+
+  // === LẤY USER TỪ ACCESS TOKEN ===
+  getUserFromAccessToken: async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id).populate([
+        {
+          path: "comments",
+          match: { status: true },
+          populate: [
+            {
+              path: "room_class",
+              populate: {
+                path: "images",
+                match: { status: true },
+              },
+            },
+            {
+              path: "employee",
+            },
+            {
+              path: "user",
+            },
+          ],
+        },
+        {
+          path: "reviews",
+          match: { status: true },
+          populate: [
+            {
+              path: "booking",
+              populate: {
+                path: "booking_details",
+                populate: {
+                  path: "room_class",
+                  populate: {
+                    path: "images",
+                    match: { status: true },
+                  },
+                },
+              },
+            },
+            {
+              path: "user",
+            },
+            {
+              path: "employee",
+            },
+          ],
+        },
+        {
+          path: "favorites",
+          populate: {
+            path: "room_class",
+            populate: [
+              {
+                path: "images",
+                match: { status: true },
+              },
+              {
+                path: "main_room_class",
+              },
+            ],
+          },
+        },
+        { path: "wallet" },
+        {
+          path: "bookings",
+          populate: [
+            { path: "booking_status" },
+            { path: "booking_method" },
+            { path: "discounts" },
+            { path: "employee" },
+            {
+              path: "payments",
+              populate: {
+                path: "payment_method",
+              },
+            },
+            {
+              path: "booking_details",
+              populate: [
+                { path: "room" },
+                {
+                  path: "room_class",
+                  populate: {
+                    path: "images",
+                    match: { status: true }, // Chỉ lấy các hình ảnh đang hoạt động
+                  },
+                },
+                {
+                  path: "services",
+                  populate: {
+                    path: "service",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+      if (!user) {
+        return res.status(404).json("Không tìm thấy user");
+      }
+
+      res.status(200).json({
+        message: "Lấy thông tin user thành công",
+        data: user,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 
 module.exports = userController;

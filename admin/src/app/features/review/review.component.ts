@@ -61,11 +61,6 @@ export class ReviewComponent implements OnInit {
     this.loadAllReviews();
   }
 
-  getEmployeeId(): string {
-    const user = JSON.parse(localStorage.getItem('login') || '{}');
-    return user?.id || '';
-  }
-
   loadAllReviews(): void {
     this.reviewService.getAllReviews(this.filter).subscribe({
       next: (response) => {

@@ -5,9 +5,13 @@ import { DateRange, GuestCount } from "@/types/_common";
 export function useRoomSearch() {
   const [maxGuests, setMaxGuests] = useState<number>(20);
   const [price, setPrice] = useState<number>(500000);
+  const now = new Date();
+  const today = new Date(now.setHours(0, 0, 0, 0));
+
   const [dateRange, setDateRange] = useState<DateRange[]>([
-    { startDate: new Date(), endDate: new Date(), key: "selection" },
+    { startDate: today, endDate: today, key: "selection" },
   ]);
+
   const [guests, setGuests] = useState<GuestCount>({
     adults: 1,
     children: { age0to6: 0, age7to17: 0 },

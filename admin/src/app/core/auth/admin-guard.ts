@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree {
-    const loginData = localStorage.getItem('login');
+    const loginData = localStorage.getItem('accessToken');
 
     if (!loginData) {
       this.toastr.error('Bạn cần đăng nhập để truy cập trang này');

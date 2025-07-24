@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail } = require("../config/mail");
 const { upload } = require("../middlewares/upload.middleware");
+const { path } = require("../app");
 
 let refreshTokens = [];
 const accountController = {
@@ -202,14 +203,19 @@ const accountController = {
         const accessToken = accountController.creareToken(checkUser);
         const refreshToken = accountController.creareRefreshToken(checkUser);
 
-        const { address, createdAt, updatedAt, ...userJson } =
-          checkUser.toJSON(); // toJSON đã xử lý sẵn
+        // ✅ Gửi refreshToken bằng cookie
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true, // Ngăn frontend JS đọc
+          secure: process.env.NODE_ENV === "production", // Chỉ dùng HTTPS khi production
+          sameSite: "Strict", // Ngăn CSRF
+          path: "/", // Chỉ gửi cookie khi gọi đúng route
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+        });
+
         res.status(200).json({
           message: "Đăng nhập thành công",
           data: {
-            ...userJson,
             accessToken,
-            refreshToken,
           },
         });
       }
@@ -234,21 +240,21 @@ const accountController = {
       if (!isMatch) return res.status(400).json("Sai mật khẩu");
       const accessToken = accountController.creareToken(admin);
       const refreshToken = accountController.creareRefreshToken(admin);
-      const dataToSend = {
-        id: admin._id,
-        first_name: admin.first_name,
-        last_name: admin.last_name,
-        position: admin.position,
-        department: admin.department,
-        email: admin.email,
-        phone_number: admin.phone_number,
-        status: admin.status,
-        role: admin.role,
-      };
+
+      // ✅ Gửi refreshToken bằng cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true, // Ngăn frontend JS đọc
+        secure: process.env.NODE_ENV === "production", // Chỉ dùng HTTPS khi production
+        sameSite: "Strict", // Ngăn CSRF
+        path: "/", // Chỉ gửi cookie khi gọi đúng route
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+      });
 
       res.status(200).json({
         message: "Đăng nhập thành công",
-        data: { ...dataToSend, accessToken, refreshToken },
+        data: {
+          accessToken,
+        },
       });
     } catch (err) {
       res.status(500).json(err.message);
@@ -257,30 +263,100 @@ const accountController = {
 
   // ====== LẤY TOKEN MỚI =====
   requestRefreshToken: async (req, res) => {
-    // Kiểm tra xem refreshToken có trong body không
-    let { refreshToken } = req.body;
-    if (!refreshToken) return res.status(401).json("Không có token");
+    // ✅ Lấy refreshToken từ cookie thay vì req.body
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json("Không có refresh token trong cookie");
+    }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
       if (err) {
-        return res.status(403).json("Lỗi xác thực token");
+        return res.status(403).json("Refresh token không hợp lệ hoặc hết hạn");
       }
 
       // Tạo accessToken và refreshToken mới
       const newAccessToken = accountController.creareToken(user);
       const newRefreshToken = accountController.creareRefreshToken(user);
 
+      // ✅ Gửi refreshToken mới vào cookie
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      // ✅ Trả về accessToken mới cho client
       res.status(200).json({
         message: "Cấp token mới thành công",
-        data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+        data: { accessToken: newAccessToken },
       });
     });
   },
 
-  // ====== ĐĂNG XUẤT =====
   logout: async (req, res) => {
-    res.user = null; // Xoá thông tin người dùng khỏi request
-    res.status(200).json("Đăng xuất thành công");
+    try {
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+        return res.status(400).json("Không có refresh token để đăng xuất");
+      }
+
+      refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/",
+      });
+
+      res.status(200).json("Đăng xuất thành công");
+    } catch (error) {
+      res.status(500).json("Đã xảy ra lỗi khi đăng xuất: " + error);
+    }
+  },
+
+  // ====== XÁC THỰC GOOGLE =====
+  googleAuthCallback: async (req, res) => {
+    try {
+      const { email, first_name, last_name, email_verified } = req.user;
+      let user = await User.findOne({ email });
+      if (!user) {
+        // Nếu người dùng chưa tồn tại, tạo mới
+        user = new User({
+          email,
+          first_name,
+          last_name,
+          is_verified: email_verified,
+          status: true,
+          password: "", // Không cần mật khẩu cho đăng nhập Google
+        });
+        await user.save({ $new: true });
+      }
+
+      const accessToken = accountController.creareToken(user);
+      const refreshToken = accountController.creareRefreshToken(user);
+
+      // ✅ Gửi refreshToken mới vào cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      const redicrectUrl = `${process.env.FRONTEND_URL}/auth/google?accessToken=${accessToken}`;
+      res.redirect(redicrectUrl);
+    } catch (error) {
+      res.status(500).json({
+        message: "Lỗi khi xác thực Google",
+        error: error.message,
+      });
+    }
   },
 };
 module.exports = accountController;

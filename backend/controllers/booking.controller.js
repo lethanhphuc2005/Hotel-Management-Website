@@ -1,6 +1,6 @@
 const BookingMethod = require("../models/bookingMethod.model");
 const Booking = require("../models/booking.model");
-const { BookingStatus } = require("../models/status.model");
+const { BookingStatus, RoomStatus } = require("../models/status.model");
 const {
   BookingDetail,
   Booking_Detail_Service,
@@ -840,6 +840,17 @@ const bookingController = {
         await BookingDetail.findByIdAndUpdate(detail_id, {
           room_id: room_id,
         });
+
+        const roomStatusId = await RoomStatus.findOne({
+          code: "BOOKED",
+        }).select("_id");
+        if (!roomStatusId) {
+          return res.status(500).json({ message: "Thiếu trạng thái BOOKED" });
+        }
+        // Cập nhật trạng thái phòng
+        await Room.findByIdAndUpdate(room_id, {
+          room_status_id: roomStatusId,
+        });
       }
 
       // Cập nhật trạng thái đơn hàng
@@ -952,6 +963,24 @@ const bookingController = {
       booking.check_in_identity = null; // Xoá thông tin giấy tờ check-in
 
       await booking.save();
+
+      // Cập nhật trạng thái phòng về AVAILABLE
+      const bookingDetails = await BookingDetail.find({
+        booking_id: bookingId,
+      });
+      const roomStatusId = await RoomStatus.findOne({
+        code: "AVAILABLE",
+      }).select("_id");
+      if (!roomStatusId) {
+        return res.status(500).json({ message: "Thiếu trạng thái AVAILABLE" });
+      }
+      for (const detail of bookingDetails) {
+        if (detail.room_id) {
+          await Room.findById(detail.room_id).updateOne({
+            room_status_id: roomStatusId,
+          });
+        }
+      }
 
       res.json({ message: "Đã check-out thành công.", data: booking });
     } catch (error) {

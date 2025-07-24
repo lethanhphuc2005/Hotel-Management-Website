@@ -64,7 +64,10 @@ export class LoginComponent implements OnInit {
     } else {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          localStorage.setItem('login', JSON.stringify(response.data));
+          localStorage.setItem(
+            'accessToken',
+            JSON.stringify(response.data.accessToken)
+          );
           this.Toastr.success(
             response.message || 'Login successed',
             'Thông báo'
@@ -72,10 +75,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/home']);
         },
         error: (error) => {
-          this.Toastr.error(
-            error.error || 'Đăng nhập thất bại',
-            'Lỗi'
-          );
+          this.Toastr.error(error.error || 'Đăng nhập thất bại', 'Lỗi');
         },
       });
     }

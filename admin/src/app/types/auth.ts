@@ -17,17 +17,7 @@ export interface RegisterRequest {
 }
 
 export interface LoginData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  position: string;
-  department: string;
-  role: string;
   accessToken: string;
-  refreshToken: string;
-  status: boolean;
 }
 
 export interface LoginResponse {

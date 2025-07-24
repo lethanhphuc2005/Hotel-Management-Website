@@ -3,12 +3,40 @@ import {
   getRoomClassById as getRoomClassByIdApi,
 } from "@/api/roomClassApi";
 import { Review } from "@/types/review";
-import { RoomClass, RoomClassListResponse, RoomClassResponse } from "@/types/roomClass";
+import {
+  RoomClass,
+  RoomClassListResponse,
+  RoomClassResponse,
+} from "@/types/roomClass";
 import { Comment } from "@/types/comment";
 
-export const fetchRoomClasses = async (): Promise<RoomClassListResponse> => {
+export const fetchRoomClasses = async ({
+  search = "",
+  page = 1,
+  limit = 10,
+  sort = "createdAt",
+  order = "desc",
+  check_in_date,
+  check_out_date,
+}: {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: "asc" | "desc";
+  check_in_date?: string;
+  check_out_date?: string;
+}): Promise<RoomClassListResponse> => {
   try {
-    const response = await getRoomClassesApi();
+    const response = await getRoomClassesApi({
+      search,
+      page,
+      limit,
+      sort,
+      order,
+      check_in_date,
+      check_out_date,
+    });
     const data = response.data;
     const roomClasses: RoomClass[] = data.map((item: any) => ({
       id: item.id || item._id,
@@ -63,10 +91,13 @@ export const fetchRoomClasses = async (): Promise<RoomClassListResponse> => {
         })) || [],
     }));
 
+    const pagination = response.pagination 
+
     return {
       success: true,
       message: response.message || "Room classes fetched successfully",
       data: roomClasses,
+      pagination
     };
   } catch (error: any) {
     const message =

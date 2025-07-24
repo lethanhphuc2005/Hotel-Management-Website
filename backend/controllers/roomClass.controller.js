@@ -346,7 +346,7 @@ const roomClassController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         type,
         minBed = 1,
         maxBed = 10,
@@ -387,16 +387,13 @@ const roomClassController = {
         if (maxCapacity) query.capacity.$lte = parseInt(maxCapacity);
       }
 
-      const skip = (parseInt(page) - 1) * parseInt(limit);
       const sortObj = {};
       sortObj[sort] = order === "asc" ? 1 : -1;
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
-        .skip(skip)
-        .limit(parseInt(limit))
         .populate([
-          { path: "main_room_class" },
+          { path: "main_room_class", match: { status: true } },
           { path: "features" },
           { path: "images", match: { status: true } },
           { path: "rooms" },
@@ -455,7 +452,7 @@ const roomClassController = {
         // Map: room_class_id => tổng phòng
         const totalRoomsMap = {};
         totalRoomsByClass.forEach((r) => {
-          totalRoomsMap[r.id.toString()] = r.total;
+          totalRoomsMap[r._id.toString()] = r.total;
         });
 
         // Tạo map đếm số phòng đã book từng ngày theo từng loại phòng
@@ -475,7 +472,7 @@ const roomClassController = {
 
         // Duyệt booking details, đếm phòng booked theo ngày và loại phòng
         bookingDetails.forEach((detail) => {
-          const roomClassId = detail.room_id.room_class_id.toString();
+          const roomClassId = detail.room_class_id.toString();
           const booking = bookings.find((b) => b._id.equals(detail.booking_id));
           if (!booking) return;
 
@@ -514,14 +511,22 @@ const roomClassController = {
           .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
       }
 
+      // === Phân trang sau khi lọc ===
+      const total = roomClasses.length;
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const paginatedRoomClasses = roomClasses.slice(
+        skip,
+        skip + parseInt(limit)
+      );
+
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        data: roomClasses,
+        data: paginatedRoomClasses,
         pagination: {
-          total: roomClasses.length,
+          total,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(roomClasses.length / parseInt(limit)),
+          totalPages: Math.ceil(total / parseInt(limit)),
         },
       });
     } catch (error) {

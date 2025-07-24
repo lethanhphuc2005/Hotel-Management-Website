@@ -112,7 +112,7 @@ export default function Banner(props: BannerProps) {
                 className={style.bannerImage}
               />
               <div className={style.bannerContent}>
-                <h2 className={`fw-bold ${style.text}`}>{titles[index]}</h2>
+                <h1 className={` ${style.text}`}>{titles[index]}</h1>
                 <Link
                   href={"/room-class"}
                   className="tw-text-decoration-none tw-text-white"

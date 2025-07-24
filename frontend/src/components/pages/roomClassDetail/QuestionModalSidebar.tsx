@@ -49,9 +49,9 @@ const QuestionModalSidebar = ({
 
     try {
       const response = await createComment({
-        room_class_id: roomClassId,
-        parent_id: null,
-        user_id: userId,
+        roomClassId,
+        parentId: null,
+        userId: userId,
         content: question,
       });
       toast.success("Câu hỏi đã được gửi thành công!");
@@ -68,9 +68,9 @@ const QuestionModalSidebar = ({
 
     try {
       const res = await createComment({
-        room_class_id: roomClassId,
-        parent_id: parentId,
-        user_id: userId,
+        roomClassId,
+        parentId,
+        userId,
         content: replyContent,
       });
 

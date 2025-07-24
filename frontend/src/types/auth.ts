@@ -4,6 +4,7 @@ export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<any>;
+  loginWithGoogle: (accessToken: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -44,21 +45,10 @@ export interface verifyEmailRequest {
 }
 
 export interface LoginData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  address: string;
-  email: string;
-  phone_number: string;
-  level: string;
-  status: boolean;
-  is_verified: boolean;
   accessToken: string;
-  refreshToken: string;
 }
 
 export interface LoginResponse {
   success: boolean;
   message: string;
-  data: LoginData ;
 }

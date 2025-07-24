@@ -10,11 +10,9 @@ import {
 } from "@/types/user";
 import { Wallet } from "@/types/wallet";
 
-export const fetchProfile = async (
-  userId: string
-): Promise<UserProfileResponse> => {
+export const fetchProfile = async (): Promise<UserProfileResponse> => {
   try {
-    const response = await getProfileApi(userId);
+    const response = await getProfileApi();
     const data = response.data;
 
     const wallet = data.wallet;

@@ -3,6 +3,7 @@
 import { RoomClass } from "@/types/roomClass";
 import { RoomClassList } from "./RoomClassList";
 import React from "react";
+import Pagination from "@/components/sections/Pagination";
 
 interface RoomClassListDisplayProps {
   hasSearched: boolean;
@@ -18,6 +19,10 @@ interface RoomClassListDisplayProps {
   numChildrenUnder6: number;
   numchildrenOver6: number;
   numAdults: number;
+  totalRoomClasses?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (selectedItem: { selected: number }) => void;
 }
 
 export default function RoomClassListDisplay({
@@ -34,6 +39,10 @@ export default function RoomClassListDisplay({
   numChildrenUnder6,
   numchildrenOver6,
   numAdults,
+  totalRoomClasses = 0,
+  currentPage = 1,
+  pageSize = 3,
+  onPageChange = () => {},
 }: RoomClassListDisplayProps) {
   if (hasSearched && isOverCapacity && filteredRoomClass.length > 0) {
     return (
@@ -52,18 +61,28 @@ export default function RoomClassListDisplay({
   }
 
   return (
-    <RoomClassList
-      rcl={displayRoomClass}
-      numberOfNights={numberOfNights}
-      totalGuests={totalGuests}
-      hasSearched={hasSearched}
-      numberOfAdults={numberOfAdults}
-      numberOfChildren={numberOfChildren}
-      startDate={startDate}
-      endDate={endDate}
-      numChildrenUnder6={numChildrenUnder6}
-      numchildrenOver6={numchildrenOver6}
-      numAdults={numAdults}
-    />
+    <>
+      <RoomClassList
+        rcl={displayRoomClass}
+        numberOfNights={numberOfNights}
+        totalGuests={totalGuests}
+        hasSearched={hasSearched}
+        numberOfAdults={numberOfAdults}
+        numberOfChildren={numberOfChildren}
+        startDate={startDate}
+        endDate={endDate}
+        numChildrenUnder6={numChildrenUnder6}
+        numchildrenOver6={numchildrenOver6}
+        numAdults={numAdults}
+      />
+
+      {totalRoomClasses > 0 && (
+        <Pagination
+          pageCount={Math.ceil(totalRoomClasses / pageSize)}
+          onPageChange={onPageChange}
+          forcePage={currentPage - 1}
+        />
+      )}
+    </>
   );
 }

@@ -11,10 +11,9 @@ export default function RoomInfo({
   numchildrenOver6?: number;
   numAdults?: number;
 }) {
-  console.log("RoomInfo", rci);
   const extraBedTeens = Math.max(
     0,
-    numchildrenOver6 - ((rci.bed_amount * 2) - numAdults)
+    numchildrenOver6 - (rci.bed_amount * 2 - numAdults)
   );
   const showExtraBed =
     numChildrenUnder6 > 0 &&

@@ -41,11 +41,7 @@ export const login = async ({ email, password }: LoginRequest) => {
 };
 
 export const refreshAccessToken = async () => {
-  const login = localStorage.getItem("login");
-  if (!login) throw new Error("Chưa đăng nhập");
-
-  const { refreshToken } = JSON.parse(login);
-  const response = await publicApi.post("/account/refresh", { refreshToken });
+  const response = await publicApi.post("/auth/refresh-token");
   if (response.status !== 200) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
@@ -54,10 +50,7 @@ export const refreshAccessToken = async () => {
 };
 
 export const logout = async () => {
-  // Xoá refresh token khỏi cookie
-  await api.post("/account/logout");
-  // Xoá thông tin đăng nhập khỏi localStorage
-  localStorage.removeItem("login");
+  await publicApi.post("/auth/logout");
 };
 
 export const changePassword = async ({
@@ -124,4 +117,8 @@ export const resendVerificationEmail = async (email: string) => {
   }
 
   return response.data; // { success: boolean, message: string }
+};
+
+export const googleLogin = () => {
+  window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
 };

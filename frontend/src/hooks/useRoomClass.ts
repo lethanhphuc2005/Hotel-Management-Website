@@ -7,23 +7,28 @@ import { MainRoomClass } from "@/types/mainRoomClass";
 import { RoomClass } from "@/types/roomClass";
 import { useEffect, useState } from "react";
 
-export const useRoomClass = () => {
-  const [didFetch, setDidFetch] = useState(false);
+export const useRoomClass = (
+  params?: Partial<Parameters<typeof fetchRoomClasses>[0]>,
+  page = 1,
+  limit = 10,
+  hasSearched = false
+) => {
   const [roomClasses, setRoomClasses] = useState<RoomClass[]>([]);
+  const [totalRoomClasses, setTotalRoomClasses] = useState<number>(0);
   const [features, setFeatures] = useState<Feature[]>([]);
   const [mainRoomClasses, setMainRoomClasses] = useState<MainRoomClass[]>([]);
   const { setLoading } = useLoading();
 
   useEffect(() => {
-    if (didFetch) return;
-    setDidFetch(true); // ✅ đặt ở đầu, tránh race condition
-
     const fetchData = async () => {
-      setLoading(true);
       try {
         const [roomClassesData, featuresData, mainRoomClassesData] =
           await Promise.all([
-            fetchRoomClasses(),
+            fetchRoomClasses({
+              ...params,
+              page,
+              limit,
+            }),
             fetchFeatures(),
             fetchMainRoomClasses(),
           ]);
@@ -41,24 +46,23 @@ export const useRoomClass = () => {
                 .join(", ")
           );
         }
-
+        console.log("roomClassesData", roomClassesData);
         setRoomClasses(roomClassesData.data);
+        setTotalRoomClasses(roomClassesData.pagination?.total || 0);
         setFeatures(featuresData.data);
         setMainRoomClasses(mainRoomClassesData.data);
       } catch (error) {
         console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-        setDidFetch(true);
       }
     };
     fetchData();
-  }, [didFetch, setLoading]);
+  }, [params, page, limit]);
 
   return {
     roomClasses,
     features,
     mainRoomClasses,
+    totalRoomClasses,
     setRoomClasses,
     setFeatures,
     setMainRoomClasses,

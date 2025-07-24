@@ -1,20 +1,8 @@
-const express = require("express");
-const cors = require("cors");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const path = require("path");
-
-dotenv.config();
+const dotenv = require("dotenv").config();
+const app = require("./app");
+;
 require("./cron/clusterKeywordCron");
-
-const app = express();
-require("./swagger")(app);
-
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
 
 // Kết nối MongoDB
 mongoose
@@ -30,7 +18,10 @@ const routers = [
   { path: "/room-class", module: require("./routes/roomClass.route") },
   { path: "/user", module: require("./routes/user.route") },
   { path: "/account", module: require("./routes/account.route") },
-  { path: "/website-content", module: require("./routes/websiteContent.route") },
+  {
+    path: "/website-content",
+    module: require("./routes/websiteContent.route"),
+  },
   { path: "/service", module: require("./routes/service.route") },
   { path: "/image", module: require("./routes/image.route") },
   { path: "/room-status", module: require("./routes/roomStatus.route") },

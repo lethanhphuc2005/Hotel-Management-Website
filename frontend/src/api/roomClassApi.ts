@@ -1,8 +1,34 @@
 import { publicApi } from "@/lib/axiosInstance";
 
-export const getRoomClasses = async () => {
+export const getRoomClasses = async ({
+  search = "",
+  page = 1,
+  limit = 10,
+  sort = "createdAt",
+  order = "desc",
+  check_in_date,
+  check_out_date,
+}: {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: "asc" | "desc";
+  check_in_date?: string;
+  check_out_date?: string;
+}) => {
   try {
-    const response = await publicApi.get("/room-class/user");
+    const response = await publicApi.get("/room-class/user", {
+      params: {
+        search,
+        page,
+        limit,
+        sort,
+        order,
+        check_in_date,
+        check_out_date,
+      },
+    });
     if (response.status !== 200) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }

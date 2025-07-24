@@ -50,6 +50,11 @@ export class EmployeeService {
     );
   }
 
+  // ✅ Lấy thông tin nhân viên hiện tại
+  getCurrentEmployee(): Observable<EmployeeDetailResponse> {
+    return this.http.get<EmployeeDetailResponse>(`${this.baseUrl}/me`);
+  }
+
   // ✅ Cập nhật nhân viên
   updateEmployee(
     id: string,

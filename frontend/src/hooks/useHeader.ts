@@ -37,7 +37,6 @@ export const useHeader = ({
   const [didFetch, setDidFetch] = useState(false);
   const { setLoading } = useLoading();
   const level = levelMap[userData?.level || "normal"] || levelMap.normal;
-
   const toggleSearch = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowSearch(!showSearch);
@@ -57,7 +56,7 @@ export const useHeader = ({
         setLoading(true);
         const [mainRoomClassData, userProfile] = await Promise.all([
           fetchMainRoomClasses(),
-          user ? fetchProfile(user.id) : Promise.resolve(null),
+          user ? fetchProfile() : Promise.resolve(null),
         ]);
         if (!mainRoomClassData.success && !userProfile?.success) {
           throw new Error(

@@ -9,6 +9,13 @@ const RoomStatusSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    code: {
+      type: String,
+      required: true,
+      maxlength: 10,
+      default: "",
+      trim: true,
+    },
     status: {
       type: Boolean,
       required: true,

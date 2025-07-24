@@ -107,7 +107,7 @@ export default function ChatbotPopup() {
         const endDate = new Date(checkOutISO);
 
         const numberOfNights = bookingData.booking_details?.[0]?.nights || 1;
-        const adults = bookingData.adult_amount || 2;
+        const adults = bookingData.adult_amount || 1;
         const children = bookingData.child_amount || 0;
 
         // Xác nhận với người dùng
@@ -137,24 +137,19 @@ export default function ChatbotPopup() {
 
         // Duyệt và thêm từng phòng vào giỏ
         for (const detail of bookingData.booking_details) {
-          const roomClassId = detail.room_class_id;
-          const roomData = res.rooms?.find((r) => r.id === roomClassId);
-
-          if (!roomData) {
-            console.warn(`⚠️ Không tìm thấy thông tin phòng: ${roomClassId}`);
-            continue;
-          }
-
           const isDuplicate = cartRooms.some(
-            (room: CartRoom) =>
-              room.id === roomClassId &&
+            (room) =>
+              room.name.includes(detail.room_class.name) &&
+              room.view === detail.room_class.view &&
               room.checkIn === checkInISO &&
               room.checkOut === checkOutISO
           );
 
           if (isDuplicate) {
-            toast.error(`Phòng ${roomData.name} đã có trong giỏ hàng!`);
-            continue;
+            toast.error(
+              `Phòng ${detail.room_class.name} đã có trong giỏ hàng!`
+            );
+            return;
           }
 
           if (cartRooms.length > 0) {
@@ -166,11 +161,10 @@ export default function ChatbotPopup() {
               toast.error(
                 "Bạn chỉ có thể thêm phòng có cùng ngày nhận và trả phòng!"
               );
-              continue;
+              return;
             }
           }
 
-          // Kiểm tra thứ 7, CN
           const current = new Date(startDate);
           let hasSaturday = false;
           let hasSunday = false;
@@ -180,28 +174,28 @@ export default function ChatbotPopup() {
             current.setDate(current.getDate() + 1);
           }
 
+          const checkInDateToLocale = startDate.toLocaleDateString("vi-VN");
+          const checkOutDateToLocale = endDate.toLocaleDateString("vi-VN");
+
           dispatch(
             addRoomToCart({
-              id: roomClassId,
-              name: roomData.name,
-              img: roomData.images?.[0]?.url || "",
-              desc: `${adults} người lớn${
-                children > 0 ? `, ${children} trẻ em` : ""
-              }, ${roomData.bed_amount} giường`,
+              id: detail.room_class_id,
+              name: detail.room_class.name,
+              img: detail.room_class.images[0] || "",
+              desc: `${adults} người lớn, ${children} trẻ em`,
               price: detail.price_per_night,
-              nights: detail.nights,
-              checkIn: checkInISO,
-              checkOut: checkOutISO,
+              nights: numberOfNights,
+              checkIn: checkInDateToLocale,
+              checkOut: checkOutDateToLocale,
               adults,
-              childrenUnder6: 0,
-              childrenOver6: children,
-              bedAmount: roomData.bed_amount,
-              view: roomData.view,
-              total: detail.price_per_night * detail.nights,
+              childrenUnder6: bookingData.child_under_6_amount || 0,
+              childrenOver6: bookingData.child_over_6_amount || 0,
+              bedAmount: detail.room_class.bed_amount,
+              view: detail.room_class.view,
+              total: detail.price_per_night * numberOfNights,
               hasSaturdayNight: hasSaturday,
               hasSundayNight: hasSunday,
-              features: roomData.features?.map((f) => f.feature.name) ?? [],
-              services: detail.services ?? [],
+              features: detail.room_class.features?.map((f: string) => f) || [],
             })
           );
         }

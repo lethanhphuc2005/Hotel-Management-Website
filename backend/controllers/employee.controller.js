@@ -289,6 +289,24 @@ const employeeController = {
       res.status(500).json(error);
     }
   },
+
+  // === LẤY NHÂN VIÊN TỪ ACCESS TOKEN ===
+  getEmployeeFromAccessToken: async (req, res) => {
+    try {
+      const employee = await Employee.findById(req.user.id).populate(
+        "comments reviews bookings"
+      );
+      if (!employee) {
+        return res.status(404).json({ message: "Không tìm thấy nhân viên" });
+      }
+      res.status(200).json({
+        message: "Lấy thông tin nhân viên thành công",
+        data: employee,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 
 module.exports = employeeController;

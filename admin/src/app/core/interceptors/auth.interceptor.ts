@@ -26,25 +26,17 @@ export const AuthInterceptor: HttpInterceptorFn = (
 
   const http = inject(HttpClient);
 
-  let loginData: any = null;
+  let accessToken: string | null = null;
 
   try {
-    const loginDataStr = localStorage.getItem('login');
-    if (loginDataStr) {
-      loginData = JSON.parse(loginDataStr);
+    const accessTokenStr = localStorage.getItem('accessToken');
+    if (accessTokenStr) {
+      accessToken = JSON.parse(accessTokenStr);
     }
   } catch (error) {
     console.error('Lỗi parse localStorage:', error);
-    localStorage.removeItem('login');
+    localStorage.removeItem('accessToken');
   }
-  if (!loginData) {
-    if (isProtectedAPI) {
-      location.assign('/login');
-    }
-    return next(req);
-  }
-  const accessToken = loginData.accessToken;
-  const refreshToken = loginData.refreshToken;
 
   if (isProtectedAPI && !accessToken) {
     location.assign('/login');
@@ -54,9 +46,11 @@ export const AuthInterceptor: HttpInterceptorFn = (
   let clonedReq = req;
   if (isProtectedAPI && accessToken) {
     clonedReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      setHeaders: accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        : {},
     });
   }
 
@@ -65,39 +59,39 @@ export const AuthInterceptor: HttpInterceptorFn = (
       if (
         err.status === 403 &&
         isProtectedAPI &&
-        refreshToken &&
         err.error === 'Token đã hết hạn.'
       ) {
-        return http.post(`${baseUrl}/account/refresh`, { refreshToken }).pipe(
-          switchMap((res: any) => {
-            const newAccessToken = res.data.accessToken;
-            const newRefreshToken = res.data.refreshToken;
-
-            const updatedLoginData = {
-              ...loginData, // ⚠️ giữ nguyên user / các trường khác
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-            };
-            localStorage.setItem('login', JSON.stringify(updatedLoginData));
-
-            const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newAccessToken}`,
-              },
-            });
-
-            return next(retryReq);
-          }),
-          catchError((refreshErr) => {
-            toastr.error(
-              'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.',
-              'Lỗi ủy quyền'
-            );
-            localStorage.removeItem('login');
-            location.assign('/login');
-            return EMPTY;
+        return http
+          .post(`${baseUrl}/auth/refresh-token`, {
+            withCredentials: true, // Để gửi cookie
           })
-        );
+          .pipe(
+            switchMap((res: any) => {
+              const newAccessToken = res.data.accessToken;
+
+              localStorage.setItem(
+                'accessToken',
+                JSON.stringify(newAccessToken)
+              );
+
+              const retryReq = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${newAccessToken}`,
+                },
+              });
+
+              return next(retryReq);
+            }),
+            catchError((refreshErr) => {
+              toastr.error(
+                'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.',
+                'Lỗi ủy quyền'
+              );
+              localStorage.removeItem('accessToken');
+              location.assign('/login');
+              return EMPTY;
+            })
+          );
       }
 
       if (err.status === 403 && isProtectedAPI) {

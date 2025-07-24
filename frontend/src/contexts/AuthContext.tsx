@@ -6,9 +6,9 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   login: async () => false,
+  loginWithGoogle: async () => false, // 👈 Thêm dòng này
   logout: () => {},
 });
-
 
 // Hook để sử dụng AuthContext
 export const useAuth = () => {

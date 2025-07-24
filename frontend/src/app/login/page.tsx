@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { resendVerificationEmail, verifyEmail } from "@/services/AuthService";
 import { showConfirmDialog } from "@/utils/swal";
+import { googleLogin } from "@/api/authApi";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -17,8 +18,18 @@ const LoginPage = () => {
   const [step, setStep] = useState(1);
   const [resendCooldown, setResendCooldown] = useState(60);
   const { login } = useAuth();
-  const router = useRouter();
 
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+      // The redirect will be handled in the callback page
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast.error(
+        "Đã xảy ra lỗi khi đăng nhập bằng Google. Vui lòng thử lại sau."
+      );
+    }
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -175,11 +186,11 @@ const LoginPage = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <a href="#">
-                <i className="bi bi-facebook"></i>
+              <a href="#" onClick={handleGoogleLogin}>
+                <i className="bi bi-google"></i>
               </a>
               <a href="#">
-                <i className="bi bi-twitter"></i>
+                <i className="bi bi-facebook"></i>
               </a>
             </motion.div>
           </>

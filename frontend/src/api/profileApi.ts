@@ -1,9 +1,9 @@
 import { api } from "@/lib/axiosInstance";
 import { UpdateUserProfileRequest } from "@/types/user";
 
-export const getProfile = async (userId: string) => {
+export const getProfile = async () => {
   try {
-    const response = await api.get("/user/user-info/" + userId);
+    const response = await api.get("/user/me");
     if (response.status !== 200) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }

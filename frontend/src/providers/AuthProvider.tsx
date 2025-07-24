@@ -5,18 +5,28 @@ import { login as loginApi, logout as logoutApi } from "@/api/authApi";
 import { User } from "@/types/user";
 import { AuthContext } from "@/contexts/AuthContext";
 import { AuthContextType, LoginData, LoginResponse } from "@/types/auth";
+import { fetchProfile } from "@/services/ProfileService";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("login");
+    const storedUser = localStorage.getItem("accessToken");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
     setIsLoading(false);
   }, []);
+
+  const loginWithGoogle = async (accessToken: string) => {
+    localStorage.setItem("accessToken", JSON.stringify(accessToken));
+    const userData = await fetchProfile();
+    setUser(userData.data);
+  };
 
   const login = async (
     email: string,
@@ -27,33 +37,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await loginApi({ email, password });
       const data = response.data;
 
-      const loginData: LoginData = {
-        id: data.id || data._id,
-        first_name: data.first_name || "",
-        last_name: data.last_name || "",
-        address: data.address || "",
-        email: data.email,
-        phone_number: data.phone_number || "",
-        level: data.level || "newbie",
-        status: data.status,
-        is_verified: data.is_verified,
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-      };
+      const accessToken: string = data.accessToken;
 
-      localStorage.setItem("login", JSON.stringify(loginData));
-      setUser(loginData);
+      localStorage.setItem("accessToken", JSON.stringify(accessToken));
+
+      const userData = await fetchProfile();
+      setUser(userData.data);
 
       return {
         success: true,
         message: "Đăng nhập thành công!",
-        data: loginData,
       };
     } catch (err: any) {
       return {
         success: false,
         message: err?.response?.data || "Đăng nhập thất bại. Vui lòng thử lại.",
-        data: {} as LoginData,
       };
     } finally {
       setIsLoading(false);
@@ -61,15 +59,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    logoutApi();
+    localStorage.removeItem("accessToken");
     setUser(null);
-    window.location.href = "/login";
+    try {
+      logoutApi();
+      toast.success("Đăng xuất thành công!");
+      router.push("/login");
+    } catch (error) {
+      toast.error("Đăng xuất không thành công. Vui lòng thử lại.");
+    }
   };
 
   const value: AuthContextType = {
     user,
     isLoading,
     login,
+    loginWithGoogle,
     logout,
   };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import FilterSidebar from "@/components/pages/roomClass/FilterSidebar";
 import RoomListDisplay from "@/components/pages/roomClass/ListDisplay";
@@ -43,8 +43,46 @@ export default function RoomClassesPage() {
     setEndDate,
   } = useRoomSearch();
 
-  const { roomClasses, features, mainRoomClasses } = useRoomClass();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to midnight for comparison
+  const memoizedParams = useMemo(() => {
+    const isStartToday =
+      dateRange[0].startDate instanceof Date &&
+      new Date(dateRange[0].startDate).setHours(0, 0, 0, 0) === today.getTime();
 
+    const isEndToday =
+      dateRange[0].endDate instanceof Date &&
+      new Date(dateRange[0].endDate).setHours(0, 0, 0, 0) === today.getTime();
+
+    // Nếu cả start và end đều là hôm nay thì không thay đổi
+    if (isStartToday && isEndToday) {
+      return {
+        check_in_date: "",
+        check_out_date: "",
+      };
+    }
+
+    return {
+      check_in_date:
+        dateRange[0].startDate instanceof Date
+          ? dateRange[0].startDate.toISOString()
+          : "",
+      check_out_date:
+        dateRange[0].endDate instanceof Date
+          ? dateRange[0].endDate.toISOString()
+          : "",
+    };
+  }, [dateRange]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 3; // số phòng mỗi trang
+
+  const { roomClasses, features, mainRoomClasses, totalRoomClasses } =
+    useRoomClass(memoizedParams, currentPage, pageSize, hasSearched);
+
+  const handlePageChange = (selectedItem: { selected: number }) => {
+    setCurrentPage(selectedItem.selected + 1);
+  };
   const views = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
   const [selectedViews, setSelectedViews] = useState<string[]>([]);
   const [selectedFeatureIds, setSelectedFeatureIds] = useState<string[]>([]);
@@ -192,6 +230,10 @@ export default function RoomClassesPage() {
               numChildrenUnder6={numChildrenUnder6}
               numchildrenOver6={numChildrenOver6}
               numAdults={numAdults}
+              totalRoomClasses={totalRoomClasses}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
             />
           </div>
         </div>

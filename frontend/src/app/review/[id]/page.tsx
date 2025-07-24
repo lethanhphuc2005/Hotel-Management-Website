@@ -216,7 +216,7 @@ export default function RateAfterBookingPage() {
               <div className="tw-bg-[#1a1a1a] tw-p-4 tw-rounded-2xl tw-flex tw-gap-4 tw-shadow-md">
                 <Image
                   src={
-                    getImageUrl(item.room_class.images?.[0].url) ||
+                    getImageUrl(item.room_class?.images?.[0]?.url) ||
                     "/img/default-room.jpg"
                   }
                   alt={item.room_class.name || "Phòng"}

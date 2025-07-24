@@ -10,6 +10,13 @@ router.get(
   employeeController.getAllEmployees
 );
 
+// === LẤY NHÂN VIÊN TỪ ACCESS TOKEN ===
+router.get(
+  "/me",
+  authMiddleware.verifyToken,
+  employeeController.getEmployeeFromAccessToken
+);
+
 // == LẤY NHÂN VIÊN THEO ID ===
 router.get(
   "/user-info/:id",

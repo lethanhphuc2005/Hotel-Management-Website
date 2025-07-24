@@ -59,11 +59,6 @@ export class CommentComponent implements OnInit {
     this.loadAllComments();
   }
 
-  getEmployeeId(): string {
-    const user = JSON.parse(localStorage.getItem('login') || '{}');
-    return user.id || '';
-  }
-
   loadAllComments(): void {
     this.commentService.getAllComments(this.filter).subscribe({
       next: (response) => {

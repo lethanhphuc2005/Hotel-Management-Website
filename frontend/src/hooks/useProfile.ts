@@ -14,7 +14,6 @@ export const useProfile = () => {
   const { user, isLoading: isAuthLoading, logout } = useAuth();
   const { setLoading } = useLoading();
   const router = useRouter();
-
   const [didFetch, setDidFetch] = useState(false);
 
   const [profile, setProfile] = useState<User>();
@@ -47,7 +46,7 @@ export const useProfile = () => {
 
       try {
         setLoading(true);
-        const response = await fetchProfile(user.id);
+        const response = await fetchProfile();
         if (!response.success) {
           console.error("Lỗi khi fetch profile:", response.message);
           return;
