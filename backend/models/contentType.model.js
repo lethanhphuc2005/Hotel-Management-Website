@@ -29,6 +29,7 @@ ContentTypeSchema.virtual("website_content_list", {
   localField: "_id",
   foreignField: "content_type_id",
   justOne: false,
+  match: { status: true }, 
   options: {
     select: "title content status createdAt updatedAt",
   },

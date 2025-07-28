@@ -375,7 +375,7 @@ const bookingController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort = "booking_status_id",
         order = "desc",
         user,
@@ -458,40 +458,9 @@ const bookingController = {
           .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
-          .populate([
-            { path: "booking_status" },
-            { path: "booking_method" },
-            { path: "user" },
-            { path: "employee" },
-            {
-              path: "payments",
-              populate: { path: "payment_method", select: "name" },
-            },
-            { path: "discounts" },
-            {
-              path: "booking_details",
-              populate: [
-                {
-                  path: "room",
-                  populate: "room_class room_status",
-                },
-                {
-                  path: "room_class",
-                  populate: {
-                    path: "images",
-                    match: { status: true }, // Chỉ lấy ảnh hợp lệ
-                  },
-                },
-                {
-                  path: "services",
-                  populate: {
-                    path: "service",
-                  },
-                },
-              ],
-            },
-          ])
-          .exec(),
+          .populate(
+            "booking_status booking_method user employee payments discounts booking_details"
+          ),
         Booking.countDocuments(query),
       ]);
 
@@ -519,7 +488,7 @@ const bookingController = {
     try {
       const userId = req.params.userId;
 
-      const checkUser = await User.findById(userId);
+      const checkUser = await User.findById(userId).lean();
       if (!checkUser) {
         return res.status(404).json({ message: "Người dùng không tồn tại." });
       }
@@ -554,39 +523,9 @@ const bookingController = {
           .sort(sortOption)
           .skip(skip)
           .limit(parseInt(limit))
-          .populate([
-            { path: "booking_status" },
-            { path: "booking_method" },
-            { path: "user" },
-            { path: "employee" },
-            {
-              path: "payments",
-              populate: { path: "payment_method", select: "name" },
-            },
-            { path: "discounts" },
-            {
-              path: "booking_details",
-              populate: [
-                {
-                  path: "room",
-                  populate: ("room_class", "room_status"),
-                },
-                {
-                  path: "room_class",
-                  populate: {
-                    path: "images",
-                    match: { status: true }, // Chỉ lấy ảnh hợp lệ
-                  },
-                },
-                {
-                  path: "services",
-                  populate: {
-                    path: "service",
-                  },
-                },
-              ],
-            },
-          ]),
+          .populate(
+            "booking_status booking_method user employee payments discounts booking_details"
+          ),
         Booking.countDocuments(query),
       ]);
 
@@ -611,40 +550,9 @@ const bookingController = {
   // === LẤY THÔNG TIN PHÒNG ĐẶT THEO ID ===
   getBookingById: async (req, res) => {
     try {
-      const booking = await Booking.findById(req.params.id).populate([
-        { path: "booking_status" },
-        { path: "booking_method" },
-        { path: "user" },
-        { path: "employee" },
-        {
-          path: "payments",
-          populate: { path: "payment_method", select: "name" },
-        },
-        { path: "discounts" },
-        {
-          path: "booking_details",
-          populate: [
-            {
-              path: "room",
-              populate: ("room_class", "room_status"),
-            },
-            {
-              path: "room_class",
-              populate: {
-                path: "images",
-                match: { status: true }, // Chỉ lấy ảnh hợp lệ
-              },
-            },
-            {
-              path: "services",
-              populate: {
-                path: "service",
-              },
-            },
-          ],
-        },
-      ]);
-
+      const booking = await Booking.findById(req.params.id).populate(
+        "booking_status booking_method user employee payments discounts booking_details"
+      );
       if (!booking) {
         return res.status(404).json({ message: "Đặt phòng không tồn tại." });
       }
@@ -670,7 +578,9 @@ const bookingController = {
 
       const cancelBookingStatus = await BookingStatus.findOne({
         code: "CANCELLED",
-      });
+      })
+        .select("_id")
+        .lean();
 
       // Đã hủy trước đó
       if (
@@ -688,7 +598,7 @@ const bookingController = {
       const pendingPayment = await Payment.findOne({
         booking_id: bookingId,
         status: "PENDING",
-      });
+      }).lean();
 
       let refundAmount = booking.total_price;
       if (pendingPayment) refundAmount = 0; // Nếu có thanh toán đang chờ, không hoàn tiền
@@ -757,7 +667,9 @@ const bookingController = {
 
       const cancelBookingStatus = await BookingStatus.findOne({
         code: "CANCELLED",
-      });
+      })
+        .select("_id")
+        .lean();
 
       if (
         booking.booking_status_id.toString() ===
@@ -812,49 +724,56 @@ const bookingController = {
           .json({ message: "Thiếu danh sách phòng cần gán." });
       }
 
+      // Lấy booking (cần dùng để sửa & save -> KHÔNG dùng lean)
       const booking = await Booking.findById(bookingId);
-      if (!booking)
+      if (!booking) {
         return res
           .status(404)
           .json({ message: "Không tìm thấy đơn đặt phòng." });
+      }
 
-      const confirmedStatus = await BookingStatus.findOne({
-        code: "CONFIRMED",
-      });
-      if (!confirmedStatus)
+      // Lấy id trạng thái CONFIRMED (dùng lean vì chỉ cần giá trị)
+      const confirmedStatus = await BookingStatus.findOne({ code: "CONFIRMED" })
+        .select("_id")
+        .lean();
+      if (!confirmedStatus) {
         return res.status(500).json({ message: "Thiếu trạng thái CONFIRMED" });
+      }
+
+      // Lấy sẵn ID trạng thái BOOKED một lần duy nhất
+      const bookedStatus = await RoomStatus.findOne({ code: "BOOKED" })
+        .select("_id")
+        .lean();
+      if (!bookedStatus) {
+        return res.status(500).json({ message: "Thiếu trạng thái BOOKED" });
+      }
 
       for (const assign of roomAssignments) {
         const { detail_id, room_id } = assign;
 
         if (!detail_id || !room_id) continue;
 
-        // Kiểm tra room tồn tại
-        const room = await Room.findById(room_id);
-        if (!room)
+        // Kiểm tra room tồn tại (dùng lean để nhẹ hơn)
+        const room = await Room.findById(room_id).select("_id").lean();
+        if (!room) {
           return res
             .status(400)
             .json({ message: `Phòng không tồn tại: ${room_id}` });
+        }
 
-        // Cập nhật room_id cho booking_detail
+        // Cập nhật room_id cho booking_detail (KHÔNG cần lean, vì không dùng data trả về)
         await BookingDetail.findByIdAndUpdate(detail_id, {
           room_id: room_id,
         });
 
-        const roomStatusId = await RoomStatus.findOne({
-          code: "BOOKED",
-        }).select("_id");
-        if (!roomStatusId) {
-          return res.status(500).json({ message: "Thiếu trạng thái BOOKED" });
-        }
-        // Cập nhật trạng thái phòng
+        // Cập nhật trạng thái phòng (KHÔNG cần lean)
         await Room.findByIdAndUpdate(room_id, {
-          room_status_id: roomStatusId,
+          room_status_id: bookedStatus._id,
         });
       }
 
-      // Cập nhật trạng thái đơn hàng
-      booking.employee_id = user.id; // Gán nhân viên xử lý
+      // Cập nhật booking
+      booking.employee_id = user.id;
       booking.booking_status_id = confirmedStatus._id;
       await booking.save();
 
@@ -881,15 +800,17 @@ const bookingController = {
           .json({ message: "Thiếu thông tin giấy tờ nhận phòng." });
       }
 
+      // Lấy booking (lean để nhẹ, nhưng cần update nên lấy _id)
       const booking = await Booking.findById(bookingId);
       if (!booking) {
         return res.status(404).json({ message: "Đặt phòng không tồn tại." });
       }
 
       // Kiểm tra trạng thái hiện tại có phải CONFIRMED không
-      const confirmedStatus = await BookingStatus.findOne({
-        code: "CONFIRMED",
-      });
+      const confirmedStatus = await BookingStatus.findOne({ code: "CONFIRMED" })
+        .select("_id")
+        .lean();
+
       if (
         !confirmedStatus ||
         !booking.booking_status_id.equals(confirmedStatus._id)
@@ -901,20 +822,19 @@ const bookingController = {
 
       const checkedInStatus = await BookingStatus.findOne({
         code: "CHECKED_IN",
-      });
+      })
+        .select("_id")
+        .lean();
       if (!checkedInStatus) {
         return res.status(500).json({ message: "Thiếu trạng thái CHECKED_IN" });
       }
 
-      // Cập nhật trạng thái và thời gian
-      booking.employee_id = user.id; // Gán nhân viên xử lý
+      booking.employee_id = user.id;
       booking.actual_check_in_date = new Date();
       booking.check_in_identity = identity;
       booking.booking_status_id = checkedInStatus._id;
 
-      await booking.save();
-
-      res.json({ message: "Đã check-in thành công.", data: booking });
+      res.json({ message: "Đã check-in thành công.", data: updatedBooking });
     } catch (error) {
       console.error("❌ Error checkInBooking:", error);
       res.status(500).json({ message: "Lỗi khi check-in." });
@@ -935,7 +855,9 @@ const bookingController = {
 
       const checkedInStatus = await BookingStatus.findOne({
         code: "CHECKED_IN",
-      });
+      })
+        .select("_id")
+        .lean();
       if (
         !checkedInStatus ||
         !booking.booking_status_id.equals(checkedInStatus._id)
@@ -947,42 +869,45 @@ const bookingController = {
 
       const checkedOutStatus = await BookingStatus.findOne({
         code: "CHECKED_OUT",
-      });
+      })
+        .select("_id")
+        .lean();
       if (!checkedOutStatus) {
         return res
           .status(500)
           .json({ message: "Thiếu trạng thái CHECKED_OUT" });
       }
 
-      // Cập nhật trạng thái và thời gian
-      booking.employee_id = user.id; // Gán nhân viên xử lý
+      booking.employee_id = user.id;
       booking.actual_check_out_date = new Date();
       booking.check_out_note = note || "";
       booking.booking_status_id = checkedOutStatus._id;
-      booking.payment_status = "PAID"; // Đánh dấu đã thanh toán khi check-out
+      booking.payment_status = "PAID"; // Giả sử check-out thì thanh toán đã hoàn tất
       booking.check_in_identity = null; // Xoá thông tin giấy tờ check-in
 
-      await booking.save();
+      const updatedBooking = await booking.save();
 
       // Cập nhật trạng thái phòng về AVAILABLE
-      const bookingDetails = await BookingDetail.find({
-        booking_id: bookingId,
-      });
-      const roomStatusId = await RoomStatus.findOne({
+      const bookingDetails = await BookingDetail.find({ booking_id: bookingId })
+        .select("room_id")
+        .lean();
+      const roomStatus = await RoomStatus.findOne({
         code: "AVAILABLE",
-      }).select("_id");
-      if (!roomStatusId) {
+      })
+        .select("_id")
+        .lean();
+      if (!roomStatus) {
         return res.status(500).json({ message: "Thiếu trạng thái AVAILABLE" });
       }
       for (const detail of bookingDetails) {
         if (detail.room_id) {
-          await Room.findById(detail.room_id).updateOne({
-            room_status_id: roomStatusId,
+          await Room.findByIdAndUpdate(detail.room_id, {
+            room_status_id: roomStatus._id,
           });
         }
       }
 
-      res.json({ message: "Đã check-out thành công.", data: booking });
+      res.json({ message: "Đã check-out thành công.", data: updatedBooking });
     } catch (error) {
       console.error("❌ Error checkOutBooking:", error);
       res.status(500).json({ message: "Lỗi khi check-out." });
@@ -993,13 +918,9 @@ const bookingController = {
   calculateTotalPrice: async (req, res) => {
     try {
       const bookingId = req.params.id;
-      const booking = await Booking.findById(bookingId).populate({
-        path: "booking_details",
-        populate: {
-          path: "services",
-          populate: "service",
-        },
-      });
+      const booking = await Booking.findById(bookingId).populate(
+        "booking_details"
+      );
 
       if (!booking) {
         return res.status(404).json({ message: "Đặt phòng không tồn tại." });

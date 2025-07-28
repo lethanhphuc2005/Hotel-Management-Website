@@ -2,7 +2,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchProfile } from "@/services/ProfileService";
 import { User } from "@/types/user";
 import { Booking } from "@/types/booking";
 import { Review } from "@/types/review";
@@ -46,29 +45,23 @@ export const useProfile = () => {
 
       try {
         setLoading(true);
-        const response = await fetchProfile();
-        if (!response.success) {
-          console.error("Lỗi khi fetch profile:", response.message);
-          return;
-        }
-        const data = response.data;
 
-        setProfile(data);
+        setProfile(user);
         setFormData({
-          id: data.id,
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
-          address: data.address || "",
-          email: data.email || "",
-          phone_number: data.phone_number || "",
-          request: data.request || "",
-          is_verified: Boolean(data.is_verified),
+          id: user.id,
+          first_name: user.first_name || "",
+          last_name: user.last_name || "",
+          address: user.address || "",
+          email: user.email || "",
+          phone_number: user.phone_number || "",
+          request: user.request || "",
+          is_verified: Boolean(user.is_verified),
         });
-        setBookedRooms(data.bookings || []);
-        setComments(data.comments || []);
-        setReviews(data.reviews || []);
-        setFavorites(data.favorites || []);
-        setWallet(data.wallet || null);
+        setBookedRooms(user.bookings || []);
+        setComments(user.comments || []);
+        setReviews(user.reviews || []);
+        setFavorites(user.favorites || []);
+        setWallet(user.wallet || null);
         setDidFetch(true); // ✅ set sau thành công
       } catch (err) {
         console.error("Lỗi khi fetch profile:", err);

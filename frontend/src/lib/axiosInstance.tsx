@@ -81,7 +81,6 @@ api.interceptors.response.use(
         originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-        console.log(JSON.stringify(originalRequest.headers, null, 2));
 
         return api(originalRequest);
       } catch (refreshError) {

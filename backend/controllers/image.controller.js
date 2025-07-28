@@ -2,10 +2,9 @@ const Image = require("../models/image.model");
 const MainRoomClass = require("../models/mainRoomClass.model");
 const RoomClass = require("../models/roomClass.model");
 const {
-  upload,
   deleteOldImages,
   deleteImagesOnError,
-} = require("../middlewares/upload.middleware");
+} = require("../middlewares/cloudinaryUpload.middleware");
 
 const imageController = {
   // === KIỂM TRA ĐIỀU KIỆN HÌNH ẢNH ===
@@ -179,95 +178,92 @@ const imageController = {
   },
 
   // === THÊM HÌNH ẢNH ===
-  addImage: [
-    upload.single("url"), // Sử dụng middleware upload để xử lý file
-    async (req, res) => {
-      try {
-        const newImage = new Image(req.body);
-        const validation = await imageController.validateImage(newImage);
-        if (!validation.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        newImage.url = req.file.filename; // Lưu đường dẫn hình ảnh
-
-        const savedImage = await newImage.save();
-        if (!savedImage) {
-          return res.status(500).json({ message: "Lỗi khi lưu hình ảnh" });
-        }
-
-        await savedImage.populate({ path: "room_class" });
-
-        // Trả về hình ảnh đã lưu
-        res.status(201).json({
-          message: "Thêm hình ảnh thành công",
-          data: savedImage,
-        });
-      } catch (error) {
+  addImage: async (req, res) => {
+    try {
+      const newImage = new Image(req.body);
+      const validation = await imageController.validateImage(newImage);
+      if (!validation.valid) {
         if (req.file) {
-          deleteImagesOnError(req.file);
+          deleteImagesOnError([req.file]);
         }
-        res.status(500).json(error);
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+
+      newImage.url = req.file.path;
+      newImage.image_public_id = req.file.filename;
+
+      const savedImage = await newImage.save();
+      if (!savedImage) {
+        return res.status(500).json({ message: "Lỗi khi lưu hình ảnh" });
+      }
+
+      await savedImage.populate({ path: "room_class" });
+
+      // Trả về hình ảnh đã lưu
+      res.status(201).json({
+        message: "Thêm hình ảnh thành công",
+        data: savedImage,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      res.status(500).json(error);
+    }
+  },
 
   // === CẬP NHẬT HÌNH ẢNH ===
-  updateImage: [
-    upload.single("url"), // Sử dụng middleware upload để xử lý file
-    async (req, res) => {
-      try {
-        const imageToUpdate = await Image.findById(req.params.id);
-        if (!imageToUpdate) {
-          return res
-            .status(404)
-            .json({ message: "Không tìm thấy hình ảnh loại phòng" });
-        }
-        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? imageToUpdate.toObject()
-            : { ...imageToUpdate.toObject(), ...req.body };
-
-        const validation = await imageController.validateImage(
-          updatedData,
-          req.params.id
-        );
-
-        if (!validation.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        // Nếu có file mới, xóa file cũ và cập nhật đường dẫn mới
-        if (req.file) {
-          // Xóa hình ảnh cũ nếu có
-          if (imageToUpdate.url) {
-            deleteOldImages(imageToUpdate.url);
-          }
-          updatedData.url = req.file.filename; // Cập nhật đường dẫn mới
-        } else {
-          updatedData.url = imageToUpdate.url; // Giữ nguyên đường dẫn cũ nếu không có file mới
-        }
-
-        await imageToUpdate.updateOne({ $set: updatedData });
-        res.status(200).json({
-          message: "Cập nhật hình ảnh thành công",
-          data: updatedData,
-        });
-      } catch (error) {
-        if (req.file) {
-          deleteImagesOnError(req.file);
-        }
-        res.status(500).json(error);
+  updateImage: async (req, res) => {
+    try {
+      const imageToUpdate = await Image.findById(req.params.id);
+      if (!imageToUpdate) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy hình ảnh loại phòng" });
       }
-    },
-  ],
+      // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? imageToUpdate.toObject()
+          : { ...imageToUpdate.toObject(), ...req.body };
+
+      const validation = await imageController.validateImage(
+        updatedData,
+        req.params.id
+      );
+
+      if (!validation.valid) {
+        if (req.file) {
+          deleteImagesOnError([req.file]);
+        }
+        return res.status(400).json({ message: validation.message });
+      }
+
+      // Nếu có file mới, xóa file cũ và cập nhật đường dẫn mới
+      if (req.file) {
+        // Xóa hình ảnh cũ nếu có
+        if (imageToUpdate.image_public_id) {
+          deleteOldImages(imageToUpdate.image_public_id);
+        }
+        updatedData.url = req.file.path; // Cập nhật đường dẫn mới
+        updatedData.image_public_id = req.file.filename; // Cập nhật public_id mới
+      } else {
+        updatedData.url = imageToUpdate.url; // Giữ nguyên đường dẫn cũ nếu không có file mới
+        updatedData.image_public_id = imageToUpdate.image_public_id; // Giữ nguyên public_id cũ nếu không có file mới
+      }
+
+      await imageToUpdate.updateOne({ $set: updatedData });
+      res.status(200).json({
+        message: "Cập nhật hình ảnh thành công",
+        data: updatedData,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      res.status(500).json(error);
+    }
+  },
 
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ HÌNH ẢNH ===
   toggleImageStatus: async (req, res) => {

@@ -28,7 +28,7 @@ const bookingMethodController = {
     }
 
     // Kiểm tra tên phương thức có bị trùng không
-    const existingMethod = await BookingMethod.findOne({ name });
+    const existingMethod = await BookingMethod.findOne({ name }).lean();
     if (
       existingMethod &&
       (!methodId || existingMethod._id.toString() !== methodId.toString())
@@ -74,7 +74,7 @@ const bookingMethodController = {
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
-        .populate("bookings");
+        .populate("bookings")
 
       if (!methods || methods.length === 0) {
         return res
@@ -100,9 +100,9 @@ const bookingMethodController = {
   // === LẤY PHƯƠNG THỨC ĐẶT PHÒNG THEO ID ===
   getBookingMethodById: async (req, res) => {
     try {
-      const method = await BookingMethod.findById(req.params.id).populate(
-        "bookings"
-      );
+      const method = await BookingMethod.findById(req.params.id)
+        .populate("bookings")
+
       if (!method) {
         return res
           .status(404)
@@ -143,10 +143,10 @@ const bookingMethodController = {
   // === BẬT/TẮT PHƯƠNG THỨC ĐẶT PHÒNG ===
   toggleBookingMethodStatus: async (req, res) => {
     try {
-      const methodToToggle = await BookingMethod.findById(
-        req.params.id
-      ).populate("bookings");
-      if (!methodToToggle) {
+      const methodToToggle = await BookingMethod.findById(req.params.id)
+        .populate("bookings")
+
+        if (!methodToToggle) {
         return res
           .status(404)
           .json({ message: "Phương thức đặt phòng không tồn tại" });
@@ -183,13 +183,6 @@ const bookingMethodController = {
           .json({ message: "Phương thức đặt phòng không tồn tại" });
       }
 
-      // Nếu có phòng đặt thì không cho phép cập nhật
-      if (methodToUpdate.bookings && methodToUpdate.bookings.length > 0) {
-        return res.status(400).json({
-          message: "Không thể cập nhật phương thức đã có phòng đặt.",
-        });
-      }
-
       const updatedData =
         Object.keys(req.body).length === 0
           ? methodToUpdate.toObject()
@@ -223,21 +216,6 @@ const bookingMethodController = {
         return res
           .status(404)
           .json({ message: "Phương thức đặt phòng không tồn tại" });
-      }
-
-      // Kiểm tra xem phương thức có đang được sử dụng trong booking hay không
-      const bookings = await Booking.find({
-        booking_method_id: methodToDelete._id,
-      });
-
-      if (bookings && bookings.length > 0) {
-        return res.status(400).json({
-          message: "Không thể xóa phương thức đang được sử dụng trong booking.",
-        });
-      } else if (methodToDelete.status === true) {
-        return res.status(400).json({
-          message: "Không thể xóa phương thức đang hoạt động.",
-        });
       }
 
       await methodToDelete.deleteOne();

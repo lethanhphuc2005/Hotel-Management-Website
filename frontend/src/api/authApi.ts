@@ -41,7 +41,7 @@ export const login = async ({ email, password }: LoginRequest) => {
 };
 
 export const refreshAccessToken = async () => {
-  const response = await publicApi.post("/auth/refresh-token");
+  const response = await publicApi.post("/auth/refresh-token-client");
   if (response.status !== 200) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
@@ -50,7 +50,7 @@ export const refreshAccessToken = async () => {
 };
 
 export const logout = async () => {
-  await publicApi.post("/auth/logout");
+  await publicApi.post("/auth/logout-client");
 };
 
 export const changePassword = async ({

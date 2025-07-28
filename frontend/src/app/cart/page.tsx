@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+import getImageUrl from "@/utils/getImageUrl";
 
 export default function Cart() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
@@ -88,7 +89,7 @@ export default function Cart() {
                 <tr key={room.id}>
                   <td>
                     <img
-                      src={`/img/${room.img}`}
+                      src={getImageUrl(room.img)}
                       alt={room.name}
                       className={styles.roomImg}
                     />

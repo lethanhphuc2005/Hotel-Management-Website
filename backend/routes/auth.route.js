@@ -29,10 +29,19 @@ router.get(
   accountController.googleAuthCallback
 );
 
-/// === LẤY REFRESH TOKEN ===
-router.post("/refresh-token", accountController.requestRefreshToken);
+/// === LẤY REFRESH TOKEN CHO CLIEND ===
+router.post(
+  "/refresh-token-client",
+  accountController.requestRefreshTokenClient
+);
 
-// === ĐĂNG XUẤT TÀI KHOẢN ===
-router.post("/logout", accountController.logout);
+// === LẤY REFRESH TOKEN CHO ADMIN ===
+router.post("/refresh-token-admin", accountController.requestRefreshTokenAdmin);
+
+// === ĐĂNG XUẤT TÀI KHOẢN CHO CLIENT ===
+router.post("/logout-client", accountController.logoutClient);
+
+// === ĐĂNG XUẤT TÀI KHOẢN CHO ADMIN ===
+router.post("/logout-admin", accountController.logoutAdmin);
 
 module.exports = router;

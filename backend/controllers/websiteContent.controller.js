@@ -1,10 +1,10 @@
 const ContentType = require("../models/contentType.model");
 const WebsiteContent = require("../models/websiteContent.model");
+const Image = require("../models/image.model");
 const {
-  upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload.middleware");
+} = require("../middlewares/cloudinaryUpload.middleware.js");
 
 const websiteContentController = {
   // === KIỂM TRA NỘI DUNG WEBSITE ===
@@ -27,7 +27,9 @@ const websiteContentController = {
     }
 
     // Kiểm tra trùng tiêu đề
-    const existing = await WebsiteContent.findOne({ title });
+    const existing = await WebsiteContent.findOne({ title })
+      .select("_id title")
+      .lean();
     if (
       existing &&
       (!websiteContentId ||
@@ -36,7 +38,9 @@ const websiteContentController = {
       return { valid: false, message: "Tiêu đề nội dung đã tồn tại." };
     }
     // Kiểm tra content_type_id có tồn tại trong loại nội dung không
-    const contentTypeExists = await ContentType.findById(content_type_id);
+    const contentTypeExists = await ContentType.findById(
+      content_type_id
+    ).lean();
     if (!contentTypeExists) {
       return { valid: false, message: "Mã loại nội dung không hợp lệ." };
     }
@@ -52,7 +56,7 @@ const websiteContentController = {
         sort = "createdAt",
         order = "desc",
         page = 1,
-        limit,
+        limit = 10,
         status,
       } = req.query;
 
@@ -82,11 +86,10 @@ const websiteContentController = {
 
       const [websiteContents, total] = await Promise.all([
         WebsiteContent.find(query)
-          .populate("content_type")
+          .populate("content_type image")
           .sort(sortOption)
           .skip(skip)
-          .limit(parseInt(limit))
-          .exec(),
+          .limit(parseInt(limit)),
         WebsiteContent.countDocuments(query),
       ]);
 
@@ -119,7 +122,7 @@ const websiteContentController = {
         sort = "createdAt",
         order = "desc",
         page = 1,
-        limit,
+        limit = 10,
       } = req.query;
 
       const query = { status: true }; // Chỉ lấy nội dung đã được đăng
@@ -141,16 +144,10 @@ const websiteContentController = {
 
       const [websiteContents, total] = await Promise.all([
         WebsiteContent.find(query)
-          .populate({
-            path: "content_type",
-            match: { status: true }, // Chỉ lấy loại nội dung đã được đăng
-            select: "-status",
-          })
-          .select("-status")
+          .populate("content_type image")
           .sort(sortOption)
           .skip(skip)
-          .limit(parseInt(limit))
-          .exec(),
+          .limit(parseInt(limit)),
         WebsiteContent.countDocuments(query),
       ]);
 
@@ -178,9 +175,9 @@ const websiteContentController = {
   // === LẤY NỘI DUNG WEBSITE THEO ID ===
   getWebsiteContentById: async (req, res) => {
     try {
-      const websiteContentData = await WebsiteContent.findById(req.params.id)
-        .populate("content_type") // populate theo virtual field
-        .exec();
+      const websiteContentData = await WebsiteContent.findById(
+        req.params.id
+      ).populate("content_type image");
 
       if (!websiteContentData) {
         return res
@@ -198,101 +195,111 @@ const websiteContentController = {
   },
 
   // === THÊM NỘI DUNG WEBSITE ===
-  addWebsiteContent: [
-    upload.single("image"),
-    async (req, res) => {
-      try {
-        const newWebsiteContent = new WebsiteContent(req.body);
-        // Validate website content data
-        const validation =
-          await websiteContentController.validateWebsiteContent(
-            newWebsiteContent
-          );
+  addWebsiteContent: async (req, res) => {
+    try {
+      const newWebsiteContent = new WebsiteContent(req.body);
+      // Validate website content data
+      const validation = await websiteContentController.validateWebsiteContent(
+        newWebsiteContent
+      );
 
-        if (!validation.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        // Nếu có file ảnh, lưu đường dẫn vào trường image
+      if (!validation.valid) {
         if (req.file) {
-          newWebsiteContent.image = req.file.filename;
+          deleteImagesOnError([req.file]); // Xoá ảnh nếu có lỗi
         }
-
-        const saveWebsiteContent = await newWebsiteContent.save();
-        res.status(200).json({
-          message: "Thêm nội dung website thành công",
-          data: saveWebsiteContent,
-        });
-      } catch (error) {
-        if (req.file) {
-          deleteImageOnError(req.file);
-        }
-        res.status(500).json(error);
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+
+      // Nếu có file ảnh, lưu đường dẫn vào trường image
+      if (req.file) {
+        const image = new Image({
+          url: req.file.path,
+          public_id: req.file.filename, // public_id từ Cloudinary
+          target: "content",
+          target_id: newWebsiteContent._id,
+        });
+        await image.save();
+      }
+
+      const saveWebsiteContent = await newWebsiteContent.save();
+      res.status(200).json({
+        message: "Thêm nội dung website thành công",
+        data: saveWebsiteContent,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteImagesOnError([req.file]); // Xoá ảnh nếu có lỗi
+      }
+      res.status(500).json(error);
+    }
+  },
 
   // === CẬP NHẬT NỘI DUNG WEBSITE ===
-  updateWebsiteContent: [
-    upload.single("image"),
-    async (req, res) => {
-      try {
-        const websiteContentToUpdate = await WebsiteContent.findById(
-          req.params.id
-        );
-        if (!websiteContentToUpdate) {
-          if (req.file) {
-            deleteImageOnError(req.file);
-          }
-          return res
-            .status(404)
-            .json({ message: "Nội dung website không tồn tại." });
-        }
-
-        // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? websiteContentToUpdate.toObject()
-            : { ...websiteContentToUpdate.toObject(), ...req.body };
-
-        // Nếu có file ảnh mới, xóa ảnh cũ và cập nhật đường dẫn mới
+  updateWebsiteContent: async (req, res) => {
+    try {
+      const websiteContentToUpdate = await WebsiteContent.findById(
+        req.params.id
+      );
+      if (!websiteContentToUpdate) {
         if (req.file) {
-          updatedData.image = req.file.filename;
-          if (websiteContentToUpdate.image) {
-            deleteOldImages(websiteContentToUpdate.image);
-          }
-        } else {
-          updatedData.image = websiteContentToUpdate.image;
+          deleteImagesOnError([req.file]); // Xoá ảnh nếu không tìm thấy nội dung
         }
-
-        // Validate dữ liệu cập nhật
-        const validation =
-          await websiteContentController.validateWebsiteContent(
-            updatedData,
-            req.params.id
-          );
-
-        if (!validation.valid) {
-          return res.status(400).json({ message: validation.message });
-        }
-
-        // Cập nhật nội dung website
-        await websiteContentToUpdate.updateOne({ $set: updatedData });
-        res.status(200).json({
-          message: "Cập nhật nội dung website thành công",
-          data: updatedData,
-        });
-      } catch (error) {
-        if (req.file) {
-          deleteImageOnError(req.file);
-        }
-        res.status(500).json(error);
+        return res
+          .status(404)
+          .json({ message: "Nội dung website không tồn tại." });
       }
-    },
-  ],
+
+      // Nếu không có trường nào được gửi, dùng lại toàn bộ dữ liệu cũ
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? websiteContentToUpdate.toObject()
+          : { ...websiteContentToUpdate.toObject(), ...req.body };
+
+      // Nếu có file ảnh mới, xóa ảnh cũ và cập nhật đường dẫn mới
+      if (req.file) {
+        const oldImage = await Image.findOne({
+          target: "content",
+          target_id: websiteContentToUpdate._id,
+        });
+        if (oldImage) {
+          await deleteOldImages([oldImage.public_id]); // Xoá ảnh cũ trên Cloudinary
+          oldImage.url = req.file.path; // Cập nhật đường dẫn ảnh mới
+          oldImage.public_id = req.file.filename; // Cập nhật public_id mới
+          await oldImage.save(); // Lưu ảnh đã cập nhật
+        } else {
+          const newImage = new Image({
+            url: req.file.path,
+            public_id: req.file.filename, // public_id từ Cloudinary
+            target: "content",
+            target_id: websiteContentToUpdate._id,
+          });
+          await newImage.save(); // Lưu ảnh mới nếu không có ảnh cũ
+        }
+      }
+
+      // Validate dữ liệu cập nhật
+      const validation = await websiteContentController.validateWebsiteContent(
+        updatedData,
+        req.params.id
+      );
+
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      // Cập nhật nội dung website
+      await websiteContentToUpdate.updateOne({ $set: updatedData });
+      res.status(200).json({
+        message: "Cập nhật nội dung website thành công",
+        data: updatedData,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteImagesOnError([req.file]); // Xoá ảnh nếu có lỗi
+      }
+      res.status(500).json(error);
+    }
+  },
 
   // === KÍCH HOẠT/VÔ HIỆU HÓA NỘI DUNG WEBSITE ===
   toggleWebsiteContentStatus: async (req, res) => {

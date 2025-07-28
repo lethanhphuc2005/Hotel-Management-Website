@@ -10,7 +10,6 @@ import {
   RoomClassFilter,
   RoomClassRequest,
 } from '../../types/room-class';
-import { ImageHelperService } from '../../shared/services/image-helper.service';
 import { Feature } from '../../types/feature';
 import { MainRoomClass } from '../../types/main-room-class';
 import { ToastrService } from 'ngx-toastr';
@@ -54,10 +53,8 @@ export class RoomClassComponent implements OnInit {
     status: true,
     images: null,
     main_room_class_id: '',
-    bed_amount: 0,
-    capacity: 0,
-    price: 0,
     price_discount: 0,
+    bed_type: '',
     view: '',
     features: [],
     uploadImages: null,
@@ -78,7 +75,6 @@ export class RoomClassComponent implements OnInit {
     private roomClassService: RoomClassService,
     private featureService: FeatureService,
     private mainRoomClassService: MainRoomClassService,
-    private imageHelperService: ImageHelperService,
     private toastService: ToastrService
   ) {}
 
@@ -207,14 +203,11 @@ export class RoomClassComponent implements OnInit {
         status: true,
         images: null,
         main_room_class_id: '',
-        bed_amount: 0,
-        capacity: 0,
-        price: 0,
         price_discount: 0,
+        bed_type: '',
         view: '',
         features: [],
         uploadImages: null,
-        
       };
     } else if (item) {
       this.selectedRoomClass = item;
@@ -223,6 +216,7 @@ export class RoomClassComponent implements OnInit {
         description: item.description,
         status: item.status,
         main_room_class_id: item.main_room_class_id,
+        bed_type: item.bed_type,
         bed_amount: item.bed_amount,
         capacity: item.capacity,
         price: item.price,
@@ -232,10 +226,7 @@ export class RoomClassComponent implements OnInit {
         uploadImages: null, // Reset upload images
         images: null,
       };
-      this.imagePreview =
-        item.images?.map((img) =>
-          this.imageHelperService.getImageUrl(img.url)
-        ) || null;
+      this.imagePreview = item.images?.map((img) => img.url) || null;
       this.selectedFeatureIds =
         item.features?.map((f) => (f.feature_id || f.feature_id)?.toString()) ||
         [];
@@ -299,6 +290,7 @@ export class RoomClassComponent implements OnInit {
     );
     formData.append('name', this.newRoomClass.name || '');
     formData.append('description', this.newRoomClass.description || '');
+    formData.append('bed_type', this.newRoomClass.bed_type || '');
     formData.append('bed_amount', String(this.newRoomClass.bed_amount || 0));
     formData.append('capacity', String(this.newRoomClass.capacity || 0));
     formData.append('price', String(this.newRoomClass.price || 0));
@@ -341,21 +333,19 @@ export class RoomClassComponent implements OnInit {
     const formData = new FormData();
     formData.append(
       'main_room_class_id',
-      String(this.selectedRoomClass.main_room_class_id || '')
+      String(this.newRoomClass.main_room_class_id || '')
     );
-    formData.append('name', this.selectedRoomClass.name || '');
-    formData.append('description', this.selectedRoomClass.description || '');
-    formData.append(
-      'bed_amount',
-      String(this.selectedRoomClass.bed_amount || 0)
-    );
-    formData.append('capacity', String(this.selectedRoomClass.capacity || 0));
-    formData.append('price', String(this.selectedRoomClass.price || 0));
+    formData.append('name', this.newRoomClass.name || '');
+    formData.append('description', this.newRoomClass.description || '');
+    formData.append('bed_type', this.newRoomClass.bed_type || '');
+    formData.append('bed_amount', String(this.newRoomClass.bed_amount || 0));
+    formData.append('capacity', String(this.newRoomClass.capacity || 0));
+    formData.append('price', String(this.newRoomClass.price || 0));
     formData.append(
       'price_discount',
-      String(this.selectedRoomClass.price_discount || 0)
+      String(this.newRoomClass.price_discount || 0)
     );
-    formData.append('view', this.selectedRoomClass.view || '');
+    formData.append('view', this.newRoomClass.view || '');
     if (this.selectedFiles.length > 0) {
       for (const file of this.selectedFiles) {
         const compressedFile = await compressImage(file, 1, 1920);
@@ -371,7 +361,7 @@ export class RoomClassComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.getAllRoomClasses();
-          this.onClosePopup
+          this.onClosePopup();
           this.toastService.success(res.message, 'Thành công');
         },
         error: (err) => {

@@ -105,7 +105,6 @@ export default function BookedRoomSection({
         "Ví dụ: thay đổi kế hoạch, giá cao, đặt nhầm..."
       );
       if (reason === null) return;
-      console.log("Lý do huỷ:", reason);
       setCancelReason(reason);
 
       // Bước 3: Thực hiện huỷ

@@ -1,12 +1,13 @@
 import { FilterParams, PaginationResponse } from './_common';
 import { ContentType } from './content-type';
+import { Image } from './image';
 
 export interface WebsiteContent {
   id: string;
   title: string;
   content: string;
   content_type_id: string;
-  image: string;
+  image: Image | null;
   status: boolean;
   createdAt: Date;
   updatedAt: Date;

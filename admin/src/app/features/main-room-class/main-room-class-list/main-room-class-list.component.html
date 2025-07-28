@@ -6,8 +6,8 @@
   <div>{{ mainRoomClass.name }}</div>
   <div>
     <img
-      *ngIf="mainRoomClass.images && mainRoomClass.images.length > 0"
-      [src]="getImageUrl(mainRoomClass.images[0].url)"
+      *ngIf="mainRoomClass.image"
+      [src]="mainRoomClass.image.url"
       alt="Content Image"
       class="content-image"
     />

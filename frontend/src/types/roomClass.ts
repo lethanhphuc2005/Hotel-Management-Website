@@ -9,6 +9,7 @@ export interface RoomClass {
   id: string;
   main_room_class_id: string;
   name: string;
+  bed_type: string;
   bed_amount: number;
   capacity: number;
   price: number;

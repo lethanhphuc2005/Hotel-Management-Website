@@ -1,9 +1,10 @@
 import { FilterParams, PaginationResponse } from './_common';
+import { Image } from './image';
 
 export interface Discount {
   id: string;
   name: string;
-  image: string;
+  image: Image | null; // Image can be null if not provided
   description: string;
   type: string;
   value: number;

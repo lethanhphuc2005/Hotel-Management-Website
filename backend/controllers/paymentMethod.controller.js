@@ -23,7 +23,7 @@ const paymentMethodController = {
       };
     }
 
-    const existingMethod = await PaymentMethod.findOne({ name });
+    const existingMethod = await PaymentMethod.findOne({ name }).lean();
     if (
       existingMethod &&
       (!paymentMethodId ||

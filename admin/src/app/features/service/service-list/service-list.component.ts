@@ -1,5 +1,4 @@
 import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { Service, ServiceFilter } from '@/types/service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -25,9 +24,5 @@ export class ServiceListComponent {
   @Output() openEdit = new EventEmitter<Service>();
   @Output() viewDetail = new EventEmitter<Service>();
 
-  constructor(private imageHelper: ImageHelperService) {}
-
-  getImageUrl(imagePath: string): string {
-    return this.imageHelper.getImageUrl(imagePath);
-  }
+  constructor() {}
 }

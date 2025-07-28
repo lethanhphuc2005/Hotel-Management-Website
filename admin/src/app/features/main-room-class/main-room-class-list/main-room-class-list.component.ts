@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
@@ -24,9 +23,5 @@ export class MainRoomClassListComponent {
   @Output() openEdit = new EventEmitter<MainRoomClass>();
   @Output() openDetail = new EventEmitter<MainRoomClass>();
 
-  constructor(private imageHelper: ImageHelperService) {}
-
-  getImageUrl(imagePath: string): string {
-    return this.imageHelper.getImageUrl(imagePath);
-  }
+  constructor() {}
 }

@@ -20,12 +20,6 @@ const WebsiteContentSchema = new mongoose.Schema(
       ref: "content_type",
       required: true,
     },
-    image: {
-      type: String,
-      trim: true,
-      default: "",
-      maxlength: 255,
-    },
     status: {
       type: Boolean,
       default: false,
@@ -34,10 +28,23 @@ const WebsiteContentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+WebsiteContentSchema.virtual("image", {
+  ref: "image",
+  localField: "_id",
+  foreignField: "target_id",
+  match: { target: "website_content", status: true }, // Chỉ lấy ảnh có trạng thái hợp lệ
+  justOne: true,
+  options: {
+    select: "url public_id",
+  },
+});
+
 WebsiteContentSchema.virtual("content_type", {
   ref: "content_type",
   localField: "content_type_id",
   foreignField: "_id",
+  match: { status: true }, // Chỉ lấy loại nội dung hợp lệ
   justOne: true, // Chỉ lấy một đối tượng
   options: {
     select: "name description", // Chọn các trường cần thiết

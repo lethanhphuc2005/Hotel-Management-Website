@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const ImageSchema = new mongoose.Schema(
   {
-    room_class_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "room_class",
-      required: true,
-    },
     url: {
+      type: String,
+      required: true,
+      default: "",
+      trim: true,
+    },
+    public_id: {
       type: String,
       required: true,
       default: "",
@@ -15,10 +16,15 @@ const ImageSchema = new mongoose.Schema(
     },
     target: {
       type: String,
-      enum: ["main_room_class", "room_class"],
+      enum: ["main_room_class", "room_class", "service", "feature", "content"],
       required: true,
       default: "",
       trim: true,
+    },
+    target_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "target",
+      required: true,
     },
     status: {
       type: Boolean,
@@ -28,16 +34,6 @@ const ImageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-ImageSchema.virtual("room_class", {
-  ref: (doc) => doc.target,
-  localField: "room_class_id",
-  foreignField: "_id",
-  justOne: true,
-  options: {
-    select: "name description status",
-  },
-});
 
 ImageSchema.set("toJSON", {
   virtuals: true,

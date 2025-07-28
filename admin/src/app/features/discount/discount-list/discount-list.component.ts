@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { Discount, DiscountCondition, DiscountFilter } from '@/types/discount';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -24,11 +23,7 @@ export class DiscountListComponent {
   @Output() openEdit = new EventEmitter<Discount>();
   @Output() viewDetail = new EventEmitter<Discount>();
 
-  constructor(private imageHelper: ImageHelperService) {}
-
-  getImageUrl(imagePath: string): string {
-    return this.imageHelper.getImageUrl(imagePath);
-  }
+  constructor() {}
 
   getDiscounTypeName(type: string): string {
     switch (type) {

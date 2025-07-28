@@ -28,23 +28,21 @@ MainRoomClassSchema.virtual("room_class_list", {
   ref: "room_class",
   localField: "_id",
   foreignField: "main_room_class_id",
+  match: { status: true }, // Chỉ lấy các loại phòng con có trạng thái hợp lệ
   justOne: false,
   options: {
     select: "name description status createdAt updatedAt",
   },
 });
 
-MainRoomClassSchema.virtual("images", {
+MainRoomClassSchema.virtual("image", {
   ref: "image",
   localField: "_id",
-  foreignField: "room_class_id",
-  match: [
-    { status: true }, // Chỉ lấy ảnh hợp lệ
-    { type: "main_room_class" }, // Chỉ lấy ảnh loại phòng chính
-  ],
-  justOne: false,
+  foreignField: "target_id",
+  match: { target: "main_room_class", status: true }, // Chỉ lấy ảnh có trạng thái hợp lệ
+  justOne: true,
   options: {
-    select: "url target status createdAt updatedAt",
+    select: "url public_id",
   },
 });
 

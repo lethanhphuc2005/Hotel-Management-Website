@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { DiscountRequest } from '@/types/discount';
 import { RoomClass } from '@/types/room-class';
 import { CommonModule } from '@angular/common';
@@ -23,7 +22,7 @@ export class DiscountFormComponent {
   @Output() close = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
 
-  constructor(private imageHelperService: ImageHelperService) {}
+  constructor() {}
 
   ngOnInit() {}
 
@@ -32,10 +31,6 @@ export class DiscountFormComponent {
     if (input.files?.length) {
       this.fileSelected.emit(input.files[0]);
     }
-  }
-
-  getImageUrl(image: string | File): string {
-    return this.imageHelperService.getImageUrl(image);
   }
 
   formatDateForInput(date?: Date | string): string {

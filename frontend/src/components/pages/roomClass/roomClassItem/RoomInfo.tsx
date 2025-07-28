@@ -1,43 +1,43 @@
 import { RoomClass } from "@/types/roomClass";
 
 export default function RoomInfo({
-  rci,
+  roomClass,
   numChildrenUnder6 = 0,
   numchildrenOver6 = 0,
   numAdults = 1,
 }: {
-  rci: RoomClass;
+  roomClass: RoomClass;
   numChildrenUnder6?: number;
   numchildrenOver6?: number;
   numAdults?: number;
 }) {
   const extraBedTeens = Math.max(
     0,
-    numchildrenOver6 - (rci.bed_amount * 2 - numAdults)
+    numchildrenOver6 - (roomClass.bed_amount * 2 - numAdults)
   );
   const showExtraBed =
     numChildrenUnder6 > 0 &&
-    numAdults + numchildrenOver6 === rci.bed_amount * 2;
+    numAdults + numchildrenOver6 === roomClass.bed_amount * 2;
 
   return (
     <div>
-      <p className="fs-5 fw-bold mb-2">{rci.name}</p>
-      <p className="mb-1">Hướng: {rci.view}</p>
-      <p className="mb-1">Số giường: {rci.bed_amount} giường đôi</p>
-      <p className="mb-1">Sức chứa: {rci.capacity} người</p>
-      <p className="mb-1">Mô tả: {rci.description}</p>
+      <p className="fs-5 fw-bold mb-2">{roomClass.name}</p>
+      <p className="mb-1">Hướng: {roomClass.view}</p>
+      <p className="mb-1">Số giường: {roomClass.bed_amount} giường {roomClass.bed_type}</p>
+      <p className="mb-1">Sức chứa: {roomClass.capacity} người</p>
+      <p className="mb-1">Mô tả: {roomClass.description}</p>
 
-      {rci.features && rci.features.length > 0 && (
+      {roomClass.features && roomClass.features.length > 0 && (
         <p className="mb-1">
           Tiện nghi:
-          {rci.features.slice(0, 3).map((feature, index) => (
+          {roomClass.features.slice(0, 3).map((feature, index) => (
             <span key={index} className="badge bg-secondary ms-1">
               {feature.feature.name}
             </span>
           ))}
-          {rci.features.length > 3 && (
+          {roomClass.features.length > 3 && (
             <span className="badge bg-secondary ms-1">
-              +{rci.features.length - 3}
+              +{roomClass.features.length - 3}
             </span>
           )}
         </p>

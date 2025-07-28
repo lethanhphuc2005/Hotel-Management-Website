@@ -1,9 +1,9 @@
 const { Feature, Room_Class_Feature } = require("../models/feature.model");
+const { Image } = require("../models/image.model");
 const {
-  upload,
   deleteOldImages,
   deleteImagesOnError,
-} = require("../middlewares/upload.middleware");
+} = require("../middlewares/cloudinaryUpload.middleware.js");
 
 const featureController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN TIỆN NGHI ===
@@ -24,7 +24,7 @@ const featureController = {
     }
 
     // Check for duplicate name
-    const existing = await Feature.findOne({ name });
+    const existing = await Feature.findOne({ name }).lean();
     if (
       existing &&
       (!featureId || existing._id.toString() !== featureId.toString())
@@ -41,7 +41,7 @@ const featureController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort = "createdAt",
         order = "asc",
         status, // Thêm tham số lọc theo trạng thái
@@ -80,17 +80,7 @@ const featureController = {
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
-        .populate({
-          path: "room_class_used_list",
-          populate: {
-            path: "room_class",
-            populate: {
-              path: "images",
-              match: { status: true }, // Chỉ lấy ảnh hợp lệ
-            },
-          },
-        })
-        .exec();
+        .populate("room_class_used_list image");
 
       if (!features || features.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
@@ -117,7 +107,7 @@ const featureController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort = "price",
         order = "asc",
       } = req.query;
@@ -147,14 +137,7 @@ const featureController = {
         .skip(skip)
         .select("-status -createdAt -updatedAt")
         .limit(parseInt(limit))
-        .populate({
-          path: "room_class_used_list",
-          populate: {
-            path: "room_class",
-            match: { status: true },
-          },
-        })
-        .exec();
+        .populate("room_class_used_list image");
 
       if (!features || features.length === 0) {
         return res.status(404).json({ message: "Không có tiện nghi nào." });
@@ -179,13 +162,9 @@ const featureController = {
   getFeatureById: async (req, res) => {
     try {
       const { id } = req.params;
-      const feature = await Feature.findById(id).populate({
-        path: "room_class_used_list",
-        populate: {
-          path: "room_class",
-          match: { status: true },
-        },
-      });
+      const feature = await Feature.findById(id).populate(
+        "room_class_used_list image"
+      );
       if (!feature) {
         return res.status(404).json({ message: "Tiện nghi không tồn tại." });
       }
@@ -199,95 +178,107 @@ const featureController = {
   },
 
   // === THÊM TIỆN NGHI MỚI ===
-  addFeature: [
-    upload.single("image"), // Sử dụng middleware upload để xử lý file ảnh
-    async (req, res) => {
-      try {
-        const newFeature = new Feature(req.body);
+  addFeature: async (req, res) => {
+    try {
+      const newFeature = new Feature(req.body);
 
-        // Validate feature data
-        const validation = await featureController.validateFeature(newFeature);
-        if (!validation.valid) {
-          // Xoá ảnh đã upload nếu có lỗi
-          if (req.file) {
-            deleteImagesOnError(req.file.filename);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        newFeature.image = req.file.filename; // Lưu đường dẫn hình ảnh
-
-        await newFeature.save();
-        res.status(201).json({
-          message: "Thêm tiện nghi thành công",
-          data: newFeature,
-        });
-      } catch (error) {
+      // Validate feature data
+      const validation = await featureController.validateFeature(newFeature);
+      if (!validation.valid) {
         // Xoá ảnh đã upload nếu có lỗi
         if (req.file) {
-          deleteImagesOnError(req.file.filename);
+          deleteImagesOnError([req.file]);
         }
-        res.status(500).json({ message: error.message });
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+
+      if (req.file) {
+        const image = new Image({
+          url: req.file.path,
+          public_id: req.file.filename,
+          target: "feature",
+          target_id: newFeature._id,
+        });
+        await image.save();
+      }
+      await newFeature.save();
+      res.status(201).json({
+        message: "Thêm tiện nghi thành công",
+        data: newFeature,
+      });
+    } catch (error) {
+      // Xoá ảnh đã upload nếu có lỗi
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      res.status(500).json({ message: error.message });
+    }
+  },
 
   // === CẬP NHẬT TIỆN NGHI ===
-  updateFeature: [
-    upload.single("image"), // Sử dụng middleware upload để xử lý file ảnh
-    async (req, res) => {
-      try {
-        const featureToUpdate = await Feature.findById(req.params.id);
-        if (!featureToUpdate) {
-          return res.status(404).json({ message: "Tiện nghi không tồn tại." });
-        }
+  updateFeature: async (req, res) => {
+    try {
+      const featureToUpdate = await Feature.findById(req.params.id);
+      if (!featureToUpdate) {
+        return res.status(404).json({ message: "Tiện nghi không tồn tại." });
+      }
 
-        // Nếu không có dữ liệu nào trong req.body, giữ nguyên tiện nghi hiện tại
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? featureToUpdate.toObject()
-            : { ...featureToUpdate.toObject(), ...req.body };
+      // Nếu không có dữ liệu nào trong req.body, giữ nguyên tiện nghi hiện tại
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? featureToUpdate.toObject()
+          : { ...featureToUpdate.toObject(), ...req.body };
 
-        // Kiểm tra dữ liệu trong req.body
-        const validation = await featureController.validateFeature(
-          updatedData,
-          req.params.id
-        );
-        if (!validation.valid) {
-          // Xoá ảnh đã upload nếu có lỗi
-          if (req.file) {
-            deleteImagesOnError(req.file.filename);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        if (req.file) {
-          // Xoá ảnh cũ nếu có
-          if (featureToUpdate.image) {
-            deleteOldImages(featureToUpdate.image);
-          }
-          updatedData.image = req.file.filename; // Cập nhật đường dẫn hình ảnh mới
-        } else {
-          updatedData.image = featureToUpdate.image; // Giữ nguyên đường dẫn hình ảnh cũ nếu không có file mới
-        }
-
-        const updatedFeature = await featureToUpdate.updateOne({
-          $set: updatedData,
-        });
-
-        res.status(200).json({
-          message: "Cập nhật tiện nghi thành công",
-          data: updatedFeature,
-        });
-      } catch (error) {
+      // Kiểm tra dữ liệu trong req.body
+      const validation = await featureController.validateFeature(
+        updatedData,
+        req.params.id
+      );
+      if (!validation.valid) {
         // Xoá ảnh đã upload nếu có lỗi
         if (req.file) {
-          deleteImagesOnError(req.file.filename);
+          deleteImagesOnError([req.file]);
         }
-        res.status(500).json({ message: error.message });
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+
+      if (req.file) {
+        const oldImage = await Image.findOne({
+          target: "feature",
+          target_id: featureToUpdate._id,
+        });
+        if (oldImage) {
+          // Xoá ảnh cũ nếu có
+          await deleteOldImages([oldImage]);
+          oldImage.url = req.file.path; // Cập nhật đường dẫn mới
+          oldImage.public_id = req.file.filename; // Cập nhật public_id mới
+          await oldImage.save();
+        }
+      } else {
+        await Image.create({
+          url: req.file.path,
+          public_id: req.file.filename,
+          target: "feature",
+          target_id: featureToUpdate._id,
+        });
+      }
+
+      const updatedFeature = await featureToUpdate.updateOne({
+        $set: updatedData,
+      });
+
+      res.status(200).json({
+        message: "Cập nhật tiện nghi thành công",
+        data: updatedFeature,
+      });
+    } catch (error) {
+      // Xoá ảnh đã upload nếu có lỗi
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      res.status(500).json({ message: error.message });
+    }
+  },
 
   // === KÍCH HOẠT/VÔ HIỆU HÓA TIỆN NGHI ===
   toggleFeatureStatus: async (req, res) => {

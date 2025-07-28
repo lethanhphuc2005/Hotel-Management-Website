@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ServiceService } from '@/core/services/service.service';
 import { ToastrService } from 'ngx-toastr';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { compressImage } from '@/shared/utils/image.utils';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
@@ -52,15 +51,10 @@ export class ServiceComponent implements OnInit {
   constructor(
     private serviceService: ServiceService,
     private toastService: ToastrService,
-    private imageHelperService: ImageHelperService
   ) {}
 
   ngOnInit(): void {
     this.loadAllServices();
-  }
-
-  getImageUrl(image: string): string {
-    return this.imageHelperService.getImageUrl(image);
   }
 
   loadAllServices(): void {
@@ -140,7 +134,7 @@ export class ServiceComponent implements OnInit {
     } else if (item) {
       // Mở form chỉnh sửa
       this.selectedService = item;
-      this.imagePreview = this.getImageUrl(item.image);
+      this.imagePreview = item.image?.url || null;
       this.newService = {
         name: item.name,
         description: item.description,

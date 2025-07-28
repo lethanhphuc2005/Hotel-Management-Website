@@ -55,7 +55,6 @@ export default function ResetPasswordFlow() {
         verificationCode: otp,
         newPassword,
       });
-      // console.log("Reset password response:", res);
       if (!res.success) {
         toast.error(res.message);
         return;

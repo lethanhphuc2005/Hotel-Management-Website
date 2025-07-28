@@ -5,6 +5,15 @@ import AnimatedCheckbox from "@/components/common/Checkbox";
 import PriceSlider from "@/components/pages/roomClass/PriceSlider";
 import { Feature } from "@/types/feature";
 import { MainRoomClass } from "@/types/mainRoomClass";
+import { AnimatedButton } from "@/components/common/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faFilter,
+  faTrash,
+  faCaretDown,
+  faCaretUp,
+} from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 
 interface FilterSidebarProps {
   searchTerm: string;
@@ -33,6 +42,9 @@ interface FilterSidebarProps {
     state: string[],
     setState: React.Dispatch<React.SetStateAction<string[]>>
   ) => void;
+  isFiltered: boolean;
+  setIsFiltered: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function FilterSidebar({
@@ -58,6 +70,9 @@ export default function FilterSidebar({
   showMainRoomClassFilter,
   setShowMainRoomClassFilter,
   handleCheckboxChange,
+  isFiltered,
+  setIsFiltered,
+  setCurrentPage
 }: FilterSidebarProps) {
   const handleCheckboxdChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -71,50 +86,73 @@ export default function FilterSidebar({
         : prev.filter((item) => item !== value)
     );
   };
+
+  const handleSubmit = () => {
+    setIsFiltered(true);
+    setCurrentPage(1);
+    setShowViewFilter(false);
+    setShowFeatureFilter(false);
+    setShowMainRoomClassFilter(false);
+    toast.success("Đã lọc kết quả tìm kiếm");
+  };
+
+  const handleReset = () => {
+    setSearchTerm("");
+    setSortOption("price");
+    setSelectedViews([]);
+    setSelectedFeatureIds([]);
+    setSelectedMainRoomClassIds([]);
+    setPriceRange([0, 10000000]); // Giả sử giá phòng tối đa là 1 triệu
+    setIsFiltered(false);
+    setShowViewFilter(false);
+    setShowFeatureFilter(false);
+    setShowMainRoomClassFilter(false);
+    setCurrentPage(1);
+    toast.success("Đã xóa bộ lọc");
+  };
+
   return (
     <div className="sticky-top" style={{ top: "13%" }}>
-      <div className="mt-3 mb-4" style={{ color: "#FAB320" }}>
-        <p className="fs-5" style={{ letterSpacing: "3px" }}>
-          TÌM KIẾM VÀ LỌC TẤT CẢ PHÒNG
-        </p>
-      </div>
+      <h4 className="tw-font-bold tw-my-4 tw-text-primary">LỌC TẤT CẢ PHÒNG</h4>
 
-      <div className="tw-flex md:tw-flex-row tw-flex-col tw-gap-3">
+      <div className="tw-flex md:tw-flex-row tw-flex-col tw-gap-3 tw-mb-3">
         <input
           type="text"
-          className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-placeholder-gray-400 tw-border tw-border-primary focus:tw-outline-none tw-w-full tw-mb-3 tw-flex-1"
+          className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-placeholder-gray-400 tw-border tw-border-primary focus:tw-outline-none tw-w-full tw-flex-1"
           placeholder="Tìm kiếm phòng..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
           }}
         />
-        <select
-          className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-border tw-border-primary focus:tw-outline-none tw-w-full
-          tw-mb-3 tw-flex-1"
-          value={sortOption}
-          onChange={(e) => {
-            setSortOption(e.target.value);
-          }}
+        <AnimatedButton
+          className="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-md hover:tw-bg-secondary"
+          onClick={handleSubmit}
         >
-          <option value="default" disabled>
-            Sắp xếp theo
-          </option>
-          <option value="price_asc">Giá tăng dần</option>
-          <option value="price_desc">Giá giảm dần</option>
-          <option value="rating_desc">Đánh giá cao nhất</option>
-          <option value="rating_asc">Đánh giá thấp nhất</option>
-        </select>
+          <FontAwesomeIcon icon={faFilter} />
+        </AnimatedButton>
+        <AnimatedButton
+          className="tw-bg-secondary tw-text-white tw-px-4 tw-py-2 tw-rounded-md hover:tw-bg-primary"
+          onClick={handleReset}
+        >
+          <FontAwesomeIcon icon={faTrash} />
+        </AnimatedButton>
       </div>
 
       <PriceSlider priceRange={priceRange} setPriceRange={setPriceRange} />
 
       <p
-        className="mt-3 mb-2 fw-bold tw-cursor-pointer"
+        className="tw-font-bold tw-cursor-pointer tw-flex tw-items-center"
         onClick={() => setShowMainRoomClassFilter(!showMainRoomClassFilter)}
-        style={{ userSelect: "none" }}
       >
-        Lọc theo loại phòng {showMainRoomClassFilter ? "▲" : "▼"}
+        Lọc theo loại phòng
+        <span className="tw-mx-2 tw-text-2xl">
+          {showMainRoomClassFilter ? (
+            <FontAwesomeIcon icon={faCaretUp} />
+          ) : (
+            <FontAwesomeIcon icon={faCaretDown} />
+          )}
+        </span>
       </p>
       <AnimatePresence>
         {showMainRoomClassFilter && (
@@ -146,11 +184,17 @@ export default function FilterSidebar({
       </AnimatePresence>
 
       <p
-        className="mt-3 mb-2 fw-bold tw-cursor-pointer"
+        className="tw-font-bold tw-cursor-pointer tw-flex tw-items-center"
         onClick={() => setShowViewFilter(!showViewFilter)}
-        style={{ userSelect: "none" }}
       >
-        Lọc theo view {showViewFilter ? "▲" : "▼"}
+        Lọc theo view
+        <span className="tw-mx-2 tw-text-2xl">
+          {showMainRoomClassFilter ? (
+            <FontAwesomeIcon icon={faCaretUp} />
+          ) : (
+            <FontAwesomeIcon icon={faCaretDown} />
+          )}
+        </span>
       </p>
       <AnimatePresence>
         {showViewFilter && (
@@ -178,11 +222,17 @@ export default function FilterSidebar({
       </AnimatePresence>
 
       <p
-        className="mt-3 mb-2 fw-bold tw-cursor-pointer"
+        className="tw-font-bold tw-cursor-pointer tw-flex tw-items-center"
         onClick={() => setShowFeatureFilter(!showFeatureFilter)}
-        style={{ userSelect: "none" }}
       >
-        Lọc theo tiện nghi {showFeatureFilter ? "▲" : "▼"}
+        Lọc theo tiện nghi
+        <span className="tw-mx-2 tw-text-2xl">
+          {showMainRoomClassFilter ? (
+            <FontAwesomeIcon icon={faCaretUp} />
+          ) : (
+            <FontAwesomeIcon icon={faCaretDown} />
+          )}
+        </span>
       </p>
       <AnimatePresence>
         {showFeatureFilter && (

@@ -30,7 +30,7 @@ const PaymentController = {
 
         const paymentMethod = await PaymentMethod.findOne({
           name: { $regex: /cash/i },
-        });
+        }).select("_id name").lean();
 
         const booking = await Booking.findById(orderId);
         if (!booking) {
@@ -71,7 +71,7 @@ const PaymentController = {
 
         const paymentMethod = await PaymentMethod.findOne({
           name: { $regex: /wallet/i },
-        });
+        }).select("_id name").lean();
 
         const booking = await Booking.findById(orderId);
         if (!booking) {
@@ -313,8 +313,7 @@ const PaymentController = {
           .populate("booking payment_method")
           .sort(sortOption)
           .skip(skip)
-          .limit(parseInt(limit))
-          .exec(),
+          .limit(parseInt(limit)),
         Payment.countDocuments(query),
       ]);
 

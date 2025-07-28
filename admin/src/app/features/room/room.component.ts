@@ -102,6 +102,9 @@ export class RoomComponent implements OnInit {
         page: 1,
         limit: 100,
         total: 0,
+        status: 'true',
+        sort: 'createdAt',
+        order: 'asc',
       })
       .subscribe({
         next: (res: any) => {
@@ -146,8 +149,6 @@ export class RoomComponent implements OnInit {
       // Reset form thêm mới
       this.selectedRoom = null;
       this.newRoom = {
-        name: '',
-        floor: 0,
         room_class_id: '',
         room_status_id: '',
       };

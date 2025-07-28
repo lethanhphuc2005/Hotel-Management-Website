@@ -18,13 +18,12 @@ export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
-  const publicRoutes = ['/auth/login'];
-  const toastr = inject(ToastrService); // 👈 inject toastr ở đây
+  const publicRoutes = ['/auth/login', '/auth/refresh-token-admin']; // 👈 thêm refresh-token vào đây
+  const toastr = inject(ToastrService);
+  const http = inject(HttpClient);
 
   const isAuthApi = publicRoutes.some((path) => req.url.includes(path));
   const isProtectedAPI = req.url.includes('/api/') && !isAuthApi;
-
-  const http = inject(HttpClient);
 
   let accessToken: string | null = null;
 
@@ -43,16 +42,15 @@ export const AuthInterceptor: HttpInterceptorFn = (
     return EMPTY;
   }
 
-  let clonedReq = req;
-  if (isProtectedAPI && accessToken) {
-    clonedReq = req.clone({
-      setHeaders: accessToken
-        ? {
+  // ✅ Không gắn token nếu là public API
+  const clonedReq =
+    isProtectedAPI && accessToken
+      ? req.clone({
+          setHeaders: {
             Authorization: `Bearer ${accessToken}`,
-          }
-        : {},
-    });
-  }
+          },
+        })
+      : req;
 
   return next(clonedReq).pipe(
     catchError((err: HttpErrorResponse) => {
@@ -62,18 +60,17 @@ export const AuthInterceptor: HttpInterceptorFn = (
         err.error === 'Token đã hết hạn.'
       ) {
         return http
-          .post(`${baseUrl}/auth/refresh-token`, {
-            withCredentials: true, // Để gửi cookie
+          .post(`${baseUrl}/auth/refresh-token-admin`, null, {
+            withCredentials: true,
           })
           .pipe(
             switchMap((res: any) => {
               const newAccessToken = res.data.accessToken;
-
               localStorage.setItem(
                 'accessToken',
                 JSON.stringify(newAccessToken)
               );
-
+              // 👉 clone lại từ req gốc để không truyền token vào refresh-token
               const retryReq = req.clone({
                 setHeaders: {
                   Authorization: `Bearer ${newAccessToken}`,

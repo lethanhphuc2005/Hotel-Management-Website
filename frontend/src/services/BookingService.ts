@@ -104,14 +104,8 @@ export const getBookings = async (): Promise<BookingListResponse> => {
             price_per_night: detail.price_per_night,
             nights: detail.nights,
             room: detail.room,
-            services: detail.services
-              ? detail.services.map((service: any) => ({
-                  id: service.id,
-                  name: service.name,
-                  price: service.price,
-                  quantity: service.quantity,
-                }))
-              : [],
+            room_class: detail.room_class,
+            services: detail.services,
           }))
         : [],
     }));
@@ -204,14 +198,8 @@ export const getBookingById = async (
             price_per_night: detail.price_per_night,
             nights: detail.nights,
             room: detail.room,
-            services: detail.services
-              ? detail.services.map((service: any) => ({
-                  id: service.id,
-                  name: service.name,
-                  price: service.price,
-                  quantity: service.quantity,
-                }))
-              : [],
+            room_class: detail.room_class,
+            services: detail.services,
           }))
         : [],
     };

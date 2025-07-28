@@ -36,9 +36,11 @@ export default function RoomPriceAndBooking({
         </div>
       )}
       <h5 className="fw-bold text-white">
-        {hasSearched
-          ? formatCurrencyVN(totalPrice)
-          : formatCurrencyVN(basePrice)}
+        {hasSearched ? (
+          <p>Tổng: {formatCurrencyVN(totalPrice)}</p>
+        ) : (
+          <p>Giá từ: {formatCurrencyVN(basePrice)} /đêm</p>
+        )}
       </h5>
       <p style={{ fontSize: "12px" }}>Đã bao gồm thuế và phí</p>
       <Link

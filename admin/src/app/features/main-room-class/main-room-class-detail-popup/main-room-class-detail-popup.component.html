@@ -31,12 +31,7 @@
     <div class="popup-section">
       <label>Hình ảnh:</label>
       <div class="image-list">
-        <img
-          *ngFor="let img of mainRoomClass.images"
-          [src]="getImageUrl(img.url)"
-          alt="Hình ảnh"
-          width="200"
-        />
+        <img [src]="mainRoomClass.image?.url" alt="Hình ảnh" width="200" />
       </div>
     </div>
 

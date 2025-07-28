@@ -21,7 +21,7 @@ const roomController = {
     }
 
     // Kiểm tra xem tên phòng đã tồn tại hay chưa
-    const existing = await Room.findOne({ name });
+    const existing = await Room.findOne({ name }).select("_id").lean();
     if (
       existing &&
       (!roomId || existing._id.toString() !== roomId.toString())
@@ -30,12 +30,16 @@ const roomController = {
     }
 
     // Kiểm tra xem loại phòng và trạng thái có tồn tại trong cơ sở dữ liệu không
-    const roomTypeExists = await RoomClass.findById(room_class_id);
+    const roomTypeExists = await RoomClass.findById(room_class_id)
+      .select("_id")
+      .lean();
     if (!roomTypeExists) {
       return { valid: false, message: "Loại phòng không tồn tại." };
     }
 
-    const statusExists = await RoomStatus.findById(room_status_id);
+    const statusExists = await RoomStatus.findById(room_status_id)
+      .select("_id")
+      .lean();
     if (!statusExists) {
       return { valid: false, message: "Trạng thái không tồn tại." };
     }
@@ -48,7 +52,7 @@ const roomController = {
     try {
       const {
         search = "",
-        limit,
+        limit = 10,
         page = 1,
         sort = "createdAt",
         order = "asc",
@@ -121,18 +125,18 @@ const roomController = {
 
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      const rooms = await Room.find(query)
-        .populate("room_class room_status booking_count")
-        .sort(sortOption)
-        .skip(skip)
-        .limit(parseInt(limit))
-        .exec();
+      const [rooms, total] = await Promise.all([
+        Room.find(query)
+          .populate("room_class room_status booking_count")
+          .sort(sortOption)
+          .skip(skip)
+          .limit(parseInt(limit)),
+        Room.countDocuments(query),
+      ]);
 
       if (!rooms || rooms.length === 0) {
         return res.status(404).json({ message: "Không tìm thấy phòng nào" });
       }
-
-      const total = await Room.countDocuments(query);
 
       res.status(200).json({
         message: "Lấy danh sách phòng thành công",
@@ -168,17 +172,17 @@ const roomController = {
       const bookingIds = bookingDetails.map((bd) => bd.booking_id);
 
       // 2. Tìm booking thỏa điều kiện thời gian và booking_id ở trên
-      const cancelStatusId = await BookingStatus.findOne({
+      const cancelStatus = await BookingStatus.findOne({
         code: "CANCELLED",
       }).select("_id");
-      if (!cancelStatusId) {
+      if (!cancelStatus) {
         return res
           .status(404)
           .json({ message: "Trạng thái hủy không tồn tại" });
       }
       const bookings = await Booking.find({
         _id: { $in: bookingIds },
-        booking_status_id: { $ne: cancelStatusId }, // trạng thái hủy hoặc trạng thái không tính
+        booking_status_id: { $ne: cancelStatus._id }, // trạng thái hủy hoặc trạng thái không tính
         $or: [
           { check_in_date: { $lte: endDate, $gte: startDate } },
           { check_out_date: { $lte: endDate, $gte: startDate } },
@@ -195,7 +199,7 @@ const roomController = {
         title: `Booking #${b._id}`,
         start: b.check_in_date,
         end: b.check_out_date,
-        status: b.booking_status,
+        status: b.booking_status.name,
       }));
 
       res.status(200).json({ events });

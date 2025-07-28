@@ -10,39 +10,45 @@ import { useSearchParams } from "next/navigation";
 
 export default function RoomClassesPage() {
   const {
-    price,
-    setPrice,
     dateRange,
     setDateRange,
     guests,
     setGuests,
+    price,
+    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
     setShowGuestBox,
     guestBoxRef,
     calendarRef,
-    maxGuests,
-    setMaxGuests,
     totalGuests,
-    numberOfNights,
-    setNumberOfNights,
-    totalPrice,
-    setTotalPrice,
-    hasSearched,
-    setHasSearched,
     numberOfAdults,
     numberOfChildren,
-    pendingGuests,
-    setPendingGuests,
-    pendingDateRange,
-    setPendingDateRange,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
+    numberOfNights,
+    totalPrice,
+    hasSearched,
+    setHasSearched,
+    handleSearch,
   } = useRoomSearch();
-
+  const views = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
+  const [selectedViews, setSelectedViews] = useState<string[]>([]);
+  const [selectedFeatureIds, setSelectedFeatureIds] = useState<string[]>([]);
+  const [selectedMainRoomClassIds, setSelectedMainRoomClassIds] = useState<
+    string[]
+  >([]);
+  const [showViewFilter, setShowViewFilter] = useState<boolean>(false);
+  const [showFeatureFilter, setShowFeatureFilter] = useState<boolean>(false);
+  const [showMainRoomClassFilter, setShowMainRoomClassFilter] =
+    useState<boolean>(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortOption, setSortOption] = useState<string>("price");
+  const [sortOrder, setSortOrder] = useState<string>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isFiltered, setIsFiltered] = useState(false);
+  const pageSize = 5; // số phòng mỗi trang
+  const params = useSearchParams();
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Reset time to midnight for comparison
   const memoizedParams = useMemo(() => {
@@ -54,49 +60,56 @@ export default function RoomClassesPage() {
       dateRange[0].endDate instanceof Date &&
       new Date(dateRange[0].endDate).setHours(0, 0, 0, 0) === today.getTime();
 
-    // Nếu cả start và end đều là hôm nay thì không thay đổi
-    if (isStartToday && isEndToday) {
-      return {
-        check_in_date: "",
-        check_out_date: "",
-      };
+    const baseParams: Record<string, any> = {
+      search: searchTerm,
+      sort: sortOption,
+      order: sortOrder,
+      page: currentPage,
+      limit: pageSize,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+    };
+
+    if (!isStartToday || !isEndToday) {
+      baseParams.check_in_date =
+        dateRange[0].startDate instanceof Date
+          ? dateRange[0].startDate.toISOString().split("T")[0]
+          : "";
+      baseParams.check_out_date =
+        dateRange[0].endDate instanceof Date
+          ? dateRange[0].endDate.toISOString().split("T")[0]
+          : "";
     }
 
-    return {
-      check_in_date:
-        dateRange[0].startDate instanceof Date
-          ? dateRange[0].startDate.toISOString()
-          : "",
-      check_out_date:
-        dateRange[0].endDate instanceof Date
-          ? dateRange[0].endDate.toISOString()
-          : "",
-    };
-  }, [dateRange]);
+    // Thêm từng giá trị array vào params
+    if (Array.isArray(selectedViews)) {
+      selectedViews.forEach((v) => {
+        if (v) baseParams.view = [...(baseParams.view || []), v];
+      });
+    }
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 3; // số phòng mỗi trang
+    if (Array.isArray(selectedFeatureIds)) {
+      selectedFeatureIds.forEach((f) => {
+        if (f) baseParams.feature = [...(baseParams.feature || []), f];
+      });
+    }
+
+    if (Array.isArray(selectedMainRoomClassIds)) {
+      selectedMainRoomClassIds.forEach((t) => {
+        if (t) baseParams.type = [...(baseParams.type || []), t];
+      });
+    }
+
+    return baseParams;
+  }, [hasSearched, isFiltered, currentPage]);
 
   const { roomClasses, features, mainRoomClasses, totalRoomClasses } =
-    useRoomClass(memoizedParams, currentPage, pageSize, hasSearched);
+    useRoomClass(memoizedParams);
 
   const handlePageChange = (selectedItem: { selected: number }) => {
     setCurrentPage(selectedItem.selected + 1);
   };
-  const views = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
-  const [selectedViews, setSelectedViews] = useState<string[]>([]);
-  const [selectedFeatureIds, setSelectedFeatureIds] = useState<string[]>([]);
-  const [selectedMainRoomClassIds, setSelectedMainRoomClassIds] = useState<
-    string[]
-  >([]);
-  const [showViewFilter, setShowViewFilter] = useState<boolean>(false);
-  const [showFeatureFilter, setShowFeatureFilter] = useState<boolean>(false);
-  const [showMainRoomClassFilter, setShowMainRoomClassFilter] =
-    useState<boolean>(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000]);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [sortOption, setSortOption] = useState<string>("price_asc");
-  const params = useSearchParams();
+
   useEffect(() => {
     const mainRoomClassId = params.get("mainRoomClassId");
     if (mainRoomClassId) {
@@ -107,25 +120,6 @@ export default function RoomClassesPage() {
       setSearchTerm(roomClassParam);
     }
   }, [params]);
-
-  const {
-    filteredRoomClass,
-    displayRoomClass,
-    isOverCapacity,
-    numChildrenUnder6,
-    numChildrenOver6,
-    numAdults,
-  } = useRoomFilterLogic({
-    roomClasses,
-    searchTerm,
-    sortOption,
-    selectedViews,
-    selectedFeatureIds,
-    selectedMainRoomClassIds,
-    priceRange,
-    guests,
-    dateRange,
-  });
 
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -138,6 +132,7 @@ export default function RoomClassesPage() {
         ? [...prev, value]
         : prev.filter((item) => item !== value)
     );
+    setCurrentPage(1);
   };
 
   return (
@@ -147,42 +142,26 @@ export default function RoomClassesPage() {
     >
       <div className="row">
         <RoomSearchBar
-          {...{
-            dateRange,
-            setDateRange,
-            guests,
-            setGuests,
-            showCalendar,
-            setShowCalendar,
-            showGuestBox,
-            setShowGuestBox,
-            guestBoxRef,
-            calendarRef,
-            maxGuests,
-            setMaxGuests,
-            totalGuests,
-            numberOfNights,
-            setNumberOfNights,
-            totalPrice,
-            setTotalPrice,
-            hasSearched,
-            setHasSearched,
-            numberOfAdults,
-            numberOfChildren,
-            pendingGuests,
-            setPendingGuests,
-            pendingDateRange,
-            setPendingDateRange,
-            startDate,
-            setStartDate,
-            endDate,
-            setEndDate,
-            numAdults,
-            numChildrenUnder6,
-            numChildrenOver6,
-            price,
-            setPrice,
-          }}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          guests={guests}
+          setGuests={setGuests}
+          price={price}
+          setPrice={setPrice}
+          showCalendar={showCalendar}
+          setShowCalendar={setShowCalendar}
+          showGuestBox={showGuestBox}
+          setShowGuestBox={setShowGuestBox}
+          guestBoxRef={guestBoxRef}
+          calendarRef={calendarRef}
+          totalGuests={totalGuests}
+          numberOfAdults={numberOfAdults}
+          numberOfChildren={numberOfChildren}
+          numberOfNights={numberOfNights}
+          totalPrice={totalPrice}
+          hasSearched={hasSearched}
+          setHasSearched={setHasSearched}
+          handleSearch={handleSearch}
         />
       </div>
 
@@ -211,6 +190,9 @@ export default function RoomClassesPage() {
             showMainRoomClassFilter={showMainRoomClassFilter}
             setShowMainRoomClassFilter={setShowMainRoomClassFilter}
             handleCheckboxChange={handleCheckboxChange}
+            isFiltered={isFiltered}
+            setIsFiltered={setIsFiltered}
+            setCurrentPage={setCurrentPage}
           />
         </div>
 
@@ -218,18 +200,13 @@ export default function RoomClassesPage() {
           <div className="row p-3 gap-3">
             <RoomListDisplay
               hasSearched={hasSearched}
-              isOverCapacity={isOverCapacity}
-              filteredRoomClass={filteredRoomClass}
-              displayRoomClass={displayRoomClass}
+              displayRoomClasses={roomClasses}
               numberOfNights={numberOfNights}
-              totalGuests={totalGuests}
               numberOfAdults={numberOfAdults}
-              numberOfChildren={numberOfChildren}
-              startDate={startDate}
-              endDate={endDate}
-              numChildrenUnder6={numChildrenUnder6}
-              numchildrenOver6={numChildrenOver6}
-              numAdults={numAdults}
+              numberOfChildrenUnder6={guests.children.age0to6}
+              numberOfChildrenOver6={guests.children.age7to17}
+              startDate={dateRange[0].startDate}
+              endDate={dateRange[0].endDate}
               totalRoomClasses={totalRoomClasses}
               currentPage={currentPage}
               pageSize={pageSize}

@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { Feature, FeatureFilter } from '@/types/feature';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -24,9 +23,5 @@ export class FeatureListComponent {
   @Output() openEdit = new EventEmitter<Feature>();
   @Output() viewDetail = new EventEmitter<Feature>();
 
-  constructor(private imageHelper: ImageHelperService) {}
-
-  getImageUrl(imagePath: string): string {
-    return this.imageHelper.getImageUrl(imagePath);
-  }
+  constructor() {}
 }

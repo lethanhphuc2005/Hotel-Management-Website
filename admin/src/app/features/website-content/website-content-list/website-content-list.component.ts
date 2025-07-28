@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { WebsiteContent, WebsiteContentFilter } from '@/types/website-content';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -24,9 +23,6 @@ export class WebsiteContentListComponent {
   @Output() openEdit = new EventEmitter<WebsiteContent>();
   @Output() openDelete = new EventEmitter<string>();
 
-  constructor(private imageHelper: ImageHelperService) {}
+  constructor() {}
 
-  getImageUrl(imagePath: string): string {
-    return this.imageHelper.getImageUrl(imagePath);
-  }
 }

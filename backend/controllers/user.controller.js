@@ -13,7 +13,7 @@ const userController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort = "createdAt",
         order = "desc",
         status,
@@ -64,10 +64,8 @@ const userController = {
       const users = await User.find(query)
         .populate("bookings reviews comments favorites wallet")
         .sort(sortOption)
-        .select("-password") // Loại bỏ trường password và __v
         .skip(skip)
-        .limit(parseInt(limit))
-        .exec();
+        .limit(parseInt(limit));
 
       const total = await User.countDocuments(query);
 
@@ -92,102 +90,9 @@ const userController = {
   // ==== LẤY USER THEO ID ====
   getUserById: async (req, res) => {
     try {
-      const user = await User.findById(req.params.id).populate([
-        {
-          path: "comments",
-          match: { status: true },
-          populate: [
-            {
-              path: "room_class",
-              populate: {
-                path: "images",
-                match: { status: true },
-              },
-            },
-            {
-              path: "employee",
-            },
-            {
-              path: "user",
-            },
-          ],
-        },
-        {
-          path: "reviews",
-          match: { status: true },
-          populate: [
-            {
-              path: "booking",
-              populate: {
-                path: "booking_details",
-                populate: {
-                  path: "room_class",
-                  populate: {
-                    path: "images",
-                    match: { status: true },
-                  },
-                },
-              },
-            },
-            {
-              path: "user",
-            },
-            {
-              path: "employee",
-            },
-          ],
-        },
-        {
-          path: "favorites",
-          populate: {
-            path: "room_class",
-            populate: [
-              {
-                path: "images",
-                match: { status: true },
-              },
-              {
-                path: "main_room_class",
-              },
-            ],
-          },
-        },
-        { path: "wallet" },
-        {
-          path: "bookings",
-          populate: [
-            { path: "booking_status" },
-            { path: "booking_method" },
-            { path: "discounts" },
-            { path: "employee" },
-            {
-              path: "payments",
-              populate: {
-                path: "payment_method",
-              },
-            },
-            {
-              path: "booking_details",
-              populate: [
-                { path: "room" },
-                {
-                  path: "room_class",
-                  populate: {
-                    path: "images",
-                    match: { status: true }, // Chỉ lấy các hình ảnh đang hoạt động
-                  },
-                },
-                {
-                  path: "services",
-                  populate: {
-                    path: "service",
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ]);
+      const user = await User.findById(req.params.id).populate(
+        "comments reviews favorites wallet bookings"
+      );
       if (!user) {
         return res.status(404).json("Không tìm thấy user");
       }
@@ -384,7 +289,6 @@ const userController = {
       }
 
       const user = await User.findOne({ email });
-      console.log("User found:", user);
       if (!user || user.length === 0) {
         return res.status(404).json("Không tìm thấy tài khoản với email này");
       }

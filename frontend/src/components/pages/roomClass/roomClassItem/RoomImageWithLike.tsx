@@ -12,19 +12,16 @@ export default function RoomImageWithLike({
   liked: boolean;
   onLikeClick: () => void;
 }) {
-
   return (
-    <div className="position-relative">
+    <div className="position-relative tw-aspect-square">
       <Link href={`/room-class/${roomId}`}>
         <Image
-          width={250}
-          height={150}
+          fill
           src={imageUrl}
           alt={roomId}
           quality={100}
           loading="lazy"
-          className="rounded-4 h-100"
-          style={{ width: "250px" }}
+          className="tw-w-full tw-h-full tw-object-cover tw-rounded-2xl"
         />
       </Link>
       <button

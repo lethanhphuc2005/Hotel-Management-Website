@@ -50,7 +50,7 @@ const employeeController = {
     }
 
     // Kiểm tra trùng email
-    const existing = await Employee.findOne({ email });
+    const existing = await Employee.findOne({ email }).lean();
     if (
       existing &&
       (!employeeId || existing._id.toString() !== employeeId.toString())
@@ -79,7 +79,7 @@ const employeeController = {
         search,
         sort = "createdAt",
         order = "desc",
-        limit,
+        limit = 10,
         page = 1,
         role,
         status,
@@ -143,7 +143,6 @@ const employeeController = {
         .sort(sort)
         .skip(skip)
         .limit(parseInt(limit))
-        .exec();
 
       if (!users || users.length === 0) {
         return res.status(404).json({

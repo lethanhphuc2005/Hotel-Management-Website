@@ -206,6 +206,7 @@ bookingSchema.virtual("payments", {
   foreignField: "booking_id",
   options: {
     select: "payment_method_id status amount transaction_id payment_date",
+    populate: "payment_method",
   },
 });
 
@@ -223,6 +224,9 @@ bookingSchema.virtual("booking_details", {
   ref: "booking_detail",
   localField: "_id",
   foreignField: "booking_id",
+  options: {
+    populate: "room room_class services",
+  }
 });
 
 bookingSchema.set("toJSON", {
@@ -231,16 +235,6 @@ bookingSchema.set("toJSON", {
   transform: (doc, ret) => {
     ret.id = ret._id;
     delete ret._id;
-
-    // Map id trong discounts (mảng)
-    if (Array.isArray(ret.discounts)) {
-      ret.discounts = ret.discounts.map((d) => ({
-        ...d,
-        id: d._id,
-        _id: undefined,
-      }));
-    }
-
     return ret;
   },
 });

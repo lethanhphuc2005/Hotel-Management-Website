@@ -1,5 +1,4 @@
 import { FormatDatePipe } from '@/shared/pipes/format-date.pipe';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { Discount, DiscountCondition } from '@/types/discount';
 import { RoomClass } from '@/types/room-class';
 import { CommonModule } from '@angular/common';
@@ -17,11 +16,7 @@ export class DiscountDetailComponent {
   @Input() roomClasses: RoomClass[] = [];
   @Output() close = new EventEmitter();
 
-  constructor(private imageHelperService: ImageHelperService) {}
-
-  getImageUrl(imagePath: string): string {
-    return this.imageHelperService.getImageUrl(imagePath);
-  }
+  constructor() {}
 
   getRoomClassNameById(roomClassId: string): string {
     const roomClass = this.roomClasses.find((rc) => rc.id === roomClassId);

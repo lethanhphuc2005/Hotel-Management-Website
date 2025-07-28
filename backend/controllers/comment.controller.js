@@ -10,14 +10,14 @@ const commentController = {
       commentData;
 
     // Kiểm tra xem room_class_id có tồn tại không
-    const roomClass = await RoomClass.findById(room_class_id);
+    const roomClass = await RoomClass.findById(room_class_id).lean();
     if (!roomClass) {
       return { valid: false, message: "Loại phòng không hợp lệ." };
     }
 
     // Kiểm tra xem employee_id có tồn tại không
     if (employee_id) {
-      const employee = await Employee.findById(employee_id);
+      const employee = await Employee.findById(employee_id).lean();
       if (!employee) {
         return { valid: false, message: "Nhân viên không hợp lệ." };
       }
@@ -25,7 +25,7 @@ const commentController = {
 
     // Kiểm tra xem user_id có tồn tại không
     if (user_id) {
-      const user = await User.findById(user_id);
+      const user = await User.findById(user_id).lean();
       if (!user) {
         return { valid: false, message: "Người dùng không hợp lệ." };
       }
@@ -33,7 +33,7 @@ const commentController = {
 
     // Kiểm tra xem parent_id có hợp lệ không (nếu có)
     if (parent_id) {
-      const parentComment = await Comment.findById(parent_id);
+      const parentComment = await Comment.findById(parent_id).lean();
       if (!parentComment) {
         return { valid: false, message: "Bình luận cha không hợp lệ." };
       }
@@ -42,7 +42,7 @@ const commentController = {
       const existingComment = await Comment.findOne({
         _id: commentId,
         parent_id: { $ne: null },
-      });
+      }).lean();
       if (existingComment) {
         return {
           valid: false,
@@ -86,7 +86,7 @@ const commentController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort,
         order,
         status,
@@ -117,17 +117,7 @@ const commentController = {
 
       const [comments, total] = await Promise.all([
         Comment.find(query)
-          .populate([
-            {
-              path: "room_class",
-              populate: {
-                path: "images",
-                match: { status: true }, // Chỉ lấy ảnh hợp lệ
-              },
-            },
-            { path: "employee" },
-            { path: "user" },
-          ])
+          .populate("user employee room_class")
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit))
@@ -162,7 +152,7 @@ const commentController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort,
         order,
         room_class,
@@ -184,18 +174,7 @@ const commentController = {
 
       const [comments, total] = await Promise.all([
         Comment.find(query)
-          .select("-status")
-          .populate([
-            {
-              path: "room_class",
-              populate: {
-                path: "images",
-                match: { status: true }, // Chỉ lấy ảnh hợp lệ
-              },
-            },
-            { path: "employee" },
-            { path: "user" },
-          ])
+          .populate("user employee room_class")
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit))
@@ -228,10 +207,9 @@ const commentController = {
   getCommentById: async (req, res) => {
     try {
       const { id } = req.params;
-      const comment = await Comment.findById(id)
-        .populate("room_class", "-image -description")
-        .populate("employee")
-        .populate("user");
+      const comment = await Comment.findById(id).populate(
+        "room_class employee user"
+      );
 
       // Trả về bình luận
       res.status(200).json({

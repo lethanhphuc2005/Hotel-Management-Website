@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const imageController = require("../controllers/image.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const { uploadOther } = require("../middlewares/cloudinaryUpload.middleware");
 
 // === LẤY TẤT CẢ HÌNH ẢNH ===
 router.get(
@@ -17,10 +18,20 @@ router.get("/user", imageController.getAllImagesForUser);
 router.get("/:id", imageController.getImageById);
 
 // === THÊM HÌNH ẢNH ===
-router.post("/", authMiddleware.authorizeRoles("admin"), imageController.addImage);
+router.post(
+  "/",
+  authMiddleware.authorizeRoles("admin"),
+  uploadOther.single("url"), // Sử dụng middleware uploadOther để xử lý upload
+  imageController.addImage
+);
 
 // === CẬP NHẬT HÌNH ẢNH ===
-router.patch("/:id", authMiddleware.authorizeRoles("admin"), imageController.updateImage);
+router.patch(
+  "/:id",
+  authMiddleware.authorizeRoles("admin"),
+  uploadOther.single("url"), // Sử dụng middleware uploadOther để xử lý upload
+  imageController.updateImage
+);
 
 // === KÍCH HOẠT/VÔ HIỆU HÓA HÌNH ẢNH ===
 router.patch(

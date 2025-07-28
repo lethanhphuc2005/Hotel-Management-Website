@@ -61,6 +61,7 @@ ReviewSchema.virtual("room_class", {
   justOne: true,
   options: {
     select: "name description status",
+    populate: "images",
   },
 });
 
@@ -69,6 +70,9 @@ ReviewSchema.virtual("booking", {
   localField: "booking_id",
   foreignField: "_id",
   justOne: true,
+  options: {
+    populate: "booking_status booking_method booking_details",
+  }
 });
 
 ReviewSchema.virtual("user", {

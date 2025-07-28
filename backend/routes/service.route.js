@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const serviceController = require("../controllers/service.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const { uploadService } = require("../middlewares/cloudinaryUpload.middleware");
 
 // === LẤY DANH SÁCH DỊCH VỤ ===
 router.get(
@@ -16,12 +17,18 @@ router.get("/user", serviceController.getAllServicesForUser);
 router.get("/:id", serviceController.getServiceById);
 
 // === THÊM DỊCH VỤ ===
-router.post("/", authMiddleware.authorizeRoles("admin"), serviceController.addService);
+router.post(
+  "/",
+  authMiddleware.authorizeRoles("admin"),
+  uploadService.single("image"),
+  serviceController.addService
+);
 
 // === CẬP NHẬT DỊCH VỤ ===
 router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
+  uploadService.single("image"),
   serviceController.updateService
 );
 

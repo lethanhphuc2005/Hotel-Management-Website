@@ -9,6 +9,9 @@
       <strong>Mô tả:</strong> {{ roomClass.description }}
     </div>
     <div class="popup-section">
+      <strong>Loại giường:</strong> {{ roomClass.bed_type }}
+    </div>
+    <div class="popup-section">
       <strong>Số giường:</strong> {{ roomClass.bed_amount }}
     </div>
     <div class="popup-section">
@@ -66,7 +69,7 @@
           class="image-wrapper"
         >
           <img
-            [src]="getImageUrl(img.url)"
+            [src]="img.url"
             width="100"
             height="100"
             style="object-fit: cover"

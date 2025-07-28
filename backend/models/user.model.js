@@ -101,6 +101,10 @@ UserSchema.virtual("comments", {
   localField: "_id",
   foreignField: "user_id",
   justOne: false,
+  match: { status: true },
+  options: {
+    popuplate: "room_class employee user",
+  },
 });
 
 UserSchema.virtual("reviews", {
@@ -108,18 +112,31 @@ UserSchema.virtual("reviews", {
   localField: "_id",
   foreignField: "user_id",
   justOne: false,
+  match: { status: true },
+  options: {
+    populate: "booking user employee room_class",
+  },
 });
 
 UserSchema.virtual("bookings", {
   ref: "booking",
   localField: "_id",
   foreignField: "user_id",
+  justOne: false,
+  options: {
+    populate:
+      "booking_status booking_method discounts employee payments booking_details",
+  },
 });
 
 UserSchema.virtual("favorites", {
   ref: "user_favorite",
   localField: "_id",
   foreignField: "user_id",
+  justOne: false,
+  options: {
+    populate: "room_class",
+  },
 });
 
 UserSchema.virtual("wallet", {

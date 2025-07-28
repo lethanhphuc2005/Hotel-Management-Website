@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const DiscountSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    image: { type: String, default: "" },
     description: { type: String, default: "" },
     type: {
       type: String,
@@ -42,6 +41,17 @@ const DiscountSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+DiscountSchema.virtual("image", {
+  ref: "image",
+  localField: "_id",
+  foreignField: "target_id",
+  match: { target: "discount", status: true }, // Chỉ lấy ảnh có trạng thái hợp lệ
+  justOne: true,
+  options: {
+    select: "url public_id",
+  },
+});
 
 DiscountSchema.virtual("booking_count", {
   ref: "booking",

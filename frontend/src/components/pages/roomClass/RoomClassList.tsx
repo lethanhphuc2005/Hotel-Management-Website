@@ -18,34 +18,25 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import getImageUrl from "@/utils/getImageUrl";
-import Pagination from "@/components/sections/Pagination";
 
 export function RoomClassList({
-  rcl,
+  roomClasses,
   numberOfNights,
-  totalGuests,
   hasSearched,
   numberOfAdults,
-  numberOfChildren,
   startDate,
   endDate,
-  numChildrenUnder6,
-  numchildrenOver6,
-  numAdults,
-  showExtraBedOver6,
+  numberOfChildrenUnder6 = 0,
+  numberOfChildrenOver6 = 0,
 }: {
-  rcl: RoomClass[];
+  roomClasses: RoomClass[];
   numberOfNights: number;
-  totalGuests: number;
-  hasSearched?: boolean;
+  hasSearched: boolean;
   numberOfAdults?: number;
-  numberOfChildren?: number;
   startDate?: Date;
   endDate?: Date;
-  numChildrenUnder6?: number;
-  numchildrenOver6?: number;
-  numAdults?: number;
-  showExtraBedOver6?: boolean;
+  numberOfChildrenUnder6?: number;
+  numberOfChildrenOver6?: number;
 }) {
   const [favorites, setFavorites] = useState<UserFavorite[]>([]);
   useEffect(() => {
@@ -58,21 +49,17 @@ export function RoomClassList({
   }, []);
   return (
     <>
-      {rcl.map((rc) => (
+      {roomClasses.map((item) => (
         <RoomClassItem
-          rci={rc}
-          numberOfNights={numberOfNights}
-          totalGuests={totalGuests}
+          key={item.id}
+          roomClass={item}
           hasSearched={hasSearched}
-          numberOfAdults={numberOfAdults}
-          numberOfChildren={numberOfChildren}
+          numberOfNights={numberOfNights}
+          numberOfAdults={numberOfAdults ?? 1}
+          numberOfChildrenUnder6={numberOfChildrenUnder6}
+          numberOfChildrenOver6={numberOfChildrenOver6}
           startDate={startDate}
           endDate={endDate}
-          numChildrenUnder6={numChildrenUnder6}
-          numchildrenOver6={numchildrenOver6}
-          numAdults={numAdults}
-          showExtraBedOver6={showExtraBedOver6}
-          key={rc.id}
           favorites={favorites}
         />
       ))}

@@ -2,6 +2,9 @@ const router = require("express").Router();
 
 const DiscountController = require("../controllers/discount.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const {
+  uploadDiscount,
+} = require("../middlewares/cloudinaryUpload.middleware");
 
 // === LẤY TẤT CẢ KHUYẾN MÃI ===
 router.get(
@@ -20,6 +23,7 @@ router.get("/:id", DiscountController.getDiscountById);
 router.post(
   "/",
   authMiddleware.authorizeRoles("admin"),
+  uploadDiscount.single("image"),
   DiscountController.createDiscount
 );
 
@@ -27,6 +31,7 @@ router.post(
 router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
+  uploadDiscount.single("image"),
   DiscountController.updateDiscount
 );
 

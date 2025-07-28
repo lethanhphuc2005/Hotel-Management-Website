@@ -11,7 +11,6 @@ export const useRoomClass = (
   params?: Partial<Parameters<typeof fetchRoomClasses>[0]>,
   page = 1,
   limit = 10,
-  hasSearched = false
 ) => {
   const [roomClasses, setRoomClasses] = useState<RoomClass[]>([]);
   const [totalRoomClasses, setTotalRoomClasses] = useState<number>(0);
@@ -24,11 +23,7 @@ export const useRoomClass = (
       try {
         const [roomClassesData, featuresData, mainRoomClassesData] =
           await Promise.all([
-            fetchRoomClasses({
-              ...params,
-              page,
-              limit,
-            }),
+            fetchRoomClasses(params),
             fetchFeatures(),
             fetchMainRoomClasses(),
           ]);
@@ -46,7 +41,6 @@ export const useRoomClass = (
                 .join(", ")
           );
         }
-        console.log("roomClassesData", roomClassesData);
         setRoomClasses(roomClassesData.data);
         setTotalRoomClasses(roomClassesData.pagination?.total || 0);
         setFeatures(featuresData.data);

@@ -88,7 +88,6 @@ export class LoginComponent implements OnInit {
         alert('Bạn đã đăng ký thành công');
       });
     }
-    console.log(this.registerF);
   }
   toggleForm() {
     this.isActive = !this.isActive;

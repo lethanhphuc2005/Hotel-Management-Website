@@ -43,7 +43,7 @@ export class MainRoomClassComponent implements OnInit {
     name: '',
     description: '',
     status: true,
-    images: null,
+    image: null,
     uploadImage: null,
   };
   filter: MainRoomClassFilter = {
@@ -137,7 +137,7 @@ export class MainRoomClassComponent implements OnInit {
         name: '',
         description: '',
         status: true,
-        images: null,
+        image: null,
         uploadImage: null,
       };
     } else if (item) {
@@ -147,7 +147,7 @@ export class MainRoomClassComponent implements OnInit {
         name: item.name,
         description: item.description,
         status: item.status,
-        images: item.images,
+        image: item.image,
         uploadImage: null,
       };
     }
@@ -162,9 +162,10 @@ export class MainRoomClassComponent implements OnInit {
       name: '',
       description: '',
       status: true,
-      images: null,
+      image: null,
       uploadImage: null,
     };
+    this.imagePreview = null;
   }
 
   onFileSelected(file: File): void {

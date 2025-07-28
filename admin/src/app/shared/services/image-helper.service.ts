@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment'; // Đảm bảo đường dẫn đúng
+import { environment } from '@env/environment'; // Đảm bảo đường dẫn đúng
 
 @Injectable({
   providedIn: 'root',

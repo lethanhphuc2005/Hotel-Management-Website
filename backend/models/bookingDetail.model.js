@@ -35,6 +35,7 @@ BookingDetailSchema.virtual("room", {
   justOne: true,
   options: {
     select: "name floor status",
+    populate: "room_status", 
   },
 });
 
@@ -45,6 +46,7 @@ BookingDetailSchema.virtual("room_class", {
   justOne: true,
   options: {
     select: "name description status",
+    populate: "main_room_class features images",
   },
 });
 
@@ -59,6 +61,10 @@ BookingDetailSchema.virtual("services", {
   ref: "booking_detail_service",
   localField: "_id",
   foreignField: "booking_detail_id",
+  options: {
+    select: "service_id amount used_at",
+    populate: "service",
+  },
 });
 
 BookingDetailSchema.set("toJSON", {

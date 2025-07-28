@@ -18,18 +18,18 @@ const reviewController = {
       parent_id,
     } = reviewData;
     // Kiểm tra xem booking_id có tồn tại không
-    const booking = await Booking.findById(booking_id);
+    const booking = await Booking.findById(booking_id).lean();
     if (!booking) {
       return { valid: false, message: "Đơn đặt phòng không hợp lệ." };
     }
 
     // Kiểm tra xem room_class_id có tồn tại không
-    const roomClass = await RoomClass.findById(room_class_id);
+    const roomClass = await RoomClass.findById(room_class_id).lean();
     if (!roomClass) {
       return { valid: false, message: "Loại phòng không hợp lệ." };
     }
     // Kiểm tra xem loại phòng có thuộc về đơn đặt phòng không
-    const bookingDetails = await BookingDetail.find({ booking_id });
+    const bookingDetails = await BookingDetail.find({ booking_id }).lean();
     const isRoomClassValid = bookingDetails.some(
       (detail) => detail.room_class_id.toString() === room_class_id.toString()
     );
@@ -42,7 +42,7 @@ const reviewController = {
 
     // Kiểm tra xem employee_id có tồn tại không
     if (employee_id) {
-      const employee = await Employee.findById(employee_id);
+      const employee = await Employee.findById(employee_id).lean();
       if (!employee) {
         return { valid: false, message: "Nhân viên không hợp lệ." };
       }
@@ -50,7 +50,7 @@ const reviewController = {
 
     // Kiểm tra xem user_id có tồn tại không
     if (user_id) {
-      const user = await User.findById(user_id);
+      const user = await User.findById(user_id).lean();
       if (!user) {
         return { valid: false, message: "Người dùng không hợp lệ." };
       }
@@ -65,7 +65,7 @@ const reviewController = {
 
     // Kiểm tra xem parent_id có hợp lệ không (nếu có)
     if (parent_id) {
-      const parentReview = await Review.findById(parent_id);
+      const parentReview = await Review.findById(parent_id).lean();
       if (!parentReview) {
         return { valid: false, message: "Đánh giá cha không hợp lệ." };
       }
@@ -152,21 +152,7 @@ const reviewController = {
 
       const [reviews, total] = await Promise.all([
         Review.find(query)
-          .populate([
-            {
-              path: "booking",
-              populate: "booking_status booking_method booking_details",
-            },
-            {
-              path: "room_class",
-              populate: {
-                path: "images",
-                match: { status: true }, // Chỉ lấy hình ảnh đang hoạt động
-              },
-            },
-            { path: "user" },
-            { path: "employee" },
-          ])
+          .populate("booking room_class user employee")
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -225,21 +211,7 @@ const reviewController = {
 
       const [reviews, total] = await Promise.all([
         Review.find(query)
-          .populate([
-            {
-              path: "booking",
-              populate: "booking_status booking_method booking_details",
-            },
-            {
-              path: "room_class",
-              populate: {
-                path: "images",
-                match: { status: true }, // Chỉ lấy hình ảnh đang hoạt động
-              },
-            },
-            { path: "user" },
-            { path: "employee" },
-          ])
+          .populate("booking room_class user employee")
           .sort(sortOptions)
           .skip(skip)
           .limit(parseInt(limit)),
@@ -270,21 +242,9 @@ const reviewController = {
     try {
       const { id } = req.params;
 
-      const review = await Review.findById(id).populate([
-        {
-          path: "booking",
-          populate: "booking_status booking_method booking_details",
-        },
-        {
-          path: "room_class",
-          populate: {
-            path: "images",
-            match: { status: true }, // Chỉ lấy hình ảnh đang hoạt động
-          },
-        },
-        { path: "user" },
-        { path: "employee" },
-      ]);
+      const review = await Review.findById(id).populate(
+        "booking room_class user employee"
+      );
 
       if (!review) {
         return res.status(404).json({ message: "Đánh giá không tồn tại." });
@@ -313,13 +273,13 @@ const reviewController = {
       }
 
       const booking = await Booking.findById(newReview.booking_id);
-      const validBookingStatus = await BookingStatus.find({
+      const validBookingStatus = await BookingStatus.findOne({
         code: "CHECKED_OUT",
-      });
+      }).lean();
 
       if (
         booking.booking_status_id.toString() !==
-        validBookingStatus[0]._id.toString()
+        validBookingStatus._id.toString()
       ) {
         return res
           .status(400)
@@ -342,7 +302,7 @@ const reviewController = {
           user_id,
           room_class_id,
           status: true,
-        });
+        }).lean();
         if (existingReview) {
           return res
             .status(400)

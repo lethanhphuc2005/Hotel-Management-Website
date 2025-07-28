@@ -8,7 +8,7 @@ export interface MainRoomClass {
   description: string;
   status: boolean;
   room_class_list?: RoomClass[];
-  images?: Image[];
+  image?: Image | null; // Image can be null if not provided
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,7 +27,7 @@ export interface MainRoomClassDetailResponse {
 export interface MainRoomClassRequest {
   name?: string;
   description?: string;
-  images?: Image[] | null;
+  image?: Image | null;
   uploadImage?: File | null;
   status?: boolean;
 }

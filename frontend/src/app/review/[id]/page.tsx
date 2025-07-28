@@ -19,11 +19,14 @@ import { ServiceBooking } from "@/types/service";
 import { Discount } from "@/types/discount";
 
 export default function RateAfterBookingPage() {
+
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
   const [reviews, setReviews] = useState<{ [key: string]: string }>({});
 
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [roomClass, setRoomClass] = useState<BookingDetail[] | null>(null);
+  const [bookingDetail, setBookingDetail] = useState<BookingDetail[] | null>(
+    null
+  );
   const [didFetch, setDidFetch] = useState(false);
   const searchParams = useParams();
 
@@ -31,15 +34,6 @@ export default function RateAfterBookingPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const bookingId = searchParams.id?.toLocaleString();
 
-  if (!user) {
-    return (
-      <div className="tw-container tw-my-[80px] tw-mx-auto tw-px-4 tw-text-white">
-        <h1 className="tw-text-3xl tw-font-bold tw-text-primary tw-text-center">
-          Bạn cần đăng nhập để đánh giá
-        </h1>
-      </div>
-    );
-  }
   useEffect(() => {
     if (isAuthLoading || didFetch) return;
 
@@ -55,8 +49,8 @@ export default function RateAfterBookingPage() {
     }
 
     try {
-      setDidFetch(true);
       setLoading(true);
+      setDidFetch(true);
       // Lấy thông tin đặt phòng từ API
       const fetchBooking = async () => {
         const response = await getBookingById(bookingId);
@@ -72,7 +66,7 @@ export default function RateAfterBookingPage() {
           return;
         }
         setBooking(data);
-        setRoomClass(data.booking_details);
+        setBookingDetail(data.booking_details || []);
       };
       fetchBooking();
     } catch (error) {
@@ -98,6 +92,10 @@ export default function RateAfterBookingPage() {
       return;
     }
 
+    if (!user) {
+      toast.error("Bạn cần đăng nhập để gửi đánh giá.");
+      return;
+    }
     try {
       const response = await createReview({
         bookingId: booking.id,
@@ -116,12 +114,12 @@ export default function RateAfterBookingPage() {
       toast.success("Đánh giá đã được gửi!");
       setRatings((prev) => ({ ...prev, [bookingDetailId]: 0 }));
       setReviews((prev) => ({ ...prev, [bookingDetailId]: "" }));
+      window.location.href = `/profile`; // Điều hướng lại trang đánh giá
     } catch (error) {
       console.error("Lỗi gửi đánh giá:", error);
       toast.error("Không thể gửi đánh giá. Vui lòng thử lại sau.");
     }
   };
-
   return (
     <div className="tw-container tw-my-[80px] tw-mx-auto tw-px-4 tw-text-white">
       <h1 className="tw-text-3xl tw-font-bold tw-text-primary tw-text-center">
@@ -144,7 +142,7 @@ export default function RateAfterBookingPage() {
               <strong>{formatDate(booking.booking_date ?? new Date())}</strong>
             </li>
             <li>
-              Hình thức: <strong>{booking.booking_method?.name}</strong>
+              Hình thức: <strong>{booking.booking_method.name}</strong>
             </li>
             <li>
               Họ tên: <strong>{booking.full_name}</strong>
@@ -172,8 +170,8 @@ export default function RateAfterBookingPage() {
               <li>
                 <p className="tw-mt-2">Khuyến mãi áp dụng:</p>
                 <ul className="tw-list-disc tw-ml-5">
-                  {booking.discounts.map((discount: Discount) => (
-                    <li key={discount.id}>
+                  {booking.discounts.map((discount: Discount, index) => (
+                    <li key={discount.id || index}>
                       {discount.name} -{" "}
                       {discount.value_type === "percent"
                         ? `${discount.value * 100}%`
@@ -211,8 +209,8 @@ export default function RateAfterBookingPage() {
 
         {/* THÔNG TIN CÁC PHÒNG */}
         <div className="tw-space-y-6">
-          {roomClass?.map((item, index) => (
-            <div key={item.id}>
+          {bookingDetail?.map((item, index) => (
+            <div key={item.id || index}>
               <div className="tw-bg-[#1a1a1a] tw-p-4 tw-rounded-2xl tw-flex tw-gap-4 tw-shadow-md">
                 <Image
                   src={

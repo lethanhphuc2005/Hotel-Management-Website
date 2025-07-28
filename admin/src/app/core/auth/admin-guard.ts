@@ -28,10 +28,7 @@ export class AuthGuard implements CanActivate {
 
     const user = JSON.parse(loginData);
     const isAdminRoute = route.data['adminOnly'] === true;
-    console.log('Kiểm tra quyền truy cập:', {
-      isAdminRoute,
-      userRole: user.data?.role,
-    });
+
     if (isAdminRoute && user.data?.role !== 'admin') {
       this.toastr.error('Bạn không có quyền truy cập vào trang này');
       return this.router.parseUrl('/home');

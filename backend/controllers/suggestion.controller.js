@@ -11,9 +11,9 @@ const suggestionController = {
 
     try {
       const [roomClasses, features, services] = await Promise.all([
-        RoomClass.find({ status: true }).select("name "),
-        Feature.find({ status: true }).select("name "),
-        Service.find({ status: true }).select("name "),
+        RoomClass.find({ status: true }).select("name"),
+        Feature.find({ status: true }).select("name"),
+        Service.find({ status: true }).select("name"),
       ]);
 
       // Gộp tất cả vào 1 mảng
@@ -67,12 +67,7 @@ const suggestionController = {
       const normalizedQuery = removeVietnameseTones(rawQuery);
 
       const [roomClasses, services, features] = await Promise.all([
-        RoomClass.find({ status: true }).populate({
-          path: "images",
-          ref: "image",
-          select: "url",
-          match: { status: true },
-        }),
+        RoomClass.find({ status: true }).populate("images"),
         Service.find({ status: true }),
         Feature.find({ status: true }),
       ]);

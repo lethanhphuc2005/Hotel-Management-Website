@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { Booking } from '@/types/booking'; // Điều chỉnh theo dự án bạn
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { Discount } from '@/types/discount';
 
 @Component({
@@ -15,7 +14,7 @@ export class BookingDetailPopupComponent {
   @Input() booking!: Booking;
   @Output() onClose = new EventEmitter();
 
-  constructor(private imageHelper: ImageHelperService) {}
+  constructor() {}
 
   OnInit() {}
 
@@ -58,10 +57,6 @@ export class BookingDetailPopupComponent {
       default:
         return 'Không rõ trạng thái';
     }
-  }
-
-  getImageUrl(imagePath: string): string {
-    return this.imageHelper.getImageUrl(imagePath);
   }
 
   getDiscountText(discount: Discount): string {

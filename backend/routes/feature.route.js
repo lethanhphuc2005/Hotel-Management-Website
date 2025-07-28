@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const featureController = require("../controllers/feature.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const { uploadFeature } = require("../middlewares/cloudinaryUpload.middleware");
 
 // === LẤY TẤT CẢ TIỆN NGHI ===
 router.get(
@@ -16,12 +17,18 @@ router.get("/user", featureController.getAllFeaturesForUser);
 router.get("/:id", featureController.getFeatureById);
 
 // === THÊM TIỆN NGHI ===
-router.post("/", authMiddleware.authorizeRoles("admin"), featureController.addFeature);
+router.post(
+  "/",
+  authMiddleware.authorizeRoles("admin"),
+  uploadFeature.single("image"),
+  featureController.addFeature
+);
 
 // === CẬP NHẬT TIỆN NGHI ===
 router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
+  uploadFeature.single("image"),
   featureController.updateFeature
 );
 

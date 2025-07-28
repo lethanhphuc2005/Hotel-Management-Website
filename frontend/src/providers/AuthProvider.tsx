@@ -15,11 +15,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("accessToken");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const storedToken = localStorage.getItem("accessToken");
+    if (storedToken) {
+      // Nếu đã có token, gọi API lấy profile để giữ đăng nhập
+      fetchProfile()
+        .then((res) => {
+          if (res?.data) setUser(res.data);
+          else setUser(null);
+        })
+        .catch(() => setUser(null))
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const loginWithGoogle = async (accessToken: string) => {

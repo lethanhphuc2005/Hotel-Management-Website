@@ -190,7 +190,6 @@ const walletController = {
   checkIpnDeposit: async (req, res) => {
     try {
       const { method } = req.params;
-      console.log("Checking IPN for method:", method);
       if (!method) {
         return res.status(400).json({
           error: "Payment method is required",

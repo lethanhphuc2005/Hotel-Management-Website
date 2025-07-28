@@ -8,7 +8,6 @@ import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { DiscountListComponent } from './discount-list/discount-list.component';
 import { DiscountFilterComponent } from './discount-filter/discount-filter.component';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { DiscountFormComponent } from './discount-form/discount-form.component';
 import { RoomClassService } from '@/core/services/room-class.service';
 import { RoomClass } from '@/types/room-class';
@@ -68,16 +67,11 @@ export class DiscountComponent implements OnInit {
     private discountService: DiscountService,
     private roomClassService: RoomClassService,
     private toastr: ToastrService,
-    private imageHelperService: ImageHelperService
   ) {}
 
   ngOnInit(): void {
     this.fetchDiscounts();
     this.fetchRoomClasses();
-  }
-
-  getImageUrl(image: string): string {
-    return this.imageHelperService.getImageUrl(image);
   }
 
   fetchDiscounts(): void {
@@ -196,7 +190,7 @@ export class DiscountComponent implements OnInit {
     } else if (item) {
       // Mở form chỉnh sửa
       this.selectedDiscount = item;
-      this.imagePreview = this.getImageUrl(item.image);
+      this.imagePreview = item.image?.url || null;
       this.newDiscount = {
         name: item.name,
         image: null, // Image will be handled separately

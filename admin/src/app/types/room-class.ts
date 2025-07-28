@@ -11,6 +11,7 @@ export interface RoomClass {
   main_room_class_id: string;
   name: string;
   description: string;
+  bed_type: string;
   bed_amount: number;
   capacity: number;
   price: number;
@@ -43,6 +44,7 @@ export interface RoomClassRequest {
   main_room_class_id?: string;
   name?: string;
   description?: string;
+  bed_type?: string;
   bed_amount?: number;
   capacity?: number;
   price?: number;

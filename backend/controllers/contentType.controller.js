@@ -17,7 +17,7 @@ const contentTypeController = {
       return { valid: false, message: "Tên hoặc mô tả loại nội dung quá dài." };
     }
     // Kiểm tra trùng tên
-    const existing = await ContentType.findOne({ name });
+    const existing = await ContentType.findOne({ name }).lean();
     if (
       existing &&
       (!contentTypeId || existing._id.toString() !== contentTypeId.toString())
@@ -34,7 +34,7 @@ const contentTypeController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort = "createdAt",
         order = "desc",
         status, // Thêm tham số lọc trạng thái
@@ -72,8 +72,7 @@ const contentTypeController = {
           .populate("website_content_list")
           .sort(sortOption)
           .skip(skip)
-          .limit(parseInt(limit))
-          .exec(),
+          .limit(parseInt(limit)),
         ContentType.countDocuments(query),
       ]);
 
@@ -103,7 +102,7 @@ const contentTypeController = {
       const {
         search = "",
         page = 1,
-        limit,
+        limit = 10,
         sort = "createdAt",
         order = "desc",
       } = req.query;
@@ -126,15 +125,10 @@ const contentTypeController = {
 
       const [contentTypes, total] = await Promise.all([
         ContentType.find(query)
-          .select("-status -createdAt -updatedAt") // Loại bỏ các trường không cần thiết
-          .populate({
-            path: "website_content_list",
-            match: { status: true },
-          })
+          .populate("website_content_list")
           .sort(sortOption)
           .skip(skip)
-          .limit(parseInt(limit))
-          .exec(),
+          .limit(parseInt(limit)),
         ContentType.countDocuments(query),
       ]);
 
@@ -161,9 +155,9 @@ const contentTypeController = {
   // === LẤY LOẠI NỘI DUNG THEO ID ===
   getContentTypeById: async (req, res) => {
     try {
-      const contentType = await ContentType.findById(req.params.id)
-        .populate("website_content_list")
-        .exec();
+      const contentType = await ContentType.findById(req.params.id).populate(
+        "website_content_list"
+      );
       if (!contentType) {
         return res
           .status(404)

@@ -106,6 +106,23 @@ export default function ChatbotPopup() {
         const startDate = new Date(checkInISO);
         const endDate = new Date(checkOutISO);
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isStartToday =
+          startDate instanceof Date &&
+          new Date(startDate).setHours(0, 0, 0, 0) === today.getTime();
+
+        const isEndToday =
+          endDate instanceof Date &&
+          new Date(endDate).setHours(0, 0, 0, 0) === today.getTime();
+
+        if (isStartToday || isEndToday) {
+          toast.error(
+            "Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!"
+          );
+          return;
+        }
+
         const numberOfNights = bookingData.booking_details?.[0]?.nights || 1;
         const adults = bookingData.adult_amount || 1;
         const children = bookingData.child_amount || 0;

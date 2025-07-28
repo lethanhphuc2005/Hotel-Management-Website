@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { ServiceRequest } from '@/types/service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -18,16 +17,12 @@ export class ServiceFormComponent {
   @Output() close = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
 
-  constructor(private imageHelperService: ImageHelperService) {}
+  constructor() {}
 
   onFileInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.fileSelected.emit(input.files[0]);
     }
-  }
-
-  getImageUrl(image: string | File): string {
-    return this.imageHelperService.getImageUrl(image);
   }
 }

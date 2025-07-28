@@ -30,6 +30,23 @@
         ></textarea>
       </div>
 
+      <!-- Loại giường -->
+      <div>
+        <label for="bed_type">Loại giường</label>
+        <select
+          class="form-select form-control mb-3"
+          [(ngModel)]="formData.bed_type"
+          name="bed_type"
+          required
+        >
+          <option value="" disabled>-- Chọn loại giường --</option>
+          <option value="đôi">Đôi</option>
+          <option value="đơn">Đơn</option>
+          <option value="queen">Queen</option>
+          <option value="king">King</option>
+        </select>
+      </div>
+
       <!-- Giường & Sức chứa -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
         <div>
@@ -70,25 +87,37 @@
           />
         </div>
         <div>
-          <label for="view">View</label>
-          <select
-            class="form-select form-control"
-            [(ngModel)]="formData.view"
-            name="view"
+          <label for="price">Giá khuyến mãi:</label>
+          <input
+            class="form-control mb-3"
+            type="number"
+            id="price_discount"
+            name="price_discount"
+            [(ngModel)]="formData.price_discount"
             required
-          >
-            <option value="" disabled>Chọn view</option>
-            <option value="biển">Biển</option>
-            <option value="núi">Núi</option>
-            <option value="thành phố">Thành phố</option>
-            <option value="vườn">Vườn</option>
-            <option value="hồ bơi">Hồ bơi</option>
-            <option value="sông">Sông</option>
-            <option value="hồ">Hồ</option>
-          </select>
+          />
         </div>
       </div>
 
+      <!-- View -->
+      <div>
+        <label for="view">View</label>
+        <select
+          class="form-select form-control mb-3"
+          [(ngModel)]="formData.view"
+          name="view"
+          required
+        >
+          <option value="" disabled>Chọn view</option>
+          <option value="biển">Biển</option>
+          <option value="núi">Núi</option>
+          <option value="thành phố">Thành phố</option>
+          <option value="vườn">Vườn</option>
+          <option value="hồ bơi">Hồ bơi</option>
+          <option value="sông">Sông</option>
+          <option value="hồ">Hồ</option>
+        </select>
+      </div>
       <!-- Loại phòng chính -->
       <div class="popup-section">
         <label for="mainRoomClass">Loại phòng chính:</label>
@@ -97,7 +126,7 @@
           name="mainRoomClass"
           [(ngModel)]="formData.main_room_class_id"
           required
-          class="form-select form-control"
+          class="form-select form-control mb-3"
         >
           <option value="" disabled>Chọn loại phòng chính</option>
           <option *ngFor="let mrc of mainRoomClasses" [value]="mrc.id">
@@ -109,12 +138,13 @@
       <!-- Tiện nghi -->
       <div class="popup-section">
         <label>Chọn tiện nghi:</label>
-        <div *ngFor="let f of features">
+        <div *ngFor="let f of features" class="mb-2">
           <label>
             <input
               type="checkbox"
               [checked]="isFeatureChecked(f.id)"
               (change)="onToggleFeature(f.id, $event)"
+              class="form-check-input"
             />
             {{ f.name }}
           </label>

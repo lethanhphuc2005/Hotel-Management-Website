@@ -1,9 +1,9 @@
 const Service = require("../models/service.model");
+const Image = require("../models/image.model");
 const {
-  upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload.middleware");
+} = require("../middlewares/cloudinaryUpload.middleware.js");
 
 const serviceController = {
   // === KIỂM TRA ĐIỀU KIỆN DỊCH VỤ ===
@@ -39,7 +39,7 @@ const serviceController = {
     }
 
     // Kiểm tra tên dịch vụ có bị trùng không
-    const existingService = await Service.findOne({ name });
+    const existingService = await Service.findOne({ name }).select("_id name").lean();
     if (
       existingService &&
       (!serviceId || existingService._id.toString() !== serviceId.toString())
@@ -54,7 +54,7 @@ const serviceController = {
     try {
       const {
         page = 1,
-        limit,
+        limit = 10,
         search = "",
         sort = "price",
         order = "desc",
@@ -87,6 +87,7 @@ const serviceController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const total = await Service.countDocuments(query);
       const services = await Service.find(query)
+        .populate("image")
         .sort(sortOption)
         .skip(skip)
         .limit(limit);
@@ -115,7 +116,7 @@ const serviceController = {
     try {
       const {
         page = 1,
-        limit,
+        limit = 10,
         search = "",
         sort = "price",
         order = "asc",
@@ -135,6 +136,7 @@ const serviceController = {
       const skip = (parseInt(page) - 1) * parseInt(limit);
       const total = await Service.countDocuments(query);
       const services = await Service.find(query)
+        .populate("image")
         .sort(sortObj)
         .skip(skip)
         .limit(limit);
@@ -161,7 +163,7 @@ const serviceController = {
   // === LẤY DỊCH VỤ THEO ID ===
   getServiceById: async (req, res) => {
     try {
-      const service = await Service.findById(req.params.id);
+      const service = await Service.findById(req.params.id).populate("image");
       if (!service) {
         return res.status(404).json({ message: "Dịch vụ không tồn tại" });
       }
@@ -176,95 +178,106 @@ const serviceController = {
   },
 
   // === THÊM DỊCH VỤ MỚI ===
-  addService: [
-    upload.single("image"),
-    async (req, res) => {
-      try {
-        const newService = new Service(req.body);
-        const validation = await serviceController.validateService(newService);
-        if (!validation.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        // Gắn ảnh nếu có
+  addService: async (req, res) => {
+    try {
+      const newService = new Service(req.body);
+      const validation = await serviceController.validateService(newService);
+      if (!validation.valid) {
         if (req.file) {
-          newService.image = req.file.filename;
+          deleteImagesOnError([req.file]);
         }
-
-        // Lưu dịch vụ mới
-        await newService.save();
-
-        res.status(201).json({
-          message: "Thêm dịch vụ thành công",
-          data: newService,
-        });
-      } catch (error) {
-        if (req.file) {
-          deleteImagesOnError(req.file);
-        }
-        res.status(500).json({ message: error.message });
+        return res.status(400).json({ message: validation.message });
       }
-    },
-  ],
+
+      // Gắn ảnh nếu có
+      if (req.file) {
+        const image = new Image({
+          url: req.file.path,
+          public_id: req.file.filename, // public_id từ Cloudinary
+          target: "service",
+          target_id: newService._id,
+        });
+        await image.save();
+      }
+
+      // Lưu dịch vụ mới
+      await newService.save();
+
+      res.status(201).json({
+        message: "Thêm dịch vụ thành công",
+        data: newService,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      res.status(500).json({ message: error.message });
+    }
+  },
 
   // === CẬP NHẬT DỊCH VỤ ===
-  updateService: [
-    upload.single("image"),
-    async (req, res) => {
-      try {
-        const serviceToUpdate = await Service.findById(req.params.id);
-        if (!serviceToUpdate) {
-          return res.status(404).json({ message: "Dịch vụ không tồn tại" });
-        }
-
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? serviceToUpdate.toObject()
-            : { ...serviceToUpdate.toObject(), ...req.body };
-
-        const validation = await serviceController.validateService(
-          updatedData,
-          req.params.id,
-          req.file
-        );
-        if (!validation.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validation.message });
-        }
-
-        // Gắn ảnh mới nếu có
-        if (req.file) {
-          updatedData.image = req.file.filename;
-          // Xoá ảnh cũ nếu có
-          if (serviceToUpdate.image) {
-            deleteOldImages(serviceToUpdate.image);
-          }
-        } else {
-          updatedData.image = serviceToUpdate.image;
-        }
-
-        const updatedService = await Service.findByIdAndUpdate(
-          req.params.id,
-          updatedData,
-          { new: true }
-        );
-        res.status(200).json({
-          message: "Cập nhật dịch vụ thành công",
-          data: updatedService,
-        });
-      } catch (error) {
-        if (req.file) {
-          deleteImagesOnError(req.file);
-        }
-        res.status(500).json({ message: error.message });
+  updateService: async (req, res) => {
+    try {
+      const serviceToUpdate = await Service.findById(req.params.id);
+      if (!serviceToUpdate) {
+        return res.status(404).json({ message: "Dịch vụ không tồn tại" });
       }
-    },
-  ],
+
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? serviceToUpdate.toObject()
+          : { ...serviceToUpdate.toObject(), ...req.body };
+
+      const validation = await serviceController.validateService(
+        updatedData,
+        req.params.id,
+        req.file
+      );
+      if (!validation.valid) {
+        if (req.file) {
+          deleteImagesOnError([req.file]);
+        }
+        return res.status(400).json({ message: validation.message });
+      }
+
+      // Gắn ảnh mới nếu có
+      if (req.file) {
+        const oldImage = await Image.findOne({
+          target: "service",
+          target_id: serviceToUpdate._id,
+        });
+        if (oldImage) {
+          await deleteOldImages([oldImage.public_id]);
+          oldImage.url = req.file.path;
+          oldImage.public_id = req.file.filename; // public_id từ Cloudinary
+          await oldImage.save();
+        } else {
+          const newImage = new Image({
+            url: req.file.path,
+            public_id: req.file.filename, // public_id từ Cloudinary
+            target: "service",
+            target_id: serviceToUpdate._id,
+          });
+          await newImage.save();
+        }
+      }
+
+      const updatedService = await Service.findByIdAndUpdate(
+        req.params.id,
+        updatedData,
+        { new: true }
+      );
+      res.status(200).json({
+        message: "Cập nhật dịch vụ thành công",
+        data: updatedService,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      res.status(500).json({ message: error.message });
+    }
+  },
 
   // === KÍCH HOẠT/ VÔ HIỆU HOÁ DỊCH VỤ ===
   toggleServiceStatus: async (req, res) => {

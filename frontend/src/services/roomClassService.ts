@@ -10,38 +10,17 @@ import {
 } from "@/types/roomClass";
 import { Comment } from "@/types/comment";
 
-export const fetchRoomClasses = async ({
-  search = "",
-  page = 1,
-  limit = 10,
-  sort = "createdAt",
-  order = "desc",
-  check_in_date,
-  check_out_date,
-}: {
-  search?: string;
-  page?: number;
-  limit?: number;
-  sort?: string;
-  order?: "asc" | "desc";
-  check_in_date?: string;
-  check_out_date?: string;
-}): Promise<RoomClassListResponse> => {
+export const fetchRoomClasses = async (
+  memoizedParams = {}
+): Promise<RoomClassListResponse> => {
   try {
-    const response = await getRoomClassesApi({
-      search,
-      page,
-      limit,
-      sort,
-      order,
-      check_in_date,
-      check_out_date,
-    });
+    const response = await getRoomClassesApi(memoizedParams);
     const data = response.data;
     const roomClasses: RoomClass[] = data.map((item: any) => ({
       id: item.id || item._id,
       main_room_class_id: item.main_room_class_id || "",
       name: item.name,
+      bed_type: item.bed_type,
       bed_amount: item.bed_amount || 0,
       capacity: item.capacity || 0,
       price: item.price || 0,
@@ -122,6 +101,7 @@ export const fetchRoomClassById = async (
       id: data.id || data._id,
       main_room_class_id: data.main_room_class_id || "",
       name: data.name,
+      bed_type: data.bed_type,
       bed_amount: data.bed_amount || 0,
       capacity: data.capacity || 0,
       price: data.price || 0,

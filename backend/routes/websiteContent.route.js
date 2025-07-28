@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const websiteContentController = require("../controllers/websiteContent.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const { uploadContent } = require("../middlewares/cloudinaryUpload.middleware");
 
 // === LẤY TẤT CẢ NỘI DUNG WEBSITE ===
 router.get(
@@ -20,6 +21,7 @@ router.get("/:id", websiteContentController.getWebsiteContentById);
 router.post(
   "/",
   authMiddleware.authorizeRoles("admin"),
+  uploadContent.single("image"),
   websiteContentController.addWebsiteContent
 );
 
@@ -27,6 +29,7 @@ router.post(
 router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
+  uploadContent.single("image"),
   websiteContentController.updateWebsiteContent
 );
 

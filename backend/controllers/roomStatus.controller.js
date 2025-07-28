@@ -19,7 +19,7 @@ const roomStatusController = {
     // Kiểm tra trùng tên
     const existing = await RoomStatus.findOne({
       name,
-    });
+    }).select("_id name").lean();
     if (
       existing &&
       (!statusId || existing._id.toString() !== statusId.toString())

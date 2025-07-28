@@ -168,7 +168,7 @@
           <img
             *ngIf="detail.room_class_id"
             class="tw-w-16 tw-h-16 tw-rounded tw-object-cover"
-            [src]="getImageUrl(detail.room_class.images?.[0]?.url || '')"
+            [src]="detail.room_class.images?.[0]?.url"
             [alt]="detail.room_class.name"
           />
           <div class="tw-flex-1">

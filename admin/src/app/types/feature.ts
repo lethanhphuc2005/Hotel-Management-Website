@@ -1,11 +1,12 @@
 import { FilterParams, PaginationResponse } from './_common';
+import { Image } from './image';
 import { RoomClass } from './room-class';
 
 export interface Feature {
   id: string;
   name: string;
   description: string;
-  image?: string;
+  image?: Image | null; // Image can be null if not provided
   icon: string;
   status: boolean;
   createdAt?: Date;

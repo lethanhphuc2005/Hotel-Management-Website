@@ -33,6 +33,7 @@ userFavoriteSchema.virtual("room_class", {
   justOne: true, // Chỉ lấy một đối tượng
   options: {
     select: "name description price status view main_room_class_id", // Chọn các trường cần thiết
+    populate: "images main_room_class",
   },
 });
 
@@ -40,7 +41,7 @@ userFavoriteSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: function (doc, ret) {
-     ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
+    ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi
     delete ret._id;
     return ret;
   },

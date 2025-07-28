@@ -80,7 +80,7 @@ export class AuthService {
   // Đăng xuất người dùng
   logout(): Observable<void> {
     return this.httpClient.post<void>(
-      `${this.baseUrl}/auth/logout`,
+      `${this.baseUrl}/auth/logout-admin`,
       {},
       {
         withCredentials: true,

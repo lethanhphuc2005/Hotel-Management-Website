@@ -15,12 +15,6 @@ const FeatureSchema = new mongoose.Schema(
       trim: true,
       maxlength: 500,
     },
-    image: {
-      type: String,
-      default: "",
-      trim: true,
-      maxlength: 255,
-    },
     icon: {
       type: String,
       default: "",
@@ -36,10 +30,25 @@ const FeatureSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+FeatureSchema.virtual("image", {
+  ref: "image",
+  localField: "_id",
+  foreignField: "target_id",
+  match: { target: "feature", status: true }, // Chỉ lấy ảnh có trạng thái hợp lệ
+  justOne: true,
+  options: {
+    select: "url public_id",
+  },
+});
+
 FeatureSchema.virtual("room_class_used_list", {
   ref: "room_class_feature",
   localField: "_id",
   foreignField: "feature_id",
+  justOne: false,
+  options: {
+    populate: "room_class",
+  },
 });
 
 FeatureSchema.set("toJSON", {
@@ -75,6 +84,7 @@ Room_Class_FeatureSchema.virtual("room_class", {
   justOne: true,
   options: {
     select: "name description status",
+    populate: "images",
   },
 });
 

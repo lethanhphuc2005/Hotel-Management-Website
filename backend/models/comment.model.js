@@ -64,6 +64,7 @@ CommentSchema.virtual("room_class", {
   justOne: true,
   options: {
     select: "name description status",
+    path: "images"
   },
 });
 

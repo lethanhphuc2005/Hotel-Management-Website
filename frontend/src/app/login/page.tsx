@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import styles from "@/styles/pages/login.module.css";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { resendVerificationEmail, verifyEmail } from "@/services/AuthService";
 import { showConfirmDialog } from "@/utils/swal";
 import { googleLogin } from "@/api/authApi";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -67,7 +68,7 @@ const LoginPage = () => {
         return;
       }
       toast.success(res.message);
-      window.location.href = "/";
+      router.push("/");
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.");

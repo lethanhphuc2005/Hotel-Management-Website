@@ -3,7 +3,6 @@ import { Feature, FeatureFilter, FeatureRequest } from '@/types/feature';
 import { FeatureService } from '@/core/services/feature.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { ToastrService } from 'ngx-toastr';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';

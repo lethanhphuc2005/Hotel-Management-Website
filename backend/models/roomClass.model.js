@@ -14,6 +14,13 @@ const RoomClassSchema = new mongoose.Schema(
       trim: true,
       maxlength: 100,
     },
+    bed_type: {
+      type: String,
+      enum: ["đơn", "đôi", "queen", "king"],
+      required: true,
+      default: "đơn",
+      trim: true,
+    },
     bed_amount: {
       type: Number,
       required: true,
@@ -62,8 +69,9 @@ RoomClassSchema.virtual("main_room_class", {
   localField: "main_room_class_id",
   foreignField: "_id",
   justOne: true,
+  match: { status: true },
   options: {
-    select: "name description status createdAt updatedAt",
+    select: "-status -createdAt -updatedAt -__v",
   },
 });
 
@@ -87,22 +95,20 @@ RoomClassSchema.virtual("features", {
     populate: {
       path: "feature",
       model: "feature",
+      select: "-status -createdAt -updatedAt", // Không cần thông tin trạng thái, createdAt, updatedAt
+      match: { status: true }, // Chỉ lấy tiện nghi đang hoạt động
     },
-  }
+  },
 });
 
 RoomClassSchema.virtual("images", {
   ref: "image",
   localField: "_id",
-  foreignField: "room_class_id",
-  match: [
-    { status: true }, // Chỉ lấy ảnh hợp lệ
-    { type: "room_class" }, // Chỉ lấy ảnh loại phòng
-  ],
-
+  foreignField: "target_id",
+  match: { status: true, target: "room_class" }, // Chỉ lấy ảnh có trạng thái hợp lệ
   justOne: false,
   options: {
-    select: "url target status createdAt updatedAt",
+    select: "url public_id",
   },
 });
 
@@ -111,12 +117,19 @@ RoomClassSchema.virtual("reviews", {
   localField: "_id",
   foreignField: "room_class_id",
   justOne: false,
+  options: {
+    populate: "user employee",
+  },
 });
 
 RoomClassSchema.virtual("comments", {
   ref: "comment",
   localField: "_id",
   foreignField: "room_class_id",
+  justOne: false,
+  options: {
+    populate: "user employee",
+  },
 });
 
 RoomClassSchema.set("toJSON", {

@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const mainRoomClassController = require("../controllers/mainRoomClass.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const { uploadMainRoomClass } = require("../middlewares/cloudinaryUpload.middleware");
 
 // === LẤY TẤT CẢ LOẠI PHÒNG CHÍNH ===
 router.get(
@@ -20,6 +21,7 @@ router.get("/:id", mainRoomClassController.getMainRoomClassById);
 router.post(
   "/",
   authMiddleware.authorizeRoles("admin"),
+  uploadMainRoomClass.single("image"),
   mainRoomClassController.addMainRoomClass
 );
 
@@ -27,6 +29,7 @@ router.post(
 router.patch(
   "/:id",
   authMiddleware.authorizeRoles("admin"),
+  uploadMainRoomClass.single("image"),
   mainRoomClassController.updateMainRoomClass
 );
 

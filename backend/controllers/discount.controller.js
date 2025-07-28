@@ -1,12 +1,12 @@
 const Discount = require("../models/discount.model");
 const User = require("../models/user.model");
+const Image = require("../models/image.model");
 const calculateBookingPrice =
   require("../services/discount.service").calculateBookingPrice;
 const {
-  upload,
   deleteImagesOnError,
   deleteOldImages,
-} = require("../middlewares/upload.middleware");
+} = require("../middlewares/cloudinaryUpload.middleware.js");
 
 const DiscountController = {
   validateDiscount: async (discountData, discountId) => {
@@ -36,11 +36,12 @@ const DiscountController = {
       };
     }
 
-    if (discountId) {
+    if (discountId && promo_code !== null && promo_code !== "") {
       const existingDiscount = await Discount.findOne({
         promo_code,
         _id: { $ne: discountId },
-      });
+      }).lean();
+
       if (existingDiscount) {
         return {
           valid: false,
@@ -48,6 +49,7 @@ const DiscountController = {
         };
       }
     }
+
     return {
       valid: true,
     };
@@ -65,44 +67,47 @@ const DiscountController = {
     }
   },
 
-  createDiscount: [
-    upload.single("image"),
-    async (req, res) => {
-      try {
-        DiscountController.parseJSONFields(req.body, [
-          "conditions",
-          "apply_to_room_class_ids",
-        ]);
-        const discount = new Discount(req.body);
-        const validate = await DiscountController.validateDiscount(
-          discount,
-          null
-        );
-        if (!validate.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validate.message });
-        }
-
+  createDiscount: async (req, res) => {
+    try {
+      DiscountController.parseJSONFields(req.body, [
+        "conditions",
+        "apply_to_room_class_ids",
+      ]);
+      const discount = new Discount(req.body);
+      const validate = await DiscountController.validateDiscount(
+        discount,
+        null
+      );
+      if (!validate.valid) {
         if (req.file) {
-          discount.image = req.file.filename;
+          deleteImagesOnError([req.file]);
         }
-
-        await discount.save();
-
-        return res.status(201).json({
-          message: "Discount created successfully",
-          data: discount,
-        });
-      } catch (err) {
-        if (req.file) {
-          deleteImagesOnError(req.file);
-        }
-        return res.status(500).json({ message: err.message });
+        return res.status(400).json({ message: validate.message });
       }
-    },
-  ],
+
+      if (req.file) {
+        const image = new Image({
+          url: req.file.path,
+          public_id: req.file.filename,
+          target: "discount",
+          target_id: discount._id,
+        });
+        await image.save();
+      }
+
+      await discount.save();
+
+      return res.status(201).json({
+        message: "Discount created successfully",
+        data: discount,
+      });
+    } catch (err) {
+      if (req.file) {
+        deleteImagesOnError([req.file]);
+      }
+      return res.status(500).json({ message: err.message });
+    }
+  },
 
   getAllDiscounts: async (req, res) => {
     try {
@@ -193,7 +198,7 @@ const DiscountController = {
       const [discounts, total] = await Promise.all([
         Discount.find(query)
           .sort(sortOption)
-          .populate("booking_count")
+          .populate("booking_count image")
           .skip(skip)
           .limit(parseInt(limit)),
         Discount.countDocuments(query),
@@ -229,7 +234,7 @@ const DiscountController = {
         valid_to: { $gte: now },
       })
         .sort({ createdAt: -1 })
-        .populate("booking_count");
+        .populate("booking_count image");
       if (!list || list.length === 0) {
         return res.status(404).json({ message: "No discounts found" });
       }
@@ -244,7 +249,9 @@ const DiscountController = {
 
   getDiscountById: async (req, res) => {
     try {
-      const discount = await Discount.findById(req.params.id).populate("booking_count");
+      const discount = await Discount.findById(req.params.id).populate(
+        "booking_count image"
+      );
       if (!discount) {
         return res.status(404).json({ message: "Discount not found" });
       }
@@ -257,60 +264,73 @@ const DiscountController = {
     }
   },
 
-  updateDiscount: [
-    upload.single("image"),
-    async (req, res) => {
-      try {
-        DiscountController.parseJSONFields(req.body, [
-          "conditions",
-          "apply_to_room_class_ids",
-        ]);
+  updateDiscount: async (req, res) => {
+    try {
+      // Parse các trường JSON (nếu có)
+      DiscountController.parseJSONFields(req.body, [
+        "conditions",
+        "apply_to_room_class_ids",
+      ]);
 
-        const updated = await Discount.findById(req.params.id);
-        if (!updated) {
-          return res.status(404).json({ message: "Discount not found" });
-        }
-        const validate = await DiscountController.validateDiscount(
-          req.body,
-          req.params.id
-        );
-
-        const updatedData =
-          Object.keys(req.body).length === 0
-            ? updated.toObject()
-            : { ...updated.toObject(), ...req.body };
-
-        if (!validate.valid) {
-          if (req.file) {
-            deleteImagesOnError(req.file);
-          }
-          return res.status(400).json({ message: validate.message });
-        }
-
-        if (req.file) {
-          updatedData.image = req.file.filename;
-          if (updated.image) {
-            deleteOldImages(updated.image);
-          }
-        } else {
-          updatedData.image = updated.image;
-        }
-
-        const updatedDiscount = await Discount.findByIdAndUpdate(
-          req.params.id,
-          updatedData,
-          { new: true }
-        );
-
-        return res.status(200).json({
-          message: "Discount updated successfully",
-          data: updatedDiscount,
-        });
-      } catch (err) {
-        return res.status(500).json({ message: err.message });
+      const existing = await Discount.findById(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: "Discount not found" });
       }
-    },
-  ],
+
+      // Validate dữ liệu (có thể sửa hàm validate nếu cần)
+      const validate = await DiscountController.validateDiscount(
+        req.body,
+        req.params.id
+      );
+      const updatedData =
+        Object.keys(req.body).length === 0
+          ? existing.toObject()
+          : { ...existing.toObject(), ...req.body };
+
+      if (!validate.valid) {
+        if (req.file) await deleteImagesOnError([req.file]);
+        return res.status(400).json({ message: validate.message });
+      }
+
+      if (req.file) {
+        const oldImage = await Image.findOne({
+          target: "discount",
+          target_id: existing._id,
+        });
+
+        if (oldImage) {
+          // Xoá ảnh cũ trên cloud (nếu có)
+          await deleteOldImages(oldImage.public_id);
+          // Cập nhật ảnh mới
+          oldImage.url = req.file.path;
+          oldImage.public_id = req.file.filename;
+          await oldImage.save();
+        } else {
+          // Nếu chưa có ảnh thì tạo mới
+          await Image.create({
+            url: req.file.path,
+            public_id: req.file.filename,
+            target: "discount",
+            target_id: existing._id,
+          });
+        }
+      }
+
+      const updatedDiscount = await Discount.findByIdAndUpdate(
+        req.params.id,
+        updatedData,
+        { new: true }
+      );
+
+      return res.status(200).json({
+        message: "Discount updated successfully",
+        data: updatedDiscount,
+      });
+    } catch (err) {
+      if (req.file) await deleteImagesOnError([req.file]);
+      return res.status(500).json({ message: err.message });
+    }
+  },
 
   toggleDiscountStatus: async (req, res) => {
     try {
@@ -343,7 +363,7 @@ const DiscountController = {
   previewBookingPrice: async (req, res) => {
     try {
       const { bookingInfo } = req.body;
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user.id).lean();
 
       const result = await calculateBookingPrice(bookingInfo, user);
       return res.status(200).json({

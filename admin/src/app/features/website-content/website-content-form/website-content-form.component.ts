@@ -1,4 +1,3 @@
-import { ImageHelperService } from '@/shared/services/image-helper.service';
 import { ContentType } from '@/types/content-type';
 import { WebsiteContentRequest } from '@/types/website-content';
 import { CommonModule } from '@angular/common';
@@ -20,16 +19,12 @@ export class WebsiteContentFormComponent {
   @Output() close = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
 
-  constructor(private imageHelperService: ImageHelperService) {}
+  constructor() {}
 
   onFileInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.fileSelected.emit(input.files[0]);
     }
-  }
-
-  getImageUrl(image: string| File): string {
-    return this.imageHelperService.getImageUrl(image);
   }
 }

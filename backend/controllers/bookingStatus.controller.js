@@ -18,7 +18,7 @@ const bookingStatusController = {
     // Kiểm tra trùng tên
     const existing = await BookingStatus.findOne({
       name,
-    });
+    }).lean();
     if (
       existing &&
       (!statusId || existing._id.toString() !== statusId.toString())

@@ -1,11 +1,12 @@
 import { FilterParams, PaginationResponse } from './_common';
+import { Image } from './image';
 
 export interface Service {
   id: string;
   name: string;
   price: number;
   description: string;
-  image: string;
+  image: Image | null; // Image can be null if not provided
   status: boolean;
   createdAt: Date;
   updatedAt: Date;

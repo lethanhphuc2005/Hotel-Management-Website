@@ -4,8 +4,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mailSender = require("../helpers/mail.sender");
 const { verificationEmail } = require("../config/mail");
-const { upload } = require("../middlewares/upload.middleware");
-const { path } = require("../app");
 
 let refreshTokens = [];
 const accountController = {
@@ -62,7 +60,7 @@ const accountController = {
     }
 
     // Kiểm tra trùng email
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({ email }).lean();
     if (
       existing &&
       (!userId || existing._id.toString() !== userId.toString())
@@ -135,49 +133,46 @@ const accountController = {
   },
 
   // ====== THÊM TÀI KHOẢN QUẢN TRỊ VIÊN =====
-  addAuthAccount: [
-    upload.none(),
-    async (req, res) => {
-      try {
-        if (req.body.secret_key !== process.env.ADMIN_SECRET_KEY) {
-          return res.status(403).json("Bạn không có quyền tạo admin");
-        }
-
-        const checkAccount = await Employee.findOne({
-          email: req.body.email,
-        });
-        if (checkAccount) {
-          return res.status(400).json("Email admin đã tồn tại");
-        }
-
-        const hashPassword = await bcrypt.hash(req.body.password, 10);
-        const newAccount = new Employee({
-          email: req.body.email,
-          password: hashPassword,
-          first_name: req.body.first_name,
-          last_name: req.body.last_name,
-          phone_number: req.body.phone_number,
-          address: req.body.address,
-          position: req.body.position,
-          department: req.body.department,
-          role: req.body.role,
-          status: true,
-        });
-        const savedAccount = await newAccount.save();
-        res.status(200).json({
-          message: "Tạo tài khoản admin thành công",
-          data: savedAccount,
-        });
-      } catch (error) {
-        res.status(500).json(error.message);
+  addAuthAccount: async (req, res) => {
+    try {
+      if (req.body.secret_key !== process.env.ADMIN_SECRET_KEY) {
+        return res.status(403).json("Bạn không có quyền tạo admin");
       }
-    },
-  ],
+
+      const checkAccount = await Employee.findOne({
+        email: req.body.email,
+      }).lean();
+      if (checkAccount) {
+        return res.status(400).json("Email admin đã tồn tại");
+      }
+
+      const hashPassword = await bcrypt.hash(req.body.password, 10);
+      const newAccount = new Employee({
+        email: req.body.email,
+        password: hashPassword,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        phone_number: req.body.phone_number,
+        address: req.body.address,
+        position: req.body.position,
+        department: req.body.department,
+        role: req.body.role,
+        status: true,
+      });
+      const savedAccount = await newAccount.save();
+      res.status(200).json({
+        message: "Tạo tài khoản admin thành công",
+        data: savedAccount,
+      });
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  },
 
   // ====== ĐĂNG NHẬP USER =====
   loginUser: async (req, res) => {
     try {
-      const checkUser = await User.findOne({ email: req.body.email });
+      const checkUser = await User.findOne({ email: req.body.email }).lean();
       if (!checkUser) return res.status(400).json("Email không tồn tại");
 
       if (!checkUser.status) {
@@ -204,7 +199,7 @@ const accountController = {
         const refreshToken = accountController.creareRefreshToken(checkUser);
 
         // ✅ Gửi refreshToken bằng cookie
-        res.cookie("refreshToken", refreshToken, {
+        res.cookie("refreshToken_client", refreshToken, {
           httpOnly: true, // Ngăn frontend JS đọc
           secure: process.env.NODE_ENV === "production", // Chỉ dùng HTTPS khi production
           sameSite: "Strict", // Ngăn CSRF
@@ -227,7 +222,7 @@ const accountController = {
   // ====== ĐĂNG NHẬP QUẢN TRỊ VIÊN =====
   loginAuth: async (req, res) => {
     try {
-      const admin = await Employee.findOne({ email: req.body.email });
+      const admin = await Employee.findOne({ email: req.body.email }).lean();
       if (!admin) return res.status(400).json("Admin không tồn tại");
 
       if (!admin.status) {
@@ -242,7 +237,7 @@ const accountController = {
       const refreshToken = accountController.creareRefreshToken(admin);
 
       // ✅ Gửi refreshToken bằng cookie
-      res.cookie("refreshToken", refreshToken, {
+      res.cookie("refreshToken_admin", refreshToken, {
         httpOnly: true, // Ngăn frontend JS đọc
         secure: process.env.NODE_ENV === "production", // Chỉ dùng HTTPS khi production
         sameSite: "Strict", // Ngăn CSRF
@@ -261,10 +256,10 @@ const accountController = {
     }
   },
 
-  // ====== LẤY TOKEN MỚI =====
-  requestRefreshToken: async (req, res) => {
+  // ====== LẤY TOKEN MỚI CHO CLIENT =====
+  requestRefreshTokenClient: async (req, res) => {
     // ✅ Lấy refreshToken từ cookie thay vì req.body
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken_client;
 
     if (!refreshToken) {
       return res.status(401).json("Không có refresh token trong cookie");
@@ -280,7 +275,7 @@ const accountController = {
       const newRefreshToken = accountController.creareRefreshToken(user);
 
       // ✅ Gửi refreshToken mới vào cookie
-      res.cookie("refreshToken", newRefreshToken, {
+      res.cookie("refreshToken_client", newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
@@ -296,9 +291,46 @@ const accountController = {
     });
   },
 
-  logout: async (req, res) => {
+  // === YÊU CẦU TOKEN MỚI CHO ADMIN ===
+  // ====== LẤY TOKEN MỚI =====
+  requestRefreshTokenAdmin: async (req, res) => {
+    // ✅ Lấy refreshToken từ cookie thay vì req.body
+    const refreshToken = req.cookies.refreshToken_admin;
+
+    if (!refreshToken) {
+      return res.status(401).json("Không có refresh token trong cookie");
+    }
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
+      if (err) {
+        return res.status(403).json("Refresh token không hợp lệ hoặc hết hạn");
+      }
+
+      // Tạo accessToken và refreshToken mới
+      const newAccessToken = accountController.creareToken(user);
+      const newRefreshToken = accountController.creareRefreshToken(user);
+
+      // ✅ Gửi refreshToken mới vào cookie
+      res.cookie("refreshToken_admin", newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      // ✅ Trả về accessToken mới cho client
+      res.status(200).json({
+        message: "Cấp token mới thành công",
+        data: { accessToken: newAccessToken },
+      });
+    });
+  },
+
+  // ====== ĐĂNG XUẤT CLIENT =====
+  logoutClient: async (req, res) => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies.refreshToken_client;
 
       if (!refreshToken) {
         return res.status(400).json("Không có refresh token để đăng xuất");
@@ -306,7 +338,31 @@ const accountController = {
 
       refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
-      res.clearCookie("refreshToken", {
+      res.clearCookie("refreshToken_client", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/",
+      });
+
+      res.status(200).json("Đăng xuất thành công");
+    } catch (error) {
+      res.status(500).json("Đã xảy ra lỗi khi đăng xuất: " + error);
+    }
+  },
+
+  // === ĐĂNG XUẤT ADMIN ===
+  logoutAdmin: async (req, res) => {
+    try {
+      const refreshToken = req.cookies.refreshToken_admin;
+
+      if (!refreshToken) {
+        return res.status(400).json("Không có refresh token để đăng xuất");
+      }
+
+      refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+
+      res.clearCookie("refreshToken_admin", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
@@ -323,7 +379,7 @@ const accountController = {
   googleAuthCallback: async (req, res) => {
     try {
       const { email, first_name, last_name, email_verified } = req.user;
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ email }).lean();
       if (!user) {
         // Nếu người dùng chưa tồn tại, tạo mới
         user = new User({
@@ -341,7 +397,7 @@ const accountController = {
       const refreshToken = accountController.creareRefreshToken(user);
 
       // ✅ Gửi refreshToken mới vào cookie
-      res.cookie("refreshToken", refreshToken, {
+      res.cookie("refreshToken_client", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",

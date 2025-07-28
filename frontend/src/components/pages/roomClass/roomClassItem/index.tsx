@@ -2,7 +2,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { addRoomToCart } from "@/contexts/cartSlice";
 import { toast } from "react-toastify";
-import { useRoomSearch } from "@/hooks/useRoomSearch";
 import { RootState } from "@/contexts/store";
 import { RoomClass } from "@/types/roomClass";
 import { UserFavorite } from "@/types/userFavorite";
@@ -13,52 +12,41 @@ import RoomPriceAndBooking from "./RoomPriceAndBooking";
 import getImageUrl from "@/utils/getImageUrl";
 
 export default function RoomClassItem({
-  rci,
-  numberOfNights,
-  totalGuests,
+  roomClass,
   hasSearched,
-  numberOfAdults,
-  numberOfChildren,
+  numberOfNights = 1,
+  numberOfAdults = 1,
   startDate,
   endDate,
-  numChildrenUnder6 = 0,
-  numchildrenOver6 = 0,
-  numAdults,
-  showExtraBedOver6,
+  numberOfChildrenUnder6 = 0,
+  numberOfChildrenOver6 = 0,
   favorites = [],
 }: {
-  rci: RoomClass;
+  roomClass: RoomClass;
+  hasSearched: boolean;
   numberOfNights: number;
-  totalGuests: number;
-  hasSearched?: boolean;
-  numberOfAdults?: number;
-  numberOfChildren?: number;
+  numberOfAdults: number;
+  numberOfChildrenUnder6?: number;
+  numberOfChildrenOver6?: number;
   startDate?: Date;
   endDate?: Date;
-  numChildrenUnder6?: number;
-  numchildrenOver6?: number;
-  numAdults?: number;
-  showExtraBedOver6?: boolean;
-  features?: string[];
   favorites?: UserFavorite[];
 }) {
   const dispatch = useDispatch();
-  const { liked, handleLikeClick } = useFavorite(rci.id, favorites);
-  const { startDate: selectedStartDate, endDate: selectedEndDate } =
-    useRoomSearch();
-  const adults = numberOfAdults ?? 1;
-  const childrenUnder6 = numChildrenUnder6 ?? 0;
-  const childrenOver6 = numchildrenOver6 ?? 0;
+  const { liked, handleLikeClick } = useFavorite(roomClass.id, favorites);
+
   const cartRooms = useSelector((state: RootState) => state?.cart.rooms);
 
-  const basePrice =
-    (rci.price_discount ?? 0) > 0 ? rci.price_discount ?? 0 : rci.price;
+  let basePrice =
+    (roomClass.price_discount ?? 0) > 0
+      ? roomClass.price_discount ?? 0
+      : roomClass.price;
 
-  function calcTotalPricePerNight(start?: Date, end?: Date) {
-    if (!start || !end) return basePrice;
+  function calcTotalPricePerNight() {
+    if (!startDate || !endDate) return basePrice;
     let total = 0;
-    const current = new Date(start);
-    while (current < end) {
+    const current = new Date(startDate);
+    while (current < endDate) {
       total +=
         current.getDay() === 6 || current.getDay() === 0
           ? basePrice * 1.5
@@ -68,31 +56,39 @@ export default function RoomClassItem({
     return total;
   }
 
-  const totalPrice = calcTotalPricePerNight(startDate, endDate);
-
-  const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
-  const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
+  const totalPrice = calcTotalPricePerNight();
 
   const handleAddToCart = () => {
-    if (!hasSearched || !selectedStartDate || !selectedEndDate) {
-      toast.error(
-        "Vui lòng chọn ngày nhận và trả phòng trước khi thêm vào giỏ hàng!"
-      );
+    if (!startDate || !endDate) {
+      toast.error("Vui lòng chọn ngày nhận và trả phòng!");
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isStartToday =
+      startDate instanceof Date &&
+      new Date(startDate).setHours(0, 0, 0, 0) === today.getTime();
+
+    const isEndToday =
+      endDate instanceof Date &&
+      new Date(endDate).setHours(0, 0, 0, 0) === today.getTime();
+
+    if (isStartToday || isEndToday) {
+      toast.error("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
       return;
     }
 
-    const isDuplicate = cartRooms.some(
-      (room) =>
-        room.name.includes(rci.name) &&
-        room.view === rci.view &&
-        room.checkIn === checkInISO &&
-        room.checkOut === checkOutISO
+    const isDuplicate = cartRooms.some((room) =>
+      room.id.includes(roomClass.id)
     );
 
     if (isDuplicate) {
       toast.error("Phòng này bạn đã thêm vào giỏ hàng rồi!");
       return;
     }
+
+    const checkInISO = startDate.toLocaleDateString("vi-VN") || "";
+    const checkOutISO = endDate.toLocaleDateString("vi-VN") || "";
 
     if (cartRooms.length > 0) {
       const firstRoom = cartRooms[0];
@@ -107,7 +103,7 @@ export default function RoomClassItem({
       }
     }
 
-    const current = new Date(startDate!);
+    const current = new Date(startDate);
     let hasSaturday = false;
     let hasSunday = false;
     while (current < endDate!) {
@@ -116,29 +112,35 @@ export default function RoomClassItem({
       current.setDate(current.getDate() + 1);
     }
 
+    const description = `${numberOfAdults} người lớn${
+      numberOfChildrenUnder6 > 0
+        ? `, ${numberOfChildrenUnder6} trẻ dưới 6 tuổi`
+        : ""
+    }${
+      numberOfChildrenOver6 > 0
+        ? `, ${numberOfChildrenOver6} trẻ trên 6 tuổi`
+        : ""
+    }, ${roomClass.bed_amount} giường đôi`;
+
     dispatch(
       addRoomToCart({
-        id: rci.id,
-        name: rci.name,
-        img: rci?.images?.[0]?.url || "",
-        desc: `${adults} người lớn${
-          childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
-        }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${
-          rci.bed_amount
-        } giường đôi`,
+        id: roomClass.id,
+        name: roomClass.name,
+        img: roomClass?.images?.[0]?.url || "",
+        desc: description,
         price: basePrice,
         nights: numberOfNights,
         checkIn: checkInISO,
         checkOut: checkOutISO,
-        adults,
-        childrenUnder6,
-        childrenOver6,
-        bedAmount: rci.bed_amount,
-        view: rci.view,
+        adults: numberOfAdults,
+        childrenUnder6: numberOfChildrenUnder6,
+        childrenOver6: numberOfChildrenOver6,
+        bedAmount: roomClass.bed_amount,
+        view: roomClass.view,
         total: totalPrice,
         hasSaturdayNight: hasSaturday,
         hasSundayNight: hasSunday,
-        features: rci?.features?.map((f) => f.feature.name) ?? [],
+        features: roomClass?.features?.map((f) => f.feature.name) ?? [],
       })
     );
     toast.success("Đã thêm phòng vào giỏ hàng!");
@@ -158,26 +160,26 @@ export default function RoomClassItem({
       </button>
 
       <RoomImageWithLike
-        imageUrl={getImageUrl(rci?.images?.[0]?.url)}
-        roomId={rci.id}
+        imageUrl={getImageUrl(roomClass?.images?.[0]?.url)}
+        roomId={roomClass.id}
         liked={liked}
         onLikeClick={handleLikeClick}
       />
 
       <RoomInfo
-        rci={rci}
-        numChildrenUnder6={childrenUnder6}
-        numchildrenOver6={childrenOver6}
-        numAdults={numAdults}
+        roomClass={roomClass}
+        numChildrenUnder6={numberOfChildrenUnder6}
+        numchildrenOver6={numberOfChildrenOver6}
+        numAdults={numberOfAdults}
       />
 
       <RoomPriceAndBooking
-        roomClassId={rci.id}
+        roomClassId={roomClass.id}
         hasSearched={hasSearched}
         numberOfNights={numberOfNights}
         numberOfAdults={numberOfAdults}
-        numChildrenUnder6={childrenUnder6}
-        numchildrenOver6={childrenOver6}
+        numChildrenUnder6={numberOfChildrenUnder6}
+        numchildrenOver6={numberOfChildrenOver6}
         totalPrice={totalPrice}
         basePrice={basePrice}
       />

@@ -5,9 +5,7 @@ import { MainRoomClass } from "@/types/mainRoomClass";
 import { Wallet } from "@/types/wallet";
 import { useAuth } from "@/contexts/AuthContext";
 import style from "@/styles/layout/header.module.css";
-import { fetchProfile } from "@/services/ProfileService";
 import { User } from "@/types/user";
-import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   showDropdown: boolean;
@@ -50,25 +48,19 @@ export const useHeader = ({
   };
 
   useEffect(() => {
-    if (didFetch) return;
+    if (!user || didFetch ) return;
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [mainRoomClassData, userProfile] = await Promise.all([
-          fetchMainRoomClasses(),
-          user ? fetchProfile() : Promise.resolve(null),
-        ]);
-        if (!mainRoomClassData.success && !userProfile?.success) {
-          throw new Error(
-            "Failed to fetch one or more resources: " +
-              [mainRoomClassData.message, userProfile?.message]
-                .filter(Boolean)
-                .join(", ")
-          );
+        const mainRoomClassData = await fetchMainRoomClasses();
+
+        if (!mainRoomClassData.success) {
+          throw new Error(mainRoomClassData.message);
         }
+
         setMainRoomClass(mainRoomClassData.data);
-        setUserData(userProfile?.data || null);
-        setWallet(userProfile?.data?.wallet || null);
+        setUserData(user); // ← Dùng user từ context
+        setWallet(user?.wallet || null); // ← Nếu có thông tin ví
       } catch (error) {
         console.error("Error fetching main room classes:", error);
       } finally {
@@ -76,6 +68,7 @@ export const useHeader = ({
         setDidFetch(true);
       }
     };
+
     fetchData();
   }, [user]);
 
