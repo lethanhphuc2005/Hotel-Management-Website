@@ -18,12 +18,17 @@ export interface GuestCount {
 }
 
 export interface SearchBar {
+  pendingDateRange: DateRange[];
+  setPendingDateRange: (range: DateRange[]) => void;
   dateRange: DateRange[];
   setDateRange: (range: DateRange[]) => void;
+  hasSaturdayNight?: boolean;
+  hasSundayNight?: boolean;
+  capacity: number;
+  pendingGuests: GuestCount;
+  setPendingGuests: React.Dispatch<React.SetStateAction<GuestCount>>;
   guests: GuestCount;
   setGuests: React.Dispatch<React.SetStateAction<GuestCount>>;
-  price: number;
-  setPrice: React.Dispatch<React.SetStateAction<number>>;
   showCalendar: boolean;
   setShowCalendar: React.Dispatch<React.SetStateAction<boolean>>;
   showGuestBox: boolean;
@@ -34,10 +39,10 @@ export interface SearchBar {
   numberOfAdults: number;
   numberOfChildren: number;
   numberOfNights: number;
-  totalPrice: number;
   hasSearched: boolean;
   setHasSearched: React.Dispatch<React.SetStateAction<boolean>>;
   handleSearch: () => void;
+  handleResetSearch?: () => void;
 }
 
 export interface RoomSearchBarProps extends SearchBar {}

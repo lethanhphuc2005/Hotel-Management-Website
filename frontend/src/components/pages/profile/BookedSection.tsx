@@ -11,7 +11,6 @@ import {
 } from "@/services/BookingService";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { useRouter } from "next/navigation";
-import getImageUrl from "@/utils/getImageUrl";
 import { Booking, BookingDetail } from "@/types/booking";
 import { Payment } from "@/types/payment";
 import { Discount } from "@/types/discount";
@@ -225,7 +224,7 @@ export default function BookedRoomSection({
                               initial={{ x: -30, opacity: 0 }}
                               animate={{ x: 0, opacity: 1 }}
                               transition={{ duration: 0.3 }}
-                              src={getImageUrl(roomClass?.images?.[0]?.url)}
+                              src={roomClass.images[0].url}
                               alt="room"
                               className="tw-w-full tw-h-full tw-object-cover tw-object-center"
                             />

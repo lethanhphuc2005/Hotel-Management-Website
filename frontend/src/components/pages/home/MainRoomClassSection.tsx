@@ -7,13 +7,12 @@ import style from "@/styles/base/page.module.css";
 import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { AnimatedButton } from "@/components/common/Button";
-import getImageUrl from "@/utils/getImageUrl";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0.5);
   const y = useMotionValue(0.5);
-
+  
   const [isHovered, setIsHovered] = useState(false);
 
   const rotateX = useTransform(y, [0, 1], [15, -15]);
@@ -67,17 +66,14 @@ export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {
         }}
       >
         <div className={style.roomImageWrapper}>
-          {mrci.images?.map((img, index) => (
-            <motion.img
-              key={index}
-              src={getImageUrl(img.url)}
-              alt={mrci.name}
-              className={style.roomImage}
-              initial={{ scale: 1.05, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1, delay: index * 0.1 }}
-            />
-          ))}
+          <motion.img
+            src={mrci.image.url}
+            alt={mrci.name}
+            className={style.roomImage}
+            initial={{ scale: 1.05, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1 }}
+          />
         </div>
 
         <div className={style.roomOverlay}></div>

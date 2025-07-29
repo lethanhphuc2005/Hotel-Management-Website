@@ -1,3 +1,4 @@
+"use client";
 import { RoomClass } from "@/types/roomClass";
 
 export default function RoomInfo({
@@ -5,25 +6,27 @@ export default function RoomInfo({
   numChildrenUnder6 = 0,
   numchildrenOver6 = 0,
   numAdults = 1,
+  hasWeekend = false,
+  capacity,
 }: {
   roomClass: RoomClass;
-  numChildrenUnder6?: number;
-  numchildrenOver6?: number;
-  numAdults?: number;
+  numChildrenUnder6: number;
+  numchildrenOver6: number;
+  numAdults: number;
+  hasWeekend: boolean;
+  capacity: number;
 }) {
-  const extraBedTeens = Math.max(
-    0,
-    numchildrenOver6 - (roomClass.bed_amount * 2 - numAdults)
-  );
-  const showExtraBed =
-    numChildrenUnder6 > 0 &&
-    numAdults + numchildrenOver6 === roomClass.bed_amount * 2;
+  const showExtraBed = numChildrenUnder6 > 0;
+  const totalGuests = numAdults + numChildrenUnder6 + numchildrenOver6;
+  const isExtraBedNeeded = totalGuests > capacity
 
   return (
     <div>
       <p className="fs-5 fw-bold mb-2">{roomClass.name}</p>
       <p className="mb-1">Hướng: {roomClass.view}</p>
-      <p className="mb-1">Số giường: {roomClass.bed_amount} giường {roomClass.bed_type}</p>
+      <p className="mb-1">
+        Số giường: {roomClass.bed.quantity} giường {roomClass.bed.type}
+      </p>
       <p className="mb-1">Sức chứa: {roomClass.capacity} người</p>
       <p className="mb-1">Mô tả: {roomClass.description}</p>
 
@@ -50,15 +53,23 @@ export default function RoomInfo({
         <i className="bi bi-check2"></i> Không cần thanh toán trước
       </p>
 
+      {hasWeekend && (
+        <p className="mb-1 text-warning">
+          <i className="bi bi-check2"></i> Cuối tuần tính thêm phụ phí 50% đêm
+        </p>
+      )}
+
       {showExtraBed && (
         <p className="mb-1 text-warning">
           <i className="bi bi-check2"></i> Miễn phí cho trẻ dưới 7 tuổi ngủ cùng
           bố mẹ
         </p>
       )}
-      {extraBedTeens > 0 && (
+
+      {isExtraBedNeeded && (
         <p className="mb-1 text-warning">
-          <i className="bi bi-check2"></i> Phụ thu thêm giường: 100.000đ/đêm
+          <i className="bi bi-check2"></i> Có thể chọn thêm giường phụ cho{" "}
+          {totalGuests - roomClass.capacity} khách
         </p>
       )}
     </div>

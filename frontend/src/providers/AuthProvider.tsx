@@ -14,20 +14,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
+  const refetchProfile = async () => {
     const storedToken = localStorage.getItem("accessToken");
     if (storedToken) {
-      // Nếu đã có token, gọi API lấy profile để giữ đăng nhập
-      fetchProfile()
-        .then((res) => {
-          if (res?.data) setUser(res.data);
-          else setUser(null);
-        })
-        .catch(() => setUser(null))
-        .finally(() => setIsLoading(false));
+      try {
+        const res = await fetchProfile();
+        setUser(res?.data || null);
+      } catch {
+        setUser(null);
+      }
     } else {
-      setIsLoading(false);
+      setUser(null);
     }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    refetchProfile();
   }, []);
 
   const loginWithGoogle = async (accessToken: string) => {
@@ -84,6 +87,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     login,
     loginWithGoogle,
     logout,
+    refetchProfile,
+    setUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

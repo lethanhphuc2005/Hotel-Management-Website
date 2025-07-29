@@ -22,7 +22,7 @@ export function New1({ new1 }: { new1: WebsiteContent }) {
           <img
             className="w-100"
             style={{ height: "350px", objectFit: "cover" }}
-            src={`/img/${new1.image}`}
+            src={new1.image.url}
             alt=""
           />
         </div>
@@ -44,7 +44,7 @@ export function New2({ new2 }: { new2: WebsiteContent }) {
           {new2?.updatedAt?.toLocaleDateString("vi-VN")}
         </p>
         <div className="col">
-          <img className="w-100" src={`/img/${new2.image}`} alt="" />
+          <img className="w-100" src={new2.image.url} alt="" />
         </div>
         <div className="col">
           <p style={{ textAlign: "justify", lineHeight: "30px" }}>

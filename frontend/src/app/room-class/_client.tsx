@@ -4,18 +4,22 @@ import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import FilterSidebar from "@/components/pages/roomClass/FilterSidebar";
 import RoomListDisplay from "@/components/pages/roomClass/ListDisplay";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
-import { useRoomFilterLogic } from "@/hooks/useRoomFilterLogic";
 import { useRoomClass } from "@/hooks/useRoomClass";
 import { useSearchParams } from "next/navigation";
 
 export default function RoomClassesPage() {
   const {
+    pendingDateRange,
+    setPendingDateRange,
     dateRange,
     setDateRange,
+    hasSaturdayNight,
+    hasSundayNight,
+    capacity,
+    pendingGuests,
+    setPendingGuests,
     guests,
     setGuests,
-    price,
-    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
@@ -26,10 +30,10 @@ export default function RoomClassesPage() {
     numberOfAdults,
     numberOfChildren,
     numberOfNights,
-    totalPrice,
     hasSearched,
     setHasSearched,
     handleSearch,
+    handleResetSearch,
   } = useRoomSearch();
   const views = ["biển", "thành phố", "núi", "vườn", "hồ bơi", "sông", "hồ"];
   const [selectedViews, setSelectedViews] = useState<string[]>([]);
@@ -41,24 +45,26 @@ export default function RoomClassesPage() {
   const [showFeatureFilter, setShowFeatureFilter] = useState<boolean>(false);
   const [showMainRoomClassFilter, setShowMainRoomClassFilter] =
     useState<boolean>(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10_000_000]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("price");
   const [sortOrder, setSortOrder] = useState<string>("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isFiltered, setIsFiltered] = useState(false);
   const pageSize = 5; // số phòng mỗi trang
   const params = useSearchParams();
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Reset time to midnight for comparison
+  const startDate = dateRange[0].startDate || new Date();
+  const endDate = dateRange[0].endDate || new Date();
+
   const memoizedParams = useMemo(() => {
     const isStartToday =
-      dateRange[0].startDate instanceof Date &&
-      new Date(dateRange[0].startDate).setHours(0, 0, 0, 0) === today.getTime();
+      startDate instanceof Date &&
+      new Date(startDate).setHours(0, 0, 0, 0) === today.getTime();
 
     const isEndToday =
-      dateRange[0].endDate instanceof Date &&
-      new Date(dateRange[0].endDate).setHours(0, 0, 0, 0) === today.getTime();
+      endDate instanceof Date &&
+      new Date(endDate).setHours(0, 0, 0, 0) === today.getTime();
 
     const baseParams: Record<string, any> = {
       search: searchTerm,
@@ -66,6 +72,7 @@ export default function RoomClassesPage() {
       order: sortOrder,
       page: currentPage,
       limit: pageSize,
+      minCapacity: capacity,
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
     };
@@ -101,7 +108,16 @@ export default function RoomClassesPage() {
     }
 
     return baseParams;
-  }, [hasSearched, isFiltered, currentPage]);
+  }, [
+    searchTerm,
+    dateRange,
+    guests,
+    priceRange,
+    selectedMainRoomClassIds,
+    selectedViews,
+    selectedFeatureIds,
+    currentPage,
+  ]);
 
   const { roomClasses, features, mainRoomClasses, totalRoomClasses } =
     useRoomClass(memoizedParams);
@@ -142,12 +158,15 @@ export default function RoomClassesPage() {
     >
       <div className="row">
         <RoomSearchBar
+          pendingDateRange={pendingDateRange}
+          setPendingDateRange={setPendingDateRange}
           dateRange={dateRange}
           setDateRange={setDateRange}
+          capacity={capacity}
+          pendingGuests={pendingGuests}
+          setPendingGuests={setPendingGuests}
           guests={guests}
           setGuests={setGuests}
-          price={price}
-          setPrice={setPrice}
           showCalendar={showCalendar}
           setShowCalendar={setShowCalendar}
           showGuestBox={showGuestBox}
@@ -158,10 +177,10 @@ export default function RoomClassesPage() {
           numberOfAdults={numberOfAdults}
           numberOfChildren={numberOfChildren}
           numberOfNights={numberOfNights}
-          totalPrice={totalPrice}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
           handleSearch={handleSearch}
+          handleResetSearch={handleResetSearch}
         />
       </div>
 
@@ -190,8 +209,6 @@ export default function RoomClassesPage() {
             showMainRoomClassFilter={showMainRoomClassFilter}
             setShowMainRoomClassFilter={setShowMainRoomClassFilter}
             handleCheckboxChange={handleCheckboxChange}
-            isFiltered={isFiltered}
-            setIsFiltered={setIsFiltered}
             setCurrentPage={setCurrentPage}
           />
         </div>
@@ -205,8 +222,11 @@ export default function RoomClassesPage() {
               numberOfAdults={numberOfAdults}
               numberOfChildrenUnder6={guests.children.age0to6}
               numberOfChildrenOver6={guests.children.age7to17}
-              startDate={dateRange[0].startDate}
-              endDate={dateRange[0].endDate}
+              startDate={startDate}
+              endDate={endDate}
+              capacity={capacity}
+              hasSaturdayNight={hasSaturdayNight}
+              hasSundayNight={hasSundayNight}
               totalRoomClasses={totalRoomClasses}
               currentPage={currentPage}
               pageSize={pageSize}

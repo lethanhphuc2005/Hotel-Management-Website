@@ -33,9 +33,11 @@ export default function PayMent() {
   const dispatch = useDispatch();
 
   const total = rooms.reduce((sum, room) => {
-    const roomTotal = getRoomTotalPrice(room);
-    return sum + roomTotal;
+
+    return sum + (room.total ?? 0);
   }, 0);
+
+  const extraTotal = rooms.reduce((sum, room) => sum + (room.extraFee || 0), 0);
 
   const [selectedMethod, setSelectedMethod] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
@@ -81,10 +83,10 @@ export default function PayMent() {
       if (response.success) {
         const data = response.data;
         setDiscounts(data.appliedDiscounts || []);
-        setFinalTotal(data.finalPrice || total);
+        setFinalTotal(data.finalPrice + extraTotal || total + extraTotal);
       } else {
         setDiscounts([]);
-        setFinalTotal(total);
+        setFinalTotal(total + extraTotal);
       }
     };
 
@@ -211,16 +213,7 @@ export default function PayMent() {
           (sum, r) => sum + (r.childrenUnder6 ?? 0) + (r.childrenOver6 ?? 0),
           0
         ),
-        note: rooms.reduce((notes, r) => {
-          let noteStr = "";
-          if (r.childrenUnder6 && r.childrenUnder6 > 0) {
-            noteStr += `Có ${r.childrenUnder6} trẻ dưới 6 tuổi. `;
-          }
-          if (r.childrenOver6 && r.childrenOver6 > 0) {
-            noteStr += `Có ${r.childrenOver6} trẻ trên 6 tuổi. `;
-          }
-          return notes + noteStr;
-        }, ""),
+        note: rooms.map((r) => r.desc).join(". "),
         discount_id: discounts.map((d) => d.discountId),
         discount_value: discounts.reduce((sum, d) => sum + d.amount, 0),
         booking_method_id: "684126db1ce6a19c45c2ec0a",
@@ -373,6 +366,7 @@ export default function PayMent() {
 
           <PriceSummary
             total={total}
+            extraTotal={extraTotal}
             discounts={discounts}
             onSubmit={handleBooking}
           />

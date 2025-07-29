@@ -2,7 +2,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import styles from "@/styles/pages/cart.module.css";
 import { RootState } from "@/contexts/store";
-import { removeRoomFromCart, clearCart } from "@/contexts/cartSlice";
+import {
+  removeRoomFromCart,
+  clearCart,
+  addExtraBedToCart,
+} from "@/contexts/cartSlice";
 import Link from "next/link";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
 import { showConfirmDialog } from "@/utils/swal";
@@ -10,7 +14,6 @@ import { toast } from "react-toastify";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
-import getImageUrl from "@/utils/getImageUrl";
 
 export default function Cart() {
   const rooms = useSelector((state: RootState) => state.cart.rooms);
@@ -35,6 +38,19 @@ export default function Cart() {
       toast.success(`Đã xóa phòng "${room.name}" khỏi giỏ hàng.`);
     }
     dispatch(removeRoomFromCart(roomId));
+  };
+
+  const handleAddExtraBed = (roomId: string) => {
+    const room = rooms.find((r) => r.id === roomId);
+    const extraBedPrice = 100_000;
+    if (!room) return;
+
+    dispatch(
+      addExtraBedToCart({
+        roomId,
+        extraBedPrice,
+      })
+    );
   };
 
   const handleDeleteCart = async () => {
@@ -74,7 +90,6 @@ export default function Cart() {
               <th className="fw-normal">GIÁ/ĐÊM</th>
               <th className="fw-normal">SỐ ĐÊM</th>
               <th className="fw-normal">TỔNG</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -89,7 +104,7 @@ export default function Cart() {
                 <tr key={room.id}>
                   <td>
                     <img
-                      src={getImageUrl(room.img)}
+                      src={room.img}
                       alt={room.name}
                       className={styles.roomImg}
                     />
@@ -97,6 +112,11 @@ export default function Cart() {
                   <td>
                     <div className={styles.roomName}>{room.name}</div>
                     <div className={styles.roomDesc}>{room.desc}</div>
+                    <div style={{ fontSize: "0.95rem", color: "#888" }}>
+                      Người lớn: {room.adults}, Trẻ dưới 6 tuổi:{" "}
+                      {room.childrenUnder6}, Trẻ trên 6 tuổi:{" "}
+                      {room.childrenOver6}
+                    </div>
                     <div style={{ fontSize: "0.95rem", color: "#888" }}>
                       Nhận phòng: {room.checkIn}
                     </div>
@@ -112,44 +132,61 @@ export default function Cart() {
                       Xóa
                     </button>
                   </td>
-                  <td>
+                  <td className="tw-text-left">
                     {!room.services ? (
                       <Link
                         href={"/service"}
-                        className="text-decoration-none tw-text-white"
+                        className="text-decoration-none tw-text-white tw-"
                       >
-                        <div className="hover:tw-text-primary">
-                          <span>Thêm dịch vụ</span>
+                        <span className="tw-inline-flex tw-items-center tw-whitespace-nowrap hover:tw-text-primary">
+                          Thêm dịch vụ
                           <FontAwesomeIcon
                             icon={faCirclePlus}
                             className="tw-ml-2"
                           />
-                        </div>
+                        </span>
                       </Link>
                     ) : (
-                      <div className={styles.roomServices}>
+                      <div>
                         {room.services?.map((service, index) => (
-                          <span key={index} className={styles.serviceItem}>
+                          <span key={index}>
                             {service.name} - {service.quantity}x <br />
                             {formatCurrencyVN(service.price)}
                           </span>
                         ))}
                       </div>
                     )}
+                    {room.isNeedExtraBed && !room.isAddExtraBed && (
+                      <button
+                        onClick={() => handleAddExtraBed(room.id)}
+                        className="tw-inline-flex tw-items-center tw-whitespace-nowrap hover:tw-text-primary"
+                      >
+                        Thêm giường
+                        <FontAwesomeIcon
+                          icon={faCirclePlus}
+                          className="tw-ml-2"
+                        />
+                      </button>
+                    )}
                   </td>
                   <td style={{ verticalAlign: "middle" }}>
                     {formatCurrencyVN(room.price)}
-                    {(room.hasSaturdayNight || room.hasSundayNight) && (
+                    {(room.hasSaturdayNight ||
+                      (room.hasSundayNight && room.extraFee)) && (
                       <div style={{ fontSize: "0.9rem", color: "#FAB320" }}>
-                        +50% phụ thu do có đêm cuối tuần
+                        +50% phụ thu đêm cuối tuần
                       </div>
                     )}
                   </td>
                   <td style={{ verticalAlign: "middle" }}>{room.nights} đêm</td>
                   <td style={{ verticalAlign: "middle" }}>
-                    {formatCurrencyVN(getRoomTotalPrice(room))}
+                    {formatCurrencyVN(room.total || getRoomTotalPrice(room))}
+                    {room.extraFee && (
+                      <div style={{ fontSize: "0.9rem", color: "#FAB320" }}>
+                        (+{formatCurrencyVN(room.extraFee)})
+                      </div>
+                    )}
                   </td>
-                  <td></td>
                 </tr>
               ))
             )}

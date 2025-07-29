@@ -8,7 +8,6 @@ import "swiper/css";
 import "swiper/css/autoplay";
 import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import Link from "next/link";
-import getImageUrl from "@/utils/getImageUrl";
 import { SearchBar } from "@/types/_common";
 
 interface BannerProps extends SearchBar {
@@ -18,35 +17,32 @@ interface BannerProps extends SearchBar {
 export default function Banner(props: BannerProps) {
   const {
     banners,
+    pendingDateRange,
+    setPendingDateRange,
     dateRange,
     setDateRange,
+    capacity,
+    pendingGuests,
+    setPendingGuests,
     guests,
     setGuests,
+    price,
+    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
     setShowGuestBox,
     guestBoxRef,
     calendarRef,
-    maxGuests,
-    setMaxGuests,
     totalGuests,
+    numberOfAdults,
+    numberOfChildren,
     numberOfNights,
-    setNumberOfNights,
     totalPrice,
-    setTotalPrice,
     hasSearched,
     setHasSearched,
-    pendingGuests,
-    setPendingGuests,
-    pendingDateRange,
-    setPendingDateRange,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    price,
-    setPrice,
+    handleSearch,
+    handleResetSearch,
   } = props;
   if (!banners || banners.length === 0) return <p>No banner</p>;
 
@@ -66,35 +62,32 @@ export default function Banner(props: BannerProps) {
         }}
       >
         <RoomSearchBar
+          pendingDateRange={pendingDateRange}
+          setPendingDateRange={setPendingDateRange}
           dateRange={dateRange}
           setDateRange={setDateRange}
+          capacity={capacity}
+          pendingGuests={pendingGuests}
+          setPendingGuests={setPendingGuests}
           guests={guests}
           setGuests={setGuests}
+          price={price}
+          setPrice={setPrice}
           showCalendar={showCalendar}
           setShowCalendar={setShowCalendar}
           showGuestBox={showGuestBox}
           setShowGuestBox={setShowGuestBox}
           guestBoxRef={guestBoxRef}
           calendarRef={calendarRef}
-          maxGuests={maxGuests}
-          setMaxGuests={setMaxGuests}
           totalGuests={totalGuests}
+          numberOfAdults={numberOfAdults}
+          numberOfChildren={numberOfChildren}
           numberOfNights={numberOfNights}
-          setNumberOfNights={setNumberOfNights}
           totalPrice={totalPrice}
-          setTotalPrice={setTotalPrice}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
-          pendingGuests={pendingGuests}
-          setPendingGuests={setPendingGuests}
-          pendingDateRange={pendingDateRange}
-          setPendingDateRange={setPendingDateRange}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          price={price}
-          setPrice={setPrice}
+          handleSearch={handleSearch}
+          handleResetSearch={handleResetSearch}
         />
       </div>
       <Swiper
@@ -107,7 +100,7 @@ export default function Banner(props: BannerProps) {
           <SwiperSlide key={index}>
             <section className={style.banner}>
               <img
-                src={getImageUrl(img)}
+                src={img.url}
                 alt={`Banner ${index + 1}`}
                 className={style.bannerImage}
               />

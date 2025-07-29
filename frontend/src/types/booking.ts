@@ -94,6 +94,7 @@ export interface CreateBookingRequest {
   booking_method_id: string;
   booking_status_id: string;
   booking_details: CreateBookingDetailRequest[];
+  extra_fee?: number;
   original_price: number;
   total_price: number;
 }

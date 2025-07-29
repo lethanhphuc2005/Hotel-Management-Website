@@ -5,7 +5,6 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import Image from "next/image";
 import { Discount } from "@/types/discount";
 import DiscountDetailPopup from "@/components/modals/DiscountDetailModal";
-import getImageUrl from "@/utils/getImageUrl";
 
 export function DiscountItem({ item }: { item: Discount }) {
   const [showDetailPopup, setShowDetailPopup] = useState(false);
@@ -43,9 +42,8 @@ export function DiscountItem({ item }: { item: Discount }) {
         open={showDetailPopup}
         onClose={() => setShowDetailPopup(false)}
         title={item.name}
-        image={getImageUrl(item.image)}
+        image={item.image.url}
         description={item.description}
-        price={undefined}
         value={item.value}
         value_type={item.value_type}
         type={item.type}
@@ -76,7 +74,7 @@ export function DiscountItem({ item }: { item: Discount }) {
         )}
 
         <Image
-          src={getImageUrl(item.image)}
+          src={item.image.url}
           alt={item.name}
           width={500}
           height={240}

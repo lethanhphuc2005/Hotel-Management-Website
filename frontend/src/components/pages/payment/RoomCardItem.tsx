@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { getRoomTotalPrice } from "@/contexts/cartSelector";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
-import getImageUrl from "@/utils/getImageUrl";
 
 interface RoomCartItemProps {
   room: any;
@@ -21,7 +20,7 @@ const RoomCartItem: FC<RoomCartItemProps> = ({ room, onRemove }) => {
       {/* Thumbnail nhỏ góc trái */}
       <div className="tw-w-28 tw-h-full tw-flex-shrink-0 tw-rounded-lg tw-overflow-hidden tw-text-center">
         <img
-          src={getImageUrl(room?.img)}
+          src={room.img}
           alt="room"
           className="tw-w-full tw-h-20 tw-object-cover tw-mb-2"
         />

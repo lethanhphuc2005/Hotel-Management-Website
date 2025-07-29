@@ -11,71 +11,20 @@ import {
   AnimatedButtonPrimary,
 } from "@/components/common/Button";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
-import { RoomClass } from "@/types/roomClass";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/contexts/store";
 import { addRoomToCart } from "@/contexts/cartSlice";
+import { GuestCount, RoomSearchBarProps } from "@/types/_common";
+import { RoomClass } from "@/types/roomClass";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-interface RoomBookingBoxProps {
+interface RoomBookingBoxProps extends RoomSearchBarProps {
   roomClass: RoomClass;
-  images: any[];
-  dateRange: any;
-  setDateRange: (range: any) => void;
-  guests: {
-    adults: number;
-    children: {
-      age0to6: number;
-      age7to17: number;
-    };
-  };
-  setGuests: React.Dispatch<
-    React.SetStateAction<{
-      adults: number;
-      children: {
-        age0to6: number;
-        age7to17: number;
-      };
-    }>
-  >;
-  showCalendar: boolean;
-  setShowCalendar: (show: boolean) => void;
-  showGuestBox: boolean;
-  setShowGuestBox: (show: boolean) => void;
-  guestBoxRef: React.RefObject<HTMLDivElement | null>;
-  calendarRef: React.RefObject<HTMLDivElement | null>;
-  maxGuests: number;
-  setMaxGuests: React.Dispatch<React.SetStateAction<number>>;
-  totalGuests: number;
-  numberOfNights: number;
-  setNumberOfNights: React.Dispatch<React.SetStateAction<number>>;
-  totalPrice: number;
-  setTotalPrice: React.Dispatch<React.SetStateAction<number>>;
-  hasSearched: boolean;
-  setHasSearched: React.Dispatch<React.SetStateAction<boolean>>;
-  numberOfAdults?: number;
-  numberOfChildren?: number;
-  pendingGuests: any;
-  setPendingGuests: React.Dispatch<React.SetStateAction<any>>;
-  pendingDateRange: any;
-  setPendingDateRange: React.Dispatch<React.SetStateAction<any>>;
-  startDate: Date;
-  setStartDate: React.Dispatch<React.SetStateAction<Date>>;
-  endDate: Date;
-  setEndDate: React.Dispatch<React.SetStateAction<Date>>;
-  numAdults?: number;
-  numChildrenUnder6?: number;
-  numChildrenOver6?: number;
-  totalEffectiveGuests?: number;
-  showExtraBedOver6?: boolean;
-  handleSearch?: () => void;
-  price: number;
-  setPrice?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function RoomBookingBox(props: RoomBookingBoxProps) {
   const {
     roomClass,
-    images,
     dateRange,
     setDateRange,
     guests,
@@ -86,44 +35,30 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
     setShowGuestBox,
     guestBoxRef,
     calendarRef,
-    maxGuests,
     totalGuests,
     numberOfNights,
-    setNumberOfNights,
     totalPrice,
-    setTotalPrice,
     hasSearched,
     setHasSearched,
-    numberOfAdults,
-    numberOfChildren,
-    numChildrenUnder6,
-    numChildrenOver6,
-    pendingGuests,
-    setPendingGuests,
-    pendingDateRange,
-    setPendingDateRange,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
     handleSearch,
     price,
     setPrice,
+    extraFee = 0, // Default value for extra fee
   } = props;
 
   const dispatch = useDispatch();
-  const adults = numberOfAdults ?? 1;
-  const childrenUnder6 = numChildrenUnder6 ?? 0;
-  const childrenOver6 = numChildrenOver6 ?? 0;
   const cartRooms = useSelector((state: RootState) => state?.cart.rooms);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const basePrice =
     (roomClass.price_discount ?? 0) > 0
       ? roomClass.price_discount ?? 0
       : roomClass.price;
 
-  const checkInISO = startDate?.toLocaleDateString("vi-VN") || "";
-  const checkOutISO = endDate?.toLocaleDateString("vi-VN") || "";
+  const startDate = dateRange[0]?.startDate;
+  const endDate = dateRange[0]?.endDate;
 
   const handleAddToCart = () => {
     if (!hasSearched || !startDate || !endDate) {
@@ -132,6 +67,9 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
       );
       return;
     }
+
+    const checkInISO = startDate.toISOString();
+    const checkOutISO = endDate.toISOString();
 
     const isDuplicate = cartRooms.some(
       (room) =>
@@ -171,19 +109,24 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
       addRoomToCart({
         id: roomClass.id,
         name: roomClass.name,
-        img: images?.[0]?.url || "",
-        desc: `${adults} người lớn${
-          childrenUnder6 > 0 ? `, ${childrenUnder6} trẻ 0–6 tuổi` : ""
-        }${childrenOver6 > 0 ? `, ${childrenOver6} trẻ 7–17 tuổi` : ""}, ${
-          roomClass.bed_amount
-        } giường đôi`,
+        img: roomClass.images[0].url,
+        desc: `${guests.adults} người lớn${
+          guests.children.age0to6 > 0
+            ? `, ${guests.children.age0to6} trẻ 0–6 tuổi`
+            : ""
+        }${
+          guests.children.age7to17 > 0
+            ? `, ${guests.children.age7to17} trẻ 7–17 tuổi`
+            : ""
+        }, ${roomClass.bed_amount} giường đôi`,
+        extra_fee: extraFee,
         price: basePrice,
         nights: numberOfNights,
         checkIn: checkInISO,
         checkOut: checkOutISO,
-        adults,
-        childrenUnder6,
-        childrenOver6,
+        adults: guests.adults,
+        childrenUnder6: guests.children.age0to6,
+        childrenOver6: guests.children.age7to17,
         bedAmount: roomClass.bed_amount,
         view: roomClass.view,
         total: totalPrice,
@@ -195,93 +138,125 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
     toast.success("Đã thêm phòng vào giỏ hàng!");
   };
 
+  // 🧠 Đồng bộ giá trị từ localStorage hoặc URL Params
+  const initSearchData = (source: any) => {
+    const { startDate, endDate, guests } = source;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      const nights = Math.ceil((+end - +start) / (1000 * 60 * 60 * 24));
+
+      setDateRange([{ startDate: start, endDate: end, key: "selection" }]);
+    }
+
+    const { adults = 1, children = {} } = guests;
+    setGuests({ adults, children });
+  };
+
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const history = localStorage.getItem("lastRoomSearch");
+    if (history) initSearchData(JSON.parse(history));
+  }, []);
+
+  useEffect(() => {
+    const start = searchParams.get("start");
+    const end = searchParams.get("end");
+    if (start && end) {
+      const guests = {
+        adults: Number(searchParams.get("adults") || 1),
+        children: {
+          age0to6: Number(searchParams.get("children6") || 0),
+          age7to17: Number(searchParams.get("children17") || 0),
+        },
+      };
+      initSearchData({ startDate: start, endDate: end, guests });
+    }
+  }, [searchParams]);
+
+  // 🔒 Ẩn box khi click ngoài
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const t = e.target as Node;
       if (
         showGuestBox &&
         guestBoxRef.current &&
-        !guestBoxRef.current.contains(event.target as Node)
+        !guestBoxRef.current.contains(t)
       ) {
         setShowGuestBox(false);
       }
       if (
         showCalendar &&
         calendarRef.current &&
-        !calendarRef.current.contains(event.target as Node)
+        !calendarRef.current.contains(t)
       ) {
         setShowCalendar(false);
       }
     };
 
-    if (showGuestBox || showCalendar) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showGuestBox, showCalendar]);
 
-  // Lấy dữ liệu từ localStorage khi component mount
-  useEffect(() => {
-    const searchHistory = localStorage.getItem("lastRoomSearch");
-    if (!searchHistory) return;
-    const { startDate, endDate, guests } = searchHistory
-      ? JSON.parse(searchHistory)
-      : {
-          startDate: new Date(),
-          endDate: new Date(),
-          guests: { adults: 1, children: { age0to6: 0, age7to17: 0 } },
-        };
+  const handleResetSearch = () => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const resetRange = [{ startDate: now, endDate: now, key: "selection" }];
 
-    const start = startDate;
-    const end = endDate;
+    setDateRange(resetRange);
+    setGuests({ adults: 1, children: { age0to6: 0, age7to17: 0 } });
+    setHasSearched(false);
+    localStorage.removeItem("lastRoomSearch");
+    toast.success("Đã xóa tìm kiếm phòng.");
+  };
 
-    const adults = Number(guests.adults || 1);
-    const children6 = Number(guests.children.age0to6 || 0);
-    const children17 = Number(guests.children.age7to17 || 0);
+  const handleSearchClick = () => {
+    const range = dateRange[0];
+    const start = range?.startDate;
+    const end = range?.endDate;
+    const { adults, children } = guests;
+    const totalGuestsCount =
+      adults + (children.age0to6 || 0) + (children.age7to17 || 0);
 
-    // Luôn set guests (nếu muốn)
+    if (!start || !end) {
+      return toast.warning("Vui lòng chọn ngày đến và ngày đi.");
+    }
+    if (+end <= +start) {
+      return toast.warning("Ngày đi phải sau ngày đến.");
+    }
+
+    const nights = Math.ceil((+end - +start) / (1000 * 60 * 60 * 24));
     setGuests({
       adults,
       children: {
-        age0to6: children6,
-        age7to17: children17,
+        age0to6: children.age0to6 || 0,
+        age7to17: children.age7to17 || 0,
       },
     });
+    setDateRange([range]);
+    setHasSearched(true);
+    localStorage.setItem(
+      "lastRoomSearch",
+      JSON.stringify({
+        startDate: start,
+        endDate: end,
+        guests: { adults, children },
+      })
+    );
 
-    setPendingGuests({
-      adults,
-      children: {
-        age0to6: children6,
-        age7to17: children17,
-      },
+    const query = new URLSearchParams({
+      start: start.toISOString(),
+      end: end.toISOString(),
+      adults: adults.toString(),
+      children6: children.age0to6.toString(),
+      children17: children.age7to17.toString(),
     });
 
-    // ✅ Chỉ khi có ngày thì mới set các giá trị liên quan đến tìm kiếm
-    if (start && end) {
-      const startD = new Date(start);
-      const endD = new Date(end);
-
-      if (!isNaN(startD.getTime()) && !isNaN(endD.getTime())) {
-        setStartDate(startD);
-        setEndDate(endD);
-        setDateRange([{ startDate: startD, endDate: endD, key: "selection" }]);
-        setPendingDateRange([
-          { startDate: startD, endDate: endD, key: "selection" },
-        ]);
-
-        const nights = Math.ceil(
-          (endD.getTime() - startD.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        setNumberOfNights(nights);
-        if (setPrice) setPrice(price);
-
-        // Cập nhật giá dựa trên số đêm và giá phòng
-        setHasSearched(true); // ✅ Chỉ gọi khi dữ liệu hợp lệ
-      }
-    }
-  }, []);
+    router.push(
+      pathname === "/" ? `/room-class?${query.toString()}` : "/room-class"
+    );
+    if (pathname !== "/") toast.success("Tìm phòng thành công!");
+  };
 
   return (
     <>
@@ -301,15 +276,14 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
               Nhận phòng - Trả phòng
             </label>
             <div>
-              {dateRange[0].startDate.toLocaleDateString("vi-VN")} -{" "}
-              {dateRange[0].endDate.toLocaleDateString("vi-VN")}
+              {dateRange[0]?.startDate?.toLocaleDateString("vi-VN")} -{" "}
+              {dateRange[0]?.endDate?.toLocaleDateString("vi-VN")}
             </div>
             {showCalendar && (
               <div ref={calendarRef} className="tw-absolute tw-z-50 tw-mt-2">
                 <DateRange
                   editableDateInputs
                   onChange={(item: any) => {
-                    setPendingDateRange([item.selection]);
                     setDateRange([item.selection]);
                   }}
                   moveRangeOnFirstSelection={false}
@@ -328,13 +302,10 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
           >
             <label className="tw-text-white tw-font-semibold">Khách</label>
             <div>
-              {pendingGuests.adults} khách
-              {pendingGuests.children.age0to6 +
-                pendingGuests.children.age7to17 >
-                0 &&
+              {guests.adults} khách
+              {guests.children.age0to6 + guests.children.age7to17 > 0 &&
                 `, ${
-                  pendingGuests.children.age0to6 +
-                  pendingGuests.children.age7to17
+                  guests.children.age0to6 + guests.children.age7to17
                 } trẻ em`}
             </div>
             {showGuestBox && (
@@ -353,26 +324,24 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
                   <div className="tw-flex tw-items-center tw-gap-2">
                     <button
                       className="tw-btn tw-border  tw-rounded-md tw-px-2 tw-py-1 tw-border-gray-400"
-                      disabled={pendingGuests.adults <= 1}
-                      onClick={(e: any) =>
-                        e.stopPropagation() ||
-                        setPendingGuests((g: any) => ({
-                          ...g,
-                          adults: Math.max(1, g.adults - 1),
+                      disabled={guests.adults <= 1}
+                      onClick={() =>
+                        setGuests((guest: GuestCount) => ({
+                          ...guest,
+                          adults: Math.max(1, guest.adults - 1),
                         }))
                       }
                     >
                       -
                     </button>
-                    <span>{pendingGuests.adults}</span>
+                    <span>{guests.adults}</span>
                     <button
                       className="tw-btn tw-btn-sm tw-border tw-rounded-md tw-px-2 tw-py-1 tw-border-gray-400"
-                      disabled={totalGuests >= maxGuests}
-                      onClick={(e: any) =>
-                        e.stopPropagation() ||
-                        setPendingGuests((g: any) => ({
-                          ...g,
-                          adults: g.adults + 1,
+                      disabled={totalGuests >= 10}
+                      onClick={() =>
+                        setGuests((guest: GuestCount) => ({
+                          ...guest,
+                          adults: guest.adults + 1,
                         }))
                       }
                     >
@@ -390,31 +359,29 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
                   <div className="tw-flex tw-items-center tw-gap-2">
                     <button
                       className="tw-btn tw-btn-sm tw-border tw-rounded-md tw-px-2 tw-py-1 tw-border-gray-400"
-                      disabled={pendingGuests.children.age7to17 <= 0}
-                      onClick={(e: any) =>
-                        e.stopPropagation() ||
-                        setPendingGuests((g: any) => ({
-                          ...g,
+                      disabled={guests.children.age7to17 <= 0}
+                      onClick={() =>
+                        setGuests((guest: GuestCount) => ({
+                          ...guest,
                           children: {
-                            ...g.children,
-                            age7to17: Math.max(0, g.children.age7to17 - 1),
+                            ...guest.children,
+                            age7to17: Math.max(0, guest.children.age7to17 - 1),
                           },
                         }))
                       }
                     >
                       -
                     </button>
-                    <span>{pendingGuests.children.age7to17}</span>
+                    <span>{guests.children.age7to17}</span>
                     <button
                       className="tw-btn tw-btn-sm tw-border tw-rounded-md tw-px-2 tw-py-1 tw-border-gray-400"
-                      disabled={totalGuests >= maxGuests}
-                      onClick={(e: any) =>
-                        e.stopPropagation() ||
-                        setPendingGuests((g: any) => ({
-                          ...g,
+                      disabled={totalGuests >= 10}
+                      onClick={() =>
+                        setGuests((guest: GuestCount) => ({
+                          ...guest,
                           children: {
-                            ...g.children,
-                            age7to17: g.children.age7to17 + 1,
+                            ...guest.children,
+                            age7to17: guest.children.age7to17 + 1,
                           },
                         }))
                       }
@@ -433,31 +400,29 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
                   <div className="tw-flex tw-items-center tw-gap-2">
                     <button
                       className="tw-btn tw-btn-sm tw-border tw-rounded-md tw-px-2 tw-py-1 tw-border-gray-400"
-                      disabled={pendingGuests.children.age0to6 <= 0}
-                      onClick={(e: any) =>
-                        e.stopPropagation() ||
-                        setPendingGuests((g: any) => ({
-                          ...g,
+                      disabled={guests.children.age0to6 <= 0}
+                      onClick={() =>
+                        setGuests((guest: GuestCount) => ({
+                          ...guest,
                           children: {
-                            ...g.children,
-                            age0to6: Math.max(0, g.children.age0to6 - 1),
+                            ...guest.children,
+                            age0to6: Math.max(0, guest.children.age0to6 - 1),
                           },
                         }))
                       }
                     >
                       -
                     </button>
-                    <span>{pendingGuests.children.age0to6}</span>
+                    <span>{guests.children.age0to6}</span>
                     <button
                       className="tw-btn tw-btn-sm tw-border tw-rounded-md tw-px-2 tw-py-1 tw-border-gray-400"
-                      disabled={totalGuests >= maxGuests}
-                      onClick={(e: any) =>
-                        e.stopPropagation() || // Ngăn sự kiện click lan truyền
-                        setPendingGuests((g: any) => ({
-                          ...g,
+                      disabled={totalGuests >= 10}
+                      onClick={() =>
+                        setGuests((guest: GuestCount) => ({
+                          ...guest,
                           children: {
-                            ...g.children,
-                            age0to6: g.children.age0to6 + 1,
+                            ...guest.children,
+                            age0to6: guest.children.age0to6 + 1,
                           },
                         }))
                       }
@@ -480,65 +445,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
         >
           <AnimatedButton
             className="tw-px-4 tw-py-3 tw-flex-1"
-            onClick={() => {
-              if (!Array.isArray(pendingDateRange) || !pendingDateRange[0]) {
-                toast.warning("Vui lòng chọn ngày đến và ngày đi.");
-                return;
-              }
-
-              const startDate = pendingDateRange[0]?.startDate;
-              const endDate = pendingDateRange[0]?.endDate;
-
-              if (!startDate || !endDate) {
-                toast.warning("Vui lòng chọn ngày đến và ngày đi.");
-                return;
-              }
-
-              if (
-                new Date(endDate).getTime() <= new Date(startDate).getTime()
-              ) {
-                toast.error("Ngày đi phải sau ngày đến ít nhất 1 ngày.");
-                return;
-              }
-
-              const pendingAdults = pendingGuests.adults ?? 0;
-              const pendingChildren0to6 = pendingGuests.children?.age0to6 ?? 0;
-              const pendingChildren7to17 =
-                pendingGuests.children?.age7to17 ?? 0;
-              const pendingTotalGuests =
-                pendingAdults + pendingChildren0to6 + pendingChildren7to17;
-
-              if (pendingTotalGuests > maxGuests) {
-                toast.error(
-                  `Số khách (${pendingTotalGuests}) vượt quá sức chứa tối đa (${maxGuests}).`
-                );
-                return;
-              }
-
-              // Cập nhật giá trị thực tế từ tạm thời
-              setGuests(pendingGuests);
-              setDateRange(pendingDateRange);
-
-              const nights = Math.ceil(
-                (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-                  (1000 * 60 * 60 * 24)
-              );
-              setStartDate(startDate);
-              setEndDate(endDate);
-              setNumberOfNights(nights);
-              if (setPrice) setPrice(price); // Cập nhật giá nếu cần
-
-              // ✅ Lưu vào localStorage
-              const savedSearch = {
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                guests: pendingGuests,
-              };
-              localStorage.setItem(
-                "lastRoomSearch",
-                JSON.stringify(savedSearch)
-              );
-            }}
+            onClick={handleSearchClick}
           >
             Xác nhận
           </AnimatedButton>

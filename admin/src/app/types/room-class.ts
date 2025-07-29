@@ -6,13 +6,19 @@ import { MainRoomClass } from './main-room-class';
 import { Review } from './review';
 import { Room } from './room';
 
+export interface BedRoomClass {
+  type: string;
+  quantity: number;
+}
+
 export interface RoomClass {
   id: string;
   main_room_class_id: string;
   name: string;
   description: string;
-  bed_type: string;
   bed_amount: number;
+  bed_type: string;
+  bed: BedRoomClass;
   capacity: number;
   price: number;
   price_discount: number;
@@ -44,8 +50,10 @@ export interface RoomClassRequest {
   main_room_class_id?: string;
   name?: string;
   description?: string;
-  bed_type?: string;
-  bed_amount?: number;
+  bed?: {
+    type?: string;
+    quantity?: number;
+  };
   capacity?: number;
   price?: number;
   price_discount?: number;

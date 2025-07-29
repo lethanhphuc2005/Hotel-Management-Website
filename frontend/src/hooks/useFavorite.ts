@@ -5,11 +5,13 @@ import {
   createUserFavorite,
   deleteUserFavorite,
 } from "@/services/UserFavoriteService";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function useFavorite(
   roomClassId: string,
   favorites: UserFavorite[] = []
 ) {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [liked, setLiked] = useState(false);
   const [favoriteId, setFavoriteId] = useState<string | null>(null);
 
@@ -22,13 +24,11 @@ export function useFavorite(
   }, [favorites, roomClassId]);
 
   const handleLikeClick = async () => {
-    const loginData = localStorage.getItem("accessToken");
-    if (!loginData) {
-      toast.warning("Vui lòng đăng nhập để thêm vào yêu thích!");
+    if (isAuthLoading || !user) {
+      toast.error("Bạn cần đăng nhập để thực hiện thao tác này.");
       return;
     }
-    const parsed = JSON.parse(loginData);
-    const userId = parsed.id;
+    const userId = user.id;
 
     try {
       if (!liked) {

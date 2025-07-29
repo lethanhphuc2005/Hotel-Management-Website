@@ -34,8 +34,9 @@
       <div>
         <label for="bed_type">Loại giường</label>
         <select
+          *ngIf="roomClass.bed"
           class="form-select form-control mb-3"
-          [(ngModel)]="roomClass.bed_type"
+          [(ngModel)]="roomClass.bed.type"
           name="bed_type"
           required
         >
@@ -52,11 +53,12 @@
         <div>
           <label for="bed">Số giường:</label>
           <input
+            *ngIf="roomClass.bed"
             class="form-control mb-3"
             type="number"
             id="bed"
             name="bed"
-            [(ngModel)]="roomClass.bed_amount"
+            [(ngModel)]="roomClass.bed.quantity"
             required
           />
         </div>

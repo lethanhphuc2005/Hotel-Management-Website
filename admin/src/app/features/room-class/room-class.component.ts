@@ -55,7 +55,6 @@ export class RoomClassComponent implements OnInit {
     status: true,
     main_room_class_id: '',
     price_discount: 0,
-    bed_type: '',
     view: '',
     features: [],
     uploadImages: null,
@@ -219,7 +218,10 @@ export class RoomClassComponent implements OnInit {
         status: true,
         main_room_class_id: '',
         price_discount: 0,
-        bed_type: '',
+        bed: {
+          type: '',
+          quantity: 0,
+        },
         view: '',
         features: [],
         uploadImages: null,
@@ -232,8 +234,7 @@ export class RoomClassComponent implements OnInit {
         description: item.description,
         status: item.status,
         main_room_class_id: item.main_room_class_id,
-        bed_type: item.bed_type,
-        bed_amount: item.bed_amount,
+        bed: item.bed,
         capacity: item.capacity,
         price: item.price,
         price_discount: item.price_discount,
@@ -298,7 +299,7 @@ export class RoomClassComponent implements OnInit {
 
   async onAddRoomClass(): Promise<void> {
     this.spinner.show(); // Hiện spinner khi bắt đầu thêm mới
-    
+
     const formData = new FormData();
     formData.append(
       'main_room_class_id',
@@ -306,8 +307,7 @@ export class RoomClassComponent implements OnInit {
     );
     formData.append('name', this.newRoomClass.name || '');
     formData.append('description', this.newRoomClass.description || '');
-    formData.append('bed_type', this.newRoomClass.bed_type || '');
-    formData.append('bed_amount', String(this.newRoomClass.bed_amount || 0));
+    formData.append('bed', JSON.stringify(this.newRoomClass.bed || {}));
     formData.append('capacity', String(this.newRoomClass.capacity || 0));
     formData.append('price', String(this.newRoomClass.price || 0));
     formData.append(
@@ -358,8 +358,7 @@ export class RoomClassComponent implements OnInit {
     );
     formData.append('name', this.newRoomClass.name || '');
     formData.append('description', this.newRoomClass.description || '');
-    formData.append('bed_type', this.newRoomClass.bed_type || '');
-    formData.append('bed_amount', String(this.newRoomClass.bed_amount || 0));
+    formData.append('bed', JSON.stringify(this.newRoomClass.bed || {}));
     formData.append('capacity', String(this.newRoomClass.capacity || 0));
     formData.append('price', String(this.newRoomClass.price || 0));
     formData.append(

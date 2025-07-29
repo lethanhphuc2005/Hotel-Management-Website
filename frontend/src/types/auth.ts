@@ -6,6 +6,8 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<any>;
   loginWithGoogle: (accessToken: string) => Promise<any>;
   logout: () => void;
+  refetchProfile: () => Promise<void>;
+  setUser: (user: User | null) => void;
 }
 
 export interface AuthResponse {

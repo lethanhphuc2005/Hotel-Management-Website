@@ -7,7 +7,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { RoomClass } from "@/types/roomClass";
-import getImageUrl from "@/utils/getImageUrl";
 
 const RoomClassDetail = ({ roomClass }: { roomClass: RoomClass }) => {
   const images = roomClass?.images || [];
@@ -51,7 +50,7 @@ const RoomClassDetail = ({ roomClass }: { roomClass: RoomClass }) => {
             {images.map((img, index) => (
               <SwiperSlide key={img.id || index}>
                 <img
-                  src={getImageUrl(img.url)}
+                  src={img.url}
                   alt={`Ảnh ${index + 1}`}
                   className="tw-w-full tw-h-[400px] tw-object-cover tw-rounded-2xl"
                 />

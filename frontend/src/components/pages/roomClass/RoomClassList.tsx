@@ -1,4 +1,5 @@
 "use client";
+
 import RoomClassItem from "./roomClassItem";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -17,7 +18,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import getImageUrl from "@/utils/getImageUrl";
 
 export function RoomClassList({
   roomClasses,
@@ -26,15 +26,21 @@ export function RoomClassList({
   numberOfAdults,
   startDate,
   endDate,
+  capacity,
+  hasSaturdayNight = false,
+  hasSundayNight = false,
   numberOfChildrenUnder6 = 0,
   numberOfChildrenOver6 = 0,
 }: {
   roomClasses: RoomClass[];
   numberOfNights: number;
   hasSearched: boolean;
-  numberOfAdults?: number;
-  startDate?: Date;
-  endDate?: Date;
+  numberOfAdults: number;
+  startDate: Date;
+  endDate: Date;
+  capacity: number;
+  hasSaturdayNight?: boolean;
+  hasSundayNight?: boolean;
   numberOfChildrenUnder6?: number;
   numberOfChildrenOver6?: number;
 }) {
@@ -47,6 +53,13 @@ export function RoomClassList({
       if (res.success) setFavorites(res.data);
     });
   }, []);
+  if (roomClasses.length === 0) {
+    return (
+      <p className="tw-text-white tw-opacity-70 tw-mt-4 tw-w-full tw-text-center">
+        Không tìm thấy loại phòng phù hợp.
+      </p>
+    );
+  }
   return (
     <>
       {roomClasses.map((item) => (
@@ -55,11 +68,14 @@ export function RoomClassList({
           roomClass={item}
           hasSearched={hasSearched}
           numberOfNights={numberOfNights}
-          numberOfAdults={numberOfAdults ?? 1}
+          numberOfAdults={numberOfAdults}
           numberOfChildrenUnder6={numberOfChildrenUnder6}
           numberOfChildrenOver6={numberOfChildrenOver6}
           startDate={startDate}
           endDate={endDate}
+          capacity={capacity}
+          hasSaturday={hasSaturdayNight}
+          hasSunday={hasSundayNight}
           favorites={favorites}
         />
       ))}
@@ -114,7 +130,7 @@ export const RoomClassListForSearch = ({
               {/* Ảnh */}
               <div className="tw-aspect-[4/3] tw-overflow-hidden">
                 <Image
-                  src={getImageUrl(room.images?.[0]?.url)}
+                  src={room.images[0].url}
                   alt={room.name}
                   width={400}
                   height={260}

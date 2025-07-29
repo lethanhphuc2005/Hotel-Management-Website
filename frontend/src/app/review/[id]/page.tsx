@@ -14,7 +14,6 @@ import { useLoading } from "@/contexts/LoadingContext";
 import { Booking, BookingDetail } from "@/types/booking";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { createReview } from "@/services/ReviewService";
-import getImageUrl from "@/utils/getImageUrl";
 import { ServiceBooking } from "@/types/service";
 import { Discount } from "@/types/discount";
 
@@ -214,7 +213,7 @@ export default function RateAfterBookingPage() {
               <div className="tw-bg-[#1a1a1a] tw-p-4 tw-rounded-2xl tw-flex tw-gap-4 tw-shadow-md">
                 <Image
                   src={
-                    getImageUrl(item.room_class?.images?.[0]?.url) ||
+                    item.room_class?.images[0].url ||
                     "/img/default-room.jpg"
                   }
                   alt={item.room_class.name || "Phòng"}

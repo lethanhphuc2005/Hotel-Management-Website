@@ -7,37 +7,29 @@ export default function RoomPriceAndBooking({
   roomClassId,
   hasSearched,
   numberOfNights,
-  numberOfAdults = 1,
-  numChildrenUnder6 = 0,
-  numchildrenOver6 = 0,
-  totalPrice,
   basePrice,
+  totalPrice,
 }: {
   roomClassId: string;
   hasSearched?: boolean;
   numberOfNights: number;
-  numberOfAdults?: number;
-  numChildrenUnder6?: number;
-  numchildrenOver6?: number;
-  totalPrice: number;
   basePrice: number;
+  totalPrice: number;
 }) {
+
   return (
     <div className="ms-auto align-self-end mb-2 text-end">
       {hasSearched && (
-        <div className="mb-3" style={{ fontSize: "14px", lineHeight: 1.4 }}>
-          <div className="mb-1">
-            {numberOfNights} đêm, {numberOfAdults} người lớn
-          </div>
-          <div>
-            {numChildrenUnder6 > 0 && `${numChildrenUnder6} trẻ 0-6 `}
-            {numchildrenOver6 > 0 && `, ${numchildrenOver6} trẻ 7-17`}
-          </div>
-        </div>
+        <div
+          className="mb-3"
+          style={{ fontSize: "14px", lineHeight: 1.4 }}
+        ></div>
       )}
       <h5 className="fw-bold text-white">
         {hasSearched ? (
-          <p>Tổng: {formatCurrencyVN(totalPrice)}</p>
+          <p>
+            Tổng: {formatCurrencyVN(totalPrice)} /{numberOfNights} đêm
+          </p>
         ) : (
           <p>Giá từ: {formatCurrencyVN(basePrice)} /đêm</p>
         )}

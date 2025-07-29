@@ -10,6 +10,14 @@ const {
 const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 const { BookingStatus } = require("../models/status.model");
+const parseJSONFields = require("../utils/parseJSONFields.js");
+
+const BED_CAPACITY = {
+  đơn: 1,
+  đôi: 2,
+  queen: 2,
+  king: 2,
+};
 
 const roomClassController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
@@ -70,27 +78,6 @@ const roomClassController = {
       return { valid: false, message: "Trạng thái phải là true hoặc false." };
     }
 
-    // Check features if provided
-    if (Array.isArray(features) && features.length > 0) {
-      for (const feature of features) {
-        if (!feature.feature_id || typeof feature.feature_id !== "string") {
-          return { valid: false, message: "Tiện nghi không hợp lệ." };
-        }
-        if (feature.feature_id.length !== 24) {
-          return { valid: false, message: "Mã tiện nghi không hợp lệ." };
-        }
-      }
-    }
-
-    // Check images if provided
-    if (Array.isArray(images) && images.length > 0) {
-      for (const imagePath of images) {
-        if (typeof imagePath !== "string" || imagePath.trim() === "") {
-          return { valid: false, message: "Hình ảnh không hợp lệ." };
-        }
-      }
-    }
-
     // Kiểm tra view
     const validViews = [
       "biển",
@@ -133,7 +120,6 @@ const roomClassController = {
         check_in_date,
         check_out_date,
       } = req.query;
-
       const query = {};
 
       if (search && search.trim() !== "") {
@@ -154,11 +140,6 @@ const roomClassController = {
         if (minBed) query.bed_amount.$gte = parseInt(minBed);
         if (maxBed) query.bed_amount.$lte = parseInt(maxBed);
       }
-      if (minCapacity || maxCapacity) {
-        query.capacity = {};
-        if (minCapacity) query.capacity.$gte = parseInt(minCapacity);
-        if (maxCapacity) query.capacity.$lte = parseInt(maxCapacity);
-      }
 
       if (status) {
         query.status = status;
@@ -174,6 +155,24 @@ const roomClassController = {
         .skip(skip)
         .limit(parseInt(limit))
         .populate("main_room_class features images rooms comments reviews");
+
+      if (minCapacity || maxCapacity) {
+        const minCap = minCapacity ? parseInt(minCapacity) : null;
+        const maxCap = maxCapacity ? parseInt(maxCapacity) : null;
+
+        roomClasses = roomClasses.filter((room) => {
+          if (!room.bed || !room.bed.type || !room.bed.quantity) return false;
+
+          // Tính tổng sức chứa từ object bed
+          const perBed = BED_CAPACITY[room.bed.type] || 1;
+
+          const totalCapacity = perBed * room.bed.quantity;
+          if (minCap !== null && totalCapacity < minCap) return false;
+          if (maxCap !== null && totalCapacity > maxCap) return false;
+
+          return true;
+        });
+      }
 
       // --- Lọc theo tiện nghi
       if (feature) {
@@ -356,12 +355,14 @@ const roomClassController = {
       const query = { status: true };
 
       if (search && search.trim() !== "") {
+        const safeSearch = search.trim().slice(0, 50); // Giới hạn tối đa 50 ký tự
+
         query.$or = [
-          { name: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
-          { view: { $regex: search, $options: "i" } },
+          { name: { $regex: `^${safeSearch}`, $options: "i" } }, // So khớp đầu chuỗi
+          { description: { $regex: `^${safeSearch}`, $options: "i" } },
         ];
       }
+
       if (minPrice || maxPrice) {
         query.price = {};
         if (minPrice) query.price.$gte = parseInt(minPrice);
@@ -372,11 +373,6 @@ const roomClassController = {
         if (minBed) query.bed_amount.$gte = parseInt(minBed);
         if (maxBed) query.bed_amount.$lte = parseInt(maxBed);
       }
-      if (minCapacity || maxCapacity) {
-        query.capacity = {};
-        if (minCapacity) query.capacity.$gte = parseInt(minCapacity);
-        if (maxCapacity) query.capacity.$lte = parseInt(maxCapacity);
-      }
 
       const sortObj = {};
       sortObj[sort] = order === "asc" ? 1 : -1;
@@ -384,6 +380,23 @@ const roomClassController = {
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
         .populate("main_room_class features images rooms comments reviews");
+
+      if (minCapacity || maxCapacity) {
+        const minCap = minCapacity ? parseInt(minCapacity) : null;
+        const maxCap = maxCapacity ? parseInt(maxCapacity) : null;
+
+        roomClasses = roomClasses.filter((room) => {
+          if (!room.bed || !room.bed.type || !room.bed.quantity) return false;
+
+          // Tính tổng sức chứa từ object bed
+          const perBed = BED_CAPACITY[room.bed.type] || 1;
+          const totalCapacity = perBed * room.bed.quantity;
+          if (minCap !== null && totalCapacity < minCap) return false;
+          if (maxCap !== null && totalCapacity > maxCap) return false;
+
+          return true;
+        });
+      }
 
       if (feature) {
         const featureList = Array.isArray(feature) ? feature : [feature];
@@ -543,6 +556,7 @@ const roomClassController = {
   // === THÊM LOẠI PHÒNG MỚI ===
   addRoomClass: async (req, res) => {
     try {
+      parseJSONFields(req.body, ["bed", "features"]);
       const { features = [] } = req.body;
       const newRoomClass = new RoomClass(req.body);
       const validation = await roomClassController.validateRoomClass(
@@ -602,6 +616,7 @@ const roomClassController = {
   // === CẬP NHẬT LOẠI PHÒNG ===
   updateRoomClass: async (req, res) => {
     try {
+      parseJSONFields(req.body, ["bed", "features"]);
       let features = req.body.features || [];
       const roomClassToUpdate = await RoomClass.findById(req.params.id);
       if (!roomClassToUpdate) {
@@ -663,15 +678,6 @@ const roomClassController = {
           }));
 
           await Image.insertMany(imageData);
-        }
-      }
-
-      if (typeof features === "string") {
-        try {
-          features = JSON.parse(features); // Chuyển sang mảng thực sự
-        } catch (err) {
-          console.error("Parse JSON thất bại:", err);
-          features = [];
         }
       }
 

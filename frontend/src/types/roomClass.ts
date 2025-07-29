@@ -9,8 +9,10 @@ export interface RoomClass {
   id: string;
   main_room_class_id: string;
   name: string;
-  bed_type: string;
-  bed_amount: number;
+  bed: {
+    type: string;
+    quantity: number;
+  }
   capacity: number;
   price: number;
   price_discount?: number;
@@ -20,7 +22,7 @@ export interface RoomClass {
   createdAt?: Date;
   updatedAt?: Date;
   main_room_class: MainRoomClass;
-  images?: Image[];
+  images: Image[];
   features?: RoomClassFeature[];
   comments?: Comment[];
   reviews?: Review[];

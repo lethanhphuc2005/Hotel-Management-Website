@@ -31,7 +31,7 @@ export class RoomClassFormComponent {
     id: string;
     event: Event;
   }>();
-  
+
   onSubmit(form: NgForm) {
     if (form.valid) {
       this.formSubmit.emit();

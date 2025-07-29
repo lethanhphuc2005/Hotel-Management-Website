@@ -1,9 +1,10 @@
 import { PaginationResponse } from "./_common";
+import { Image } from "./image";
 
 export interface Feature {
   id: string;
   name: string;
-  image: string;
+  image: Image;
   icon: string;
   description: string;
   status: boolean;

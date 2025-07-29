@@ -1,11 +1,12 @@
 import { PaginationResponse } from "./_common";
+import { Image } from "./image";
 
 export interface Service {
   id: string;
   name: string;
   price: number;
   description: string;
-  image: string;
+  image: Image;
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;

@@ -13,7 +13,7 @@ export default function RoomImageWithLike({
   onLikeClick: () => void;
 }) {
   return (
-    <div className="position-relative tw-aspect-square">
+    <div className="position-relative tw-aspect-square tw-w-full tw-max-w-[300px] tw-min-w-[200px] tw-rounded-2xl tw-overflow-hidden">
       <Link href={`/room-class/${roomId}`}>
         <Image
           fill

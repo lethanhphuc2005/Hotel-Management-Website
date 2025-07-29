@@ -7,6 +7,7 @@ const {
   deleteImagesOnError,
   deleteOldImages,
 } = require("../middlewares/cloudinaryUpload.middleware.js");
+const parseJSONFields = require("../utils/parseJSONFields");
 
 const DiscountController = {
   validateDiscount: async (discountData, discountId) => {
@@ -55,21 +56,9 @@ const DiscountController = {
     };
   },
 
-  parseJSONFields: (body, fields) => {
-    for (const field of fields) {
-      if (typeof body[field] === "string") {
-        try {
-          body[field] = JSON.parse(body[field]);
-        } catch (e) {
-          // Nếu lỗi parse thì bỏ qua
-        }
-      }
-    }
-  },
-
   createDiscount: async (req, res) => {
     try {
-      DiscountController.parseJSONFields(req.body, [
+      parseJSONFields(req.body, [
         "conditions",
         "apply_to_room_class_ids",
       ]);
@@ -267,7 +256,7 @@ const DiscountController = {
   updateDiscount: async (req, res) => {
     try {
       // Parse các trường JSON (nếu có)
-      DiscountController.parseJSONFields(req.body, [
+      parseJSONFields(req.body, [
         "conditions",
         "apply_to_room_class_ids",
       ]);

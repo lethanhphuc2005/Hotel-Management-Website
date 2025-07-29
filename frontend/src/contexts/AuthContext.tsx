@@ -8,6 +8,8 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => false,
   loginWithGoogle: async () => false, // 👈 Thêm dòng này
   logout: () => {},
+  refetchProfile: async () => {},
+  setUser(user) {},
 });
 
 // Hook để sử dụng AuthContext

@@ -10,7 +10,7 @@ export interface MainRoomClass {
   createdAt?: Date;
   updatedAt?: Date;
   room_class_list?: RoomClass[];
-  images: Image[];
+  image: Image;
 }
 
 export interface MainRoomClassResponse {

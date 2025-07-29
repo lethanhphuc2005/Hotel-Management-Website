@@ -1,5 +1,23 @@
 const mongoose = require("mongoose");
 
+const BedSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["đơn", "đôi", "queen", "king"],
+      required: true,
+      default: "đơn",
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1,
+    },
+  },
+  { _id: false }
+);
+
 const RoomClassSchema = new mongoose.Schema(
   {
     main_room_class_id: {
@@ -14,18 +32,10 @@ const RoomClassSchema = new mongoose.Schema(
       trim: true,
       maxlength: 100,
     },
-    bed_type: {
-      type: String,
-      enum: ["đơn", "đôi", "queen", "king"],
+    bed: {
+      type: BedSchema,
       required: true,
-      default: "đơn",
-      trim: true,
-    },
-    bed_amount: {
-      type: Number,
-      required: true,
-      default: 1,
-      min: 1,
+      default: { type: "đơn", quantity: 1 },
     },
     capacity: {
       type: Number,

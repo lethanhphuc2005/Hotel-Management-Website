@@ -10,7 +10,7 @@ import { Wallet } from "@/types/wallet";
 import { Comment } from "@/types/comment";
 
 export const useProfile = () => {
-  const { user, isLoading: isAuthLoading, logout } = useAuth();
+  const { user, isLoading: isAuthLoading, logout, refetchProfile } = useAuth();
   const { setLoading } = useLoading();
   const router = useRouter();
   const [didFetch, setDidFetch] = useState(false);
@@ -74,6 +74,7 @@ export const useProfile = () => {
   }, [user, isAuthLoading, didFetch]);
 
   return {
+    refetchProfile,
     user,
     profile,
     formData,

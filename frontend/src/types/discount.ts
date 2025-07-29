@@ -1,9 +1,10 @@
 import { PaginationResponse } from "./_common";
+import { Image } from "./image";
 
 export interface Discount {
   id: string;
   name: string;
-  image: string;
+  image: Image;
   description: string;
   type:
     | "early_bird"

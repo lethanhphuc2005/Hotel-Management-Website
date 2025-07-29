@@ -28,11 +28,10 @@ export const useHeader = ({
   showSearch,
   setShowSearch,
 }: HeaderProps) => {
-  const { user, logout } = useAuth();
+  const { user, isLoading: isAuthLoading, logout } = useAuth();
   const [mainRoomClass, setMainRoomClass] = useState<MainRoomClass[]>([]);
   const [userData, setUserData] = useState<User | null>(null);
   const [wallet, setWallet] = useState<Wallet | null>(null);
-  const [didFetch, setDidFetch] = useState(false);
   const { setLoading } = useLoading();
   const level = levelMap[userData?.level || "normal"] || levelMap.normal;
   const toggleSearch = (e: React.MouseEvent) => {
@@ -48,7 +47,11 @@ export const useHeader = ({
   };
 
   useEffect(() => {
-    if (!user || didFetch ) return;
+    if (!isAuthLoading && !user) {
+      setUserData(null);
+      setWallet(null);
+      return;
+    }
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -65,7 +68,6 @@ export const useHeader = ({
         console.error("Error fetching main room classes:", error);
       } finally {
         setLoading(false);
-        setDidFetch(true);
       }
     };
 

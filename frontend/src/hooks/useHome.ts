@@ -25,6 +25,7 @@ export const useHome = () => {
 
   useEffect(() => {
     if (didFetch) return;
+    setDidFetch(true);
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -76,11 +77,10 @@ export const useHome = () => {
         console.error("Error fetching home data:", error);
       } finally {
         setLoading(false);
-        setDidFetch(true);
       }
     };
     fetchData();
-  }, [didFetch, user, setLoading]);
+  }, [didFetch, user]);
 
   return {
     mainRoomClasses,

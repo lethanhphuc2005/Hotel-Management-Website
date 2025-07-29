@@ -11,7 +11,6 @@ import Image from "next/image";
 import ServiceDetailPopup from "@/components/modals/ServiceDetailModal";
 import { AnimatedButtonPrimary } from "@/components/common/Button";
 import SelectRoomModal from "@/components/modals/SelecteServiceModal";
-import getImageUrl from "@/utils/getImageUrl";
 
 export function HotelServiceItem({ item }: { item: Service }) {
   const dispatch = useDispatch();
@@ -37,7 +36,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
         service: {
           id: item.id,
           name: item.name,
-          image: item.image ? item.image : "default.jpg",
+          image: item.image.url,
           description: item.description,
           price: item.price,
           quantity: 1,
@@ -54,7 +53,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
         open={showDetailPopup}
         onClose={() => setShowDetailPopup(false)}
         title={item.name}
-        image={getImageUrl(item.image)}
+        image={item.image.url}
         description={item.description}
         price={item.price}
       />
@@ -73,7 +72,7 @@ export function HotelServiceItem({ item }: { item: Service }) {
         onClick={() => setShowDetailPopup(true)}
       >
         <Image
-          src={getImageUrl(item.image)}
+          src={item.image.url}
           alt={item.name}
           width={500}
           height={240}

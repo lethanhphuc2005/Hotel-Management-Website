@@ -18,7 +18,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import Link from "next/link";
-import getImageUrl from "@/utils/getImageUrl";
 
 const typeIconMap: Record<string, any> = {
   early_bird: faCalendarDays,
@@ -97,15 +96,17 @@ export function DiscountItem({ dci }: { dci: Discount }) {
         style={{ cursor: "pointer", overflow: "hidden" }}
       >
         <div className="position-relative">
-          <Image
-            width={400}
-            height={220}
-            loading="lazy"
-            src={getImageUrl(dci.image)}
-            alt={dci.name}
-            className="card-img-top"
-            style={{ height: "220px", objectFit: "cover" }}
-          />
+          {dci.image && (
+            <Image
+              width={400}
+              height={220}
+              loading="lazy"
+              src={dci.image.url}
+              alt={dci.name}
+              className="card-img-top"
+              style={{ height: "220px", objectFit: "cover" }}
+            />
+          )}
           <span className="badge bg-danger position-absolute top-0 start-0 m-2">
             Giảm{" "}
             {dci.value_type === "percent"

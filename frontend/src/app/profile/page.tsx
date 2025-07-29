@@ -12,6 +12,7 @@ import WalletSection from "@/components/pages/profile/WalletSection";
 
 const ProfilePage = () => {
   const {
+    refetchProfile,
     profile,
     formData,
     bookedRooms,
@@ -27,7 +28,7 @@ const ProfilePage = () => {
     logout,
   } = useProfile();
 
-  const [activeTab, setActiveTab] = useState("account"); // ✅ GỌI HOOK NGAY TRÊN
+  const [activeTab, setActiveTab] = useState("account");
 
   const handleLogout = () => {
     logout();
@@ -36,17 +37,14 @@ const ProfilePage = () => {
   const renderSection = () => {
     switch (activeTab) {
       case "account":
-        return <AccountSection formData={formData} profile={profile} />;
+        return <AccountSection formData={formData} profile={profile} refreshProfile={refetchProfile} />;
       case "wallet":
         return <WalletSection wallet={wallet} setWallet={setWallet} />;
       case "change-password":
         return <PasswordSection formData={formData} />;
       case "booked-rooms":
         return (
-          <BookingSection
-            bookings={bookedRooms}
-            setBookings={setBookedRooms}
-          />
+          <BookingSection bookings={bookedRooms} setBookings={setBookedRooms} />
         );
       case "comments":
         return (
@@ -68,8 +66,11 @@ const ProfilePage = () => {
   };
 
   if (!profile)
-    return <div className={styles.loading}>Đang tải dữ liệu...</div>; // ✅ RETURN SAU HOOK
-
+    return (
+      <div className="tw-text-center tw-text-gray-500 tw-py-10">
+        Đang tải dữ liệu...
+      </div>
+    ); 
   return (
     <div className={styles.container}>
       <div className={styles.settingsWrapper}>

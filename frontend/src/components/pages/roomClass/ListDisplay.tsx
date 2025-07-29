@@ -1,5 +1,4 @@
 "use client";
-
 import { RoomClass } from "@/types/roomClass";
 import { RoomClassList } from "./RoomClassList";
 import React from "react";
@@ -10,8 +9,11 @@ interface RoomClassListDisplayProps {
   displayRoomClasses: RoomClass[];
   numberOfNights: number;
   numberOfAdults: number;
-  startDate?: Date;
-  endDate?: Date;
+  startDate: Date;
+  endDate: Date;
+  hasSaturdayNight?: boolean;
+  hasSundayNight?: boolean;
+  capacity: number;
   numberOfChildrenUnder6: number;
   numberOfChildrenOver6: number;
   totalRoomClasses?: number;
@@ -27,6 +29,9 @@ export default function RoomClassListDisplay({
   numberOfAdults,
   startDate,
   endDate,
+  hasSaturdayNight = false,
+  hasSundayNight = false,
+  capacity,
   numberOfChildrenUnder6,
   numberOfChildrenOver6,
   totalRoomClasses = 0,
@@ -34,7 +39,6 @@ export default function RoomClassListDisplay({
   pageSize = 3,
   onPageChange = () => {},
 }: RoomClassListDisplayProps) {
-
   return (
     <>
       <RoomClassList
@@ -44,6 +48,9 @@ export default function RoomClassListDisplay({
         numberOfAdults={numberOfAdults}
         startDate={startDate}
         endDate={endDate}
+        capacity={capacity}
+        hasSaturdayNight={hasSaturdayNight}
+        hasSundayNight={hasSundayNight}
         numberOfChildrenUnder6={numberOfChildrenUnder6}
         numberOfChildrenOver6={numberOfChildrenOver6}
       />

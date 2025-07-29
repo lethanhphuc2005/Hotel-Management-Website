@@ -2,7 +2,11 @@ import {
   getMainRoomClasses as getMainRoomClassesApi,
   getMainRoomClassById as getMainRoomClassByIdApi,
 } from "@/api/mainRoomClassApi";
-import { MainRoomClass, MainRoomClassListResponse, MainRoomClassResponse } from "@/types/mainRoomClass";
+import {
+  MainRoomClass,
+  MainRoomClassListResponse,
+  MainRoomClassResponse,
+} from "@/types/mainRoomClass";
 
 export const fetchMainRoomClasses =
   async (): Promise<MainRoomClassListResponse> => {
@@ -24,15 +28,7 @@ export const fetchMainRoomClasses =
               status: rc.status || false,
             }))
           : [],
-        images: item.images
-          ? item.images.map((img: any) => ({
-              id: img.id,
-              url: img.url,
-              target: img.target || "",
-              createdAt: new Date(img.createdAt),
-              updatedAt: new Date(img.updatedAt),
-            }))
-          : [],
+        image: item.image,
       }));
       return {
         success: true,
@@ -75,15 +71,7 @@ export const fetchMainRoomClassById = async (
             status: rc.status || false,
           }))
         : [],
-      images: data.images
-        ? data.images.map((img: any) => ({
-            id: img.id,
-            url: img.url,
-            target: img.target || "",
-            createdAt: new Date(img.createdAt),
-            updatedAt: new Date(img.updatedAt),
-          }))
-        : [],
+      image: data.image,
     };
 
     return {

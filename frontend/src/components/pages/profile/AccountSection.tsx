@@ -27,6 +27,7 @@ interface Props {
     is_verified?: boolean;
   };
   profile?: User; // Optional profile prop for additional data
+  refreshProfile?: () => void; // Optional function to refresh profile data
 }
 
 const validateUser = (user: any) => {
@@ -53,7 +54,7 @@ const validateUser = (user: any) => {
   return errors;
 };
 
-export function AccountSection({ formData, profile }: Props) {
+export function AccountSection({ formData, profile, refreshProfile }: Props) {
   const [user, setUser] = useState(formData);
   const [information, setInformation] = useState(profile);
   const [isEditing, setIsEditing] = useState(false);
@@ -102,9 +103,12 @@ export function AccountSection({ formData, profile }: Props) {
       toast.error("Cập nhật thông tin thất bại. Vui lòng thử lại sau.");
       setUser(formData); // Reset to original data on error
       console.error("Error saving profile:", error);
+    } finally {
+      setIsEditing(false);
+      if (typeof refreshProfile === "function") {
+        refreshProfile(); // Call the optional refresh function if provided
+      }
     }
-
-    setIsEditing(false);
   };
 
   return (

@@ -8,12 +8,12 @@ import { MainRoomClass } from "@/types/mainRoomClass";
 import { AnimatedButton } from "@/components/common/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faFilter,
   faTrash,
   faCaretDown,
   faCaretUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { useEffect, useRef, useState } from "react";
 
 interface FilterSidebarProps {
   searchTerm: string;
@@ -42,8 +42,6 @@ interface FilterSidebarProps {
     state: string[],
     setState: React.Dispatch<React.SetStateAction<string[]>>
   ) => void;
-  isFiltered: boolean;
-  setIsFiltered: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -70,10 +68,12 @@ export default function FilterSidebar({
   showMainRoomClassFilter,
   setShowMainRoomClassFilter,
   handleCheckboxChange,
-  isFiltered,
-  setIsFiltered,
-  setCurrentPage
+  setCurrentPage,
 }: FilterSidebarProps) {
+  const [tempRange, setTempRange] = useState<[number, number]>(priceRange);
+  const [inputValue, setInputValue] = useState(searchTerm);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleCheckboxdChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     state: string[],
@@ -87,14 +87,18 @@ export default function FilterSidebar({
     );
   };
 
-  const handleSubmit = () => {
-    setIsFiltered(true);
-    setCurrentPage(1);
-    setShowViewFilter(false);
-    setShowFeatureFilter(false);
-    setShowMainRoomClassFilter(false);
-    toast.success("Đã lọc kết quả tìm kiếm");
-  };
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      setSearchTerm(inputValue);
+      setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
+    }, 500); // 500ms chờ sau khi người dùng dừng gõ
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [inputValue]);
 
   const handleReset = () => {
     setSearchTerm("");
@@ -102,8 +106,8 @@ export default function FilterSidebar({
     setSelectedViews([]);
     setSelectedFeatureIds([]);
     setSelectedMainRoomClassIds([]);
-    setPriceRange([0, 10000000]); // Giả sử giá phòng tối đa là 1 triệu
-    setIsFiltered(false);
+    setTempRange([0, 10_000_000]); // Giả sử giá phòng tối đa là 5 triệu
+    setPriceRange([0, 10_000_000]); // Giả sử giá phòng tối đa là 1 triệu
     setShowViewFilter(false);
     setShowFeatureFilter(false);
     setShowMainRoomClassFilter(false);
@@ -120,17 +124,10 @@ export default function FilterSidebar({
           type="text"
           className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-placeholder-gray-400 tw-border tw-border-primary focus:tw-outline-none tw-w-full tw-flex-1"
           placeholder="Tìm kiếm phòng..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-          }}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
         />
-        <AnimatedButton
-          className="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-md hover:tw-bg-secondary"
-          onClick={handleSubmit}
-        >
-          <FontAwesomeIcon icon={faFilter} />
-        </AnimatedButton>
+
         <AnimatedButton
           className="tw-bg-secondary tw-text-white tw-px-4 tw-py-2 tw-rounded-md hover:tw-bg-primary"
           onClick={handleReset}
@@ -139,7 +136,12 @@ export default function FilterSidebar({
         </AnimatedButton>
       </div>
 
-      <PriceSlider priceRange={priceRange} setPriceRange={setPriceRange} />
+      <PriceSlider
+        tempRange={tempRange}
+        setTempRange={setTempRange}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+      />
 
       <p
         className="tw-font-bold tw-cursor-pointer tw-flex tw-items-center"

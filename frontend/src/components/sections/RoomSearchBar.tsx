@@ -13,8 +13,12 @@ import type { RoomSearchBarProps, GuestCount } from "@/types/_common";
 
 export default function RoomSearchBar(props: RoomSearchBarProps) {
   const {
+    pendingDateRange,
+    setPendingDateRange,
     dateRange,
     setDateRange,
+    pendingGuests,
+    setPendingGuests,
     guests,
     setGuests,
     showCalendar,
@@ -25,16 +29,11 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     calendarRef,
     totalGuests,
     numberOfNights,
-    totalPrice,
     hasSearched,
     setHasSearched,
     handleSearch,
-    price,
-    setPrice,
+    handleResetSearch,
   } = props;
-
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // 🧠 Đồng bộ giá trị từ localStorage hoặc URL Params
@@ -44,13 +43,13 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     const end = new Date(endDate);
 
     if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-      const nights = Math.ceil((+end - +start) / (1000 * 60 * 60 * 24));
-
+      setPendingDateRange([{ startDate: start, endDate: end, key: "selection" }]);
       setDateRange([{ startDate: start, endDate: end, key: "selection" }]);
     }
-
     const { adults = 1, children = {} } = guests;
+    setPendingGuests({ adults, children });
     setGuests({ adults, children });
+    setHasSearched(true);
   };
 
   useEffect(() => {
@@ -97,66 +96,6 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showGuestBox, showCalendar]);
 
-  const handleResetSearch = () => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const resetRange = [{ startDate: now, endDate: now, key: "selection" }];
-
-    setDateRange(resetRange);
-    setGuests({ adults: 1, children: { age0to6: 0, age7to17: 0 } });
-    setHasSearched(false);
-    localStorage.removeItem("lastRoomSearch");
-    toast.success("Đã xóa tìm kiếm phòng.");
-  };
-
-  const handleSearchClick = () => {
-    const range = dateRange[0];
-    const start = range?.startDate;
-    const end = range?.endDate;
-    const { adults, children } = guests;
-    const totalGuestsCount =
-      adults + (children.age0to6 || 0) + (children.age7to17 || 0);
-
-    if (!start || !end) {
-      return toast.warning("Vui lòng chọn ngày đến và ngày đi.");
-    }
-    if (+end <= +start) {
-      return toast.warning("Ngày đi phải sau ngày đến.");
-    }
-
-    const nights = Math.ceil((+end - +start) / (1000 * 60 * 60 * 24));
-    setGuests({
-      adults,
-      children: {
-        age0to6: children.age0to6 || 0,
-        age7to17: children.age7to17 || 0,
-      },
-    });
-    setDateRange([range]);
-    setHasSearched(true);
-    localStorage.setItem(
-      "lastRoomSearch",
-      JSON.stringify({
-        startDate: start,
-        endDate: end,
-        guests: { adults, children },
-      })
-    );
-
-    const query = new URLSearchParams({
-      start: start.toISOString(),
-      end: end.toISOString(),
-      adults: adults.toString(),
-      children6: children.age0to6.toString(),
-      children17: children.age7to17.toString(),
-    });
-
-    router.push(
-      pathname === "/" ? `/room-class?${query.toString()}` : "/room-class"
-    );
-    if (pathname !== "/") toast.success("Tìm phòng thành công!");
-  };
-
   return (
     <div
       className="border mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4 tw-px-5"
@@ -195,10 +134,10 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
             <DateRange
               editableDateInputs={true}
               onChange={(item: any) => {
-                setDateRange([item.selection]); // Đồng thời cập nhật hiển thị chính
+                setPendingDateRange([item.selection]); // Đồng thời cập nhật hiển thị chính
               }}
               moveRangeOnFirstSelection={false}
-              ranges={dateRange}
+              ranges={pendingDateRange}
               locale={vi}
               minDate={new Date()}
             />
@@ -250,9 +189,9 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
               <div className="d-flex align-items-center gap-2">
                 <button
                   className="btn btn-outline-secondary btn-sm"
-                  disabled={guests.adults <= 1}
+                  disabled={pendingGuests.adults <= 1}
                   onClick={() =>
-                    setGuests((guest: GuestCount) => ({
+                    setPendingGuests((guest: GuestCount) => ({
                       ...guest,
                       adults: Math.max(1, guest.adults - 1),
                     }))
@@ -260,12 +199,12 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                 >
                   -
                 </button>
-                <span>{guests.adults}</span>
+                <span>{pendingGuests.adults}</span>
                 <button
                   disabled={totalGuests >= 10}
                   className="btn btn-outline-secondary btn-sm"
                   onClick={() =>
-                    setGuests((guest: GuestCount) => ({
+                    setPendingGuests((guest: GuestCount) => ({
                       ...guest,
                       adults: guest.adults + 1,
                     }))
@@ -283,9 +222,9 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
               <div className="d-flex align-items-center gap-2">
                 <button
                   className="btn btn-outline-secondary btn-sm"
-                  disabled={guests.children.age7to17 <= 0}
+                  disabled={pendingGuests.children.age7to17 <= 0}
                   onClick={() =>
-                    setGuests((guest: GuestCount) => ({
+                    setPendingGuests((guest: GuestCount) => ({
                       ...guest,
                       children: {
                         ...guest.children,
@@ -296,12 +235,12 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                 >
                   -
                 </button>
-                <span>{guests.children.age7to17}</span>
+                <span>{pendingGuests.children.age7to17}</span>
                 <button
                   disabled={totalGuests >= 10}
                   className="btn btn-outline-secondary btn-sm"
                   onClick={() =>
-                    setGuests((guest: GuestCount) => ({
+                    setPendingGuests((guest: GuestCount) => ({
                       ...guest,
                       children: {
                         ...guest.children,
@@ -323,9 +262,9 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
               <div className="d-flex align-items-center gap-2">
                 <button
                   className="btn btn-outline-secondary btn-sm"
-                  disabled={guests.children.age0to6 <= 0}
+                  disabled={pendingGuests.children.age0to6 <= 0}
                   onClick={() =>
-                    setGuests((guest: GuestCount) => ({
+                    setPendingGuests((guest: GuestCount) => ({
                       ...guest,
                       children: {
                         ...guest.children,
@@ -336,12 +275,12 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
                 >
                   -
                 </button>
-                <span>{guests.children.age0to6}</span>
+                <span>{pendingGuests.children.age0to6}</span>
                 <button
                   disabled={totalGuests >= 10}
                   className="btn btn-outline-secondary btn-sm"
                   onClick={() =>
-                    setGuests((guest: GuestCount) => ({
+                    setPendingGuests((guest: GuestCount) => ({
                       ...guest,
                       children: {
                         ...guest.children,
@@ -362,7 +301,7 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
       <div className="tw-flex tw-flex-1 tw-justify-end tw-items-center tw-gap-2 tw-h-[40px] tw-px-2">
         <button
           className="tw-btn tw-btn-primary tw-flex tw-items-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
-          onClick={handleSearchClick}
+          onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} />
           Tìm kiếm

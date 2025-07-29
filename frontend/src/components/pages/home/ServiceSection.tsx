@@ -13,7 +13,6 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import getImageUrl from "@/utils/getImageUrl";
 
 export function ServiceItem({ svi }: { svi: Service }) {
   const [showDetail, setShowDetail] = useState(false);
@@ -36,7 +35,7 @@ export function ServiceItem({ svi }: { svi: Service }) {
         service: {
           id: svi.id,
           name: svi.name,
-          image: svi.image || "default.jpg",
+          image: svi.image.url || "default.jpg",
           description: svi.description,
           price: svi.price,
           quantity: 1,
@@ -53,7 +52,7 @@ export function ServiceItem({ svi }: { svi: Service }) {
       <div className={style.serviceCard}>
         <div style={{ position: "relative", width: "100%", height: 180 }}>
           <Image
-            src={getImageUrl(svi.image)}
+            src={svi.image.url}
             alt={svi.name}
             layout="fill"
             objectFit="cover"

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { formatDate } from "@/utils/dateUtils";
 import { toast } from "react-toastify";
 
-interface Props {
+interface Props  {
   open: boolean;
   onClose: () => void;
   title: string;

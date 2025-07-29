@@ -29,30 +29,22 @@ const InformationSection = ({
     setDateRange,
     guests,
     setGuests,
+    price,
+    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
     setShowGuestBox,
     guestBoxRef,
     calendarRef,
-    maxGuests,
-    setMaxGuests,
     totalGuests,
+    numberOfAdults,
+    numberOfChildren,
     numberOfNights,
-    setNumberOfNights,
     totalPrice,
-    setTotalPrice,
     hasSearched,
     setHasSearched,
-    pendingGuests,
-    setPendingGuests,
-    pendingDateRange,
-    setPendingDateRange,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    setPrice,
+    handleSearch,
   } = useRoomSearch();
   return (
     <div className="tw-flex tw-gap-6 md:tw-flex-row tw-flex-col">
@@ -132,36 +124,26 @@ const InformationSection = ({
       <div className="md:tw-max-w-[40%] tw-mx-auto tw-mt-6 tw-w-full">
         <RoomBookingBox
           roomClass={roomClass}
-          images={images}
           dateRange={dateRange}
           setDateRange={setDateRange}
           guests={guests}
           setGuests={setGuests}
+          price={price}
+          setPrice={setPrice}
           showCalendar={showCalendar}
           setShowCalendar={setShowCalendar}
           showGuestBox={showGuestBox}
           setShowGuestBox={setShowGuestBox}
           guestBoxRef={guestBoxRef}
           calendarRef={calendarRef}
-          maxGuests={maxGuests}
-          setMaxGuests={setMaxGuests}
           totalGuests={totalGuests}
+          numberOfAdults={numberOfAdults}
+          numberOfChildren={numberOfChildren}
           numberOfNights={numberOfNights}
-          setNumberOfNights={setNumberOfNights}
           totalPrice={totalPrice}
-          setTotalPrice={setTotalPrice}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
-          pendingGuests={pendingGuests}
-          setPendingGuests={setPendingGuests}
-          pendingDateRange={pendingDateRange}
-          setPendingDateRange={setPendingDateRange}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          setPrice={setPrice}
-          price={roomClass.price}
+          handleSearch={handleSearch}
         />
       </div>
     </div>

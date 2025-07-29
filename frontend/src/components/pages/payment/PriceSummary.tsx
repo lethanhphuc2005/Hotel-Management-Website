@@ -3,14 +3,16 @@ import { formatCurrencyVN } from "@/utils/currencyUtils";
 export default function PriceSummary({
   total,
   discounts = [],
+  extraTotal = 0,
   onSubmit,
 }: {
   total: number;
   discounts?: { name: string; reason: string; amount: number }[];
+  extraTotal?: number;
   onSubmit: () => void;
 }) {
   const discountTotal = discounts.reduce((sum, d) => sum + d.amount, 0);
-  const final = total - discountTotal;
+  const final = total - discountTotal + extraTotal;
 
   return (
     <div className="tw-bg-[#1f1f1f] tw-text-white tw-rounded-2xl tw-shadow-xl tw-p-6 tw-space-y-4 tw-mt-6">
@@ -22,6 +24,12 @@ export default function PriceSummary({
         <span>Tổng tiền phòng:</span>
         <span>{formatCurrencyVN(total)}</span>
       </div>
+      {extraTotal > 0 && (
+        <div className="tw-flex tw-justify-between">
+          <span>Phụ phí (giường phụ, dịch vụ):</span>
+          <span>{formatCurrencyVN(extraTotal)}</span>
+        </div>
+      )}
 
       {discounts.length > 0 && (
         <div className="tw-border-t tw-border-white/10 tw-pt-2">

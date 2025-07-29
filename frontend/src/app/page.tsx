@@ -13,35 +13,32 @@ import GeminiSuggestionsSection from "@/components/pages/home/RecommendSection";
 
 export default function Home() {
   const {
+    pendingDateRange,
+    setPendingDateRange,
     dateRange,
     setDateRange,
+    capacity,
+    pendingGuests,
+    setPendingGuests,
     guests,
     setGuests,
+    price,
+    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
     setShowGuestBox,
     guestBoxRef,
     calendarRef,
-    maxGuests,
-    setMaxGuests,
     totalGuests,
+    numberOfAdults,
+    numberOfChildren,
     numberOfNights,
-    setNumberOfNights,
     totalPrice,
-    setTotalPrice,
     hasSearched,
     setHasSearched,
-    pendingGuests,
-    setPendingGuests,
-    pendingDateRange,
-    setPendingDateRange,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    price,
-    setPrice,
+    handleSearch,
+    handleResetSearch,
   } = useRoomSearch();
   const { mainRoomClasses, websiteContents, services, discounts, recommends } =
     useHome();
@@ -49,35 +46,32 @@ export default function Home() {
     <>
       <Banner
         banners={websiteContents}
+        pendingDateRange={pendingDateRange}
+        setPendingDateRange={setPendingDateRange}
         dateRange={dateRange}
         setDateRange={setDateRange}
+        capacity={capacity}
+        pendingGuests={pendingGuests}
+        setPendingGuests={setPendingGuests}
         guests={guests}
         setGuests={setGuests}
+        price={price}
+        setPrice={setPrice}
         showCalendar={showCalendar}
         setShowCalendar={setShowCalendar}
         showGuestBox={showGuestBox}
         setShowGuestBox={setShowGuestBox}
         guestBoxRef={guestBoxRef}
         calendarRef={calendarRef}
-        maxGuests={maxGuests}
-        setMaxGuests={setMaxGuests}
         totalGuests={totalGuests}
+        numberOfAdults={numberOfAdults}
+        numberOfChildren={numberOfChildren}
         numberOfNights={numberOfNights}
-        setNumberOfNights={setNumberOfNights}
         totalPrice={totalPrice}
-        setTotalPrice={setTotalPrice}
         hasSearched={hasSearched}
         setHasSearched={setHasSearched}
-        pendingGuests={pendingGuests}
-        setPendingGuests={setPendingGuests}
-        pendingDateRange={pendingDateRange}
-        setPendingDateRange={setPendingDateRange}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        price={price}
-        setPrice={setPrice}
+        handleSearch={handleSearch}
+        handleResetSearch={handleResetSearch}
       />
 
       <Container fluid className={`${style.customContainer} container`}>

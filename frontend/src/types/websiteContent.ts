@@ -1,12 +1,13 @@
 import { PaginationResponse } from "./_common";
 import { ContentType } from "./contentType";
+import { Image } from "./image";
 
 export interface WebsiteContent {
   id: string;
   content_type_id: string;
   title: string;
   content: string;
-  image: string;
+  image: Image;
   content_type: ContentType[];
   status: boolean;
   createdAt?: Date;
