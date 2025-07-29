@@ -13,6 +13,8 @@ import { BookingMethodListComponent } from '@/features/booking-method/booking-me
 import { BookingMethodFormComponent } from '@/features/booking-method/booking-method-form/booking-method-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-booking-method',
@@ -51,25 +53,35 @@ export class BookingMethodComponent implements OnInit {
 
   constructor(
     private bookingMethodService: BookingMethodService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.getAllBookingMethods();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.getAllBookingMethods()]);
   }
 
   getAllBookingMethods(): void {
-    this.bookingMethodService
-      .getAllBookingMethod(this.filter)
-      .subscribe({
-        next: (response) => {
-          this.bookingMethods = response.data;
-          this.filter.total = response.pagination.total;
-        },
-        error: (error) => {
-          console.error('Error fetching booking methods:', error);
-        },
-      });
+    this.bookingMethodService.getAllBookingMethod(this.filter).subscribe({
+      next: (response) => {
+        this.bookingMethods = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (error) => {
+        console.error('Error fetching booking methods:', error);
+      },
+    });
   }
 
   onPageChange(page: number): void {
@@ -98,7 +110,9 @@ export class BookingMethodComponent implements OnInit {
       next: () => {
         // Thành công → giữ nguyên status
         this.toastService.success(
-          `Phương thức đặt phòng ${newStatus ? 'kích hoạt' : 'vô hiệu hóa'} thành công`,
+          `Phương thức đặt phòng ${
+            newStatus ? 'kích hoạt' : 'vô hiệu hóa'
+          } thành công`,
           'Thành công'
         );
       },
@@ -147,8 +161,11 @@ export class BookingMethodComponent implements OnInit {
   }
 
   onAddSubmit(): void {
+    this.spinner.show();
+
     this.bookingMethodService
       .createBookingMethod(this.newBookingMethod)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res) => {
           this.toastService.success(
@@ -167,9 +184,11 @@ export class BookingMethodComponent implements OnInit {
 
   onEditSubmit(): void {
     if (!this.selectedBookingMethod) return;
+    this.spinner.show();
 
     this.bookingMethodService
       .updateBookingMethod(this.selectedBookingMethod.id, this.newBookingMethod)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res) => {
           this.toastService.success(

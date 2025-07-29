@@ -15,6 +15,8 @@ import { MainRoomClassListComponent } from './main-room-class-list/main-room-cla
 import { MainRoomClassDetailPopupComponent } from './main-room-class-detail-popup/main-room-class-detail-popup.component';
 import { MainRoomClassFormComponent } from './main-room-class-form/main-room-class-form.component';
 import { compressImage } from '@/shared/utils/image.utils';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-main-room-class',
@@ -58,10 +60,23 @@ export class MainRoomClassComponent implements OnInit {
 
   constructor(
     private mainRoomClassService: MainRoomClassService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
-  ngOnInit(): void {
-    this.getAllMainRoomClasses();
+
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.getAllMainRoomClasses()]);
   }
 
   getAllMainRoomClasses(): void {
@@ -179,6 +194,8 @@ export class MainRoomClassComponent implements OnInit {
   }
 
   async onAddSubmit(): Promise<void> {
+    this.spinner.show();
+
     const formData = new FormData();
     formData.append('name', this.newMainRoom.name || '');
     formData.append('description', this.newMainRoom.description || '');
@@ -193,26 +210,30 @@ export class MainRoomClassComponent implements OnInit {
       formData.append('image', compressedFile);
     }
 
-    this.mainRoomClassService.addMainRoomClass(formData).subscribe({
-      next: () => {
-        this.getAllMainRoomClasses();
-        this.toastService.success(
-          'Thêm loại phòng chính thành công',
-          'Thành công'
-        );
-        this.onClosePopup();
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.mainRoomClassService
+      .addMainRoomClass(formData)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.getAllMainRoomClasses();
+          this.toastService.success(
+            'Thêm loại phòng chính thành công',
+            'Thành công'
+          );
+          this.onClosePopup();
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 
   async onEditSubmit(): Promise<void> {
     if (!this.selectedMainRoomClass) return;
+    this.spinner.show();
 
     const formData = new FormData();
     formData.append('name', this.newMainRoom.name || '');
@@ -228,6 +249,7 @@ export class MainRoomClassComponent implements OnInit {
 
     this.mainRoomClassService
       .updateMainRoomClass(this.selectedMainRoomClass.id, formData)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.getAllMainRoomClasses();

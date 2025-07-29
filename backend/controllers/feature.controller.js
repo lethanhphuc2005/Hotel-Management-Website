@@ -1,5 +1,5 @@
 const { Feature, Room_Class_Feature } = require("../models/feature.model");
-const { Image } = require("../models/image.model");
+const Image = require("../models/image.model");
 const {
   deleteOldImages,
   deleteImagesOnError,
@@ -253,16 +253,15 @@ const featureController = {
           oldImage.url = req.file.path; // Cập nhật đường dẫn mới
           oldImage.public_id = req.file.filename; // Cập nhật public_id mới
           await oldImage.save();
+        } else {
+          await Image.create({
+            url: req.file.path,
+            public_id: req.file.filename,
+            target: "feature",
+            target_id: featureToUpdate._id,
+          });
         }
-      } else {
-        await Image.create({
-          url: req.file.path,
-          public_id: req.file.filename,
-          target: "feature",
-          target_id: featureToUpdate._id,
-        });
       }
-
       const updatedFeature = await featureToUpdate.updateOne({
         $set: updatedData,
       });

@@ -42,39 +42,26 @@
       </div>
 
       <div class="popup-section">
-        <label for="editImage">Ảnh:</label>
+        <label for="image">Ảnh (file):</label>
         <input
-          type="file"
-          id="editImage"
           class="form-control mb-3"
+          type="file"
+          id="image"
+          name="image"
           (change)="onFileInputChange($event)"
         />
-
-        <div class="popup-section">
-          <label for="image">Ảnh (file):</label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            (change)="onFileInputChange($event)"
-          />
-          <!-- Ưu tiên preview nếu có -->
-          <div *ngIf="imagePreview; else currentImage">
-            <label>Ảnh preview:</label>
-            <img [src]="imagePreview" width="120px" height="100px" />
-          </div>
-
-          <ng-template #currentImage>
-            <div *ngIf="feature.image">
-              <label>Ảnh hiện tại:</label>
-              <img
-                [src]="feature.image"
-                width="120px"
-                height="100px"
-              />
-            </div>
-          </ng-template>
+        <!-- Ưu tiên preview nếu có -->
+        <div *ngIf="imagePreview; else currentImage">
+          <label>Ảnh preview:</label>
+          <img [src]="imagePreview" width="120px" height="100px" />
         </div>
+
+        <ng-template #currentImage>
+          <div *ngIf="feature.image">
+            <label>Ảnh hiện tại:</label>
+            <img [src]="feature.image.url" width="120px" height="100px" />
+          </div>
+        </ng-template>
       </div>
 
       <div class="popup-actions">

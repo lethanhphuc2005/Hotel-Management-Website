@@ -8,6 +8,7 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
 import { UserFilterComponent } from './user-filter/user-filter.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-user',
@@ -37,31 +38,41 @@ export class UserComponent implements OnInit {
     status: '',
     is_verified: '',
     level: '',
-  }
+  };
 
   constructor(
     private userService: UserService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit() {
-    this.loadAllUsers();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.loadAllUsers()]);
   }
 
   loadAllUsers() {
-    this.userService
-      .getAllUsers(this.filter)
-      .subscribe({
-        next: (response) => {
-          this.users = response.data;
-          this.filter.total = response.pagination.total;
-        },
-        error: (err) => {
-          console.error('Error fetching users:', err);
-          this.toastrService.error(err.error?.message, 'Lỗi');
-          this.users = [];
-        },
-      });
+    this.userService.getAllUsers(this.filter).subscribe({
+      next: (response) => {
+        this.users = response.data;
+        this.filter.total = response.pagination.total;
+      },
+      error: (err) => {
+        console.error('Error fetching users:', err);
+        this.toastrService.error(err.error?.message, 'Lỗi');
+        this.users = [];
+      },
+    });
   }
 
   onPageChange(page: number) {
@@ -99,7 +110,9 @@ export class UserComponent implements OnInit {
       next: () => {
         // Successfully toggled status
         this.toastrService.success(
-          `Trạng thái người dùng đã được cập nhật thành ${newStatus ? 'hoạt động' : 'không hoạt động'}`,
+          `Trạng thái người dùng đã được cập nhật thành ${
+            newStatus ? 'hoạt động' : 'không hoạt động'
+          }`,
           'Thành công'
         );
       },

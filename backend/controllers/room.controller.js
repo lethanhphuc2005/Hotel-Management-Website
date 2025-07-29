@@ -199,7 +199,7 @@ const roomController = {
         title: `Booking #${b._id}`,
         start: b.check_in_date,
         end: b.check_out_date,
-        status: b.booking_status.name,
+        status: b.booking_status,
       }));
 
       res.status(200).json({ events });

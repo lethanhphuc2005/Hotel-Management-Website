@@ -11,6 +11,8 @@ import { CommentListComponent } from './comment-list/comment-list.component';
 import { CommentDetailPopupComponent } from './comment-detail-popup/comment-detail-popup.component';
 import { CommentReplyPopupComponent } from './comment-reply-popup/comment-reply-popup.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-comment',
@@ -52,11 +54,23 @@ export class CommentComponent implements OnInit {
 
   constructor(
     private commentService: CommentService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.loadAllComments();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.loadAllComments()]);
   }
 
   loadAllComments(): void {
@@ -165,25 +179,30 @@ export class CommentComponent implements OnInit {
     parent_id: string;
   }): void {
     if (!this.selectedComment) return;
+    this.spinner.show();
+
     this.newComment = {
       content,
       room_class_id,
       parent_id: parent_id || this.selectedComment.id,
     };
 
-    this.commentService.createComment(this.newComment).subscribe({
-      next: (response) => {
-        this.toastService.success('Phản hồi thành công', 'Thành công');
-        this.onClosePopup();
-        this.loadAllComments();
-      },
-      error: (error) => {
-        console.error('Error submitting reply:', error);
-        this.toastService.error(
-          error.error?.message || 'Phản hồi thất bại',
-          'Lỗi'
-        );
-      },
-    });
+    this.commentService
+      .createComment(this.newComment)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (response) => {
+          this.toastService.success('Phản hồi thành công', 'Thành công');
+          this.onClosePopup();
+          this.loadAllComments();
+        },
+        error: (error) => {
+          console.error('Error submitting reply:', error);
+          this.toastService.error(
+            error.error?.message || 'Phản hồi thất bại',
+            'Lỗi'
+          );
+        },
+      });
   }
 }

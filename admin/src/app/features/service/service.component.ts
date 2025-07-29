@@ -9,6 +9,8 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { ServiceListComponent } from './service-list/service-list.component';
 import { ServiceFormComponent } from './service-form/service-form.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-service',
@@ -51,10 +53,22 @@ export class ServiceComponent implements OnInit {
   constructor(
     private serviceService: ServiceService,
     private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.loadAllServices();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.loadAllServices()]);
   }
 
   loadAllServices(): void {
@@ -134,12 +148,11 @@ export class ServiceComponent implements OnInit {
     } else if (item) {
       // Mở form chỉnh sửa
       this.selectedService = item;
-      this.imagePreview = item.image?.url || null;
       this.newService = {
         name: item.name,
         description: item.description,
         status: item.status,
-        image: null, // Reset image to allow new upload
+        image: item.image, // Reset image to allow new upload
         uploadImage: null, // Reset upload image
       };
     }
@@ -150,6 +163,7 @@ export class ServiceComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedService = null;
+    this.imagePreview = null;
     this.newService = {
       name: '',
       description: '',
@@ -170,6 +184,8 @@ export class ServiceComponent implements OnInit {
   }
 
   async onAddSubmit(): Promise<void> {
+    this.spinner.show();
+
     const formData = new FormData();
     formData.append('name', this.newService.name || '');
     formData.append('description', this.newService.description || '');
@@ -184,23 +200,27 @@ export class ServiceComponent implements OnInit {
       formData.append('image', compressedFile);
     }
 
-    this.serviceService.createService(formData).subscribe({
-      next: () => {
-        this.loadAllServices();
-        this.onClosePopup();
-        this.toastService.success('Thêm dịch vụ thành công', 'Thành công');
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.serviceService
+      .createService(formData)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.loadAllServices();
+          this.onClosePopup();
+          this.toastService.success('Thêm dịch vụ thành công', 'Thành công');
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 
   async onEditSubmit(): Promise<void> {
     if (!this.selectedService) return;
+    this.spinner.show();
 
     const formData = new FormData();
     formData.append('name', this.newService.name || '');
@@ -216,11 +236,15 @@ export class ServiceComponent implements OnInit {
 
     this.serviceService
       .updateService(this.selectedService.id, formData)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.loadAllServices();
           this.onClosePopup();
-          this.toastService.success('Cập nhật dịch vụ thành công', 'Thành công');
+          this.toastService.success(
+            'Cập nhật dịch vụ thành công',
+            'Thành công'
+          );
         },
         error: (err) => {
           this.toastService.error(

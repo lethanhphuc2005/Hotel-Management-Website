@@ -13,6 +13,8 @@ import { ContentTypeListComponent } from './content-type-list/content-type-list.
 import { ContentTypeFormComponent } from './content-type-form/content-type-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-content-type',
@@ -50,11 +52,23 @@ export class ContentTypeComponent implements OnInit {
 
   constructor(
     private contentTypeService: ContentTypeService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit() {
-    this.loadAllContentTypes();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.loadAllContentTypes()]);
   }
 
   loadAllContentTypes() {
@@ -149,28 +163,36 @@ export class ContentTypeComponent implements OnInit {
   }
 
   onAddSubmit(): void {
-    this.contentTypeService.createContentType(this.newContentType).subscribe({
-      next: () => {
-        this.loadAllContentTypes();
-        this.onClosePopup();
-        this.toastService.success(
-          'Thêm loại nội dung thành công',
-          'Thành công'
-        );
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.spinner.show();
+
+    this.contentTypeService
+      .createContentType(this.newContentType)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.loadAllContentTypes();
+          this.onClosePopup();
+          this.toastService.success(
+            'Thêm loại nội dung thành công',
+            'Thành công'
+          );
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 
   onEditSubmit(): void {
     if (!this.selectedContentType) return;
+    this.spinner.show();
+
     this.contentTypeService
       .updateContentType(this.selectedContentType.id, this.newContentType)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.loadAllContentTypes();

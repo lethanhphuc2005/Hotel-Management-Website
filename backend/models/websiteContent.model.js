@@ -33,7 +33,7 @@ WebsiteContentSchema.virtual("image", {
   ref: "image",
   localField: "_id",
   foreignField: "target_id",
-  match: { target: "website_content", status: true }, // Chỉ lấy ảnh có trạng thái hợp lệ
+  match: { target: "content", status: true }, // Chỉ lấy ảnh có trạng thái hợp lệ
   justOne: true,
   options: {
     select: "url public_id",

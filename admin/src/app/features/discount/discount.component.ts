@@ -13,6 +13,8 @@ import { RoomClassService } from '@/core/services/room-class.service';
 import { RoomClass } from '@/types/room-class';
 import { compressImage } from '@/shared/utils/image.utils';
 import { DiscountDetailComponent } from './discount-detail/discount-detail.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-discount',
@@ -67,11 +69,22 @@ export class DiscountComponent implements OnInit {
     private discountService: DiscountService,
     private roomClassService: RoomClassService,
     private toastr: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.fetchDiscounts();
-    this.fetchRoomClasses();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.fetchDiscounts(), this.fetchRoomClasses()]);
   }
 
   fetchDiscounts(): void {
@@ -167,6 +180,7 @@ export class DiscountComponent implements OnInit {
       this.newDiscount = {
         name: '',
         image: null,
+        uploadImage: null,
         description: '',
         type: '',
         value: undefined,
@@ -190,10 +204,10 @@ export class DiscountComponent implements OnInit {
     } else if (item) {
       // Mở form chỉnh sửa
       this.selectedDiscount = item;
-      this.imagePreview = item.image?.url || null;
       this.newDiscount = {
         name: item.name,
-        image: null, // Image will be handled separately
+        image: item.image, // Image will be handled separately
+        uploadImage: null, // Reset upload image
         description: item.description,
         type: item.type,
         value: item.value,
@@ -260,6 +274,8 @@ export class DiscountComponent implements OnInit {
   }
 
   async onAddSubmit(): Promise<void> {
+    this.spinner.show();
+
     const formData = new FormData();
     formData.append('name', this.newDiscount.name || '');
     formData.append('description', this.newDiscount.description || '');
@@ -293,23 +309,27 @@ export class DiscountComponent implements OnInit {
       );
       formData.append('image', compressedFile);
     }
-    this.discountService.createDiscount(formData).subscribe({
-      next: (response) => {
-        this.toastr.success('Thêm giảm giá thành công', 'Thành công');
-        this.onClosePopup();
-        this.fetchDiscounts();
-      },
-      error: (error) => {
-        console.error('Error adding discount:', error);
-        this.toastr.error(
-          error.error.message || 'Thêm giảm giá thất bại',
-          'Lỗi'
-        );
-      },
-    });
+    this.discountService
+      .createDiscount(formData)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (response) => {
+          this.toastr.success('Thêm giảm giá thành công', 'Thành công');
+          this.onClosePopup();
+          this.fetchDiscounts();
+        },
+        error: (error) => {
+          console.error('Error adding discount:', error);
+          this.toastr.error(
+            error.error.message || 'Thêm giảm giá thất bại',
+            'Lỗi'
+          );
+        },
+      });
   }
   async onEditSubmit(): Promise<void> {
     if (!this.selectedDiscount) return;
+    this.spinner.show();
 
     const formData = new FormData();
     formData.append('name', this.newDiscount.name || '');
@@ -351,6 +371,7 @@ export class DiscountComponent implements OnInit {
 
     this.discountService
       .updateDiscount(this.selectedDiscount.id, formData)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (response) => {
           this.toastr.success('Cập nhật giảm giá thành công', 'Thành công');

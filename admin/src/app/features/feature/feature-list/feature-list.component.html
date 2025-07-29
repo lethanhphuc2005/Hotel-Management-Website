@@ -19,7 +19,7 @@
   <div class="image-list">
     <img
       *ngIf="feature.image"
-      [src]="feature.image"
+      [src]="feature.image.url"
       [alt]="feature.name"
       width="200"
       height="200"
@@ -27,11 +27,17 @@
     />
   </div>
   <div>
-    <ul class="room-children-list">
-      <li *ngFor="let item of feature.room_class_used_list">
-        {{ item.room_class.name || "(chưa gán)" }}
-      </li>
-    </ul>
+    <ng-container *ngIf="feature.room_class_used_list">
+      <div
+        *ngFor="let roomClass of feature.room_class_used_list.slice(0, 2)"
+        style="font-size: 13px"
+      >
+        {{ roomClass.room_class.name }}
+      </div>
+      <div *ngIf="feature.room_class_used_list.length > 2" style="font-size: 13px; color: #888">
+        +{{ feature.room_class_used_list.length - 2 }} phòng nữa
+      </div>
+    </ng-container>
   </div>
   <div class="status-column">
     <label class="switch">

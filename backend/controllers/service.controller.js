@@ -39,7 +39,9 @@ const serviceController = {
     }
 
     // Kiểm tra tên dịch vụ có bị trùng không
-    const existingService = await Service.findOne({ name }).select("_id name").lean();
+    const existingService = await Service.findOne({ name })
+      .select("_id name")
+      .lean();
     if (
       existingService &&
       (!serviceId || existingService._id.toString() !== serviceId.toString())

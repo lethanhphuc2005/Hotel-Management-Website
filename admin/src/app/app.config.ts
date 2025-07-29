@@ -1,13 +1,15 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
 import {
-  provideHttpClient,
-  withInterceptors,
-} from '@angular/common/http';
+  ApplicationConfig,
+  importProvidersFrom,
+  provideZoneChangeDetection,
+} from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { routes } from './app.routes';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,6 +36,11 @@ export const appConfig: ApplicationConfig = {
         warning: 'toast-warning',
       },
     }),
+    importProvidersFrom(
+      NgxSpinnerModule.forRoot({
+        type: 'ball-climbing-dot',
+      }) // cấu hình nếu muốn
+    ),
 
     provideAnimations(), // ✅ thêm dòng này để fix lỗi animation
   ],

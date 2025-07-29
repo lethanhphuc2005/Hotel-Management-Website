@@ -15,6 +15,8 @@ import { BookingDetailPopupComponent } from '@/features/booking/booking-detail-p
 import { BookingStatusPopupComponent } from '@/features/booking/booking-status-popup/booking-status-popup.component';
 import { BookingFilterComponent } from '@/features/booking/booking-filter/booking-filter.component';
 import { BookingTableComponent } from '@/features/booking/booking-table/booking-table.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-booking',
@@ -60,13 +62,29 @@ export class BookingComponent implements OnInit {
     private toastr: ToastrService,
     private bookingService: BookingService,
     private bookingStatusService: BookingStatusService,
-    private bookingMethodService: BookingMethodService
+    private bookingMethodService: BookingMethodService,
+    private spinner: NgxSpinnerService
   ) {}
-  ngOnInit(): void {
-    this.getAllBookings();
-    this.getAllBookingStatuses();
-    this.getAllBookingMethods();
+
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
   }
+
+  async loadInitialData() {
+    await Promise.all([
+      this.getAllBookings(),
+      this.getAllBookingStatuses(),
+      this.getAllBookingMethods(),
+    ]);
+  }
+
   getAllBookings(): void {
     this.bookingService
       .getAllBookings({
@@ -95,37 +113,41 @@ export class BookingComponent implements OnInit {
   }
 
   getAllBookingStatuses(): void {
-    this.bookingStatusService.getAllBookingStatus({
-      page: 1,
-      limit: 100,
-      total: 0,
-      status: 'true',
-    }).subscribe({
-      next: (res) => {
-        this.bookingStatuses = res.data;
-      },
-      error: (err) => {
-        console.error('Error fetching booking statuses:', err);
-        this.toastr.error(err.error.message, 'Lỗi');
-      },
-    });
+    this.bookingStatusService
+      .getAllBookingStatus({
+        page: 1,
+        limit: 100,
+        total: 0,
+        status: 'true',
+      })
+      .subscribe({
+        next: (res) => {
+          this.bookingStatuses = res.data;
+        },
+        error: (err) => {
+          console.error('Error fetching booking statuses:', err);
+          this.toastr.error(err.error.message, 'Lỗi');
+        },
+      });
   }
 
   getAllBookingMethods(): void {
-    this.bookingMethodService.getAllBookingMethod({
-      page: 1,
-      limit: 100,
-      total: 0,
-      status: 'true',
-    }).subscribe({
-      next: (res) => {
-        this.bookingMethods = res.data;
-      },
-      error: (err) => {
-        console.error('Error fetching booking methods:', err);
-        this.toastr.error(err.error.message, 'Lỗi');
-      },
-    });
+    this.bookingMethodService
+      .getAllBookingMethod({
+        page: 1,
+        limit: 100,
+        total: 0,
+        status: 'true',
+      })
+      .subscribe({
+        next: (res) => {
+          this.bookingMethods = res.data;
+        },
+        error: (err) => {
+          console.error('Error fetching booking methods:', err);
+          this.toastr.error(err.error.message, 'Lỗi');
+        },
+      });
   }
 
   onPageChange(page: number): void {
@@ -192,12 +214,14 @@ export class BookingComponent implements OnInit {
 
   handleConfirm(roomAssignments: { detail_id: string; room_id: string }[]) {
     if (!this.selectedBooking) return;
+    this.spinner.show();
 
     this.bookingService
       .confirmBooking({
         id: this.selectedBooking.id,
         roomAssignments,
       })
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.toastr.success('Đã xác nhận và gán phòng', 'Thành công');
@@ -212,9 +236,11 @@ export class BookingComponent implements OnInit {
 
   handleCancel(reason: string) {
     if (!this.selectedBooking) return;
+    this.spinner.show();
 
     this.bookingService
       .cancelBooking({ id: this.selectedBooking.id, reason })
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.toastr.success('Đã hủy đơn đặt phòng', 'Thành công');
@@ -233,6 +259,7 @@ export class BookingComponent implements OnInit {
     representative_name: string;
   }) {
     if (!this.selectedBooking) return;
+    this.spinner.show();
 
     if (!identity.number || !identity.representative_name) {
       this.toastr.error(
@@ -243,6 +270,7 @@ export class BookingComponent implements OnInit {
 
     this.bookingService
       .checkInBooking({ id: this.selectedBooking.id, identity })
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.toastr.success('Khách đã nhận phòng', 'Thành công');
@@ -257,9 +285,11 @@ export class BookingComponent implements OnInit {
 
   handleCheckOut(note: string = '') {
     if (!this.selectedBooking) return;
+    this.spinner.show();
 
     this.bookingService
       .checkOutBooking({ id: this.selectedBooking.id, note })
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.toastr.success('Khách đã trả phòng', 'Thành công');

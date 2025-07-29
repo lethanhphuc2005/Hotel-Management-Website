@@ -13,6 +13,8 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
 import { BookingStatusListComponent } from '@/features/booking-status/booking-status-list/booking-status-list.component';
 import { BookingStatusFormComponent } from '@/features/booking-status/booking-status-form/booking-status-form.component';
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-booking-status',
@@ -50,11 +52,23 @@ export class BookingStatusComponent implements OnInit {
 
   constructor(
     private bookingStatusService: BookingStatusService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.getAllBookingStatuses();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.getAllBookingStatuses()]);
   }
 
   getAllBookingStatuses(): void {
@@ -147,8 +161,11 @@ export class BookingStatusComponent implements OnInit {
   }
 
   onAddSubmit(): void {
+    this.spinner.show();
+
     this.bookingStatusService
       .createBookingStatus(this.newBookingStatus)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res) => {
           this.toastService.success(
@@ -167,9 +184,11 @@ export class BookingStatusComponent implements OnInit {
 
   onEditSubmit(): void {
     if (!this.selectedBookingStatus) return;
+    this.spinner.show();
 
     this.bookingStatusService
       .updateBookingStatus(this.selectedBookingStatus.id, this.newBookingStatus)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res) => {
           this.toastService.success(

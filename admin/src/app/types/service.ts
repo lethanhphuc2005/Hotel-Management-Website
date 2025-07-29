@@ -36,7 +36,7 @@ export interface ServiceRequest {
   price?: number;
   description?: string;
   status?: boolean;
-  image?: string | null;
+  image?: Image | null;
   uploadImage?: File | null;
 }
 

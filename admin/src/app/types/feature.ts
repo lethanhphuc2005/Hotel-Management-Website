@@ -36,7 +36,8 @@ export interface FeatureDetailResponse {
 export interface FeatureRequest {
   name?: string;
   description?: string;
-  image?: File | null; // Có thể là File hoặc null nếu không có ảnh
+  image?: Image | null; // Có thể là File hoặc null nếu không có ảnh
+  uploadImage?: File | null; // Dùng để upload ảnh mới
   icon?: string; // Có thể là URL của icon
   status?: boolean;
 }

@@ -14,12 +14,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 })
 export class RoomDetailComponent {
   @Input() room!: Room;
-  @Input() calendarOptions: any = {
-    initialView: 'dayGridMonth',
-    plugins: [dayGridPlugin, interactionPlugin],
-    events: [],
-    height: 'auto',
-    locale: 'vi',
-  };
+  @Input() calendarOptions: any = {};
   @Output() close = new EventEmitter<void>();
 }

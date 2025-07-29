@@ -16,6 +16,8 @@ import { WebsiteContentFormComponent } from './website-content-form/website-cont
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { compressImage } from '@/shared/utils/image.utils';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-website-content',
@@ -57,11 +59,26 @@ export class WebsiteContentComponent implements OnInit {
   constructor(
     private websitecontentService: WebsiteContentService,
     private contentTypeService: ContentTypeService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
-  ngOnInit(): void {
-    this.loadAllContentTypes();
-    this.loadAllWebsiteContents();
+
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([
+      this.loadAllContentTypes(),
+      this.loadAllWebsiteContents(),
+    ]);
   }
 
   loadAllWebsiteContents() {
@@ -153,6 +170,7 @@ export class WebsiteContentComponent implements OnInit {
         content: '',
         content_type_id: undefined,
         image: undefined,
+        uploadImage: null,
         status: true,
       };
     } else if (item) {
@@ -162,7 +180,8 @@ export class WebsiteContentComponent implements OnInit {
         title: item.title,
         content: item.content,
         content_type_id: item.content_type_id,
-        image: null, // Không hiển thị ảnh cũ trong form chỉnh sửa
+        image: item.image, // Không hiển thị ảnh cũ trong form chỉnh sửa
+        uploadImage: null,
         status: item.status,
       };
     }
@@ -172,6 +191,7 @@ export class WebsiteContentComponent implements OnInit {
     this.isAddPopupOpen = false;
     this.isEditPopupOpen = false;
     this.selectedWebsiteContent = null;
+    this.imagePreview = null;
   }
 
   onFileSelected(file: File): void {
@@ -185,6 +205,8 @@ export class WebsiteContentComponent implements OnInit {
   }
 
   async onAddSubmit(): Promise<void> {
+    this.spinner.show();
+
     const formData = new FormData();
     formData.append('title', this.newWebsiteContent.title || '');
     formData.append('content', this.newWebsiteContent.content || '');
@@ -206,26 +228,30 @@ export class WebsiteContentComponent implements OnInit {
       formData.append('image', compressedFile);
     }
 
-    this.websitecontentService.createWebsiteContent(formData).subscribe({
-      next: () => {
-        this.loadAllWebsiteContents();
-        this.isAddPopupOpen = false;
-        this.toastService.success(
-          'Thêm nội dung website thành công',
-          'Thành công'
-        );
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.websitecontentService
+      .createWebsiteContent(formData)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.loadAllWebsiteContents();
+          this.onClosePopup();
+          this.toastService.success(
+            'Thêm nội dung website thành công',
+            'Thành công'
+          );
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 
   async onEditSubmit(): Promise<void> {
     if (!this.selectedWebsiteContent) return;
+    this.spinner.show();
 
     const formData = new FormData();
     formData.append('title', this.selectedWebsiteContent.title || '');
@@ -245,10 +271,11 @@ export class WebsiteContentComponent implements OnInit {
 
     this.websitecontentService
       .updateWebsiteContent(this.selectedWebsiteContent.id, formData)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.loadAllWebsiteContents();
-          this.isEditPopupOpen = false;
+          this.onClosePopup();
           this.toastService.success(
             'Cập nhật nội dung website thành công',
             'Thành công'
@@ -266,21 +293,25 @@ export class WebsiteContentComponent implements OnInit {
   onDeleteSubmit(contentId: string): void {
     if (!contentId) return;
     if (!confirm('Bạn có chắc chắn muốn xóa nội dung này?')) return;
+    this.spinner.show();
 
-    this.websitecontentService.deleteWebsiteContent(contentId).subscribe({
-      next: () => {
-        this.loadAllWebsiteContents();
-        this.toastService.success(
-          'Xóa nội dung website thành công',
-          'Thành công'
-        );
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.websitecontentService
+      .deleteWebsiteContent(contentId)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.loadAllWebsiteContents();
+          this.toastService.success(
+            'Xóa nội dung website thành công',
+            'Thành công'
+          );
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 }

@@ -9,6 +9,7 @@ import { PaymentMethod } from '@/types/payment-method';
 import { PaymentMethodService } from '@/core/services/payment-method.service';
 import { PaymentFilterComponent } from './payment-filter/payment-filter.component';
 import { PaymentDetailComponent } from './payment-detail/payment-detail.component';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-payment',
@@ -43,12 +44,23 @@ export class PaymentComponent implements OnInit {
   constructor(
     private paymentService: PaymentService,
     private toastService: ToastrService,
-    private paymentMethodService: PaymentMethodService
+    private paymentMethodService: PaymentMethodService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.fetchPayments();
-    this.fetchPaymentMethods();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.fetchPayments(), this.fetchPaymentMethods()]);
   }
 
   fetchPayments(): void {

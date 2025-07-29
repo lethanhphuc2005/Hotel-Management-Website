@@ -14,7 +14,7 @@ import { RoomClass, RoomClassRequest } from '../../../types/room-class';
 })
 export class RoomClassFormComponent {
   @Input() isEdit = false;
-  @Input() formData: RoomClassRequest = {};
+  @Input() roomClass: RoomClassRequest = {};
   @Input() features: Feature[] = [];
   @Input() mainRoomClasses: MainRoomClass[] = [];
   @Input() imagePreview: string[] | null = null;
@@ -31,7 +31,7 @@ export class RoomClassFormComponent {
     id: string;
     event: Event;
   }>();
-
+  
   onSubmit(form: NgForm) {
     if (form.valid) {
       this.formSubmit.emit();

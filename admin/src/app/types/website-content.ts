@@ -29,7 +29,7 @@ export interface WebsiteContentRequest {
   title?: string;
   content_type_id?: string;
   content?: string;
-  image?: string | null;
+  image?: Image | null;
   uploadImage?: File | null; // For image upload
   status?: boolean;
 }

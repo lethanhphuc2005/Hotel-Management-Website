@@ -10,6 +10,8 @@ import { compressImage } from '@/shared/utils/image.utils';
 import { FeatureListComponent } from './feature-list/feature-list.component';
 import { FeatureDetailComponent } from './feature-detail/feature-detail.component';
 import { FeatureFormComponent } from './feature-form/feature-form.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-feature',
@@ -38,7 +40,7 @@ export class FeatureComponent implements OnInit {
     description: '',
     icon: '',
     status: true,
-    image: null,
+    uploadImage: null,
   };
   filter: FeatureFilter = {
     search: '',
@@ -52,11 +54,23 @@ export class FeatureComponent implements OnInit {
 
   constructor(
     private featureService: FeatureService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.getAllFeatures();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.getAllFeatures()]);
   }
 
   getAllFeatures(): void {
@@ -134,6 +148,7 @@ export class FeatureComponent implements OnInit {
         icon: '',
         status: true,
         image: null,
+        uploadImage: null,
       };
     } else if (item) {
       // Mở form chỉnh sửa
@@ -143,7 +158,8 @@ export class FeatureComponent implements OnInit {
         description: item.description,
         icon: item.icon,
         status: item.status,
-        image: null,
+        image: item.image || null,
+        uploadImage: null,
       };
     }
   }
@@ -153,17 +169,18 @@ export class FeatureComponent implements OnInit {
     this.isEditPopupOpen = false;
     this.isDetailPopupOpen = false;
     this.selectedFeature = null;
+    this.imagePreview = null;
     this.newFeature = {
       name: '',
       description: '',
       icon: '',
       status: true,
-      image: null,
+      uploadImage: null,
     };
   }
 
   onFileSelected(file: File): void {
-    this.newFeature.image = file;
+    this.newFeature.uploadImage = file;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -173,49 +190,52 @@ export class FeatureComponent implements OnInit {
   }
 
   async onAddSubmit(): Promise<void> {
+    this.spinner.show();
+
     const formData = new FormData();
     formData.append('name', this.newFeature.name || '');
     formData.append('icon', this.newFeature.icon || '');
     formData.append('description', this.newFeature.description || '');
     formData.append('status', this.newFeature.status?.toString() || 'true');
 
-    if (this.newFeature.image) {
+    if (this.newFeature.uploadImage) {
       const compressedFile = await compressImage(
-        this.newFeature.image,
+        this.newFeature.uploadImage,
         1,
         1920
       );
       formData.append('image', compressedFile);
     }
 
-    this.featureService.createFeature(formData).subscribe({
-      next: () => {
-        this.getAllFeatures();
-        this.toastService.success(
-          'Thêm tiện nghi thành công',
-          'Thành công'
-        );
-        this.onClosePopup();
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.featureService
+      .createFeature(formData)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.getAllFeatures();
+          this.toastService.success('Thêm tiện nghi thành công', 'Thành công');
+          this.onClosePopup();
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+      });
   }
 
   async onEditSubmit(): Promise<void> {
     if (!this.selectedFeature) return;
+    this.spinner.show();
 
     const formData = new FormData();
     formData.append('name', this.newFeature.name || '');
     formData.append('icon', this.newFeature.icon || '');
     formData.append('description', this.newFeature.description || '');
-    if (this.newFeature.image) {
+    if (this.newFeature.uploadImage) {
       const compressedFile = await compressImage(
-        this.newFeature.image,
+        this.newFeature.uploadImage,
         1,
         1920
       );
@@ -224,6 +244,7 @@ export class FeatureComponent implements OnInit {
 
     this.featureService
       .updateFeature(this.selectedFeature.id, formData)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.getAllFeatures();

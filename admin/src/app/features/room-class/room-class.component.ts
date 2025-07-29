@@ -19,6 +19,8 @@ import { RoomClassDetailComponent } from './room-class-detail/room-class-detail.
 import { RoomClassFormComponent } from './room-class-form/room-class-form.component';
 import { compressImage } from '@/shared/utils/image.utils';
 import { RoomClassFilterComponent } from './room-class-filter/room-class-filter.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-room-class',
@@ -51,7 +53,6 @@ export class RoomClassComponent implements OnInit {
     name: '',
     description: '',
     status: true,
-    images: null,
     main_room_class_id: '',
     price_discount: 0,
     bed_type: '',
@@ -75,13 +76,27 @@ export class RoomClassComponent implements OnInit {
     private roomClassService: RoomClassService,
     private featureService: FeatureService,
     private mainRoomClassService: MainRoomClassService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.getAllRoomClasses();
-    this.getAllFeatures();
-    this.getAllMainRoomClasses();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([
+      this.getAllRoomClasses(),
+      this.getAllFeatures(),
+      this.getAllMainRoomClasses(),
+    ]);
   }
 
   getAllRoomClasses(): void {
@@ -199,9 +214,9 @@ export class RoomClassComponent implements OnInit {
       this.selectedRoomClass = null;
       this.newRoomClass = {
         name: '',
+        images: [],
         description: '',
         status: true,
-        images: null,
         main_room_class_id: '',
         price_discount: 0,
         bed_type: '',
@@ -213,6 +228,7 @@ export class RoomClassComponent implements OnInit {
       this.selectedRoomClass = item;
       this.newRoomClass = {
         name: item.name,
+        images: item.images || [],
         description: item.description,
         status: item.status,
         main_room_class_id: item.main_room_class_id,
@@ -224,9 +240,7 @@ export class RoomClassComponent implements OnInit {
         view: item.view,
         features: item.features?.map((f) => f.feature_id.toString()) || [],
         uploadImages: null, // Reset upload images
-        images: null,
       };
-      this.imagePreview = item.images?.map((img) => img.url) || null;
       this.selectedFeatureIds =
         item.features?.map((f) => (f.feature_id || f.feature_id)?.toString()) ||
         [];
@@ -283,6 +297,8 @@ export class RoomClassComponent implements OnInit {
   }
 
   async onAddRoomClass(): Promise<void> {
+    this.spinner.show(); // Hiện spinner khi bắt đầu thêm mới
+    
     const formData = new FormData();
     formData.append(
       'main_room_class_id',
@@ -312,23 +328,28 @@ export class RoomClassComponent implements OnInit {
       });
     }
 
-    this.roomClassService.addRoomClass(formData).subscribe({
-      next: (res) => {
-        this.getAllRoomClasses();
-        this.onClosePopup();
-        this.toastService.success(res.message, 'Thành công');
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.roomClassService
+      .addRoomClass(formData)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (res) => {
+          this.getAllRoomClasses();
+          this.onClosePopup();
+          this.toastService.success(res.message, 'Thành công');
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message || err.message || err.statusText,
+            'Lỗi'
+          );
+        },
+        complete: () => this.spinner.hide(), // Ẩn spinner sau khi hoàn thành
+      });
   }
 
   async onEditRoomClass(): Promise<void> {
     if (!this.selectedRoomClass) return;
+    this.spinner.show(); // Hiện spinner khi bắt đầu cập nhật
 
     const formData = new FormData();
     formData.append(
@@ -358,6 +379,7 @@ export class RoomClassComponent implements OnInit {
 
     this.roomClassService
       .updateRoomClass(this.selectedRoomClass.id, formData)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res) => {
           this.getAllRoomClasses();

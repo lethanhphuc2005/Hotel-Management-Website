@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Room, RoomFilter, RoomRequest } from '../../types/room';
 import { RoomService } from '../../core/services/room.service';
 import { RoomStatusService } from '../../core/services/room-status.service';
 import { RoomClassService } from '../../core/services/room-class.service';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import {
+  FullCalendarModule,
+  FullCalendarComponent,
+} from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { ToastrService } from 'ngx-toastr';
@@ -16,6 +19,8 @@ import { RoomDetailComponent } from './room-detail/room-detail.component';
 import { RoomFormComponent } from './room-form/room-form.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-room',
@@ -36,19 +41,25 @@ import { FormsModule } from '@angular/forms';
 export class RoomComponent implements OnInit {
   rooms: Room[] = [];
   roomClasses: RoomClass[] = [];
-  roomStatuses: RoomStatus[] = []; // Assuming you have a type for room statuses
+  roomStatuses: RoomStatus[] = [];
   selectedRoom: Room | null = null;
   isDetailPopupOpen = false;
   isAddPopupOpen = false;
   isEditPopupOpen = false;
   statusFilterString: string = '';
   statusFilter: boolean | undefined = undefined;
+
+  private loadedMonths: Set<string> = new Set(); // ✅ Dùng Set để cache tháng/phòng đã tải
+
+  @ViewChild('calendar') calendar!: FullCalendarComponent;
+
   newRoom: RoomRequest = {
     name: '',
     floor: 0,
     room_class_id: '',
     room_status_id: '',
   };
+
   filter: RoomFilter = {
     search: '',
     page: 1,
@@ -61,24 +72,92 @@ export class RoomComponent implements OnInit {
     check_in_date: undefined,
     check_out_date: undefined,
   };
+
+  // calendarOptions = {
+  //   plugins: [dayGridPlugin, interactionPlugin],
+  //   initialView: 'dayGridMonth',
+  //   events: [],
+  //   height: 'auto',
+  //   locale: 'vi',
+  //   datesSet: (arg: any) => {
+  //     const start = new Date(arg.startStr);
+  //     const year = start.getFullYear();
+  //     const month = start.getMonth() + 1;
+  //     if (this.selectedRoom?.id) {
+  //       this.loadCalendarDataOnce(this.selectedRoom.id, year, month);
+  //     }
+  //   },
+  // };
+
+  private alreadyLoadedMonth: string | null = null;
+
   calendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
-    events: [],
+    initialDate: new Date(),
+    events: [], // hiển thị tháng hiện tại
     height: 'auto',
     locale: 'vi',
+    // Thêm debug để kiểm tra ngày tháng
+    datesSet: (arg: any) => {
+      console.log('🔍 Debug Calendar Dates:');
+      console.log('arg.startStr:', arg.startStr);
+      console.log('arg.endStr:', arg.endStr);
+
+      // ✅ Lấy ngày giữa của view để xác định tháng chính xác
+      const viewStart = new Date(arg.start);
+      const viewEnd = new Date(arg.end);
+      const middleDate = new Date(
+        (viewStart.getTime() + viewEnd.getTime()) / 2
+      );
+
+      const year = middleDate.getFullYear();
+      const month = middleDate.getMonth() + 1;
+
+      console.log('📅 Middle date:', middleDate);
+      console.log('📅 Actual month:', { year, month });
+
+      const key = `${year}-${month}`;
+
+      if (this.alreadyLoadedMonth === key) return;
+      this.alreadyLoadedMonth = key;
+
+      if (this.selectedRoom) {
+        console.log('🚀 Loading calendar for:', {
+          roomId: this.selectedRoom.id,
+          year,
+          month,
+        });
+        this.loadCalendarData(this.selectedRoom.id, year, month);
+      }
+    },
   };
+
   constructor(
     private roomService: RoomService,
     private roomStatusService: RoomStatusService,
     private roomClassService: RoomClassService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit() {
-    this.getAllRooms();
-    this.getAllRoomClasses();
-    this.getAllRoomStatuses();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([
+      this.getAllRoomClasses(),
+      this.getAllRoomStatuses(),
+      this.getAllRooms(),
+    ]);
   }
 
   getAllRooms(): void {
@@ -107,25 +186,21 @@ export class RoomComponent implements OnInit {
         order: 'asc',
       })
       .subscribe({
-        next: (res: any) => {
-          this.roomClasses = res.data;
-        },
+        next: (res: any) => (this.roomClasses = res.data),
         error: (err) => console.error('Lỗi khi lấy danh sách loại phòng:', err),
       });
   }
 
   getAllRoomStatuses(): void {
     this.roomStatusService.getAllRoomStatuses().subscribe({
-      next: (res: any) => {
-        this.roomStatuses = res.data;
-      },
+      next: (res: any) => (this.roomStatuses = res.data),
       error: (err) =>
         console.error('Lỗi khi lấy danh sách trạng thái phòng:', err),
     });
   }
 
   onFilterChange(): void {
-    this.filter.page = 1; // Reset to first page on filter change
+    this.filter.page = 1;
     this.getAllRooms();
   }
 
@@ -135,8 +210,6 @@ export class RoomComponent implements OnInit {
   }
 
   onViewDetail(r: Room) {
-    this.loadCalendarData(r.id);
-    // Nếu không phải các phần tử loại trừ thì mở chi tiết
     this.selectedRoom = r;
     this.isDetailPopupOpen = true;
   }
@@ -146,14 +219,12 @@ export class RoomComponent implements OnInit {
     this.isEditPopupOpen = !isAddForm;
 
     if (isAddForm) {
-      // Reset form thêm mới
       this.selectedRoom = null;
       this.newRoom = {
         room_class_id: '',
         room_status_id: '',
       };
     } else if (item) {
-      // Mở form chỉnh sửa
       this.selectedRoom = item;
       this.newRoom = {
         name: item.name,
@@ -174,47 +245,53 @@ export class RoomComponent implements OnInit {
       room_class_id: '',
       room_status_id: '',
     };
+    this.alreadyLoadedMonth = null; // ✅ Reset cache khi đóng popup
+    this.calendarOptions.events = []; // ✅ Reset calendar events
   }
 
   onAddSubmit(): void {
-    this.roomService.addRoom(this.newRoom).subscribe({
-      next: (res: any) => {
-        this.getAllRooms();
-        this.onClosePopup();
-        this.toastService.success('Thêm phòng thành công', 'Thành công');
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.spinner.show();
+    this.roomService
+      .addRoom(this.newRoom)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.getAllRooms();
+          this.onClosePopup();
+          this.toastService.success('Thêm phòng thành công', 'Thành công');
+        },
+        error: (err) => {
+          this.toastService.error(err.error?.message || err.message, 'Lỗi');
+        },
+      });
   }
 
   onEditSubmit(): void {
     if (!this.selectedRoom) return;
-
-    this.roomService.updateRoom(this.selectedRoom.id, this.newRoom).subscribe({
-      next: (res: any) => {
-        this.getAllRooms();
-        this.onClosePopup();
-        this.toastService.success('Cập nhật phòng thành công', 'Thành công');
-      },
-      error: (err) => {
-        this.toastService.error(
-          err.error?.message || err.message || err.statusText,
-          'Lỗi'
-        );
-      },
-    });
+    this.spinner.show();
+    this.roomService
+      .updateRoom(this.selectedRoom.id, this.newRoom)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: () => {
+          this.getAllRooms();
+          this.onClosePopup();
+          this.toastService.success('Cập nhật phòng thành công', 'Thành công');
+        },
+        error: (err) => {
+          this.toastService.error(err.error?.message || err.message, 'Lỗi');
+        },
+      });
   }
 
-  loadCalendarData(roomId: string) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
+  loadCalendarDataOnce(roomId: string, year: number, month: number) {
+    const key = `${roomId}-${year}-${month}`;
+    if (this.loadedMonths.has(key)) return;
+    this.loadedMonths.add(key);
+    this.loadCalendarData(roomId, year, month);
+  }
 
+  loadCalendarData(roomId: string, year: number, month: number) {
     this.roomService.getBookingCalendar(roomId, year, month).subscribe({
       next: (res: any) => {
         const events = res.events.map((event: any) => ({
@@ -225,10 +302,9 @@ export class RoomComponent implements OnInit {
           color: event.status?.code === 'CHECKED_IN' ? '#f87171' : '#34d399',
           allDay: true,
         }));
-
         this.calendarOptions = {
           ...this.calendarOptions,
-          events,
+          events, // ✅ Cập nhật events an toàn
         };
       },
       error: (err) => {

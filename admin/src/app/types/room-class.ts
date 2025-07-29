@@ -51,7 +51,7 @@ export interface RoomClassRequest {
   price_discount?: number;
   view?: string;
   status?: boolean;
-  images?: string[] | null;
+  images?: Image[] | null;
   uploadImages?: File[] | null;
   features?: string[];
 }

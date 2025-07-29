@@ -44,7 +44,7 @@ export interface DiscountDetailResponse {
 
 export interface DiscountRequest {
   name?: string;
-  image?: string | null;
+  image?: Image | null;
   uploadImage?: File | null;
   description?: string;
   type?: string;

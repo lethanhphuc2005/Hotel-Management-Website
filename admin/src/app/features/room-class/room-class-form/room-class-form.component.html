@@ -16,7 +16,7 @@
             class="form-control mb-3"
             id="name"
             name="name"
-            [(ngModel)]="formData.name"
+            [(ngModel)]="roomClass.name"
             required
           />
           <label for="name">Tên loại phòng</label>
@@ -26,7 +26,7 @@
           class="form-control mb-3"
           id="description"
           name="description"
-          [(ngModel)]="formData.description"
+          [(ngModel)]="roomClass.description"
         ></textarea>
       </div>
 
@@ -35,7 +35,7 @@
         <label for="bed_type">Loại giường</label>
         <select
           class="form-select form-control mb-3"
-          [(ngModel)]="formData.bed_type"
+          [(ngModel)]="roomClass.bed_type"
           name="bed_type"
           required
         >
@@ -56,7 +56,7 @@
             type="number"
             id="bed"
             name="bed"
-            [(ngModel)]="formData.bed_amount"
+            [(ngModel)]="roomClass.bed_amount"
             required
           />
         </div>
@@ -67,7 +67,7 @@
             type="number"
             id="capacity"
             name="capacity"
-            [(ngModel)]="formData.capacity"
+            [(ngModel)]="roomClass.capacity"
             required
           />
         </div>
@@ -82,7 +82,7 @@
             type="number"
             id="price"
             name="price"
-            [(ngModel)]="formData.price"
+            [(ngModel)]="roomClass.price"
             required
           />
         </div>
@@ -93,7 +93,7 @@
             type="number"
             id="price_discount"
             name="price_discount"
-            [(ngModel)]="formData.price_discount"
+            [(ngModel)]="roomClass.price_discount"
             required
           />
         </div>
@@ -104,7 +104,7 @@
         <label for="view">View</label>
         <select
           class="form-select form-control mb-3"
-          [(ngModel)]="formData.view"
+          [(ngModel)]="roomClass.view"
           name="view"
           required
         >
@@ -124,7 +124,7 @@
         <select
           id="mainRoomClass"
           name="mainRoomClass"
-          [(ngModel)]="formData.main_room_class_id"
+          [(ngModel)]="roomClass.main_room_class_id"
           required
           class="form-select form-control mb-3"
         >
@@ -163,23 +163,41 @@
           class="form-control mb-3"
         />
         <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-2">
-          <div
-            *ngFor="let img of imagePreview; let i = index"
-            class="tw-relative tw-w-[100px] tw-h-[100px] tw-border tw-border-gray-300 tw-rounded-md tw-overflow-hidden"
+          <ng-container
+            *ngIf="(imagePreview?.length || 0) > 0; else currentImages"
           >
-            <img
-              [src]="img"
-              width="100"
-              height="100"
-              class="tw-w-full tw-h-full tw-object-cover"
-            />
-            <button
-              (click)="onRemoveImage(i, $event)"
-              class="tw-absolute tw-top-1 tw-right-1 tw-bg-black/50 tw-text-white tw-font-bold tw-rounded-full tw-w-5 tw-h-5 tw-text-xs tw-leading-5 tw-text-center hover:tw-bg-black/80"
+            <div
+              *ngFor="let img of imagePreview; let i = index"
+              class="tw-relative tw-w-[100px] tw-h-[100px] tw-border tw-border-gray-300 tw-rounded-md tw-overflow-hidden"
             >
-              ✕
-            </button>
-          </div>
+              <img
+                [src]="img"
+                width="100"
+                height="100"
+                class="tw-w-full tw-h-full tw-object-cover"
+              />
+              <button
+                (click)="onRemoveImage(i, $event)"
+                class="tw-absolute tw-top-1 tw-right-1 tw-bg-black/50 tw-text-white tw-font-bold tw-rounded-full tw-w-5 tw-h-5 tw-text-xs tw-leading-5 tw-text-center hover:tw-bg-black/80"
+              >
+                ✕
+              </button>
+            </div>
+          </ng-container>
+
+          <ng-template #currentImages>
+            <div
+              *ngFor="let img of roomClass.images; let i = index"
+              class="tw-relative tw-w-[100px] tw-h-[100px] tw-border tw-border-gray-300 tw-rounded-md tw-overflow-hidden"
+            >
+              <img
+                [src]="img.url"
+                width="100"
+                height="100"
+                class="tw-w-full tw-h-full tw-object-cover"
+              />
+            </div>
+          </ng-template>
         </div>
       </div>
 

@@ -16,7 +16,7 @@ const ImageSchema = new mongoose.Schema(
     },
     target: {
       type: String,
-      enum: ["main_room_class", "room_class", "service", "feature", "content"],
+      enum: ["main_room_class", "room_class", "service", "feature", "content", "discount"],
       required: true,
       default: "",
       trim: true,

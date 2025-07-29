@@ -11,6 +11,8 @@ import { EmployeeFormComponent } from './employee-form/employee-form.component';
 import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { RegisterRequest } from '@/types/auth';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-employee',
@@ -67,13 +69,24 @@ export class EmployeeComponent implements OnInit {
   constructor(
     private employeeService: EmployeeService,
     private toastService: ToastrService,
-    private authService: AuthService
+    private authService: AuthService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.loadAllEmployees();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
   }
 
+  async loadInitialData() {
+    await Promise.all([this.loadAllEmployees()]);
+  }
   loadAllEmployees(): void {
     this.employeeService.getAllEmployees(this.filter).subscribe({
       next: (response) => {
@@ -189,26 +202,33 @@ export class EmployeeComponent implements OnInit {
     });
   }
   onAddSubmit(): void {
-    this.authService.register(this.newRegisterEmployee).subscribe({
-      next: (res) => {
-        this.toastService.success('Employee added successfully', 'Success');
-        this.loadAllEmployees();
-        this.onClosePopup();
-      },
-      error: (error) => {
-        console.error('Error adding employee:', error);
-        this.toastService.error(
-          error.error.message || 'Failed to add employee',
-          'Error'
-        );
-      },
-    });
+    this.spinner.show();
+
+    this.authService
+      .register(this.newRegisterEmployee)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (res) => {
+          this.toastService.success('Employee added successfully', 'Success');
+          this.loadAllEmployees();
+          this.onClosePopup();
+        },
+        error: (error) => {
+          console.error('Error adding employee:', error);
+          this.toastService.error(
+            error.error.message || 'Failed to add employee',
+            'Error'
+          );
+        },
+      });
   }
   onEditSubmit(): void {
     if (!this.selectedEmployee) return;
+    this.spinner.show();
 
     this.employeeService
       .updateEmployee(this.selectedEmployee.id, this.newEmployee)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res) => {
           this.toastService.success('Employee updated successfully', 'Success');

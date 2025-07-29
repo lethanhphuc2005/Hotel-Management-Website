@@ -53,6 +53,7 @@
       <div class="popup-section">
         <label for="image">Ảnh (file):</label>
         <input
+          class="form-control mb-3"
           type="file"
           id="image"
           name="image"
@@ -68,7 +69,7 @@
           <div *ngIf="websiteContent.image">
             <label>Ảnh hiện tại:</label>
             <img
-              [src]="websiteContent.image"
+              [src]="websiteContent.image.url"
               width="120px"
               height="100px"
             />

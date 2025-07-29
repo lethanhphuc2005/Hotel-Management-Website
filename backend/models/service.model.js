@@ -34,7 +34,7 @@ ServiceSchema.virtual("image", {
   ref: "image",
   localField: "_id",
   foreignField: "target_id",
-  match: { target: "service", status: true }, // Only get images with valid status
+  match: { target: "service", status: true }, 
   justOne: true,
   options: {
     select: "url public_id",
@@ -42,6 +42,7 @@ ServiceSchema.virtual("image", {
 });
 
 ServiceSchema.set("toJSON", {
+  virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
     ret.id = ret._id; // Chuyển đổi ObjectId thành chuỗi

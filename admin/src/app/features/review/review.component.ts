@@ -10,6 +10,8 @@ import { PaginationComponent } from '@/shared/components/pagination/pagination.c
 import { ReviewFilterComponent } from './review-filter/review-filter.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-review',
@@ -54,11 +56,23 @@ export class ReviewComponent implements OnInit {
   };
   constructor(
     private reviewService: ReviewService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.loadAllReviews();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.loadAllReviews()]);
   }
 
   loadAllReviews(): void {
@@ -170,6 +184,9 @@ export class ReviewComponent implements OnInit {
       this.toastService.error('Vui lòng chọn bình luận để trả lời', 'Lỗi');
       return;
     }
+
+    this.spinner.show();
+
     this.newReview = {
       content,
       room_class_id,
@@ -177,19 +194,22 @@ export class ReviewComponent implements OnInit {
       booking_id: booking_id || this.selectedReview.booking_id,
     };
 
-    this.reviewService.createReview(this.newReview).subscribe({
-      next: (response) => {
-        this.toastService.success('Phản hồi thành công', 'Thành công');
-        this.isReplyPopupOn = false;
-        this.loadAllReviews();
-      },
-      error: (error) => {
-        console.error('Error submitting reply:', error);
-        this.toastService.error(
-          error.error?.message || 'Phản hồi thất bại',
-          'Lỗi'
-        );
-      },
-    });
+    this.reviewService
+      .createReview(this.newReview)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (response) => {
+          this.toastService.success('Phản hồi thành công', 'Thành công');
+          this.isReplyPopupOn = false;
+          this.loadAllReviews();
+        },
+        error: (error) => {
+          console.error('Error submitting reply:', error);
+          this.toastService.error(
+            error.error?.message || 'Phản hồi thất bại',
+            'Lỗi'
+          );
+        },
+      });
   }
 }

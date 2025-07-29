@@ -13,6 +13,8 @@ import { PaymentMethodListComponent } from './payment-method-list/payment-method
 import { CommonFilterBarComponent } from '@/shared/components/common-filter-bar/common-filter-bar.component';
 import { PaymentMethodFormComponent } from './payment-method-form/payment-method-form.component';
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-payment-method',
@@ -49,11 +51,23 @@ export class PaymentMethodComponent implements OnInit {
   };
   constructor(
     private paymentMethodService: PaymentMethodService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private spinner: NgxSpinnerService
   ) {}
 
-  ngOnInit(): void {
-    this.fetchPaymentMethods();
+  async ngOnInit() {
+    this.spinner.show();
+    try {
+      await this.loadInitialData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  async loadInitialData() {
+    await Promise.all([this.fetchPaymentMethods()]);
   }
 
   fetchPaymentMethods(): void {
@@ -137,8 +151,11 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   onAddSubmit(): void {
+    this.spinner.show();
+
     this.paymentMethodService
       .createPaymentMethod(this.newPaymentMethod)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.fetchPaymentMethods();
@@ -159,9 +176,11 @@ export class PaymentMethodComponent implements OnInit {
 
   onEditSubmit(): void {
     if (!this.selectedPaymentMethod) return;
+    this.spinner.show();
 
     this.paymentMethodService
       .updatePaymentMethod(this.selectedPaymentMethod.id, this.newPaymentMethod)
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: () => {
           this.fetchPaymentMethods();
