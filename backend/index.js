@@ -43,6 +43,7 @@ const routers = [
   { path: "/suggestion", module: require("./routes/suggestion.route") },
   { path: "/search-log", module: require("./routes/searchLog.route") },
   { path: "/search-cluster", module: require("./routes/searchCluster.route") },
+  { path: "/test", module: require("./routes/test.route") },
 ];
 
 // Apply all routers with prefix /api/v1
