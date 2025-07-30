@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import style from "@/styles/layout/header.module.css";
 import { useSelector } from "react-redux";
-import { RootState } from "@/contexts/store";
+import { RootState } from "@/store/store";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   faCartShopping,

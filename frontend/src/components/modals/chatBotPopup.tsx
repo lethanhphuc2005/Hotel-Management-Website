@@ -7,9 +7,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { showConfirmDialog } from "@/utils/swal";
 import { useDispatch, useSelector } from "react-redux";
-import { addRoomToCart, CartRoom } from "@/contexts/cartSlice";
+import { addRoomToCart, CartRoom } from "@/store/cartSlice";
 import { toast } from "react-toastify";
-import { RootState } from "@/contexts/store";
+import { RootState } from "@/store/store";
 import { RoomClass } from "@/types/roomClass";
 import { Booking, BookingDetail } from "@/types/booking";
 

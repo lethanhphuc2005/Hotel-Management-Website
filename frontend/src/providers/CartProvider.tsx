@@ -1,7 +1,7 @@
 // src/app/ReduxProvider.tsx
 "use client";
 
-import { store } from "@/contexts/store";
+import { store } from "@/store/store";
 import { Provider } from "react-redux";
 
 export default function ReduxProvider({

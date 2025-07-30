@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
-import { RootState } from "@/contexts/store";
+import { RootState } from "@/store/store";
 
 interface Props {
   open: boolean;

@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/contexts/store";
-import { addServiceToRoom } from "@/contexts/cartSlice";
+import { RootState } from "@/store/store";
+import { addServiceToRoom } from "@/store/cartSlice";
 import { Service } from "@/types/service";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";

@@ -1,6 +1,6 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
-import { addRoomToCart } from "@/contexts/cartSlice";
+import { addRoomToCart } from "@/store/cartSlice";
 import { toast } from "react-toastify";
 import { RoomClass } from "@/types/roomClass";
 import { UserFavorite } from "@/types/userFavorite";

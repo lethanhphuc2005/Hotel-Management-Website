@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { getRoomTotalPrice } from "@/contexts/cartSelector";
+import { getRoomTotalPrice } from "@/store/cartSelector";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 interface RoomCartItemProps {

@@ -1,14 +1,14 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "@/styles/pages/cart.module.css";
-import { RootState } from "@/contexts/store";
+import { RootState } from "@/store/store";
 import {
   removeRoomFromCart,
   clearCart,
   addExtraBedToCart,
-} from "@/contexts/cartSlice";
+} from "@/store/cartSlice";
 import Link from "next/link";
-import { getRoomTotalPrice } from "@/contexts/cartSelector";
+import { getRoomTotalPrice } from "@/store/cartSelector";
 import { showConfirmDialog } from "@/utils/swal";
 import { toast } from "react-toastify";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
