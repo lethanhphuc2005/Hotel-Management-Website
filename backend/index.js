@@ -52,5 +52,5 @@ routers.forEach((r) => {
 
 // Start server
 app.listen(8000, () => {
-  console.log("🚀 Server is running at http://localhost:8000");
+  console.log(`🚀 Server is running at ${process.env.BACKEND_URL}`);
 });
