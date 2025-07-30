@@ -14,11 +14,11 @@ module.exports = {
 
     // Trả về cho booking
     returnUrl: `${process.env.FRONTEND_URL}/thank-you`,
-    notifyUrl: `${process.env.NGROK_URL}/api/v1/payment/vnpay/callback`,
+    notifyUrl: `${process.env.BACKEND_URL}/api/v1/payment/vnpay/callback`,
 
     // Trả về cho ví
     walletReturnUrl: `${process.env.FRONTEND_URL}/profile`,
-    walletNotifyUrl: `${process.env.NGROK_URL}/api/v1/wallet/deposit/vnpay/callback`,
+    walletNotifyUrl: `${process.env.BACKEND_URL}/api/v1/wallet/deposit/vnpay/callback`,
 
     testMode: process.env.VNPAY_TEST_MODE === "true",
     endpoints: {
@@ -38,11 +38,11 @@ module.exports = {
 
     // Trả về cho booking
     returnUrl: `${process.env.FRONTEND_URL}/thank-you`,
-    notifyUrl: `${process.env.NGROK_URL}/api/v1/payment/momo/ipn`,
+    notifyUrl: `${process.env.BACKEND_URL}/api/v1/payment/momo/ipn`,
 
     // Trả về cho ví
     walletReturnUrl: `${process.env.FRONTEND_URL}/profile`,
-    walletNotifyUrl: `${process.env.NGROK_URL}/api/v1/wallet/deposit/momo/ipn`,
+    walletNotifyUrl: `${process.env.BACKEND_URL}/api/v1/wallet/deposit/momo/ipn`,
 
     requestType: "payWithMethod",
     locale: process.env.MOMO_LOCALE || "vi",
@@ -56,11 +56,11 @@ module.exports = {
     queryUrl: `${process.env.ZALOPAY_API_URL}/query`,
 
     // Trả về cho booking
-    callbackUrl: `${process.env.NGROK_URL}/api/v1/payment/zalopay/ipn`,
+    callbackUrl: `${process.env.BACKEND_URL}/api/v1/payment/zalopay/ipn`,
     returnUrl: `${process.env.FRONTEND_URL}/thank-you`,
 
     // Trả về cho ví
-    walletCallbackUrl: `${process.env.NGROK_URL}/api/v1/wallet/deposit/zalopay/ipn`,
+    walletCallbackUrl: `${process.env.BACKEND_URL}/api/v1/wallet/deposit/zalopay/ipn`,
     walletReturnUrl: `${process.env.FRONTEND_URL}/profile`,
   },
 };
