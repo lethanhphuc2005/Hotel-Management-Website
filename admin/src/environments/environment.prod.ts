@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.themoonhotel.com/api/v1',
-  imgUrl: 'http://localhost:8000/images',
+  apiUrl: 'https://api-the-moon.up.railway.app/api/v1',
+  imgUrl: 'https://api-the-moon.up.railway.app/images',
   siteName: 'The Moon Hotel Admin',
 };
