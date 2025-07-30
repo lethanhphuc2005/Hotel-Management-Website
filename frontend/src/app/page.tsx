@@ -17,13 +17,13 @@ export default function Home() {
     setPendingDateRange,
     dateRange,
     setDateRange,
+    hasSaturdayNight,
+    hasSundayNight,
     capacity,
     pendingGuests,
     setPendingGuests,
     guests,
     setGuests,
-    price,
-    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
@@ -34,7 +34,6 @@ export default function Home() {
     numberOfAdults,
     numberOfChildren,
     numberOfNights,
-    totalPrice,
     hasSearched,
     setHasSearched,
     handleSearch,
@@ -55,8 +54,6 @@ export default function Home() {
         setPendingGuests={setPendingGuests}
         guests={guests}
         setGuests={setGuests}
-        price={price}
-        setPrice={setPrice}
         showCalendar={showCalendar}
         setShowCalendar={setShowCalendar}
         showGuestBox={showGuestBox}
@@ -67,7 +64,6 @@ export default function Home() {
         numberOfAdults={numberOfAdults}
         numberOfChildren={numberOfChildren}
         numberOfNights={numberOfNights}
-        totalPrice={totalPrice}
         hasSearched={hasSearched}
         setHasSearched={setHasSearched}
         handleSearch={handleSearch}

@@ -21,13 +21,13 @@ export default function Banner(props: BannerProps) {
     setPendingDateRange,
     dateRange,
     setDateRange,
+    hasSaturdayNight,
+    hasSundayNight,
     capacity,
     pendingGuests,
     setPendingGuests,
     guests,
     setGuests,
-    price,
-    setPrice,
     showCalendar,
     setShowCalendar,
     showGuestBox,
@@ -38,7 +38,6 @@ export default function Banner(props: BannerProps) {
     numberOfAdults,
     numberOfChildren,
     numberOfNights,
-    totalPrice,
     hasSearched,
     setHasSearched,
     handleSearch,
@@ -71,8 +70,6 @@ export default function Banner(props: BannerProps) {
           setPendingGuests={setPendingGuests}
           guests={guests}
           setGuests={setGuests}
-          price={price}
-          setPrice={setPrice}
           showCalendar={showCalendar}
           setShowCalendar={setShowCalendar}
           showGuestBox={showGuestBox}
@@ -83,7 +80,6 @@ export default function Banner(props: BannerProps) {
           numberOfAdults={numberOfAdults}
           numberOfChildren={numberOfChildren}
           numberOfNights={numberOfNights}
-          totalPrice={totalPrice}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
           handleSearch={handleSearch}

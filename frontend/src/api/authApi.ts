@@ -122,3 +122,7 @@ export const resendVerificationEmail = async (email: string) => {
 export const googleLogin = () => {
   window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
 };
+
+export const facebookLogin = () => {
+  window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/facebook`;
+};

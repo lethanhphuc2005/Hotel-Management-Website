@@ -103,7 +103,7 @@ const RegisterPage = () => {
 
     if (step === 2) {
       if (otp.length !== 6) {
-        toast.error("Mã OTP phải có 6 chữ số.");
+        toast.info("Mã OTP phải có 6 chữ số.");
         return;
       }
 

@@ -5,8 +5,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import style from "@/styles/components/searchBar.module.css";
 import { useEffect } from "react";
-import { toast } from "react-toastify";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { RoomSearchBarProps, GuestCount } from "@/types/_common";
@@ -43,7 +42,9 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
     const end = new Date(endDate);
 
     if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-      setPendingDateRange([{ startDate: start, endDate: end, key: "selection" }]);
+      setPendingDateRange([
+        { startDate: start, endDate: end, key: "selection" },
+      ]);
       setDateRange([{ startDate: start, endDate: end, key: "selection" }]);
     }
     const { adults = 1, children = {} } = guests;

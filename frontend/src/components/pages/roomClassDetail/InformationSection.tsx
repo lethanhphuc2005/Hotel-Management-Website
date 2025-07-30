@@ -12,40 +12,45 @@ import { MainRoomClass } from "@/types/mainRoomClass";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import RoomBookingBox from "./BookingForm";
 import { capitalizeFirst } from "@/utils/stringUtils";
-import { useRoomSearch } from "@/hooks/useRoomSearch";
 import { Image } from "@/types/image";
+import { SearchBar } from "@/types/_common";
+
+interface WebsiteContent extends SearchBar {
+  roomClass: RoomClass;
+  mainRoomClass: MainRoomClass;
+  images: Image[];
+}
 
 const InformationSection = ({
   roomClass,
   mainRoomClass,
   images,
-}: {
-  roomClass: RoomClass;
-  mainRoomClass: MainRoomClass;
-  images: Image[];
-}) => {
-  const {
-    dateRange,
-    setDateRange,
-    guests,
-    setGuests,
-    price,
-    setPrice,
-    showCalendar,
-    setShowCalendar,
-    showGuestBox,
-    setShowGuestBox,
-    guestBoxRef,
-    calendarRef,
-    totalGuests,
-    numberOfAdults,
-    numberOfChildren,
-    numberOfNights,
-    totalPrice,
-    hasSearched,
-    setHasSearched,
-    handleSearch,
-  } = useRoomSearch();
+  pendingDateRange,
+  setPendingDateRange,
+  dateRange,
+  setDateRange,
+  hasSaturdayNight,
+  hasSundayNight,
+  capacity,
+  pendingGuests,
+  setPendingGuests,
+  guests,
+  setGuests,
+  showCalendar,
+  setShowCalendar,
+  showGuestBox,
+  setShowGuestBox,
+  guestBoxRef,
+  calendarRef,
+  totalGuests,
+  numberOfAdults,
+  numberOfChildren,
+  numberOfNights,
+  hasSearched,
+  setHasSearched,
+  handleSearch,
+  handleResetSearch,
+}: WebsiteContent) => {
   return (
     <div className="tw-flex tw-gap-6 md:tw-flex-row tw-flex-col">
       <section className="tw-max-w-[1320px] tw-mx-auto tw-mt-4   tw-rounded-2xl tw-shadow-xl">
@@ -65,7 +70,9 @@ const InformationSection = ({
           <div className="tw-flex tw-items-center tw-gap-3">
             <FontAwesomeIcon icon={faBed} className="tw-text-xl" />
             <span>
-              Số giường: <strong>{roomClass.bed_amount}</strong>
+              <strong>
+                {roomClass.bed.quantity} giường {roomClass.bed.type}
+              </strong>
             </span>
           </div>
           <div className="tw-flex tw-items-center tw-gap-3">
@@ -77,7 +84,7 @@ const InformationSection = ({
           <div className="tw-flex tw-items-center tw-gap-3">
             <FontAwesomeIcon icon={faEye} className="tw-text-xl" />
             <span>
-              Hướng nhìn: <strong>{capitalizeFirst(roomClass.view)}</strong>
+              Hướng: <strong>{capitalizeFirst(roomClass.view)}</strong>
             </span>
           </div>
           {roomClass.price_discount ? (
@@ -124,12 +131,17 @@ const InformationSection = ({
       <div className="md:tw-max-w-[40%] tw-mx-auto tw-mt-6 tw-w-full">
         <RoomBookingBox
           roomClass={roomClass}
+          hasSaturdayNight={hasSaturdayNight}
+          hasSundayNight={hasSundayNight}
+          pendingDateRange={pendingDateRange}
+          setPendingDateRange={setPendingDateRange}
           dateRange={dateRange}
           setDateRange={setDateRange}
+          capacity={capacity}
+          pendingGuests={pendingGuests}
+          setPendingGuests={setPendingGuests}
           guests={guests}
           setGuests={setGuests}
-          price={price}
-          setPrice={setPrice}
           showCalendar={showCalendar}
           setShowCalendar={setShowCalendar}
           showGuestBox={showGuestBox}
@@ -140,10 +152,10 @@ const InformationSection = ({
           numberOfAdults={numberOfAdults}
           numberOfChildren={numberOfChildren}
           numberOfNights={numberOfNights}
-          totalPrice={totalPrice}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
           handleSearch={handleSearch}
+          handleResetSearch={handleResetSearch}
         />
       </div>
     </div>

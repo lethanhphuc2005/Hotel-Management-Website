@@ -124,7 +124,7 @@ export const fetchRoomClassById = async (
             id: feature.id || feature._id,
             room_class_id: feature.room_class_id || "",
             feature_id: feature.feature_id,
-            features: feature.feature
+            feature: feature.feature
               ? {
                   id: feature.feature.id || feature.feature._id,
                   name: feature.feature.name,

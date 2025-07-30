@@ -37,12 +37,8 @@ const getFilteredRooms = async (filters) => {
   const query = { status: true };
 
   let roomClasses = await RoomClass.find(query)
-    .populate([
-      { path: "main_room_class", match: { status: true } },
-      { path: "features" },
-      { path: "images", match: { status: true } },
-    ])
-    .exec();
+    .populate("main_room_class images features")
+    .sort({ createdAt: -1 });
   if (check_in_date && check_out_date) {
     const checkIn = new Date(check_in_date);
     const checkOut = new Date(check_out_date);
@@ -311,90 +307,112 @@ const generateResponseWithDB = async (req, res) => {
     );
     // ====== 5. Prompt hệ thống (cho Gemini) ======
     const systemPrompt = `
-      Bạn là trợ lý AI của khách sạn The Moon Hotel, hỗ trợ khách đặt phòng qua hội thoại từng bước.
+  Bạn là trợ lý AI của khách sạn The Moon Hotel, hỗ trợ khách đặt phòng qua hội thoại từng bước.
 
-      🎯 MỤC TIÊU:
-      1. Hỏi khách về yêu cầu đặt phòng: ngày check-in, check-out, số người lớn/trẻ em.
-      2. Dựa trên danh sách phòng có sẵn (**không hiển thị toàn bộ**):
-      - Lọc phòng theo ngày check-in/check-out và số lượng người dựa trên capacity.
-      - Gợi ý tối đa 3 loại phòng phù hợp với yêu cầu.
-      3. Nếu khách muốn đặt, kiểm tra xem đã đủ thông tin cá nhân chưa:
-        - Họ tên
-        - Email
-        - Số điện thoại
-      4. Nếu thiếu thông tin, hãy lịch sự hỏi khách bổ sung.
-      5. Khi đã có đủ thông tin, hỏi lại khách xác nhận lần cuối để tiến hành đặt phòng.
+  🎯 MỤC TIÊU:
+  1. Hỏi khách về yêu cầu đặt phòng: ngày check-in, check-out, số người lớn/trẻ em.
+  2. Dựa trên danh sách phòng có sẵn (**không hiển thị toàn bộ**):
+    - Lọc phòng theo ngày check-in/check-out và số lượng người dựa trên capacity.
+    - Gợi ý tối đa 3 loại phòng phù hợp với yêu cầu.
+  3. Nếu khách muốn đặt, kiểm tra xem đã đủ thông tin cá nhân chưa:
+    - Họ tên
+    - Email
+    - Số điện thoại
+  4. Nếu thiếu thông tin, hãy lịch sự hỏi khách bổ sung.
+  5. Khi đã có đủ thông tin, hỏi lại khách xác nhận lần cuối để tiến hành đặt phòng.
 
-      🔒 QUY TẮC XÁC NHẬN:
-      - **CHỈ xác nhận đặt phòng khi khách nói rõ** một trong các ý sau:
-        "tôi xác nhận", "tôi muốn đặt", "xác nhận đặt phòng", "ok đặt luôn", "đặt luôn", "tôi muốn xác nhận", v.v.
-      - **KHÔNG xác nhận** nếu khách chỉ hỏi thông tin như: 
-        "còn loại nào khác?", "chọn phòng này được không?", "có phòng nào phù hợp không?", v.v.
+  🔒 QUY TẮC XÁC NHẬN:
+  - **CHỈ xác nhận đặt phòng khi khách nói rõ** một trong các ý sau:
+    "tôi xác nhận", "tôi muốn đặt", "xác nhận đặt phòng", "ok đặt luôn", "đặt luôn", "tôi muốn xác nhận", v.v.
+  - **KHÔNG xác nhận** nếu khách chỉ hỏi thông tin như: 
+    "còn loại nào khác?", "chọn phòng này được không?", "có phòng nào phù hợp không?", v.v.
 
-      📅 ĐỊNH DẠNG NGÀY:
-      - Luôn dùng định dạng ngày **dd/mm/yyyy** hoặc **d/m/yyyy**
-      - KHÔNG dùng định dạng thiếu năm (ví dụ: "5/7" hoặc "07-10")
+  📅 ĐỊNH DẠNG NGÀY:
+  - Luôn dùng định dạng ngày **dd/mm/yyyy** hoặc **d/m/yyyy**
+  - KHÔNG dùng định dạng thiếu năm (ví dụ: "5/7" hoặc "07-10")
 
-      ---
+  📍 Tình trạng hiện tại:
+  - ✅ Danh sách phòng đã lọc theo ngày & còn trống (**không hiển thị ra ngoài**)
+  - ✅ Thông tin cá nhân: ${userInfoStatus}
+  - ✅ Xác nhận đặt phòng: ${isConfirmed ? "Đã xác nhận" : "Chưa xác nhận"}
 
-      📍 Tình trạng hiện tại:
-      - ✅ Danh sách phòng đã lọc theo ngày & còn trống (**không hiển thị ra ngoài**)
-      - ✅ Thông tin cá nhân: ${userInfoStatus}
-      - ✅ Xác nhận đặt phòng: ${isConfirmed ? "Đã xác nhận" : "Chưa xác nhận"}
+  📌 Danh sách phòng (chỉ để AI chọn, KHÔNG hiển thị lên chat):
+  ${JSON.stringify(
+    allRooms.map((r) => ({
+      room_class_id: r.id,
+      name: r.name,
+      price: r.price_discount > 0 ? r.price_discount : r.price,
+      bed_amount: r.bed.quantity,
+      bed_type: r.bed.type,
+      capacity: r.capacity,
+      view: r.view,
+      images: r.images.map((img) => img.url),
+      features: r.features.map((f) => f.feature.name),
+    })),
+    null,
+    2
+  )}
 
-      📌 Danh sách phòng (chỉ để AI chọn, KHÔNG hiển thị lên chat):
-        ${JSON.stringify(
-          allRooms.map((r) => ({
-            room_class_id: r.id,
-            name: r.name,
-            price: r.price,
-            capacity: r.capacity,
-            view: r.view,
-            images: r.images.map((img) => img.url),
-            features: r.features.map((f) => f.feature.name),
-          })),
-          null,
-          2
-        )}
+  💡 LUẬT CHỌN PHÒNG:
+  - Nếu khách **chỉ mô tả nhu cầu** (ví dụ: "tôi đi 4 người", "muốn phòng view biển"), gợi ý tối đa 3 phòng phù hợp nhất.
+  - Nếu khách **chỉ rõ tên hoặc ID của 1 hay nhiều phòng cụ thể** (ví dụ: "tôi chọn phòng Deluxe và Family View"), thì **chỉ dùng các phòng đó**, KHÔNG gợi ý thêm.
+  - Nếu chọn nhiều phòng, đảm bảo mỗi phòng có trong booking_details.
 
-      ---
+  🧠 LUẬT TỰ ĐỘNG PHÁT HIỆN NHIỀU PHÒNG:
+  - Nếu khách dùng từ như: **"và", "cả 2", "2 phòng", "phòng số 1 và số 3", "Deluxe & Superior"**, hiểu là chọn nhiều phòng.
 
-      💡 Trả về kết quả dưới dạng tự nhiên, dễ hiểu, sau đó luôn đính kèm JSON bên dưới:
+  🧾 PHẢN HỒI:
+  - Trình bày câu trả lời tự nhiên, ngắn gọn, lịch sự.
+  - Sau phần hội thoại, luôn trả về dữ liệu JSON bên dưới:
 
-      \`\`\`json
+\`\`\`json
+{
+  "suggested_room_ids": ["ID1", "ID2", "ID3"], // Nếu chỉ gợi ý
+  "booking": null, // Mặc định null
+
+  // Nếu khách xác nhận đặt phòng rõ ràng thì mới tạo object booking:
+  "booking": {
+    "full_name": "Tên khách",
+    "email": "Email",
+    "phone_number": "SĐT",
+    "check_in_date": "${filters.check_in_date}",
+    "check_out_date": "${filters.check_out_date}",
+    "adult_amount": ${filters.adult_amount || 2},
+    "child_amount": ${filters.child_amount || 0},
+    "original_price": 0,
+    "total_price": 0,
+    "booking_details": [
       {
-        "suggested_room_ids": ["ID1", "ID2", "ID3"], // Tối đa 3 loại phòng gợi ý
-        "booking": null // Chỉ tạo booking khi khách đã xác nhận rõ ràng
-        "booking": {
-          "full_name": "Tên khách",
-          "email": "Email",
-          "phone_number": "SĐT",
-          "check_in_date": "${filters.check_in_date}",
-          "check_out_date": "${filters.check_out_date}",
-          "adult_amount": ${filters.adult_amount || 2},
-          "child_amount": ${filters.child_amount || 0},
-          "original_price": 0,
-          "total_price": 0,
-          "booking_details": [
-            {
-              "room_class_id": "ID của phòng đã chọn",
-              "price_per_night": 0,
-              "nights": ${nights},
-              "services": [],
-              "room_class": {
-                "name": "Tên loại phòng",
-                "description": "Mô tả loại phòng",
-                "images": ["URL ảnh 1", "URL ảnh 2"],
-                "features": ["Tiện nghi 1", "Tiện nghi 2"]
-              }
-            }
-          ]
+        "room_class_id": "ID phòng 1",
+        "price_per_night": 0,
+        "nights": ${nights},
+        "services": [],
+        "room_class": {
+          "name": "Tên loại phòng",
+          "bed": {
+            "type": "Loại giường",
+            "quantity": 1
+          },
+          "capacity": 2,
+          "description": "Mô tả loại phòng",
+          "images": ["URL ảnh 1", "URL ảnh 2"],
+          "features": ["Tiện nghi 1", "Tiện nghi 2"]
         }
+      },
+      {
+        "room_class_id": "ID phòng 2",
+        "price_per_night": 0,
+        "nights": ${nights},
+        "services": [],
+        "room_class": { ... } // Thông tin phòng thứ 2
       }
-      \`\`\`
+    ]
+  }
+}
+\`\`\`
 
-      🚫 Nếu khách chưa xác nhận rõ ràng, chỉ cần gợi ý phòng và KHÔNG tạo phần "booking".
-    `;
+🚫 Không tạo phần "booking" nếu khách chưa xác nhận rõ ràng.
+`;
 
     // ====== 6. Tránh cache nếu prompt khác nhiều (có thể disable hoàn toàn nếu cần) ======
     const cacheKey = `gemini:${JSON.stringify(filters)}:${JSON.stringify(
@@ -437,16 +455,7 @@ const generateResponseWithDB = async (req, res) => {
     const suggestedRooms = await RoomClass.find({
       _id: { $in: suggestedRoomIds },
     })
-      .populate([
-        { path: "main_room_class" },
-        { path: "images", match: { status: true } },
-        {
-          path: "features",
-          populate: {
-            path: "feature",
-          },
-        },
-      ])
+      .populate("main_room_class images features")
       .sort({ createdAt: -1 });
 
     const cleanedText = aiText.replace(/```json[\s\S]*?```/, "").trim();
@@ -555,24 +564,7 @@ const fetchSuggestionsFromGemini = async (req, res) => {
     // 8. Lấy chi tiết đầy đủ
     const fullRoomClasses = await RoomClass.find({
       _id: { $in: roomClasses.map((r) => r._id).filter(Boolean) },
-    })
-      .populate([
-        {
-          path: "images",
-          select: "url",
-          match: { status: true },
-        },
-        {
-          path: "features",
-          populate: {
-            path: "feature_id",
-            model: "feature",
-            select: "-status -createdAt -updatedAt",
-            match: { status: true },
-          },
-        },
-      ])
-      .lean();
+    }).populate("main_room_class images features");
 
     // 9. Trả kết quả & cache
     const resultData = {

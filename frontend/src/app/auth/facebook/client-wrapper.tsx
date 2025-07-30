@@ -2,12 +2,12 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-const RoomClassPage = dynamic(() => import("./_client"));
+const FacebookAuthPage = dynamic(() => import("./_client"));
 
 export default function ClientWrapper() {
   return (
-    <Suspense fallback={<p>Đang tải loại phòng...</p>}>
-      <RoomClassPage />
+    <Suspense fallback={<p>Đang xử lý đăng nhập... </p>}>
+      <FacebookAuthPage />
     </Suspense>
   );
 }

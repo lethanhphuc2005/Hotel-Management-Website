@@ -4,7 +4,6 @@ const app = require("./app");
 ;
 require("./cron/clusterKeywordCron");
 
-console.log(process.env.BACKEND_URL);
 // Kết nối MongoDB
 mongoose
   .connect(process.env.MONGOOSE_URL)

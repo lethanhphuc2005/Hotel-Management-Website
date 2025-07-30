@@ -37,13 +37,13 @@ export default function RateAfterBookingPage() {
     if (isAuthLoading || didFetch) return;
 
     if (!user) {
-      toast.error("Bạn cần đăng nhập để đánh giá.");
+      toast.info("Bạn cần đăng nhập để đánh giá.");
       return;
     }
 
     // Kiểm tra nếu bookingId không hợp lệ
     if (!bookingId) {
-      toast.error("Mã đặt phòng không hợp lệ.");
+      toast.info("Mã đặt phòng không hợp lệ.");
       return;
     }
 
@@ -92,7 +92,7 @@ export default function RateAfterBookingPage() {
     }
 
     if (!user) {
-      toast.error("Bạn cần đăng nhập để gửi đánh giá.");
+      toast.info("Bạn cần đăng nhập để gửi đánh giá.");
       return;
     }
     try {

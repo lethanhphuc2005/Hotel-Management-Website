@@ -57,8 +57,8 @@ const FeatureSection = ({ features }: { features: RoomClassFeature[] }) => {
         </div>
       )}
       <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 md:tw-grid-cols-4 lg:tw-grid-cols-5 tw-gap-4">
-        {features.map((feature: any) => {
-          const iconName = feature.feature_id.icon as keyof typeof solidIcons;
+        {features.map((feature: RoomClassFeature) => {
+          const iconName = feature.feature.icon as keyof typeof solidIcons;
           const icon = solidIcons[iconName] as IconDefinition;
           return (
             <div
@@ -66,7 +66,7 @@ const FeatureSection = ({ features }: { features: RoomClassFeature[] }) => {
               className="tw-flex tw-items-center tw-gap-3 tw-rounded-lg tw-p-3 tw-text-white hover:tw-bg-primary hover:tw-text-black tw-transition"
             >
               <FontAwesomeIcon icon={icon || solidIcons.faCircleCheck} />
-              <span className="tw-text-sm">{feature.feature_id.name}</span>
+              <span className="tw-text-sm">{feature.feature.name}</span>
             </div>
           );
         })}

@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { resendVerificationEmail, verifyEmail } from "@/services/AuthService";
 import { showConfirmDialog } from "@/utils/swal";
-import { googleLogin } from "@/api/authApi";
+import { facebookLogin, googleLogin } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
@@ -28,6 +28,17 @@ const LoginPage = () => {
       console.error("Google login error:", error);
       toast.error(
         "Đã xảy ra lỗi khi đăng nhập bằng Google. Vui lòng thử lại sau."
+      );
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      await facebookLogin();
+    } catch (error) {
+      console.error("Facebook login error:", error);
+      toast.error(
+        "Đã xảy ra lỗi khi đăng nhập bằng Facebook. Vui lòng thử lại sau."
       );
     }
   };
@@ -190,7 +201,7 @@ const LoginPage = () => {
               <a href="#" onClick={handleGoogleLogin}>
                 <i className="bi bi-google"></i>
               </a>
-              <a href="#">
+              <a href="#" onClick={handleFacebookLogin}>
                 <i className="bi bi-facebook"></i>
               </a>
             </motion.div>

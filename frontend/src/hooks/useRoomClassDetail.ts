@@ -30,16 +30,17 @@ export const useRoomClassDetail = (roomId: string) => {
         const data = response.data;
         setRoomClass({
           id: data.id,
-          name: data.name || "",
-          bed_amount: data.bed_amount || 0,
-          capacity: data.capacity || 0,
-          description: data.description || "",
-          price: data.price || 0,
-          price_discount: data.price_discount || 0,
-          view: data.view || "",
-          status: data.status || false,
-          main_room_class_id: data.main_room_class_id || "",
-          main_room_class: data.main_room_class || [],
+          main_room_class_id: data.main_room_class_id,
+          name: data.name,
+          bed: data.bed,
+          capacity: data.capacity,
+          price: data.price,
+          price_discount: data.price_discount,
+          view: data.view,
+          description: data.description,
+          status: data.status,
+          main_room_class: data.main_room_class || {},
+          images: data.images || [],
         });
         setMainRoomClass(data.main_room_class || []);
         setFeatures(data.features || []);

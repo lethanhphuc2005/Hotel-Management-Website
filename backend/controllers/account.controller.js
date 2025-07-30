@@ -414,5 +414,44 @@ const accountController = {
       });
     }
   },
+
+  // ====== XÁC THỰC FACEBOOK =====
+  facebookAuthCallback: async (req, res) => {
+    try {
+      const { email, first_name, last_name, picture } = req.user;
+      let user = await User.findOne({ email }).lean();
+      if (!user) {
+        // Nếu người dùng chưa tồn tại, tạo mới
+        user = new User({
+          email,
+          first_name,
+          last_name,
+          picture,
+          is_verified: true, // Facebook thường xác minh email
+          status: true,
+          password: "", // Không cần mật khẩu cho đăng nhập Facebook
+        });
+        await user.save({ $new: true });
+      }
+      const accessToken = accountController.creareToken(user);
+      const refreshToken = accountController.creareRefreshToken(user);
+
+      // ✅ Gửi refreshToken mới vào cookie
+      res.cookie("refreshToken_client", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      const redicrectUrl = `${process.env.FRONTEND_URL}/auth/facebook?accessToken=${accessToken}`;
+      res.redirect(redicrectUrl);
+    } catch (error) {
+      res.status(500).json({
+        message: "Lỗi khi xác thực Facebook",
+        error: error.message,
+      });
+    }
+  },
 };
 module.exports = accountController;

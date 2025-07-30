@@ -29,6 +29,22 @@ router.get(
   accountController.googleAuthCallback
 );
 
+// === ĐĂNG KÝ FACEBOOK ===
+router.get(
+  "/facebook",
+  passport.authenticate("facebook", { scope: ["email"] })
+);
+
+// === XỬ LÝ KHI FACEBOOK TRẢ VỀ ===
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", {
+    failureRedirect: "/auth/login",
+    session: false,
+  }),
+  accountController.facebookAuthCallback
+);
+
 /// === LẤY REFRESH TOKEN CHO CLIEND ===
 router.post(
   "/refresh-token-client",

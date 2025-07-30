@@ -165,7 +165,7 @@ export default function PayMent() {
       if (response.success) {
         const data = response.data;
         if (!data.isPromo) {
-          toast.error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
+          toast.info("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
           setFinalTotal(total);
           return;
         } else {
@@ -188,7 +188,7 @@ export default function PayMent() {
 
   const handleBooking = async () => {
     if (rooms.length === 0) {
-      toast.error("Không có phòng nào trong giỏ hàng.");
+      toast.info("Không có phòng nào trong giỏ hàng.");
       return;
     }
     if (name === "" && email === "" && phone === "") {
@@ -196,7 +196,7 @@ export default function PayMent() {
       return;
     }
     if (!selectedMethod) {
-      toast.error("Vui lòng chọn phương thức thanh toán.");
+      toast.info("Vui lòng chọn phương thức thanh toán.");
       return;
     }
     try {

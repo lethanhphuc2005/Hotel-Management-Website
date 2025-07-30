@@ -11,7 +11,7 @@ import { addRoomToCart, CartRoom } from "@/contexts/cartSlice";
 import { toast } from "react-toastify";
 import { RootState } from "@/contexts/store";
 import { RoomClass } from "@/types/roomClass";
-import { BookingDetail } from "@/types/booking";
+import { Booking, BookingDetail } from "@/types/booking";
 
 export default function ChatbotPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +25,6 @@ export default function ChatbotPopup() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const dispatch = useDispatch();
-  const cartRooms = useSelector((state: RootState) => state?.cart.rooms);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -106,26 +105,10 @@ export default function ChatbotPopup() {
         const startDate = new Date(checkInISO);
         const endDate = new Date(checkOutISO);
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const isStartToday =
-          startDate instanceof Date &&
-          new Date(startDate).setHours(0, 0, 0, 0) === today.getTime();
-
-        const isEndToday =
-          endDate instanceof Date &&
-          new Date(endDate).setHours(0, 0, 0, 0) === today.getTime();
-
-        if (isStartToday || isEndToday) {
-          toast.error(
-            "Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!"
-          );
-          return;
-        }
-
         const numberOfNights = bookingData.booking_details?.[0]?.nights || 1;
-        const adults = bookingData.adult_amount || 1;
-        const children = bookingData.child_amount || 0;
+        const numberOfAdults = bookingData.adults || 1;
+        const numberOfChildrenUnder6 = bookingData.children_under_6 || 0;
+        const numberOfChildrenOver6 = bookingData.children_over_6 || 0;
 
         // Xác nhận với người dùng
         const confirmMessage = `Bạn có chắc chắn muốn đặt phòng với thông tin sau?\n
@@ -152,72 +135,39 @@ export default function ChatbotPopup() {
           return;
         }
 
-        // Duyệt và thêm từng phòng vào giỏ
-        for (const detail of bookingData.booking_details) {
-          const isDuplicate = cartRooms.some(
-            (room) =>
-              room.name.includes(detail.room_class.name) &&
-              room.view === detail.room_class.view &&
-              room.checkIn === checkInISO &&
-              room.checkOut === checkOutISO
-          );
-
-          if (isDuplicate) {
-            toast.error(
-              `Phòng ${detail.room_class.name} đã có trong giỏ hàng!`
-            );
-            return;
-          }
-
-          if (cartRooms.length > 0) {
-            const firstRoom = cartRooms[0];
-            if (
-              firstRoom.checkIn !== checkInISO ||
-              firstRoom.checkOut !== checkOutISO
-            ) {
-              toast.error(
-                "Bạn chỉ có thể thêm phòng có cùng ngày nhận và trả phòng!"
-              );
-              return;
-            }
-          }
-
-          const current = new Date(startDate);
-          let hasSaturday = false;
-          let hasSunday = false;
-          while (current < endDate) {
-            if (current.getDay() === 6) hasSaturday = true;
-            if (current.getDay() === 0) hasSunday = true;
-            current.setDate(current.getDate() + 1);
-          }
-
-          const checkInDateToLocale = startDate.toLocaleDateString("vi-VN");
-          const checkOutDateToLocale = endDate.toLocaleDateString("vi-VN");
-
-          dispatch(
-            addRoomToCart({
-              id: detail.room_class_id,
-              name: detail.room_class.name,
-              img: detail.room_class.images[0] || "",
-              desc: `${adults} người lớn, ${children} trẻ em`,
-              price: detail.price_per_night,
-              nights: numberOfNights,
-              checkIn: checkInDateToLocale,
-              checkOut: checkOutDateToLocale,
-              adults,
-              childrenUnder6: bookingData.child_under_6_amount || 0,
-              childrenOver6: bookingData.child_over_6_amount || 0,
-              bedAmount: detail.room_class.bed_amount,
-              view: detail.room_class.view,
-              total: detail.price_per_night * numberOfNights,
-              hasSaturdayNight: hasSaturday,
-              hasSundayNight: hasSunday,
-              features: detail.room_class.features?.map((f: string) => f) || [],
-            })
-          );
+        const current = new Date(startDate);
+        let hasSaturday = false;
+        let hasSunday = false;
+        while (current < endDate) {
+          if (current.getDay() === 6) hasSaturday = true;
+          if (current.getDay() === 0) hasSunday = true;
+          current.setDate(current.getDate() + 1);
         }
 
-        toast.success("Đã thêm các phòng vào giỏ hàng!");
+        const bookingDetails = bookingData.booking_details || [];
+
+        // Thêm phòng vào giỏ hàng
+        bookingDetails.forEach((detail: any) => {
+          const room: CartRoom = {
+            id: detail.room_class_id,
+            name: detail.room_class.name,
+            img: detail.room_class.images[0],
+            price: detail.price_per_night,
+            nights: numberOfNights,
+            checkIn: startDate.toISOString(),
+            checkOut: endDate.toISOString(),
+            adults: numberOfAdults,
+            childrenUnder6: numberOfChildrenUnder6,
+            childrenOver6: numberOfChildrenOver6,
+            bedAmount: detail.room_class.bed.quantity,
+            view: detail.room_class.view,
+            hasSaturdayNight: hasSaturday,
+            hasSundayNight: hasSunday,
+            features: detail.room_class.features?.map((f: any) => f) ?? [],
+          };
+          dispatch(addRoomToCart(room));
+        });
+
         setTimeout(() => {
           const params = new URLSearchParams({
             fullName: bookingData.full_name,

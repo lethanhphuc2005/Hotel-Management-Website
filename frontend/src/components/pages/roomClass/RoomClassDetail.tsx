@@ -68,7 +68,7 @@ const RoomClassDetail = ({ roomClass }: { roomClass: RoomClass }) => {
         >
           <div>
             <p className="tw-mb-2">
-              <strong>Giường:</strong> {roomClass.bed_amount}
+              <strong>Giường:</strong> {roomClass.bed.quantity} {roomClass.bed.type}
             </p>
             <p className="tw-mb-2">
               <strong>Sức chứa:</strong> {roomClass.capacity} người
