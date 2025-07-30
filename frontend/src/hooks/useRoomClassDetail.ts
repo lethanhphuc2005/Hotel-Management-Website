@@ -1,11 +1,11 @@
 import { useLoading } from "@/contexts/LoadingContext";
 import { useEffect, useState } from "react";
-import { fetchRoomClassById } from "@/services/RoomClassService";
+import { fetchRoomClassById } from "../services/RoomClassService";
 import { RoomClass } from "@/types/roomClass";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { Review } from "@/types/review";
 import { Comment } from "@/types/comment";
-import { Feature, RoomClassFeature } from "@/types/feature";
+import { RoomClassFeature } from "@/types/feature";
 import { Image } from "@/types/image";
 
 export const useRoomClassDetail = (roomId: string) => {
