@@ -1,8 +1,8 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/contexts/store";
-import { getRoomTotalPrice } from "@/contexts/cartSelector";
-import { clearCart, removeRoomFromCart } from "@/contexts/cartSlice";
+import { RootState } from "@/store/store";
+import { getRoomTotalPrice } from "@/store/cartSelector";
+import { clearCart, removeRoomFromCart } from "@/store/cartSlice";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/contexts/AuthContext";

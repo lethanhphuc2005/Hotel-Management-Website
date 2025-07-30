@@ -12,8 +12,8 @@ import {
 } from "@/components/common/Button";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/contexts/store";
-import { addRoomToCart } from "@/contexts/cartSlice";
+import { RootState } from "@/store/store";
+import { addRoomToCart } from "@/store/cartSlice";
 import { GuestCount, RoomSearchBarProps } from "@/types/_common";
 import { RoomClass } from "@/types/roomClass";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

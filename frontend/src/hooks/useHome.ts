@@ -15,7 +15,7 @@ import { RoomClass } from "@/types/roomClass";
 
 export const useHome = () => {
   const [didFetch, setDidFetch] = useState(false);
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { setLoading } = useLoading();
   const [mainRoomClasses, setMainRoomClasses] = useState<MainRoomClass[]>([]);
   const [websiteContents, setWebsiteContents] = useState<WebsiteContent[]>([]);
@@ -41,7 +41,9 @@ export const useHome = () => {
           fetchWebsiteContents(),
           fetchServices(),
           fetchDiscounts(),
-          user ? fetchSuggestionsFromGemini() : Promise.resolve([]),
+          user && !isAuthLoading
+            ? fetchSuggestionsFromGemini()
+            : Promise.resolve([]),
         ]);
         // Check if the fetch was successful
         if (
@@ -80,7 +82,7 @@ export const useHome = () => {
       }
     };
     fetchData();
-  }, [didFetch, user]);
+  }, [didFetch, user, isAuthLoading]);
 
   return {
     mainRoomClasses,
