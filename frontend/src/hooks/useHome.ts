@@ -2,7 +2,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { fetchDiscounts } from "@/services/DiscountService";
-import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";
+import { fetchMainRoomClasses } from "@/services/MainRoomClassService";
 import { fetchServices } from "@/services/ServiceService";
 import { fetchWebsiteContents } from "@/services/WebsiteContentService";
 import { fetchSuggestionsFromGemini } from "@/services/ChatbotService";

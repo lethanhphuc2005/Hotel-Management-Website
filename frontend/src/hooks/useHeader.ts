@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoading } from "@/contexts/LoadingContext";
-import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";
+import { fetchMainRoomClasses } from "@/services/MainRoomClassService";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { Wallet } from "@/types/wallet";
 import { useAuth } from "@/contexts/AuthContext";

@@ -1,6 +1,6 @@
 import { useLoading } from "@/contexts/LoadingContext";
 import { fetchFeatures } from "@/services/FeatureService";
-import { fetchMainRoomClasses } from "@/services/MainRoomClasssService";
+import { fetchMainRoomClasses } from "@/services/MainRoomClassService";
 import { fetchRoomClasses } from "@/services/RoomClassService";
 import { Feature } from "@/types/feature";
 import { MainRoomClass } from "@/types/mainRoomClass";
