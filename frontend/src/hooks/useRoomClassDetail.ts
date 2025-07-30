@@ -1,6 +1,6 @@
 import { useLoading } from "@/contexts/LoadingContext";
 import { useEffect, useState } from "react";
-import { fetchRoomClassById } from "../services/RoomClassService";
+import { fetchRoomClassById } from "@/services/RoomClassService";
 import { RoomClass } from "@/types/roomClass";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { Review } from "@/types/review";
