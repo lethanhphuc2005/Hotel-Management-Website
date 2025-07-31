@@ -445,7 +445,18 @@ const DiscountController = {
   previewBookingPrice: async (req, res) => {
     try {
       const { bookingInfo } = req.body;
-      const user = await User.findById(req.user.id).lean();
+
+      // Nếu req.user không có thì gán userId = "" luôn
+      const userId = req.user?.id || "";
+
+      let user = null;
+
+      if (userId) {
+        user = await User.findById(userId).select("level").lean();
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+      }
 
       const result = await calculateBookingPrice(bookingInfo, user);
       return res.status(200).json({

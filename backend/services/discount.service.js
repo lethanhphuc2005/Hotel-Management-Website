@@ -15,20 +15,18 @@ const getApplicableDiscounts = async ({ user, bookingInfo }) => {
 
   const now = new Date();
 
+  const codeFilter = promoCode
+    ? { promo_code: { $in: [null, "", promoCode] } }
+    : { promo_code: { $in: [null, ""] } };
+
   const discounts = await Discount.find({
     status: true,
     valid_from: { $lte: now },
     valid_to: { $gte: now },
-    $and: [
-      {
-        $or: [{ promo_code: null }, { promo_code: promoCode || null }],
-      },
-      {
-        $or: [
-          { apply_to_room_class_ids: [] },
-          { apply_to_room_class_ids: roomClassId },
-        ],
-      },
+    ...codeFilter,
+    $or: [
+      { apply_to_room_class_ids: [] },
+      { apply_to_room_class_ids: roomClassId },
     ],
   });
 
