@@ -1,8 +1,10 @@
 import { publicApi } from "@/lib/axiosInstance";
 
-export const getFeatures = async () => {
+export const getFeatures = async (params = {}) => {
   try {
-    const response = await publicApi.get(`/feature/user`);
+    const response = await publicApi.get(`/feature/user`, {
+      params,
+    });
     if (response.status !== 200) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }

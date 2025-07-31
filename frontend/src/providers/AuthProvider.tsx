@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { login as loginApi, logout as logoutApi } from "@/api/authApi";
+import {
+  facebookLogin as facebookLoginApi,
+  googleLogin as googleLoginApi,
+  login as loginApi,
+  logout as logoutApi,
+} from "@/api/authApi";
 import { User } from "@/types/user";
 import { AuthContext } from "@/contexts/AuthContext";
-import { AuthContextType, LoginData, LoginResponse } from "@/types/auth";
+import { AuthContextType, LoginResponse } from "@/types/auth";
 import { fetchProfile } from "@/services/ProfileService";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -81,10 +86,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const googleLogin = async () => {
+    try {
+      await googleLoginApi();
+      // The redirect will be handled in the callback page
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast.error(
+        "Đã xảy ra lỗi khi đăng nhập bằng Google. Vui lòng thử lại sau."
+      );
+    }
+  };
+
+  const facebookLogin = async () => {
+    try {
+      await facebookLoginApi();
+    } catch (error) {
+      console.error("Facebook login error:", error);
+      toast.error(
+        "Đã xảy ra lỗi khi đăng nhập bằng Facebook. Vui lòng thử lại sau."
+      );
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
     login,
+    googleLogin,
+    facebookLogin,
     loginWithGoogle,
     logout,
     refetchProfile,

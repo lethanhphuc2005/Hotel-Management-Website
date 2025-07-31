@@ -25,7 +25,7 @@ export interface CartRoom {
   childrenOver6: number;
   bedAmount: number;
   view: string;
-  extraFee?: number;
+  extraFee: number | null; // Phụ thu cuối tuần hoặc giường phụ
   total?: number;
   isNeedExtraBed?: boolean;
   isAddExtraBed?: boolean; // Đánh dấu đã thêm giường phụ
@@ -132,6 +132,11 @@ const cartSlice = createSlice({
         }
         current.setDate(current.getDate() + 1);
       }
+      if (extraFee > 0) {
+        newRoom.extraFee = extraFee;
+      } else {
+        newRoom.extraFee = null; // Không có phụ thu
+      }
 
       const description = `
         Phòng: ${newRoom.name}, ${newRoom.adults} người lớn, ${
@@ -144,7 +149,6 @@ const cartSlice = createSlice({
 
       newRoom.desc = description.trim();
       newRoom.total = total;
-      newRoom.extraFee = extraFee;
       state.rooms.push(newRoom);
       console.log("Thêm phòng vào giỏ hàng:", newRoom);
       toast.success("Đã thêm phòng vào giỏ hàng!");

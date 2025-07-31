@@ -12,10 +12,9 @@ import { AnimatedButton } from "@/components/common/Button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 
 export function ServiceItem({ svi }: { svi: Service }) {
-  const [showDetail, setShowDetail] = useState(false);
   const [showSelectRoom, setShowSelectRoom] = useState(false);
   const dispatch = useDispatch();
   const cartRooms = useSelector((state: RootState) => state.cart.rooms);
@@ -110,7 +109,8 @@ export default function ServiceList({
         </Link>
       </div>
       <Swiper
-        modules={[Navigation]}
+        modules={[Navigation, Autoplay]}
+        autoplay={{ delay: 3000 , disableOnInteraction: false, pauseOnMouseEnter: true }}
         spaceBetween={24}
         slidesPerView={1}
         breakpoints={{
@@ -119,9 +119,10 @@ export default function ServiceList({
           1200: { slidesPerView: 4 },
         }}
         navigation
+        loop={true}
         style={{ padding: "16px 0" }}
       >
-        {svl.slice(0, 6).map((svi, idx) => (
+        {svl.map((svi, idx) => (
           <SwiperSlide key={svi.id || idx}>
             <ServiceItem svi={svi} />
           </SwiperSlide>

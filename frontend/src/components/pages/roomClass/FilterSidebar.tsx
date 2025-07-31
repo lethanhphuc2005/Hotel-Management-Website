@@ -116,7 +116,7 @@ export default function FilterSidebar({
   };
 
   return (
-    <div className="sticky-top" style={{ top: "13%" }}>
+    <div style={{ top: "13%" }}>
       <h4 className="tw-font-bold tw-my-4 tw-text-primary">LỌC TẤT CẢ PHÒNG</h4>
 
       <div className="tw-flex md:tw-flex-row tw-flex-col tw-gap-3 tw-mb-3">

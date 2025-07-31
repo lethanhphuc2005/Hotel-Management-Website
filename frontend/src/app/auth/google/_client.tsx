@@ -20,6 +20,5 @@ export default function CallbackPage() {
       router.push("/login");
     }
   }, [searchParams]);
-
-  return <p>Đang xử lý đăng nhập...</p>;
+  return null; // Không cần render gì cả, chỉ cần xử lý redirect
 }

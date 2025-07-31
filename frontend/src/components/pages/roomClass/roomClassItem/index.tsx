@@ -83,7 +83,7 @@ export default function RoomClassItem({
   };
 
   return (
-    <div className="border rounded-4 d-flex p-3 gap-3 position-relative">
+    <div className="border rounded-4 d-flex p-3 gap-3 position-relative tw-mb-4">
       <button
         type="button"
         className="btn btn-warning position-absolute top-0 end-0 m-2"

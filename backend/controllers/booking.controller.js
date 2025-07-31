@@ -495,7 +495,7 @@ const bookingController = {
 
       const {
         page = 1,
-        limit,
+        limit = 10,
         sort = "booking_status_id",
         order = "desc",
         status,

@@ -1,51 +1,39 @@
 "use client";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { fetchDiscounts } from "@/services/DiscountService";
 import { fetchMainRoomClasses } from "@/services/MainRoomClassService";
 import { fetchServices } from "@/services/ServiceService";
 import { fetchWebsiteContents } from "@/services/WebsiteContentService";
-import { fetchSuggestionsFromGemini } from "@/services/ChatbotService";
 import { Discount } from "@/types/discount";
 import { MainRoomClass } from "@/types/mainRoomClass";
 import { Service } from "@/types/service";
 import { WebsiteContent } from "@/types/websiteContent";
 import { useEffect, useState } from "react";
-import { RoomClass } from "@/types/roomClass";
 
 export const useHome = () => {
   const [didFetch, setDidFetch] = useState(false);
-  const { user, isLoading: isAuthLoading } = useAuth();
   const { setLoading } = useLoading();
   const [mainRoomClasses, setMainRoomClasses] = useState<MainRoomClass[]>([]);
   const [websiteContents, setWebsiteContents] = useState<WebsiteContent[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
-  const [recommends, setRecommends] = useState<RoomClass[]>([]);
 
+  // useEffect chính (không còn fetch Gemini ở đây nữa)
   useEffect(() => {
     if (didFetch) return;
     setDidFetch(true);
+
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch all necessary data concurrently
-        const [
-          roomClassesData,
-          contentsData,
-          servicesData,
-          discountsData,
-          recommenedData,
-        ] = await Promise.all([
-          fetchMainRoomClasses(),
-          fetchWebsiteContents(),
-          fetchServices(),
-          fetchDiscounts(),
-          user && !isAuthLoading
-            ? fetchSuggestionsFromGemini()
-            : Promise.resolve([]),
-        ]);
-        // Check if the fetch was successful
+        const [roomClassesData, contentsData, servicesData, discountsData] =
+          await Promise.all([
+            fetchMainRoomClasses(),
+            fetchWebsiteContents(),
+            fetchServices({ limit: 8, page: 1 }),
+            fetchDiscounts({ limit: 3, page: 1 }),
+          ]);
+
         if (
           !roomClassesData.success ||
           !contentsData.success ||
@@ -64,31 +52,25 @@ export const useHome = () => {
                 .join(", ")
           );
         }
-        // Set the fetched data to state
 
         setMainRoomClasses(roomClassesData.data);
         setWebsiteContents(contentsData.data);
         setServices(servicesData.data);
         setDiscounts(discountsData.data);
-        setRecommends(
-          Array.isArray(recommenedData)
-            ? recommenedData
-            : recommenedData.data || []
-        );
       } catch (error) {
         console.error("Error fetching home data:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, [didFetch, user, isAuthLoading]);
+  }, [didFetch]);
 
   return {
     mainRoomClasses,
     websiteContents,
     services,
     discounts,
-    recommends,
   };
 };

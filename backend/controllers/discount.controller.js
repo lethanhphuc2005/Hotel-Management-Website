@@ -58,10 +58,7 @@ const DiscountController = {
 
   createDiscount: async (req, res) => {
     try {
-      parseJSONFields(req.body, [
-        "conditions",
-        "apply_to_room_class_ids",
-      ]);
+      parseJSONFields(req.body, ["conditions", "apply_to_room_class_ids"]);
       const discount = new Discount(req.body);
       const validate = await DiscountController.validateDiscount(
         discount,
@@ -216,20 +213,119 @@ const DiscountController = {
 
   getAllDiscountsForUser: async (req, res) => {
     try {
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "createdAt",
+        order = "desc",
+        type,
+        status,
+        value_type,
+        valid_from,
+        valid_to,
+        priority,
+        apply_to, // lọc theo room_class_ids
+        min_advance_days,
+        max_advance_days,
+        min_stay_nights,
+        max_stay_nights,
+        min_rooms,
+        user_level, // lọc theo user level
+      } = req.query;
+
       const now = new Date();
-      const list = await Discount.find({
-        status: true,
-        valid_from: { $lte: now },
-        valid_to: { $gte: now },
-      })
-        .sort({ createdAt: -1 })
-        .populate("booking_count image");
-      if (!list || list.length === 0) {
-        return res.status(404).json({ message: "No discounts found" });
+      const query = {
+        status: true, // Chỉ lấy các mã giảm giá đang hoạt động
+        valid_from: { $lte: now }, // Mã giảm giá đã bắt đầu
+        valid_to: { $gte: now }, // Mã giảm giá chưa hết hạn
+      };
+
+      // Tìm kiếm theo text
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+          { promo_code: { $regex: search, $options: "i" } },
+        ];
       }
-      return res.status(200).json({
-        message: "Discounts retrieved successfully",
-        data: list,
+
+      // Các điều kiện lọc trực tiếp
+      if (type) query.type = type;
+      if (value_type) query.value_type = value_type;
+      if (priority) query.priority = Number(priority);
+
+      // valid_from / valid_to
+      if (valid_from) query.valid_from = { $gte: new Date(valid_from) };
+      if (valid_to)
+        query.valid_to = { ...query.valid_to, $lte: new Date(valid_to) };
+
+      // Trạng thái (chuyển về boolean)
+      if (typeof status !== "undefined") {
+        query.status = status === "true" || status === true;
+      }
+
+      // Lọc theo mảng apply_to_room_class_ids
+      if (apply_to) {
+        query.apply_to_room_class_ids = {
+          $in: Array.isArray(apply_to) ? apply_to : apply_to.split(","),
+        };
+      }
+
+      // Lọc theo điều kiện con trong 'conditions'
+      if (min_advance_days)
+        query["conditions.min_advance_days"] = {
+          $gte: Number(min_advance_days),
+        };
+      if (max_advance_days)
+        query["conditions.max_advance_days"] = {
+          $lte: Number(max_advance_days),
+        };
+      if (min_stay_nights)
+        query["conditions.min_stay_nights"] = { $gte: Number(min_stay_nights) };
+      if (max_stay_nights)
+        query["conditions.max_stay_nights"] = { $lte: Number(max_stay_nights) };
+      if (min_rooms)
+        query["conditions.min_rooms"] = { $gte: Number(min_rooms) };
+
+      // Lọc user level nếu có
+      if (user_level) {
+        query["conditions.user_levels"] = {
+          $in: Array.isArray(user_level) ? user_level : user_level.split(","),
+        };
+      }
+
+      // Sắp xếp
+      const sortOption = {};
+      sortOption[sort] = order === "asc" ? 1 : -1;
+
+      // Phân trang
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [discounts, total] = await Promise.all([
+        Discount.find(query)
+          .sort(sortOption)
+          .populate("booking_count image")
+          .skip(skip)
+          .limit(parseInt(limit)),
+        Discount.countDocuments(query),
+      ]);
+
+      if (!discounts || discounts.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Không có mã giảm giá nào được tìm thấy." });
+      }
+
+      res.status(200).json({
+        message: "Lấy tất cả mã giảm giá thành công",
+        data: discounts,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / limit),
+        },
       });
     } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -256,10 +352,7 @@ const DiscountController = {
   updateDiscount: async (req, res) => {
     try {
       // Parse các trường JSON (nếu có)
-      parseJSONFields(req.body, [
-        "conditions",
-        "apply_to_room_class_ids",
-      ]);
+      parseJSONFields(req.body, ["conditions", "apply_to_room_class_ids"]);
 
       const existing = await Discount.findById(req.params.id);
       if (!existing) {

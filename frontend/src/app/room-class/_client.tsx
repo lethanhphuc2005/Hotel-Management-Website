@@ -185,7 +185,7 @@ export default function RoomClassesPage() {
       </div>
 
       <div className="row">
-        <div className="col-3 border-end border-top h-auto">
+        <div className="col-3 border-top h-auto">
           <FilterSidebar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -214,7 +214,6 @@ export default function RoomClassesPage() {
         </div>
 
         <div className="col-9 border-top">
-          <div className="row p-3 gap-3">
             <RoomListDisplay
               hasSearched={hasSearched}
               displayRoomClasses={roomClasses}
@@ -232,7 +231,6 @@ export default function RoomClassesPage() {
               pageSize={pageSize}
               onPageChange={handlePageChange}
             />
-          </div>
         </div>
       </div>
     </div>

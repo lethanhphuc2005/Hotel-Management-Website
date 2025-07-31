@@ -10,7 +10,11 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ToastContainer } from "react-toastify";
 
-export default function ClientWrapper({ children }: { children: React.ReactNode }) {
+export default function ClientWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       <ToastContainer
@@ -31,7 +35,7 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
           <CartProvider>
             <GlobalLoading />
             <Header />
-            {children}
+            <div className="tw-min-h-screen"> {children}</div>
             <Footer />
             <ChatbotPopup />
           </CartProvider>

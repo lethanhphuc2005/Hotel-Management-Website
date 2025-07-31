@@ -10,6 +10,7 @@ import { useHome } from "@/hooks/useHome";
 import { useRoomSearch } from "@/hooks/useRoomSearch";
 import InformationSection from "@/components/pages/home/InfomationSection";
 import GeminiSuggestionsSection from "@/components/pages/home/RecommendSection";
+import { useAISuggestions } from "@/hooks/useAISuggestion";
 
 export default function Home() {
   const {
@@ -39,8 +40,8 @@ export default function Home() {
     handleSearch,
     handleResetSearch,
   } = useRoomSearch();
-  const { mainRoomClasses, websiteContents, services, discounts, recommends } =
-    useHome();
+  const { mainRoomClasses, websiteContents, services, discounts } = useHome();
+  // const suggestions = useAISuggestions();
   return (
     <>
       <Banner
@@ -71,7 +72,7 @@ export default function Home() {
       />
 
       <Container fluid className={`${style.customContainer} container`}>
-        {recommends && <GeminiSuggestionsSection roomClasses={recommends} />}
+        {/* {suggestions && <GeminiSuggestionsSection roomClasses={suggestions} />} */}
 
         <MainRoomClassList title="Loại phòng" mrcl={mainRoomClasses} />
 

@@ -91,15 +91,15 @@ export function useRoomSearch(): RoomSearchBarProps {
   // ✅ Tìm kiếm phòng
   const handleSearch = () => {
     if (!pendingStartDate || !pendingEndDate) {
-      toast.error("Vui lòng chọn ngày nhận và trả phòng!");
+      toast.info("Vui lòng chọn ngày nhận và trả phòng!");
       return;
     }
     if (pendingStartDate > pendingEndDate) {
-      toast.error("Ngày nhận phòng không thể sau ngày trả phòng!");
+      toast.info("Ngày nhận phòng không thể sau ngày trả phòng!");
       return;
     }
     if (totalGuests <= 0) {
-      toast.error("Vui lòng chọn số lượng khách!");
+      toast.info("Vui lòng chọn số lượng khách!");
       return;
     }
 
@@ -111,7 +111,7 @@ export function useRoomSearch(): RoomSearchBarProps {
       new Date(pendingEndDate).setHours(0, 0, 0, 0) === today.getTime();
 
     if (isStartToday || isEndToday) {
-      toast.error("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
+      toast.info("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
       return;
     }
 

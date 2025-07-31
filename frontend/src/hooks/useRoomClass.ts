@@ -26,7 +26,10 @@ export const useRoomClass = (
     const fetchStaticData = async () => {
       try {
         const [featuresData, mainRoomClassesData] = await Promise.all([
-          fetchFeatures(),
+          fetchFeatures({
+            page: 1,
+            limit: 100,
+          }),
           fetchMainRoomClasses(),
         ]);
 

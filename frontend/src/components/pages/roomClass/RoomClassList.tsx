@@ -61,7 +61,7 @@ export function RoomClassList({
     );
   }
   return (
-    <>
+    <div className="border-start tw-pt-5 tw-pl-5">
       {roomClasses.map((item) => (
         <RoomClassItem
           key={item.id}
@@ -79,7 +79,7 @@ export function RoomClassList({
           favorites={favorites}
         />
       ))}
-    </>
+    </div>
   );
 }
 

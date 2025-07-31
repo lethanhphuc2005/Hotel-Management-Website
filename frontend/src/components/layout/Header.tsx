@@ -294,7 +294,9 @@ export default function Header() {
                 onClick={() => setShowDropdown((prev) => !prev)}
                 className="tw-flex tw-items-center tw-gap-2 tw-text-white tw-cursor-pointer"
               >
-                <FontAwesomeIcon icon={faUser} className="tw-text-xl" />
+                {!userData && (
+                  <FontAwesomeIcon icon={faUser} className="tw-text-xl" />
+                )}
                 {userData && (
                   <div className="tw-hidden md:tw-flex tw-flex-col tw-items-start">
                     <span className="tw-text-white tw-font-semibold tw-text-sm">

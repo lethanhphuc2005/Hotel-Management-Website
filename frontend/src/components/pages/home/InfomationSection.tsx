@@ -99,7 +99,6 @@ export default function InformationSection({ title }: { title: string }) {
                   src="/img/phong14.avif"
                   alt="Check-in Information"
                   layout="fill"
-                  objectFit="cover"
                   className={style.infoCardImage}
                 />
                 <div className={style.infoCardOverlay}></div>

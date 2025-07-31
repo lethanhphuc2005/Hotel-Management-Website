@@ -4,6 +4,8 @@ export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<any>;
+  googleLogin: () => Promise<any>;
+  facebookLogin: () => Promise<any>;
   loginWithGoogle: (accessToken: string) => Promise<any>;
   logout: () => void;
   refetchProfile: () => Promise<void>;

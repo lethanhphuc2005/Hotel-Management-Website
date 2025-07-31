@@ -6,7 +6,9 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   login: async () => false,
-  loginWithGoogle: async () => false, // 👈 Thêm dòng này
+  googleLogin: async () => false,
+  facebookLogin: async () => false,
+  loginWithGoogle: async () => false,
   logout: () => {},
   refetchProfile: async () => {},
   setUser(user) {},

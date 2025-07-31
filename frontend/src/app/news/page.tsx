@@ -22,7 +22,7 @@ export default function News() {
     } catch (error) {
       console.error("Error fetching website contents:", error);
     }
-  });
+  }, []);
   return (
     <>
       <div

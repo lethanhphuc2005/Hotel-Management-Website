@@ -4,9 +4,11 @@ import {
 } from "@/api/serviceApi";
 import { Service, ServiceListResponse, ServiceResponse } from "@/types/service";
 
-export const fetchServices = async (): Promise<ServiceListResponse> => {
+export const fetchServices = async (
+  params = {}
+): Promise<ServiceListResponse> => {
   try {
-    const response = await getServicesApi();
+    const response = await getServicesApi(params);
     const data = response.data;
     const services: Service[] = data.map((item: any) => ({
       id: item.id || item._id,

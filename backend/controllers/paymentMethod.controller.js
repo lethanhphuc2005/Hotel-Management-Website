@@ -41,7 +41,7 @@ const paymentMethodController = {
       const {
         search,
         page = 1,
-        limit,
+        limit = 10,
         sort = "createdAt",
         order = "asc",
         status,

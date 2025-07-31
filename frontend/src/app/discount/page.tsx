@@ -15,17 +15,35 @@ export default function DiscountsPage() {
   const itemsPerPage = 6;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("name_asc");
+  const [sortOption, setSortOption] = useState("updatedAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [totalDiscounts, setTotalDiscounts] = useState(0);
+
+  const memorzedParams = useMemo(() => {
+    const baseParams: Record<string, any> = {
+      search: searchTerm,
+      sort: sortOption,
+      order: sortOrder,
+      page: currentPage,
+      limit: itemsPerPage,
+    };
+    if (searchTerm) {
+      baseParams.search = searchTerm;
+    }
+
+    return baseParams;
+  }, [searchTerm, sortOption, currentPage, itemsPerPage, sortOrder]);
 
   useEffect(() => {
     const fetchDiscountsData = async () => {
       setLoading(true);
       try {
-        const response = await fetchDiscounts();
+        const response = await fetchDiscounts(memorzedParams);
         if (!response.success) {
           throw new Error(response.message || "Failed to fetch discounts");
         }
         setDiscounts(response.data);
+        setTotalDiscounts(response.pagination?.total || 0);
       } catch (error) {
         console.error("Error fetching discounts:", error);
       } finally {
@@ -33,41 +51,9 @@ export default function DiscountsPage() {
       }
     };
     fetchDiscountsData();
-  }, []);
+  }, [memorzedParams, setLoading]);
 
-  const filteredAndSortedDiscounts = useMemo(() => {
-    let filtered = discounts.filter(
-      (s) =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // switch (sortOption) {
-    //   case "name_asc":
-    //     filtered.sort((a, b) => a.name.localeCompare(b.name));
-    //     break;
-    //   case "name_desc":
-    //     filtered.sort((a, b) => b.name.localeCompare(a.name));
-    //     break;
-    //   case "price_asc":
-    //     filtered.sort((a, b) => a.price - b.price);
-    //     break;
-    //   case "price_desc":
-    //     filtered.sort((a, b) => b.price - a.price);
-    //     break;
-    // }
-
-    return filtered;
-  }, [discounts, searchTerm, sortOption]);
-
-  const totalItems = filteredAndSortedDiscounts.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentDiscounts = filteredAndSortedDiscounts.slice(
-    startIndex,
-    endIndex
-  );
+  const totalPages = Math.ceil(totalDiscounts / itemsPerPage);
 
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
@@ -79,28 +65,31 @@ export default function DiscountsPage() {
         CÁC KHUYẾN MÃI
       </h4>
 
-      {/* <SearchSortBar
+      <SearchSortBar
         searchTerm={searchTerm}
         setSearchTerm={(value) => {
           setSearchTerm(value);
           setCurrentPage(1);
         }}
-        sortOption={sortOption}
+        sortOption={`${sortOption}-${sortOrder}`}
         setSortOption={(value) => {
-          setSortOption(value);
+          const [field, order] = value.split("-");
+          setSortOption(field);
+          setSortOrder(order as "asc" | "desc");
           setCurrentPage(1);
         }}
-        placeholder="Tìm dịch vụ..."
+        placeholder="Tìm khuyến mãi..."
         sortOptions={[
-          { value: "name_asc", label: "Tên A-Z" },
-          { value: "name_desc", label: "Tên Z-A" },
-          { value: "price_asc", label: "Giá tăng dần" },
-          { value: "price_desc", label: "Giá giảm dần" },
+          { value: "valid_from-asc", label: "Ngày bắt đầu A-Z" },
+          { value: "valid_from-desc", label: "Ngày bắt đầu Z-A" },
+          { value: "valid_to-asc", label: "Ngày kết thúc A-Z" },
+          { value: "valid_to-desc", label: "Ngày kết thúc Z-A" },
+          { value: "value-asc", label: "Giảm giá tăng dần" },
+          { value: "value-desc", label: "Giảm giá giảm dần" },
         ]}
-      /> */}
+      />
 
-      {/* Dịch vụ trả phí */}
-      <DiscountList discounts={currentDiscounts} />
+      <DiscountList discounts={discounts} />
 
       {totalPages > 1 && (
         <Pagination

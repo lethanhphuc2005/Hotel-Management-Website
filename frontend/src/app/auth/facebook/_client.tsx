@@ -21,5 +21,5 @@ export default function CallbackPage() {
     }
   }, [searchParams]);
 
-  return <p>Đang xử lý đăng nhập...</p>;
+  return null;
 }
