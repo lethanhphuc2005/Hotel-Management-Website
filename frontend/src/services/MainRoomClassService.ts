@@ -9,9 +9,9 @@ import {
 } from "@/types/mainRoomClass";
 
 export const fetchMainRoomClasses =
-  async (): Promise<MainRoomClassListResponse> => {
+  async (params = {}): Promise<MainRoomClassListResponse> => {
     try {
-      const response = await getMainRoomClassesApi();
+      const response = await getMainRoomClassesApi(params);
       const data = response.data;
       const mainRoomClasses: MainRoomClass[] = data.map((item: any) => ({
         id: item.id,

@@ -10,7 +10,10 @@ router.get(
 );
 
 // === LẤY DANH SÁCH BÌNH LUẬN CHO USER ===
-router.get("/user", commentController.getAllCommentsForUser);
+router.get("/user/:userId", commentController.getAllCommentsForUser);
+
+// === LẤY DANH SÁCH BÌNH LUẬN THEO ID PHÒNG ===
+router.get("/room/:roomId", commentController.getCommentsByRoomClassId);
 
 // === LẤY DANH SÁCH BÌNH LUẬN THEO ID ===
 router.get("/:id", commentController.getCommentById);

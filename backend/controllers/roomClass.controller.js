@@ -12,13 +12,6 @@ const { BookingDetail } = require("../models/bookingDetail.model");
 const { BookingStatus } = require("../models/status.model");
 const parseJSONFields = require("../utils/parseJSONFields.js");
 
-const BED_CAPACITY = {
-  đơn: 1,
-  đôi: 2,
-  queen: 2,
-  king: 2,
-};
-
 const roomClassController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
   validateRoomClass: async (roomClassData, roomClassId) => {
@@ -107,113 +100,103 @@ const roomClassController = {
         page = 1,
         limit = 10,
         type,
-        minBed = 1,
-        maxBed = 10,
+        minBed,
+        maxBed,
         minCapacity,
         maxCapacity,
         minPrice,
         maxPrice,
         feature,
-        status,
+        view,
         sort = "createdAt",
         order = "desc",
         check_in_date,
         check_out_date,
       } = req.query;
+
       const query = {};
 
-      if (search && search.trim() !== "") {
+      // SEARCH
+      if (search.trim()) {
+        const safeSearch = search.trim().slice(0, 50);
         query.$or = [
-          { name: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
-          { view: { $regex: search, $options: "i" } },
+          { name: { $regex: `^${safeSearch}`, $options: "i" } },
+          { description: { $regex: `^${safeSearch}`, $options: "i" } },
         ];
       }
-      if (type) query.main_room_class_id = type;
+
+      // PRICE FILTER
       if (minPrice || maxPrice) {
         query.price = {};
         if (minPrice) query.price.$gte = parseInt(minPrice);
         if (maxPrice) query.price.$lte = parseInt(maxPrice);
       }
+
+      // BED FILTER
       if (minBed || maxBed) {
         query.bed_amount = {};
         if (minBed) query.bed_amount.$gte = parseInt(minBed);
         if (maxBed) query.bed_amount.$lte = parseInt(maxBed);
       }
 
-      if (status) {
-        query.status = status;
+      // VIEW
+      if (view) {
+        const viewList = Array.isArray(view) ? view : [view];
+        query.view = { $in: viewList };
       }
 
+      // MAIN ROOM CLASS TYPE
+      if (type) {
+        const typeList = Array.isArray(type) ? type : [type];
+        query.main_room_class_id = { $in: typeList };
+      }
+
+      // FEATURE (embedded document)
+      if (feature) {
+        const featureList = Array.isArray(feature) ? feature : [feature];
+        query["features.feature_id"] = { $all: featureList };
+      }
+
+      if (minCapacity) query["capacity"] = { $gte: parseInt(minCapacity) };
+      if (maxCapacity)
+        query["capacity"] = {
+          ...query["capacity"],
+          $lte: parseInt(maxCapacity),
+        };
+
+      const sortObj = { [sort]: order === "asc" ? 1 : -1 };
+
       const skip = (parseInt(page) - 1) * parseInt(limit);
-      const sortObj = {};
-      sortObj[sort] = order === "asc" ? 1 : -1;
-      const total = await RoomClass.countDocuments(query);
+      const perPage = parseInt(limit);
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
         .skip(skip)
-        .limit(parseInt(limit))
-        .populate("main_room_class features images rooms comments reviews");
+        .limit(perPage)
+        .populate(["main_room_class", "features", "images"]);
 
-      if (minCapacity || maxCapacity) {
-        const minCap = minCapacity ? parseInt(minCapacity) : null;
-        const maxCap = maxCapacity ? parseInt(maxCapacity) : null;
-
-        roomClasses = roomClasses.filter((room) => {
-          if (!room.bed || !room.bed.type || !room.bed.quantity) return false;
-
-          // Tính tổng sức chứa từ object bed
-          const perBed = BED_CAPACITY[room.bed.type] || 1;
-
-          const totalCapacity = perBed * room.bed.quantity;
-          if (minCap !== null && totalCapacity < minCap) return false;
-          if (maxCap !== null && totalCapacity > maxCap) return false;
-
-          return true;
-        });
-      }
-
-      // --- Lọc theo tiện nghi
-      if (feature) {
-        const featureList = Array.isArray(feature) ? feature : [feature];
-        roomClasses = roomClasses.filter((room) => {
-          const roomFeatureIds = room.features
-            .map((f) => f.feature_id && f.feature_id._id.toString())
-            .filter(Boolean);
-          return featureList.every((id) => roomFeatureIds.includes(id));
-        });
-      }
-
-      // --- Lọc theo ngày đặt phòng với kiểm tra phòng còn trống theo ngày
+      // CHECK ROOM AVAILABILITY
       if (check_in_date && check_out_date) {
         const checkIn = new Date(check_in_date);
         const checkOut = new Date(check_out_date);
+
         const excludedStatuses = await BookingStatus.find({
           code: { $in: ["CANCELLED", "CHECKED_OUT"] },
         }).select("_id");
-
         const excludedStatusIds = excludedStatuses.map((s) => s._id);
 
-        // Lấy tất cả booking nằm trong khoảng ngày check-in - check-out, trừ trạng thái huỷ
         const bookings = await Booking.find({
           check_in_date: { $lt: checkOut },
           check_out_date: { $gt: checkIn },
-          booking_status_id: {
-            $nin: excludedStatusIds,
-          },
-        });
+          booking_status_id: { $nin: excludedStatusIds },
+        }).select("_id check_in_date check_out_date");
+
         const bookingIds = bookings.map((b) => b._id);
 
-        // Lấy chi tiết booking của các booking trên, có room_id
         const bookingDetails = await BookingDetail.find({
           booking_id: { $in: bookingIds },
-        }).populate({
-          path: "room_id",
-          select: "room_class_id",
-        });
+        }).select("room_class_id booking_id");
 
-        // Đếm tổng phòng của từng loại
         const totalRoomsByClass = await Room.aggregate([
           {
             $group: {
@@ -223,30 +206,30 @@ const roomClassController = {
           },
         ]);
 
-        // Map: room_class_id => tổng phòng
         const totalRoomsMap = {};
         totalRoomsByClass.forEach((r) => {
           totalRoomsMap[r._id.toString()] = r.total;
         });
 
-        // Tạo map đếm số phòng đã book từng ngày theo từng loại phòng
-        // Format: { room_class_id: { "yyyy-mm-dd": count } }
         const bookedCountMap = {};
+        const dateCache = {};
 
-        // Hàm helper lấy các ngày trong khoảng
         const getDatesBetween = (start, end) => {
+          const key = `${start.toISOString()}_${end.toISOString()}`;
+          if (dateCache[key]) return dateCache[key];
+
           const dates = [];
           let current = new Date(start);
           while (current < end) {
-            dates.push(current.toISOString().slice(0, 10)); // yyyy-mm-dd
+            dates.push(current.toISOString().slice(0, 10));
             current.setDate(current.getDate() + 1);
           }
+          dateCache[key] = dates;
           return dates;
         };
 
-        // Duyệt booking details, đếm phòng booked theo ngày và loại phòng
         bookingDetails.forEach((detail) => {
-          const roomClassId = detail.room_id.room_class_id.toString();
+          const roomClassId = detail.room_class_id.toString();
           const booking = bookings.find((b) => b._id.equals(detail.booking_id));
           if (!booking) return;
 
@@ -263,70 +246,43 @@ const roomClassController = {
           });
         });
 
-        // Giữ lại roomClasses có phòng trống đủ cho toàn bộ khoảng thời gian
+        const datesToCheck = getDatesBetween(checkIn, checkOut);
+        const beforeCount = roomClasses.length;
+
         roomClasses = roomClasses.filter((rc) => {
           const rcId = rc._id.toString();
           const totalRoom = totalRoomsMap[rcId] || 0;
-          if (totalRoom === 0) return false; // Không có phòng
+          if (totalRoom === 0) return false;
 
-          const dates = getDatesBetween(checkIn, checkOut);
-
-          // Kiểm tra từng ngày xem số phòng đã booked < tổng phòng không
-          return dates.every((date) => {
-            const bookedCount = bookedCountMap[rcId]?.[date] || 0;
-            return bookedCount < totalRoom;
+          const isAvailable = datesToCheck.every((date) => {
+            const booked = bookedCountMap[rcId]?.[date] || 0;
+            return booked < totalRoom;
           });
+
+          return isAvailable;
         });
-
-        for (const rc of roomClasses) {
-          const rcId = rc.id.toString();
-          const totalRoom = await Room.countDocuments({ room_class_id: rcId });
-
-          if (totalRoom === 0) {
-            rc.rooms = [];
-            continue;
-          }
-
-          const dates = getDatesBetween(checkIn, checkOut);
-
-          rc.rooms = rc.rooms.filter((room) => {
-            const isRoomBooked = bookingDetails.some((bd) => {
-              if (!bd.room_id || !bd.room_id._id) return false;
-              if (!bd.room_id._id.equals(room._id)) return false;
-
-              const booking = bookings.find((b) => b._id.equals(bd.booking_id));
-              if (!booking) return false;
-
-              const bookedDates = getDatesBetween(
-                booking.check_in_date,
-                booking.check_out_date
-              );
-
-              return bookedDates.some((d) => dates.includes(d));
-            });
-
-            return !isRoomBooked;
-          });
-        }
       }
 
       if (!roomClasses.length) {
         return res
-          .status(404)
-          .json({ message: "Không tìm thấy loại phòng nào phù hợp" });
+          .status(200)
+          .json({ message: "Không tìm thấy loại phòng nào phù hợp", data: [] });
       }
+
+      const totalMatchingRoomCount = await RoomClass.countDocuments(query);
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        data: roomClasses, // chỉ trả về trang hiện tại
+        data: roomClasses,
         pagination: {
-          total, // tổng tất cả kết quả sau khi lọc
+          total: totalMatchingRoomCount,
           page: parseInt(page),
-          limit: parseInt(limit),
-          totalPages: Math.ceil(total / parseInt(limit)),
+          limit: perPage,
+          totalPages: Math.ceil(totalMatchingRoomCount / perPage),
         },
       });
     } catch (error) {
+      console.error(">>> Server error:", error);
       res.status(500).json({ message: error.message });
     }
   },
@@ -354,75 +310,66 @@ const roomClassController = {
 
       const query = { status: true };
 
-      if (search && search.trim() !== "") {
-        const safeSearch = search.trim().slice(0, 50); // Giới hạn tối đa 50 ký tự
-
+      // SEARCH
+      if (search.trim()) {
+        const safeSearch = search.trim().slice(0, 50);
         query.$or = [
-          { name: { $regex: `^${safeSearch}`, $options: "i" } }, // So khớp đầu chuỗi
+          { name: { $regex: `^${safeSearch}`, $options: "i" } },
           { description: { $regex: `^${safeSearch}`, $options: "i" } },
         ];
       }
 
+      // PRICE FILTER
       if (minPrice || maxPrice) {
         query.price = {};
         if (minPrice) query.price.$gte = parseInt(minPrice);
         if (maxPrice) query.price.$lte = parseInt(maxPrice);
       }
+
+      // BED FILTER
       if (minBed || maxBed) {
         query.bed_amount = {};
         if (minBed) query.bed_amount.$gte = parseInt(minBed);
         if (maxBed) query.bed_amount.$lte = parseInt(maxBed);
       }
 
-      const sortObj = {};
-      sortObj[sort] = order === "asc" ? 1 : -1;
+      // VIEW
+      if (view) {
+        const viewList = Array.isArray(view) ? view : [view];
+        query.view = { $in: viewList };
+      }
+
+      // MAIN ROOM CLASS TYPE
+      if (type) {
+        const typeList = Array.isArray(type) ? type : [type];
+        query.main_room_class_id = { $in: typeList };
+      }
+
+      // FEATURE (embedded document)
+      if (feature) {
+        const featureList = Array.isArray(feature) ? feature : [feature];
+        query["features.feature_id"] = { $all: featureList };
+      }
+
+      if (minCapacity) query["capacity"] = { $gte: parseInt(minCapacity) };
+      if (maxCapacity)
+        query["capacity"] = {
+          ...query["capacity"],
+          $lte: parseInt(maxCapacity),
+        };
+
+      const sortObj = { [sort]: order === "asc" ? 1 : -1 };
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const perPage = parseInt(limit);
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
-        .populate("main_room_class features images rooms comments reviews");
+        .skip(skip)
+        .limit(perPage)
+        .populate(["main_room_class", "features", "images"]);
 
-      if (minCapacity || maxCapacity) {
-        const minCap = minCapacity ? parseInt(minCapacity) : null;
-        const maxCap = maxCapacity ? parseInt(maxCapacity) : null;
-
-        roomClasses = roomClasses.filter((room) => {
-          if (!room.bed || !room.bed.type || !room.bed.quantity) return false;
-
-          // Tính tổng sức chứa từ object bed
-          const perBed = BED_CAPACITY[room.bed.type] || 1;
-          const totalCapacity = perBed * room.bed.quantity;
-          if (minCap !== null && totalCapacity < minCap) return false;
-          if (maxCap !== null && totalCapacity > maxCap) return false;
-
-          return true;
-        });
-      }
-
-      if (feature) {
-        const featureList = Array.isArray(feature) ? feature : [feature];
-        roomClasses = roomClasses.filter((room) => {
-          const roomFeatureIds = room.features
-            .map((f) => f.feature_id && f.feature_id._id.toString())
-            .filter(Boolean);
-          return featureList.every((id) => roomFeatureIds.includes(id));
-        });
-      }
-
-      if (type) {
-        const mainList = Array.isArray(type) ? type : [type];
-        roomClasses = roomClasses.filter((room) => {
-          const mainIds = room.main_room_class_id.toString();
-          return mainList.includes(mainIds);
-        });
-      }
-
-      if (view) {
-        const viewList = Array.isArray(view) ? view : [view];
-        roomClasses = roomClasses.filter((room) => {
-          return viewList.includes(room.view);
-        });
-      }
-
+      // CHECK ROOM AVAILABILITY
       if (check_in_date && check_out_date) {
         const checkIn = new Date(check_in_date);
         const checkOut = new Date(check_out_date);
@@ -430,16 +377,13 @@ const roomClassController = {
         const excludedStatuses = await BookingStatus.find({
           code: { $in: ["CANCELLED", "CHECKED_OUT"] },
         }).select("_id");
-
         const excludedStatusIds = excludedStatuses.map((s) => s._id);
 
         const bookings = await Booking.find({
           check_in_date: { $lt: checkOut },
           check_out_date: { $gt: checkIn },
-          booking_status_id: {
-            $nin: excludedStatusIds,
-          },
-        });
+          booking_status_id: { $nin: excludedStatusIds },
+        }).select("_id check_in_date check_out_date");
 
         const bookingIds = bookings.map((b) => b._id);
 
@@ -462,14 +406,19 @@ const roomClassController = {
         });
 
         const bookedCountMap = {};
+        const dateCache = {};
 
         const getDatesBetween = (start, end) => {
+          const key = `${start.toISOString()}_${end.toISOString()}`;
+          if (dateCache[key]) return dateCache[key];
+
           const dates = [];
           let current = new Date(start);
           while (current < end) {
             dates.push(current.toISOString().slice(0, 10));
             current.setDate(current.getDate() + 1);
           }
+          dateCache[key] = dates;
           return dates;
         };
 
@@ -491,16 +440,20 @@ const roomClassController = {
           });
         });
 
+        const datesToCheck = getDatesBetween(checkIn, checkOut);
+        const beforeCount = roomClasses.length;
+
         roomClasses = roomClasses.filter((rc) => {
           const rcId = rc._id.toString();
           const totalRoom = totalRoomsMap[rcId] || 0;
           if (totalRoom === 0) return false;
 
-          const dates = getDatesBetween(checkIn, checkOut);
-          return dates.every((date) => {
-            const bookedCount = bookedCountMap[rcId]?.[date] || 0;
-            return bookedCount < totalRoom;
+          const isAvailable = datesToCheck.every((date) => {
+            const booked = bookedCountMap[rcId]?.[date] || 0;
+            return booked < totalRoom;
           });
+
+          return isAvailable;
         });
       }
 
@@ -510,21 +463,16 @@ const roomClassController = {
           .json({ message: "Không tìm thấy loại phòng nào phù hợp", data: [] });
       }
 
-      const total = roomClasses.length;
-      const skip = (parseInt(page) - 1) * parseInt(limit);
-      const paginatedRoomClasses = roomClasses.slice(
-        skip,
-        skip + parseInt(limit)
-      );
+      const totalMatchingRoomCount = await RoomClass.countDocuments(query);
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        data: paginatedRoomClasses,
+        data: roomClasses,
         pagination: {
-          total,
+          total: totalMatchingRoomCount,
           page: parseInt(page),
-          limit: parseInt(limit),
-          totalPages: Math.ceil(total / parseInt(limit)),
+          limit: perPage,
+          totalPages: Math.ceil(totalMatchingRoomCount / perPage),
         },
       });
     } catch (error) {

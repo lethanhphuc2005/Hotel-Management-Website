@@ -11,11 +11,11 @@ export interface Comment {
   user_id: string | null;
   content: string;
   status: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
   employee: Employee | null;
   user: User | null;
-  room_class: RoomClass | null; // Room class can be null if the comment is not related to a room class
+  room_class: RoomClass; // Room class can be null if the comment is not related to a room class
 }
 
 export interface CommentWithReplies extends Comment {
@@ -30,6 +30,7 @@ export interface CommentResponse {
 
 export interface CommentListResponse {
   success: boolean;
+  statusCode?: number;
   message: string;
   data: CommentWithReplies[];
   pagination?: PaginationResponse;

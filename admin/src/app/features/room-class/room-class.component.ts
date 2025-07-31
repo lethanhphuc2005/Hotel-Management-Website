@@ -217,6 +217,7 @@ export class RoomClassComponent implements OnInit {
         description: '',
         status: true,
         main_room_class_id: '',
+        capacity: 0,
         price_discount: 0,
         bed: {
           type: '',

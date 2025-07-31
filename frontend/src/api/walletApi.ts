@@ -5,16 +5,11 @@ import {
 } from "@/types/wallet";
 
 export const getWalletByUserId = async (userId: string) => {
-  try {
-    const response = await api.get(`/wallet/${userId}`);
-    if (response.status !== 200) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching wallet by user ID:", error);
-    throw error;
+  const response = await api.get(`/wallet/${userId}`);
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };
 
 export const useWalletByUserId = async ({
@@ -22,19 +17,14 @@ export const useWalletByUserId = async ({
   amount,
   note,
 }: UseWalletByUserIdRequest) => {
-  try {
-    const response = await api.post(`/wallet/use/${userId}`, {
-      amount,
-      note,
-    });
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching wallet by user ID:", error);
-    throw error;
+  const response = await api.post(`/wallet/use/${userId}`, {
+    amount,
+    note,
+  });
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };
 
 export const depositToWallet = async ({
@@ -42,17 +32,12 @@ export const depositToWallet = async ({
   userId,
   amount,
 }: DepositToWalletRequest) => {
-  try {
-    const response = await api.post(`/wallet/deposit/${method}`, {
-      user_id: userId,
-      amount,
-    });
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
-    return response.data;
-  } catch (error) {
-    console.error("Error depositing to wallet:", error);
-    throw error;
+  const response = await api.post(`/wallet/deposit/${method}`, {
+    user_id: userId,
+    amount,
+  });
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };

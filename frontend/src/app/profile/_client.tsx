@@ -3,32 +3,20 @@ import styles from "@/styles/pages/profile.module.css";
 import { useState } from "react";
 import { AccountSection } from "@/components/pages/profile/AccountSection";
 import { PasswordSection } from "@/components/pages/profile/PasswordSection";
-import BookingSection from "@/components/pages/profile/BookedSection";
-import { useProfile } from "@/hooks/useProfile";
+import BookedRoomSection from "@/components/pages/profile/BookedSection";
 import CommentSection from "@/components/pages/profile/CommentSection";
 import ReviewSection from "@/components/pages/profile/ReviewSection";
 import FavoriteSection from "@/components/pages/profile/FavoriteSection";
 import WalletSection from "@/components/pages/profile/WalletSection";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProfilePage = () => {
-  const {
-    refetchProfile,
-    profile,
-    formData,
-    bookedRooms,
-    setBookedRooms,
-    comments,
-    setComments,
-    reviews,
-    setReviews,
-    favorites,
-    setFavorites,
-    wallet,
-    setWallet,
-    logout,
-  } = useProfile();
-
+  const { user, refetchProfile, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("account");
+  if (!user) {
+    return <div className={styles.container}>Loading...</div>;
+  }
+  const userId = user?.id || "";
 
   const handleLogout = () => {
     logout();
@@ -37,46 +25,23 @@ const ProfilePage = () => {
   const renderSection = () => {
     switch (activeTab) {
       case "account":
-        return (
-          <AccountSection
-            formData={formData}
-            profile={profile}
-            refreshProfile={refetchProfile}
-          />
-        );
+        return <AccountSection user={user} refreshProfile={refetchProfile} />;
       case "wallet":
-        return <WalletSection wallet={wallet} setWallet={setWallet} />;
+        return <WalletSection userId={userId} />;
       case "change-password":
-        return <PasswordSection formData={formData} />;
+        return <PasswordSection userId={userId} />;
       case "booked-rooms":
-        return (
-          <BookingSection bookings={bookedRooms} setBookings={setBookedRooms} />
-        );
+        return <BookedRoomSection userId={userId} />;
       case "comments":
-        return (
-          <CommentSection
-            userId={profile?.id || ""}
-            comments={comments}
-            setComments={setComments}
-          />
-        );
+        return <CommentSection userId={userId} />;
       case "reviews":
-        return <ReviewSection reviews={reviews} setReviews={setReviews} />;
+        return <ReviewSection userId={userId} />;
       case "favorites":
-        return (
-          <FavoriteSection favorites={favorites} setFavorites={setFavorites} />
-        );
+        return <FavoriteSection userId={userId} />;
       default:
-        return <AccountSection formData={formData} profile={profile} />;
+        return <AccountSection user={user} refreshProfile={refetchProfile} />;
     }
   };
-
-  if (!profile)
-    return (
-      <div className="tw-text-center tw-text-gray-500 tw-py-10">
-        Đang tải dữ liệu...
-      </div>
-    );
   return (
     <div className={styles.container}>
       <div className={styles.settingsWrapper}>

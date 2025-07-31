@@ -12,19 +12,14 @@ import { MainRoomClass } from "@/types/mainRoomClass";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import RoomBookingBox from "./BookingForm";
 import { capitalizeFirst } from "@/utils/stringUtils";
-import { Image } from "@/types/image";
 import { SearchBar } from "@/types/_common";
 
 interface WebsiteContent extends SearchBar {
   roomClass: RoomClass;
-  mainRoomClass: MainRoomClass;
-  images: Image[];
 }
 
 const InformationSection = ({
   roomClass,
-  mainRoomClass,
-  images,
   pendingDateRange,
   setPendingDateRange,
   dateRange,
@@ -51,6 +46,7 @@ const InformationSection = ({
   handleSearch,
   handleResetSearch,
 }: WebsiteContent) => {
+  const mainRoomClass: MainRoomClass = roomClass.main_room_class;
   return (
     <div className="tw-flex tw-gap-6 md:tw-flex-row tw-flex-col">
       <section className="tw-max-w-[1320px] tw-mx-auto tw-mt-4   tw-rounded-2xl tw-shadow-xl">

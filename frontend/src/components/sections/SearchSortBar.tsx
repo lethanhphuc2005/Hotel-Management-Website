@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type SortOption = {
   value: string;
@@ -25,6 +25,17 @@ export default function SearchSortBar({
   placeholder = "Tìm kiếm...",
   className = "",
 }: SearchSortBarProps) {
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+
+  // Debounce logic: sau 500ms không gõ thì mới cập nhật searchTerm thật sự
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearchTerm(localSearchTerm);
+    }, 500); // 500ms
+
+    return () => clearTimeout(timeout);
+  }, [localSearchTerm]);
+
   return (
     <div
       className={`tw-flex tw-flex-col sm:tw-flex-row tw-items-center tw-gap-4 tw-mb-6 ${className}`}
@@ -32,8 +43,8 @@ export default function SearchSortBar({
       <input
         type="text"
         placeholder={placeholder}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        value={localSearchTerm}
+        onChange={(e) => setLocalSearchTerm(e.target.value)}
         className="tw-w-full sm:tw-w-1/2 tw-px-4 tw-py-2 tw-rounded-md tw-bg-[#1d1d1d] tw-text-primary tw-placeholder-gray-400 tw-border tw-border-primary focus:tw-outline-none tw-flex-1"
       />
       <select

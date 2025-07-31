@@ -496,7 +496,7 @@ const bookingController = {
       const {
         page = 1,
         limit = 10,
-        sort = "booking_status_id",
+        sort = "createdAt",
         order = "desc",
         status,
       } = req.query;

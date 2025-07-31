@@ -4,7 +4,7 @@ import { addRoomToCart } from "@/store/cartSlice";
 import { toast } from "react-toastify";
 import { RoomClass } from "@/types/roomClass";
 import { UserFavorite } from "@/types/userFavorite";
-import { useFavorite } from "@/hooks/useFavorite";
+import { useFavorite } from "@/hooks/logic/useFavoriteAction";
 import RoomImageWithLike from "./RoomImageWithLike";
 import RoomInfo from "./RoomInfo";
 import RoomPriceAndBooking from "./RoomPriceAndBooking";
@@ -78,6 +78,7 @@ export default function RoomClassItem({
         hasSaturdayNight: hasSaturday,
         hasSundayNight: hasSunday,
         features: roomClass.features?.map((f) => f.feature.name) ?? [],
+        extraFee: null,
       })
     );
   };

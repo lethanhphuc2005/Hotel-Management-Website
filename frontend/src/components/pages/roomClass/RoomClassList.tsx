@@ -9,7 +9,7 @@ import { getUserFavorites } from "@/services/UserFavoriteService";
 import { UserFavorite } from "@/types/userFavorite";
 import Link from "next/link";
 import { AnimatedButtonPrimary } from "@/components/common/Button";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import style from "@/styles/base/page.module.css";

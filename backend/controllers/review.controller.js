@@ -5,6 +5,7 @@ const User = require("../models/user.model");
 const Employee = require("../models/employee.model");
 const RoomClass = require("../models/roomClass.model");
 const { BookingStatus } = require("../models/status.model");
+const mongoose = require("mongoose");
 
 const reviewController = {
   // === KIỂM TRA ĐIỀU KIỆN ĐÁNH GIÁ ===
@@ -181,6 +182,7 @@ const reviewController = {
   // === LẤY DANH SÁCH ĐÁNH GIÁ CHO USER ===
   getAllReviewsForUser: async (req, res) => {
     try {
+      const userId = req.params.userId;
       const {
         search = "",
         page = 1,
@@ -191,7 +193,7 @@ const reviewController = {
         rating,
       } = req.query;
 
-      const query = { status: true };
+      const query = { status: true, user_id: userId };
       if (search) {
         query.content = { $regex: search, $options: "i" };
       }
@@ -227,6 +229,78 @@ const reviewController = {
         data: reviews,
         pagination: {
           total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
+      });
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  },
+
+  // === LẤY DANH SÁCH ĐÁNH GIÁ THEO ID LOẠI PHÒNG ===
+  getReviewsByRoomClassId: async (req, res) => {
+    try {
+      const roomId = req.params.roomId;
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort = "createdAt",
+        order = "desc",
+        booking_id,
+        rating,
+      } = req.query;
+
+      const query = { status: true, room_class_id: roomId };
+      if (search) {
+        query.content = { $regex: search, $options: "i" };
+      }
+
+      if (rating) {
+        query.rating = parseInt(rating);
+      }
+
+      if (booking_id) {
+        query.booking_id = booking_id;
+      }
+
+      const sortOptions = {};
+      sortOptions[sort] = order === "asc" ? 1 : -1;
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [reviews, total, avgRatingResult] = await Promise.all([
+        Review.find(query)
+          .populate("booking room_class user employee")
+          .sort(sortOptions)
+          .skip(skip)
+          .limit(parseInt(limit)),
+        Review.countDocuments(query),
+        Review.aggregate([
+          {
+            $match: {
+              status: true,
+              room_class_id: new mongoose.Types.ObjectId(roomId),
+            },
+          },
+          { $group: { _id: null, averageRating: { $avg: "$rating" } } },
+        ]),
+      ]);
+
+      if (!reviews || reviews.length === 0) {
+        return res.status(404).json({ message: "Không có đánh giá nào." });
+      }
+
+      const averageRating = avgRatingResult[0]?.averageRating || 0;
+
+      res.status(200).json({
+        message: "Lấy danh sách đánh giá thành công.",
+        data: reviews,
+        pagination: {
+          total,
+          averageRating: parseFloat(averageRating.toFixed(1)), // Làm tròn 1 số thập phân
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(total / parseInt(limit)),

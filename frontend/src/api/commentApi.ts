@@ -2,12 +2,30 @@ import { api, publicApi } from "@/lib/axiosInstance";
 import { CreateCommentRequest, DeleteCommentRequest } from "@/types/comment";
 import { UpdateCommentRequest } from "../types/comment";
 
-export const getComments = async () => {
-  const response = await publicApi.get(`/comment/user`);
+export const getComments = async (userId: string, params = {}) => {
+  const response = await publicApi.get(`/comment/user/${userId}`, {
+    params,
+  });
   if (response.status !== 200) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
   return response.data; // [{ commentId, content, createdAt, ... }, ...]
+};
+
+export const getCommentsByRoomClassId = async (
+  roomClassId: string,
+  params = {}
+) => {
+  const response = await publicApi.get(`/comment/room/${roomClassId}`, {
+    params,
+  });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  }
+  return {
+    data: response.data, // [{ commentId, content, createdAt, ... }, ...]
+    status: response.status,
+  }; // [{ commentId, content, createdAt, ... }, ...]
 };
 
 export const getCommentById = async (commentId: string) => {

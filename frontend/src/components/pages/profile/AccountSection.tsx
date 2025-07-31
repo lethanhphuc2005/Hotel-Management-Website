@@ -16,18 +16,8 @@ import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { User } from "@/types/user";
 
 interface Props {
-  formData: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    address: string;
-    email: string;
-    phone_number: string;
-    request?: string;
-    is_verified?: boolean;
-  };
-  profile?: User; // Optional profile prop for additional data
-  refreshProfile?: () => void; // Optional function to refresh profile data
+  user: User;
+  refreshProfile?: () => void;
 }
 
 const validateUser = (user: any) => {
@@ -54,15 +44,31 @@ const validateUser = (user: any) => {
   return errors;
 };
 
-export function AccountSection({ formData, profile, refreshProfile }: Props) {
-  const [user, setUser] = useState(formData);
-  const [information, setInformation] = useState(profile);
+export function AccountSection({ user, refreshProfile }: Props) {
+  const [formData, setFormData] = useState({
+    id: user.id,
+    first_name: user.first_name || "",
+    last_name: user.last_name || "",
+    address: user.address || "",
+    email: user.email || "",
+    phone_number: user.phone_number || "",
+    request: user.request || "",
+    is_verified: Boolean(user.is_verified),
+  });
+
+  const information = {
+    level: user.level || "newbie",
+    total_spent: user.total_spent || 0,
+    total_nights: user.total_nights || 0,
+    total_bookings: user.total_bookings || 0,
+  };
+
   const [isEditing, setIsEditing] = useState(false);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setUser((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -70,17 +76,26 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
 
   const handleEdit = () => setIsEditing(true);
   const handleCancel = () => {
-    setUser(formData);
+    setFormData({
+      id: user.id,
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
+      address: user.address || "",
+      email: user.email || "",
+      phone_number: user.phone_number || "",
+      request: user.request || "",
+      is_verified: Boolean(user.is_verified),
+    });
     setIsEditing(false);
   };
   const handleSave = async () => {
     const updatedData = {
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      phone_number: user.phone_number,
-      address: user.address,
-      request: user.request || "",
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      phone_number: formData.phone_number,
+      address: formData.address,
+      request: formData.request || "",
     };
 
     try {
@@ -94,14 +109,9 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         toast.error(response.message || "Cập nhật thông tin thất bại.");
         return;
       }
-      setUser((prev) => ({
-        ...prev,
-        ...updatedData,
-      }));
       toast.success(response.message || "Cập nhật thông tin thành công!");
     } catch (error) {
       toast.error("Cập nhật thông tin thất bại. Vui lòng thử lại sau.");
-      setUser(formData); // Reset to original data on error
       console.error("Error saving profile:", error);
     } finally {
       setIsEditing(false);
@@ -170,7 +180,7 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         <input
           type="text"
           name="last_name"
-          value={user.last_name}
+          value={formData.last_name}
           onChange={handleChange}
           disabled={!isEditing}
         />
@@ -180,7 +190,7 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         <input
           type="text"
           name="first_name"
-          value={user.first_name}
+          value={formData.first_name}
           onChange={handleChange}
           disabled={!isEditing}
         />
@@ -189,16 +199,18 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         <label>
           Email
           <span
-            className={user.is_verified ? styles.verified : styles.unverified}
+            className={
+              formData.is_verified ? styles.verified : styles.unverified
+            }
           >
-            {user.is_verified ? "Đã xác thực" : "Chưa xác thực"}
+            {formData.is_verified ? "Đã xác thực" : "Chưa xác thực"}
           </span>
         </label>
 
         <input
           type="email"
           name="email"
-          value={user.email}
+          value={formData.email}
           onChange={handleChange}
           disabled={!isEditing}
         />
@@ -209,7 +221,7 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         <input
           type="tel"
           name="phone_number"
-          value={user.phone_number}
+          value={formData.phone_number}
           onChange={handleChange}
           disabled={!isEditing}
         />
@@ -219,7 +231,7 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         <input
           type="text"
           name="address"
-          value={user.address}
+          value={formData.address}
           onChange={handleChange}
           disabled={!isEditing}
         />
@@ -228,7 +240,7 @@ export function AccountSection({ formData, profile, refreshProfile }: Props) {
         <label>Yêu cầu đặc biệt</label>
         <textarea
           name="request"
-          value={user.request || ""}
+          value={formData.request}
           disabled={!isEditing}
           onChange={handleChange}
         />

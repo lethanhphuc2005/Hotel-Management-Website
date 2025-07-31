@@ -1,7 +1,6 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { getRoomTotalPrice } from "@/store/cartSelector";
 import { clearCart, removeRoomFromCart } from "@/store/cartSlice";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -11,7 +10,6 @@ import { useLoading } from "@/contexts/LoadingContext";
 import { createPayment } from "@/services/PaymentService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWallet, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
-import { fetchWalletByUserId } from "@/services/WalletService";
 import { formatDate, formatDateForBooking } from "@/utils/dateUtils";
 import BookingForm from "@/components/form/BookingForm";
 import PaymentMethods from "@/components/pages/payment/PaymentMethod";
@@ -24,23 +22,25 @@ import getCancelPolicyTimeline from "@/utils/getCancelPolicy";
 import { useSearchParams } from "next/navigation";
 import { CreateBookingRequest } from "@/types/booking";
 import { AppliedDiscount } from "@/types/discount";
+import { useUserWallet } from "@/hooks/data/useWallet";
+import { useRouter } from "next/navigation";
 
 export default function PayMent() {
+  const router = useRouter();
   const { user } = useAuth();
   const { setLoading } = useLoading();
+  const { wallet, mutate } = useUserWallet(user?.id || "");
 
   const rooms = useSelector((state: RootState) => state.cart.rooms);
   const dispatch = useDispatch();
 
   const total = rooms.reduce((sum, room) => {
-
     return sum + (room.total ?? 0);
   }, 0);
 
   const extraTotal = rooms.reduce((sum, room) => sum + (room.extraFee || 0), 0);
 
   const [selectedMethod, setSelectedMethod] = useState("");
-  const [walletBalance, setWalletBalance] = useState(0);
   const [discounts, setDiscounts] = useState<AppliedDiscount[]>([]);
   const [finalTotal, setFinalTotal] = useState<number>(total);
   const [promoCode, setPromoCode] = useState("");
@@ -48,24 +48,6 @@ export default function PayMent() {
   const handleSelect = (value: string) => {
     setSelectedMethod(value);
   };
-
-  useEffect(() => {
-    const fetchWallet = async () => {
-      if (!user || !user.id) return;
-      try {
-        const response = await fetchWalletByUserId(user.id);
-        if (!response.success) {
-          throw new Error(response.message || "Không thể lấy thông tin ví.");
-        }
-        const data = response.data;
-        setWalletBalance(data.balance || 0);
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin ví:", error);
-        toast.error("Không thể lấy thông tin ví. Vui lòng thử lại sau.");
-      }
-    };
-    fetchWallet();
-  }, [user]);
 
   useEffect(() => {
     const fetchDiscounts = async () => {
@@ -116,7 +98,7 @@ export default function PayMent() {
     },
   ];
 
-  if (user && user.id && walletBalance > total) {
+  if (user && user.id && (wallet?.balance || 0) > total) {
     methods.push({
       label: "Thanh toán qua ví",
       value: "wallet",
@@ -269,7 +251,8 @@ export default function PayMent() {
         return;
       } else {
         dispatch(clearCart()); // Xóa giỏ hàng sau khi đặt thành công
-        window.location.href = `/thank-you?orderId=${data?.id}`;
+        router.push(`/thank-you?orderId=${data?.id}`);
+        mutate(); // Cập nhật ví sau khi đặt thành công
       }
 
       // Optional: redirect
@@ -361,7 +344,7 @@ export default function PayMent() {
             methods={methods}
             selectedMethod={selectedMethod}
             onSelect={handleSelect}
-            walletBalance={walletBalance}
+            walletBalance={wallet?.balance || 0}
           />
 
           <PriceSummary

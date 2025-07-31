@@ -26,6 +26,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "@/components/sections/Pagination";
 import { useSearchParams } from "next/navigation";
+import { useServices } from "@/hooks/data/useService";
 
 const features = [
   { icon: faLock, label: "Khóa cửa an toàn" },
@@ -47,8 +48,6 @@ const features = [
 ];
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([]);
-  const { setLoading } = useLoading();
   const searchParams = useSearchParams();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -57,7 +56,6 @@ export default function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("price");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [totalServices, setTotalServices] = useState(0);
 
   const memorzedParams = useMemo(() => {
     const baseParams: Record<string, any> = {
@@ -74,27 +72,9 @@ export default function ServicesPage() {
     return baseParams;
   }, [searchTerm, sortOption, currentPage, itemsPerPage, sortOrder]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetchServices(memorzedParams);
-        if (!response.success) {
-          throw new Error(response.message || "Failed to fetch services");
-        }
-        setServices(response.data);
-        setTotalServices(response.pagination?.total || 0);
-      } catch (error: any) {
-        console.error("Error fetching services:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { services, total } = useServices(memorzedParams);
 
-    fetchData();
-  }, [memorzedParams, setLoading]);
-
-  const totalPages = Math.ceil(totalServices / itemsPerPage);
+  const totalPages = Math.ceil(total / itemsPerPage);
 
   useEffect(() => {
     const serviceParam = searchParams.get("service");

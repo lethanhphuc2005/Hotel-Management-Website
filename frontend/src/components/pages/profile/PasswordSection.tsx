@@ -7,9 +7,7 @@ import { toast } from "react-toastify";
 import { changePassword } from "@/services/AuthService";
 
 interface Props {
-  formData: {
-    id: string;
-  };
+  userId: string;
 }
 
 const validatePassword = (user: any) => {
@@ -29,8 +27,7 @@ const validatePassword = (user: any) => {
   return errors;
 };
 
-export function PasswordSection({ formData }: Props) {
-  const user = formData;
+export function PasswordSection({ userId }: Props) {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -58,7 +55,7 @@ export function PasswordSection({ formData }: Props) {
         });
         return;
       }
-      const res = await changePassword({userId: user.id, password, newPassword});
+      const res = await changePassword({ userId, password, newPassword });
       if (!res.success) {
         toast.error(res.message);
         return;

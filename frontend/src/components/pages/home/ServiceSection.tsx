@@ -9,7 +9,7 @@ import { RootState } from "@/store/store";
 import { addServiceToRoom } from "@/store/cartSlice";
 import SelectRoomModal from "@/components/modals/SelecteServiceModal";
 import { AnimatedButton } from "@/components/common/Button";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";

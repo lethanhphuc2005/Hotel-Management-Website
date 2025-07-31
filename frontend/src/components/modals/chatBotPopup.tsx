@@ -164,6 +164,7 @@ export default function ChatbotPopup() {
             hasSaturdayNight: hasSaturday,
             hasSundayNight: hasSunday,
             features: detail.room_class.features?.map((f: any) => f) ?? [],
+            extraFee: null,
           };
           dispatch(addRoomToCart(room));
         });

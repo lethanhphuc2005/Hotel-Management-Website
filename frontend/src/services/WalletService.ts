@@ -34,10 +34,18 @@ export const fetchWalletByUserId = async (
       updatedAt: new Date(data.updatedAt),
     };
 
+    const sortedWallet: Wallet = {
+      ...wallet,
+      transactions: wallet.transactions.sort(
+        (a: any, b: any) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      ),
+    };
+
     return {
       success: true,
       message: response.message || "Wallet fetched successfully",
-      data: wallet,
+      data: sortedWallet,
     };
   } catch (error: any) {
     const message =

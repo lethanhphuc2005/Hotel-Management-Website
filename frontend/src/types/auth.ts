@@ -15,6 +15,7 @@ export interface AuthContextType {
 export interface AuthResponse {
   success: boolean;
   message: string;
+  data?: User;
 }
 
 export interface RegisterRequest {
@@ -55,4 +56,5 @@ export interface LoginData {
 export interface LoginResponse {
   success: boolean;
   message: string;
+  data?: LoginData;
 }

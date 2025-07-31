@@ -10,6 +10,7 @@ import {
   AnimatedButtonPrimary,
   AnimatedButtonLink,
 } from "@/components/common/Button";
+import { useRoomComments } from "@/hooks/data/useComment";
 
 const faqColumns = [
   [
@@ -61,12 +62,10 @@ const faqColumns = [
 ];
 
 interface Props {
-  roomClassId: string;
-  comments: Comment[];
+  roomId: string;
 }
-const FAQSection = ({ roomClassId, comments }: Props) => {
+const FAQSection = ({ roomId }: Props) => {
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [commentsData, setCommentsData] = useState<Comment[]>(comments);
 
   const [modalState, setModalState] = useState<{
     open: boolean;
@@ -144,9 +143,7 @@ const FAQSection = ({ roomClassId, comments }: Props) => {
       {/* Modal sidebar */}
       {modalState.open && (
         <QuestionModalSidebar
-          roomClassId={roomClassId} // Replace with actual room class ID
-          comments={commentsData} // Replace with actual comments data\
-          setCommentsData={setCommentsData} // Function to update comments
+          roomId={roomId} // Replace with actual room class ID
           mode={modalState.mode}
           onClose={() => setModalState({ ...modalState, open: false })}
         />

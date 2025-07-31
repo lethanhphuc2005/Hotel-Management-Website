@@ -53,7 +53,7 @@
   border-radius: 8px;
   cursor: pointer;
   color: #ccc;
-  transition: 0.3s;
+  transition: 0.1s;
   background-color: transparent;
 }
 
@@ -65,9 +65,9 @@
 
 .sidebar .active,
 .active {
-  background-color: #fab320;
-  color: #000;
-  font-weight: bold;
+  background-color: #fab320 !important;
+  color: #000 !important;
+  font-weight: bold !important;
 }
 
 /* Logout Item */

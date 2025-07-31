@@ -1,5 +1,5 @@
 import style from "@/styles/base/page.module.css";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import { motion } from "framer-motion";
 import { Col, Row } from "react-bootstrap";
 import Image from "next/image";

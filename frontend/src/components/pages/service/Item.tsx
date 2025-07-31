@@ -6,7 +6,7 @@ import { addServiceToRoom } from "@/store/cartSlice";
 import { Service } from "@/types/service";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import Image from "next/image";
 import ServiceDetailPopup from "@/components/modals/ServiceDetailModal";
 import { AnimatedButtonPrimary } from "@/components/common/Button";

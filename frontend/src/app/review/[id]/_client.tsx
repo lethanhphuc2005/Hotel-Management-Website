@@ -18,7 +18,6 @@ import { ServiceBooking } from "@/types/service";
 import { Discount } from "@/types/discount";
 
 export default function RateAfterBookingPage() {
-
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
   const [reviews, setReviews] = useState<{ [key: string]: string }>({});
 

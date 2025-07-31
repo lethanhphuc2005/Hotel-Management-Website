@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Col } from "react-bootstrap";
 import style from "@/styles/base/page.module.css";
 import Link from "next/link";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import { AnimatedButton } from "@/components/common/Button";
 
 export function MainRoomClassItem({ mrci }: { mrci: MainRoomClass }) {

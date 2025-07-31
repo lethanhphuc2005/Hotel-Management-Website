@@ -14,8 +14,8 @@ export interface Review {
   rating: number | null;
   content: string;
   status: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
   employee: Employee | null; // Employee can be null if the review is not related to an employee
   user: User | null; // User can be null if the review is anonymous
   booking: Booking;
@@ -29,11 +29,12 @@ export interface ReviewWithReplies extends Review {
 export interface ReviewResponse {
   success: boolean;
   message?: string;
-  data: Review; // Can be a single review, a review with replies, or an array of reviews
+  data: Review; 
 }
 
 export interface ReviewListResponse {
   success: boolean;
+  statusCode?: number;
   message: string;
   data: ReviewWithReplies[];
   pagination?: PaginationResponse;

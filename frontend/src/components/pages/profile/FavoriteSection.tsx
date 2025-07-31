@@ -7,21 +7,23 @@ import { useState } from "react";
 import { capitalizeFirst } from "@/utils/stringUtils";
 import Pagination from "@/components/sections/Pagination";
 import { UserFavorite } from "@/types/userFavorite";
+import { useUserFavorites } from "@/hooks/data/useFavorite";
 
-export default function FavoriteSection({
-  favorites,
-  setFavorites,
-}: {
-  favorites: UserFavorite[];
-  setFavorites: React.Dispatch<React.SetStateAction<UserFavorite[]>>;
-}) {
+interface FavoriteSectionProps {
+  userId: string;
+}
+
+export default function FavoriteSection({ userId }: FavoriteSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const totalItems = favorites.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentFavorites = favorites.slice(startIndex, endIndex);
+
+  const { favorites, mutate, total, error } = useUserFavorites(
+    userId,
+    currentPage,
+    itemsPerPage
+  );
+
+  const totalPages = Math.ceil(total / itemsPerPage);
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
   };
@@ -41,7 +43,7 @@ export default function FavoriteSection({
     try {
       await deleteUserFavorite({ userId, favoriteId });
       toast.success("Xóa mục yêu thích thành công");
-      setFavorites((prev) => prev.filter((f) => f.id !== favoriteId));
+      mutate();
     } catch (error) {
       toast.error("Xóa mục yêu thích thất bại. Vui lòng thử lại sau.");
     } finally {
@@ -51,7 +53,7 @@ export default function FavoriteSection({
 
   return (
     <div className="tw-space-y-4">
-      {currentFavorites.map((favorite) => (
+      {favorites.map((favorite) => (
         <motion.div
           key={favorite.id}
           className="tw-p-4 tw-rounded-xl tw-border tw-border-gray-700 tw-bg-black/50"

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -15,34 +17,33 @@ import { Booking, BookingDetail } from "@/types/booking";
 import { Payment } from "@/types/payment";
 import { Discount } from "@/types/discount";
 import { ServiceBooking } from "@/types/service";
+import { useUserBookings } from "@/hooks/data/useBooking";
+import { useUserWallet } from "@/hooks/data/useWallet";
 
-export default function BookedRoomSection({
-  bookings,
-  setBookings,
-}: {
-  bookings: Booking[];
-  setBookings: React.Dispatch<React.SetStateAction<Booking[]>>;
-}) {
+interface BookedRoomSectionProps {
+  userId: string;
+}
+
+export default function BookedRoomSection({ userId }: BookedRoomSectionProps) {
   const router = useRouter();
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
-  const totalItems = bookings.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentBookings = bookings.slice(startIndex, endIndex);
+
+  const { mutate: mutateWallet } = useUserWallet(userId);
+  const {
+    bookings,
+    total,
+    mutate: mutateBookings,
+  } = useUserBookings(userId, currentPage, itemsPerPage);
+
+  const totalPages = Math.ceil(total / itemsPerPage);
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
   };
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  if (!bookings || bookings.length === 0) {
-    return (
-      <div className="tw-text-center tw-text-gray-400">
-        Bạn chưa đặt phòng nào.
-      </div>
-    );
-  }
+
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
@@ -63,14 +64,6 @@ export default function BookedRoomSection({
         return "tw-bg-yellow-400 tw-text-black";
     }
   };
-
-  if (!currentBookings || currentBookings.length === 0) {
-    return (
-      <div className="tw-text-center tw-text-gray-400">
-        Không có đặt phòng nào trong trang này.
-      </div>
-    );
-  }
 
   const [cancelReason, setCancelReason] = useState<string>("");
   const handleCancelBooking = async (bookingId: string, userId: string) => {
@@ -110,17 +103,9 @@ export default function BookedRoomSection({
       const response = await cancelBooking(bookingId, userId, cancelReason);
       if (response.success) {
         toast.success(response.message || "Huỷ đặt phòng thành công.");
-        setBookings((prev) =>
-          prev.map((booking) =>
-            booking.id === bookingId
-              ? {
-                  ...booking,
-                  booking_status: { code: "CANCELLED", name: "Cancelled" },
-                }
-              : booking
-          )
-        );
         setExpandedId(null); // Đóng chi tiết nếu đang mở
+        mutateBookings(); // Cập nhật danh sách đặt phòng
+        mutateWallet(); // Cập nhật ví
       } else {
         toast.error(response.message || "Huỷ đặt phòng thất bại.");
       }
@@ -129,6 +114,14 @@ export default function BookedRoomSection({
     }
   };
 
+  if (!bookings || bookings.length === 0) {
+    return (
+      <div className="tw-text-center tw-text-gray-400">
+        Bạn chưa đặt phòng nào.
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -136,7 +129,7 @@ export default function BookedRoomSection({
       exit={{ opacity: 0, y: -20 }}
       className="tw-space-y-4"
     >
-      {currentBookings?.map((booking: Booking) => {
+      {bookings?.map((booking: Booking) => {
         const isCheckedOut = booking.booking_status.code === "CHECKED_OUT";
         const payments = booking.payments;
 
