@@ -22,6 +22,8 @@ import { MainLayoutComponent } from './layout/main-layout/main-layout.component'
 import { FeatureComponent } from './features/feature/feature.component';
 import { PaymentComponent } from './features/payment/payment.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
+
 export const routes: Routes = [
   // Trang login riêng biệt, không có layout
   { path: 'login', component: LoginComponent },
@@ -31,6 +33,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
+      { path: 'dashboard', component: DashboardComponent },
       {
         path: 'admin',
         component: AdminLayoutComponent,

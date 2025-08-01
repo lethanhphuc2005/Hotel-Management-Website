@@ -1,0 +1,47 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- Doanh thu hôm nay -->
+    <div class="col-md-4">
+      <div class="card card-hover bg-success text-white">
+        <div class="card-body">
+          <h4 class="card-title">Doanh thu hôm nay</h4>
+          <h2 class="font-weight-light">
+            {{ revenueToday | currency : "VND" : "symbol" : "1.0-0" : "vi" }}
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Số lượt đặt hôm nay -->
+    <div class="col-md-4">
+      <div class="card card-hover bg-primary text-white">
+        <div class="card-body">
+          <h4 class="card-title">Đặt phòng hôm nay</h4>
+          <h2 class="font-weight-light">{{ bookingsToday }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tỷ lệ lấp đầy -->
+    <div class="col-md-4">
+      <div class="card card-hover bg-warning text-white">
+        <div class="card-body">
+          <h4 class="card-title">Tỷ lệ lấp đầy</h4>
+          <h2 class="font-weight-light">{{ occupancyRate }}%</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biểu đồ -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Biểu đồ doanh thu 7 tháng gần nhất</h4>
+          <canvas id="revenueChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

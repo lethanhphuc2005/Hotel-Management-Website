@@ -834,6 +834,8 @@ const bookingController = {
       booking.check_in_identity = identity;
       booking.booking_status_id = checkedInStatus._id;
 
+      const updatedBooking = await booking.save();
+
       res.json({ message: "Đã check-in thành công.", data: updatedBooking });
     } catch (error) {
       console.error("❌ Error checkInBooking:", error);

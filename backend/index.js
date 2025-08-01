@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 const app = require("./app");
-;
 require("./cron/clusterKeywordCron");
 
 // Kết nối MongoDB
@@ -43,6 +42,7 @@ const routers = [
   { path: "/search-log", module: require("./routes/searchLog.route") },
   { path: "/search-cluster", module: require("./routes/searchCluster.route") },
   { path: "/test", module: require("./routes/test.route") },
+  { path: "/dashboard", module: require("./routes/dashboard.route") },
 ];
 
 // Apply all routers with prefix /api/v1

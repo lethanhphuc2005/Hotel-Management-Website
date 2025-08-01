@@ -1,0 +1,107 @@
+<div class="card card-primary card-round">
+  <div class="card-header">
+    <div class="card-head-row">
+      <div class="card-title">Trạng thái đặt phòng hôm nay</div>
+      <div class="card-tools">
+        <div class="dropdown">
+          <button
+            class="btn btn-sm btn-label-light dropdown-toggle"
+            type="button"
+            id="dropdownMenuButton"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            Export
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a
+              class="dropdown-item tw-cursor-pointer"
+              (click)="exportChartAsImage()"
+              >Image</a
+            >
+            <a class="dropdown-item tw-cursor-pointer" (click)="printChart()"
+              >Print</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tw-w-full tw-p-4">
+    <div
+      class="tw-flex tw-flex-col md:tw-flex-row tw-items-center tw-justify-between tw-gap-6"
+    >
+      <!-- Pie Chart -->
+      <div class="tw-w-full md:tw-w-1/2 tw-flex tw-justify-center">
+        <canvas #pieCanvas class="tw-max-w-full tw-h-auto"></canvas>
+      </div>
+
+      <!-- Legend -->
+      <div
+        class="tw-w-full md:tw-w-1/2 tw-flex tw-items-center tw-justify-center"
+      >
+        <ul class="tw-space-y-3">
+          <li
+            *ngFor="let item of chartLegend"
+            class="tw-flex tw-items-center tw-gap-2"
+          >
+            <span
+              class="tw-inline-block tw-w-4 tw-h-4 tw-rounded-full"
+              [ngStyle]="{ backgroundColor: getColorByStatus(item.label) }"
+            ></span>
+            <span class="tw-text-sm md:tw-text-base"
+              >{{ getLabelName(item.label) }} ({{ item.value }})</span
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-round tw-p-4 tw-mt-4">
+  <h3 class="card-title">So với ngày hôm qua</h3>
+  <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-3 tw-gap-4">
+    <div
+      *ngFor="let item of chartLegend"
+      class="card card-round tw-shadow-md tw-border tw-rounded-xl"
+    >
+      <div class="card-body tw-pb-2">
+        <!-- % tăng giảm -->
+        <div
+          class="tw-text-sm tw-float-right"
+          [ngClass]="{
+            'tw-text-green-500': item.percentageChange > 0,
+            'tw-text-red-500': item.percentageChange < 0,
+            'tw-text-gray-400': item.percentageChange === 0
+          }"
+        >
+          <span *ngIf="item.percentageChange > 0"
+            >+{{ item.percentageChange }}%</span
+          >
+          <span *ngIf="item.percentageChange < 0"
+            >{{ item.percentageChange }}%</span
+          >
+          <span *ngIf="item.percentageChange === 0">0%</span>
+        </div>
+
+        <!-- Số lượng -->
+        <h2 class="tw-text-2xl tw-font-bold tw-text-black">{{ item.value }}</h2>
+
+        <!-- Tên trạng thái -->
+        <p class="tw-text-sm tw-text-gray-500">
+          {{ getLabelName(item.label) }}
+        </p>
+
+        <!-- Sparkline placeholder hoặc màu trạng thái -->
+        <div
+          class="tw-mt-2 tw-h-2 tw-rounded-full"
+          [ngStyle]="{
+            backgroundColor: getColorByStatus(item.label)
+          }"
+        ></div>
+      </div>
+    </div>
+  </div>
+</div>

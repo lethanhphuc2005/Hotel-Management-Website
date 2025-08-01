@@ -1,0 +1,36 @@
+.card-stats {
+  height: 100%; /* Chiều cao tự giãn */
+  min-height: 120px; /* Có thể chỉnh theo thực tế */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.card-body .row,
+.card-body .col {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.numbers {
+  white-space: nowrap; /* Không cho xuống dòng */
+}
+
+.col-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+}
+
+.col-stats {
+  flex: 1;
+}
