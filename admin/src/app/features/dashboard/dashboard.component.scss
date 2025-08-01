@@ -1,0 +1,8 @@
+.card-hover {
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}

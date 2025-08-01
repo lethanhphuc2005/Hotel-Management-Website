@@ -193,7 +193,7 @@ export class DiscountComponent implements OnInit {
           min_rooms: undefined,
           user_levels: undefined,
         },
-        promo_code: '',
+        promo_code: null,
         valid_from: undefined,
         valid_to: undefined,
         apply_to_room_class_ids: [] as string[],
@@ -220,7 +220,7 @@ export class DiscountComponent implements OnInit {
           min_rooms: item.conditions.min_rooms,
           user_levels: item.conditions.user_levels || undefined,
         },
-        promo_code: item.promo_code || '',
+        promo_code: item.promo_code || null,
         valid_from: item.valid_from,
         valid_to: item.valid_to,
         apply_to_room_class_ids: item.apply_to_room_class_ids || [],
@@ -253,7 +253,7 @@ export class DiscountComponent implements OnInit {
         min_rooms: undefined,
         user_levels: undefined,
       },
-      promo_code: '',
+      promo_code: null,
       valid_from: undefined,
       valid_to: undefined,
       apply_to_room_class_ids: [],
@@ -283,7 +283,9 @@ export class DiscountComponent implements OnInit {
     formData.append('value', this.newDiscount.value?.toString() || '');
     formData.append('value_type', this.newDiscount.value_type || '');
     formData.append('conditions', JSON.stringify(this.newDiscount.conditions));
-    formData.append('promo_code', this.newDiscount.promo_code || '');
+    if (this.newDiscount.promo_code) {
+      formData.append('promo_code', this.newDiscount.promo_code);
+    }
     formData.append(
       'valid_from',
       this.newDiscount.valid_from?.toISOString() || ''
@@ -338,7 +340,10 @@ export class DiscountComponent implements OnInit {
     formData.append('value', this.newDiscount.value?.toString() || '');
     formData.append('value_type', this.newDiscount.value_type || '');
     formData.append('conditions', JSON.stringify(this.newDiscount.conditions));
-    formData.append('promo_code', this.newDiscount.promo_code || '');
+    if (this.newDiscount.promo_code) {
+      formData.append('promo_code', this.newDiscount.promo_code);
+    }
+    console.log(this.newDiscount.promo_code)
     formData.append(
       'valid_from',
       new Date(this.newDiscount.valid_from || '').toISOString() || ''

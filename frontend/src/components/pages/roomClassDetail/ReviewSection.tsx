@@ -1,24 +1,32 @@
 "use client";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
-import { Review } from "@/types/review";
 import { nestReplies } from "@/utils/nestObject";
+import { useRoomReviews } from "@/hooks/data/useReview";
+import Pagination from "@/components/sections/Pagination";
 
-const ReviewSection = ({ reviews }: { reviews: Review[] }) => {
-  const [visibleCount, setVisibleCount] = useState(3);
+interface ReviewSectionProps {
+  roomId: string;
+}
+
+const ReviewSection = ({ roomId }: ReviewSectionProps) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+  };
+
+  const { reviews, total, averageRating } = useRoomReviews(
+    roomId,
+    currentPage,
+    itemsPerPage
+  );
+  const totalPages = Math.ceil(total / itemsPerPage);
 
   const nested = nestReplies(reviews);
   const userReviews = nested.filter(
     (review) => review.user_id && !review.employee_id
   );
-
-  const averageRating =
-    userReviews.length > 0
-      ? (
-          userReviews.reduce((sum, review) => sum + (review.rating ?? 0), 0) /
-          userReviews.length
-        ).toFixed(1)
-      : "0.0";
 
   return (
     <section className="tw-max-w-[1320px] tw-mx-auto tw-my-10 tw-p-6 tw-bg-black tw-shadow-xl tw-border-t tw-border-white">
@@ -43,14 +51,12 @@ const ReviewSection = ({ reviews }: { reviews: Review[] }) => {
             />
           ))}
         </div>
-        <span className="tw-text-gray-400">
-          ({userReviews.length} đánh giá)
-        </span>
+        <span className="tw-text-gray-400">({total} đánh giá)</span>
       </div>
 
       {/* Danh sách đánh giá */}
       <div className="tw-space-y-4">
-        {nested.slice(0, visibleCount).map((review) => (
+        {nested.map((review) => (
           <div
             key={review.id}
             className="tw-bg-gray-900 tw-rounded-xl tw-p-4 tw-shadow-sm"
@@ -103,14 +109,19 @@ const ReviewSection = ({ reviews }: { reviews: Review[] }) => {
           </div>
         ))}
 
-        {/* Xem thêm */}
-        {visibleCount < nested.length && (
-          <button
-            onClick={() => setVisibleCount((prev) => prev + 3)}
-            className="tw-mt-4 tw-px-4 tw-py-2 tw-rounded tw-bg-primary tw-text-black hover:tw-bg-yellow-400 tw-transition"
-          >
-            Xem thêm đánh giá
-          </button>
+        {userReviews.length === 0 && (
+          <div className="tw-text-gray-400 tw-text-center tw-mt-4">
+            Chưa có đánh giá nào từ khách hàng.
+          </div>
+        )}
+
+        {/* Phân trang */}
+        {totalPages > 1 && (
+          <Pagination
+            pageCount={totalPages}
+            onPageChange={handlePageChange}
+            forcePage={currentPage - 1}
+          />
         )}
       </div>
     </section>

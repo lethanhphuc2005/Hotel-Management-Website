@@ -17,9 +17,9 @@ interface RoomClassListDisplayProps {
   numberOfChildrenUnder6: number;
   numberOfChildrenOver6: number;
   totalRoomClasses?: number;
-  currentPage?: number;
-  pageSize?: number;
-  onPageChange?: (selectedItem: { selected: number }) => void;
+  currentPage: number;
+  pageSize: number;
+  onPageChange: (selectedItem: { selected: number }) => void;
 }
 
 export default function RoomClassListDisplay({
@@ -35,10 +35,11 @@ export default function RoomClassListDisplay({
   numberOfChildrenUnder6,
   numberOfChildrenOver6,
   totalRoomClasses = 0,
-  currentPage = 1,
+  currentPage,
   pageSize = 3,
   onPageChange = () => {},
 }: RoomClassListDisplayProps) {
+  const totalPages = Math.ceil(totalRoomClasses / pageSize);
   return (
     <>
       <RoomClassList
@@ -55,9 +56,9 @@ export default function RoomClassListDisplay({
         numberOfChildrenOver6={numberOfChildrenOver6}
       />
 
-      {totalRoomClasses > 0 && (
+      {totalPages > 1 && (
         <Pagination
-          pageCount={Math.ceil(totalRoomClasses / pageSize)}
+          pageCount={totalPages}
           onPageChange={onPageChange}
           forcePage={currentPage - 1}
         />

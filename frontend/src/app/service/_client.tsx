@@ -26,7 +26,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "@/components/sections/Pagination";
 import { useSearchParams } from "next/navigation";
-import { removeVietnameseTones } from "@/utils/stringUtils";
+import { useServices } from "@/hooks/data/useService";
 
 const features = [
   { icon: faLock, label: "Khóa cửa an toàn" },
@@ -48,34 +48,33 @@ const features = [
 ];
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([]);
-  const { setLoading } = useLoading();
+  const searchParams = useSearchParams();
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 8;
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("name_asc");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortOption, setSortOption] = useState<string>("price");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  useEffect(() => {
-    const fetchServicesData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetchServices();
-        if (!response.success) {
-          throw new Error(response.message || "Failed to fetch services");
-        }
-        setServices(response.data);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      } finally {
-        setLoading(false);
-      }
+  const memorzedParams = useMemo(() => {
+    const baseParams: Record<string, any> = {
+      search: searchTerm,
+      sort: sortOption,
+      order: sortOrder,
+      page: currentPage,
+      limit: itemsPerPage,
     };
-    fetchServicesData();
-  }, []);
+    if (searchTerm) {
+      baseParams.search = searchTerm;
+    }
 
-  const searchParams = useSearchParams();
+    return baseParams;
+  }, [searchTerm, sortOption, currentPage, itemsPerPage, sortOrder]);
+
+  const { services, total } = useServices(memorzedParams);
+
+  const totalPages = Math.ceil(total / itemsPerPage);
 
   useEffect(() => {
     const serviceParam = searchParams.get("service");
@@ -83,43 +82,6 @@ export default function ServicesPage() {
       setSearchTerm(serviceParam);
     }
   }, [searchParams]);
-
-  const filteredAndSortedServices = useMemo(() => {
-    const normalizedSearch = removeVietnameseTones(searchTerm);
-
-    let filtered = services.filter((s) => {
-      const normalizedName = removeVietnameseTones(s.name);
-      const normalizedDesc = removeVietnameseTones(s.description || "");
-
-      return (
-        normalizedName.includes(normalizedSearch) ||
-        normalizedDesc.includes(normalizedSearch)
-      );
-    });
-
-    switch (sortOption) {
-      case "name_asc":
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name_desc":
-        filtered.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "price_asc":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case "price_desc":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-    }
-
-    return filtered;
-  }, [services, searchTerm, sortOption]);
-
-  const totalItems = filteredAndSortedServices.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentServices = filteredAndSortedServices.slice(startIndex, endIndex);
 
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
@@ -137,21 +99,23 @@ export default function ServicesPage() {
           setSearchTerm(value);
           setCurrentPage(1);
         }}
-        sortOption={sortOption}
+        sortOption={`${sortOption}-${sortOrder}`}
         setSortOption={(value) => {
-          setSortOption(value);
+          const [field, order] = value.split("-");
+          setSortOption(field);
+          setSortOrder(order as "asc" | "desc");
           setCurrentPage(1);
         }}
         placeholder="Tìm dịch vụ..."
         sortOptions={[
-          { value: "name_asc", label: "Tên A-Z" },
-          { value: "name_desc", label: "Tên Z-A" },
-          { value: "price_asc", label: "Giá tăng dần" },
-          { value: "price_desc", label: "Giá giảm dần" },
+          { value: "name-asc", label: "Tên A-Z" },
+          { value: "name-desc", label: "Tên Z-A" },
+          { value: "price-asc", label: "Giá tăng dần" },
+          { value: "price-desc", label: "Giá giảm dần" },
         ]}
       />
 
-      <HotelServiceList services={currentServices} />
+      <HotelServiceList services={services} />
 
       {totalPages > 1 && (
         <Pagination

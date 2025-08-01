@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import Image from "next/image";
 import { Discount } from "@/types/discount";
 import DiscountDetailPopup from "@/components/modals/DiscountDetailModal";

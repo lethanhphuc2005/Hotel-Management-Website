@@ -5,6 +5,7 @@ export interface PaginationResponse {
   page: number;
   limit: number;
   totalPages: number;
+  averageRating?: number; // Optional, used in reviews
 }
 
 export interface DateRange extends Range {}

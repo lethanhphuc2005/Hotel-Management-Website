@@ -10,7 +10,7 @@ export interface Discount {
   value: number;
   value_type: string;
   conditions: DiscountCondition;
-  promo_code?: string;
+  promo_code?: string | null; // Promo code can be null if not provided
   valid_from: Date;
   valid_to: Date;
   apply_to_room_class_ids?: string[];
@@ -51,7 +51,7 @@ export interface DiscountRequest {
   value?: number;
   value_type?: string;
   conditions: DiscountCondition;
-  promo_code?: string;
+  promo_code?: string | null;
   valid_from?: Date;
   valid_to?: Date;
   apply_to_room_class_ids: string[];

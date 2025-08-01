@@ -2,35 +2,43 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Comment, CommentWithReplies } from "@/types/comment";
+import { CommentWithReplies } from "@/types/comment";
 import { useAuth } from "@/contexts/AuthContext";
 import { createComment } from "@/services/CommentService";
 import { nestComments } from "@/utils/nestObject";
 import { toast } from "react-toastify";
 import { formatDate } from "@/utils/dateUtils";
 import { AnimatedButtonLink } from "@/components/common/Button";
+import { useRoomComments } from "@/hooks/data/useComment";
+import Pagination from "@/components/sections/Pagination";
+
 interface Props {
-  roomClassId: string;
-  comments: Comment[];
-  setCommentsData: React.Dispatch<React.SetStateAction<Comment[]>>;
+  roomId: string;
   mode: "ask" | "comments";
   onClose: () => void;
 }
 
-const QuestionModalSidebar = ({
-  roomClassId,
-  comments,
-  setCommentsData,
-  mode,
-  onClose,
-}: Props) => {
+const QuestionModalSidebar = ({ roomId, mode, onClose }: Props) => {
   const [currentTab, setCurrentTab] = useState<"ask" | "comments">(mode);
   const [question, setQuestion] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
+
   const ref = useRef(null);
   const { user } = useAuth();
   const userId = user?.id || null;
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+  const { comments, total, mutate } = useRoomComments(
+    roomId,
+    currentPage,
+    itemsPerPage
+  );
+  const totalPages = Math.ceil(total / itemsPerPage);
+  const handlePageChange = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected + 1);
+  };
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -49,15 +57,20 @@ const QuestionModalSidebar = ({
 
     try {
       const response = await createComment({
-        roomClassId,
+        roomClassId: roomId,
         parentId: null,
         userId: userId,
         content: question,
       });
+      if (!response.success) {
+        toast.error(response.message || "Lỗi khi gửi câu hỏi");
+        return;
+      }
+
       toast.success("Câu hỏi đã được gửi thành công!");
-      setCommentsData((prev) => [response.data, ...prev]);
       setQuestion("");
       setCurrentTab("comments");
+      mutate();
     } catch (err) {
       console.error("Error submitting comment", err);
     }
@@ -68,21 +81,21 @@ const QuestionModalSidebar = ({
 
     try {
       const res = await createComment({
-        roomClassId,
+        roomClassId: roomId,
         parentId,
         userId,
         content: replyContent,
       });
 
-      const createdReply = {
-        ...res.data,
-        user: user || null, // thêm user hiện tại để hiển thị ngay
-      };
+      if (!res.success) {
+        toast.error(res.message || "Lỗi khi gửi phản hồi");
+        return;
+      }
 
       toast.success("Phản hồi đã được gửi thành công!");
-      setCommentsData((prev) => [createdReply, ...prev]);
       setReplyingTo(null);
       setReplyContent("");
+      mutate();
     } catch (err) {
       console.error("Error submitting reply", err);
     }
@@ -181,7 +194,7 @@ const QuestionModalSidebar = ({
               currentTab === "comments" ? "tw-text-primary" : "tw-text-gray-500"
             }`}
           >
-            Bình luận ({comments.length})
+            Bình luận ({total})
           </button>
         </div>
 
@@ -206,7 +219,14 @@ const QuestionModalSidebar = ({
           ) : (
             <div className="tw-space-y-4">
               {nested.length > 0 ? (
-                renderCommentTree(nested)
+                <div className="tw-space-y-4">
+                  {renderCommentTree(nested)}
+                  <Pagination
+                    pageCount={totalPages}
+                    onPageChange={handlePageChange}
+                    forcePage={currentPage - 1}
+                  />
+                </div>
               ) : (
                 <div className="tw-text-gray-400 tw-text-center tw-py-4">
                   Chưa có bình luận nào. Hãy đặt câu hỏi hoặc bình luận để bắt

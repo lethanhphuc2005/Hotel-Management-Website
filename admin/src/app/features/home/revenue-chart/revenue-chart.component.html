@@ -1,0 +1,29 @@
+<div class="card card-round">
+  <div class="card-header">
+    <div class="card-head-row">
+      <div class="card-title">Doanh thu 7 tháng gần nhất</div>
+      <div class="card-tools">
+        <button
+          (click)="exportChartAsImage()"
+          class="btn btn-label-success btn-round btn-sm me-2"
+        >
+          <span class="btn-label"><i class="fa fa-pencil"></i></span>
+          Export
+        </button>
+        <button
+          (click)="printChart()"
+          class="btn btn-label-info btn-round btn-sm"
+        >
+          <span class="btn-label"><i class="fa fa-print"></i></span>
+          Print
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container" style="min-height: 375px">
+      <canvas #revenueChartCanvas id="revenueChart"></canvas>
+    </div>
+    <div id="myChartLegend"></div>
+  </div>
+</div>

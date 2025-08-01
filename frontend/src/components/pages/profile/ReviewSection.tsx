@@ -9,21 +9,23 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 import Pagination from "@/components/sections/Pagination";
 import { showConfirmDialog } from "@/utils/swal";
 import { Review } from "@/types/review";
+import { useUserReviews } from "@/hooks/data/useReview";
 
-export default function ReviewSection({
-  reviews,
-  setReviews,
-}: {
-  reviews: Review[];
-  setReviews: React.Dispatch<React.SetStateAction<Review[]>>;
-}) {
+interface ReviewSectionProps {
+  userId: string;
+}
+
+export default function ReviewSection({ userId }: ReviewSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const totalItems = reviews.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentReviews = reviews.slice(startIndex, endIndex);
+  const itemsPerPage = 3;
+
+  const { reviews, mutate, total } = useUserReviews(
+    userId,
+    currentPage,
+    itemsPerPage
+  );
+  const totalPages = Math.ceil(total / itemsPerPage);
+
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
   };
@@ -51,19 +53,8 @@ export default function ReviewSection({
       }
       const updatedReview = response.data;
       toast.success(response.message || "Cập nhật đánh giá thành công");
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === review.id
-            ? {
-                ...r,
-                content: updatedReview.content,
-                rating: updatedReview.rating,
-                updated_at: updatedReview.updatedAt,
-              }
-            : r
-        )
-      );
       setEditingId(null);
+      mutate();
     } catch {
       toast.error("Cập nhật đánh giá thất bại. Vui lòng thử lại sau.");
     }
@@ -83,7 +74,7 @@ export default function ReviewSection({
       }
       await deleteReview({ reviewId, userId });
       toast.success("Xóa đánh giá thành công");
-      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      mutate();
     } catch {
       toast.error("Xóa đánh giá thất bại. Vui lòng thử lại sau.");
     }
@@ -91,7 +82,7 @@ export default function ReviewSection({
 
   return (
     <div className="tw-space-y-4">
-      {currentReviews.map((review) => {
+      {reviews.map((review) => {
         return (
           <motion.div
             key={review.id}

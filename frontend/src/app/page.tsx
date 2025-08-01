@@ -6,10 +6,17 @@ import Banner from "@/components/pages/home/BannerSection";
 import MainRoomClassList from "@/components/pages/home/MainRoomClassSection";
 import ServiceList from "@/components/pages/home/ServiceSection";
 import DiscountList from "@/components/pages/home/DiscountSection";
-import { useHome } from "@/hooks/useHome";
-import { useRoomSearch } from "@/hooks/useRoomSearch";
+import { useRoomSearch } from "@/hooks/logic/useRoomSearch";
 import InformationSection from "@/components/pages/home/InfomationSection";
 import GeminiSuggestionsSection from "@/components/pages/home/RecommendSection";
+import { useAISuggestions } from "@/hooks/data/useAISuggestion";
+import { useMainRoomClass } from "@/hooks/data/useMainRoomClass";
+import { useServices } from "@/hooks/data/useService";
+import { useWebsiteContent } from "@/hooks/data/useWebsiteContent";
+import { useDiscount } from "@/hooks/data/useDiscount";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { RoomClass } from "@/types/roomClass";
 
 export default function Home() {
   const {
@@ -39,8 +46,14 @@ export default function Home() {
     handleSearch,
     handleResetSearch,
   } = useRoomSearch();
-  const { mainRoomClasses, websiteContents, services, discounts, recommends } =
-    useHome();
+  const { user, isLoading } = useAuth();
+  const userId = user?.id || undefined;
+  const { mainRoomClasses } = useMainRoomClass({ page: 1, limit: 3 });
+  const { services } = useServices({ page: 1, limit: 8 });
+  const { websiteContents } = useWebsiteContent(1, 100);
+  const { discounts } = useDiscount({ page: 1, limit: 3 });
+  const { recommends } = useAISuggestions(userId);
+
   return (
     <>
       <Banner
@@ -77,7 +90,7 @@ export default function Home() {
 
         <ServiceList title="Dịch vụ khách sạn" svl={services} />
 
-        <DiscountList title="Ưu đãi đặc biệt" dcl={discounts.slice(0, 3)} />
+        <DiscountList title="Ưu đãi đặc biệt" dcl={discounts} />
 
         <InformationSection title="Thông tin" />
       </Container>

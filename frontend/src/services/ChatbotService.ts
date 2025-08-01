@@ -40,12 +40,15 @@ export const fetchSuggestionsFromGemini =
       const response = await fetchSuggestionsFromGeminiApi();
       return {
         success: true,
+        message: response.message || "Lấy gợi ý thành công.",
         data: response.roomClasses || [],
       };
-    } catch (error) {
-      console.error("Error fetching suggestions from Gemini:", error);
+    } catch (error: any) {
+      const errorMessage = error.message || "Đã xảy ra lỗi khi lấy gợi ý.";
+      console.error("Error fetching suggestions:", errorMessage);
       return {
         success: false,
+        message: errorMessage,
         data: [],
       };
     }

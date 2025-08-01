@@ -98,6 +98,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
         hasSaturdayNight,
         hasSundayNight,
         features: roomClass.features?.map((f) => f.feature.name) ?? [],
+        extraFee: null, // Phụ thu cuối tuần hoặc giường phụ
       })
     );
   };

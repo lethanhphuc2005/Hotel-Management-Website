@@ -11,6 +11,7 @@ import {
   resendVerificationEmail,
   verifyEmail,
 } from "@/services/AuthService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const validateRegisterForm = (
   first_name: string,
@@ -46,6 +47,8 @@ const validateRegisterForm = (
 
 const RegisterPage = () => {
   const router = useRouter();
+  const { googleLogin, facebookLogin } = useAuth();
+
   const [step, setStep] = useState(1);
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -307,10 +310,10 @@ const RegisterPage = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <a href="#">
+          <a href="#" onClick={googleLogin}>
             <i className="bi bi-facebook"></i>
           </a>
-          <a href="#">
+          <a href="#" onClick={facebookLogin}>
             <i className="bi bi-twitter"></i>
           </a>
         </motion.div>

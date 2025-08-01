@@ -1,0 +1,48 @@
+<div class="card card-round">
+  <div class="card-body">
+    <div class="card-head-row card-tools-still-right">
+      <div class="card-title">Khách hàng mới</div>
+      <div class="card-tools">
+        <div class="dropdown">
+          <button
+            class="btn btn-icon btn-clean me-0"
+            type="button"
+            id="dropdownMenuButton"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a
+              class="dropdown-item tw-cursor-pointer"
+              [routerLink]="['/admin/user']"
+              routerLinkActive="router-link-active"
+              >Xem thêm</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-list py-4">
+      <div class="item-list" *ngFor="let user of newUsers">
+        <div class="info-user ms-3">
+          <div class="username">{{ user.last_name }} {{ user.first_name }}</div>
+          <div class="status">{{ user.email }}</div>
+        </div>
+        <div class="col text-end">
+          <span
+            class="badge"
+            [ngClass]="{
+              'badge-success': user.is_verified,
+              'badge-danger': !user.is_verified
+            }"
+          >
+            {{ user.is_verified ? "Đã xác thực" : "Chưa xác thực" }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,28 +1,9 @@
 "use client";
 import { New1, New2, New3, New4 } from "@/components/pages/new/newsItem";
-import { fetchWebsiteContents } from "@/services/WebsiteContentService";
-import { WebsiteContent } from "@/types/websiteContent";
-import { useEffect, useState } from "react";
+import { useWebsiteContent } from "@/hooks/data/useWebsiteContent";
 
 export default function News() {
-  const [websiteContents, setWebsiteContents] = useState<WebsiteContent[]>([]);
-
-  useEffect(() => {
-    try {
-      const fetchWebsiteContentsData = async () => {
-        const response = await fetchWebsiteContents();
-        if (!response.success) {
-          console.error("Failed to fetch website contents:", response.message);
-          return;
-        }
-
-        setWebsiteContents(response.data);
-      };
-      fetchWebsiteContentsData();
-    } catch (error) {
-      console.error("Error fetching website contents:", error);
-    }
-  });
+  const { websiteContents } = useWebsiteContent(1, 5);
   return (
     <>
       <div

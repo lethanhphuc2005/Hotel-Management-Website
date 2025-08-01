@@ -115,7 +115,7 @@ const mainRoomClassController = {
         sort = "createdAt",
         order = "asc",
         page = 1,
-        limit,
+        limit = 10,
       } = req.query;
 
       // Tạo điều kiện tìm kiếm

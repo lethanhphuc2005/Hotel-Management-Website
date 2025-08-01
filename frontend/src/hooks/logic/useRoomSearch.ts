@@ -51,6 +51,8 @@ export function useRoomSearch(): RoomSearchBarProps {
   const numberOfAdults = guests.adults;
   const numberOfChildren =
     (guests.children.age0to6 ?? 0) + (guests.children.age7to17 ?? 0);
+  const numberOfChildren06 = guests.children.age0to6 ?? 0;
+  const numberOfChildren717 = guests.children.age7to17 ?? 0;
   const totalGuests = numberOfAdults + numberOfChildren;
 
   const { numberOfNights, capacity, hasSaturdayNight, hasSundayNight } =
@@ -59,15 +61,11 @@ export function useRoomSearch(): RoomSearchBarProps {
       let hasSat = false;
       let hasSun = false;
 
-      const children717 = guests.children.age7to17 || 0;
-      const children06 = guests.children.age0to6 || 0;
-      const adults = guests.adults || 0;
-
-      const adjustedChildren06 = Math.max(children06 - 1, 0); // 1 trẻ nhỏ được miễn
-      const adjustedChildren717 = Math.max(children717 - 1, 0); // 1 trẻ lớn được miễn nếu có người lớn
+      const adjustedChildren06 = Math.max(numberOfChildren06 - 1, 0); // 1 trẻ nhỏ được miễn
+      const adjustedChildren717 = Math.max(numberOfChildren717 - 1, 0); // 1 trẻ lớn được miễn nếu có người lớn
 
       const capacity = Math.ceil(
-        adults + adjustedChildren06 * 0.5 + adjustedChildren717 * 0.75
+        numberOfAdults + adjustedChildren06 * 0.5 + adjustedChildren717 * 0.75
       );
 
       const current = new Date(startDate);
@@ -86,20 +84,20 @@ export function useRoomSearch(): RoomSearchBarProps {
         hasSaturdayNight: hasSat,
         hasSundayNight: hasSun,
       };
-    }, [startDate, endDate, guests]);
+    }, [startDate, endDate, numberOfAdults, numberOfChildren06, numberOfChildren717]);
 
   // ✅ Tìm kiếm phòng
   const handleSearch = () => {
     if (!pendingStartDate || !pendingEndDate) {
-      toast.error("Vui lòng chọn ngày nhận và trả phòng!");
+      toast.info("Vui lòng chọn ngày nhận và trả phòng!");
       return;
     }
     if (pendingStartDate > pendingEndDate) {
-      toast.error("Ngày nhận phòng không thể sau ngày trả phòng!");
+      toast.info("Ngày nhận phòng không thể sau ngày trả phòng!");
       return;
     }
     if (totalGuests <= 0) {
-      toast.error("Vui lòng chọn số lượng khách!");
+      toast.info("Vui lòng chọn số lượng khách!");
       return;
     }
 
@@ -111,7 +109,7 @@ export function useRoomSearch(): RoomSearchBarProps {
       new Date(pendingEndDate).setHours(0, 0, 0, 0) === today.getTime();
 
     if (isStartToday || isEndToday) {
-      toast.error("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
+      toast.info("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
       return;
     }
 

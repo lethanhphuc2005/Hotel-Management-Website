@@ -49,10 +49,11 @@ export const createUserFavorite = async ({
 };
 
 export const getUserFavorites = async (
-  userId: string
+  userId: string,
+  params = {}
 ): Promise<UserFavoriteListResponse> => {
   try {
-    const response = await getUserFavoritesApi(userId);
+    const response = await getUserFavoritesApi(userId, params);
     const data = response.data;
     const userFavorites: UserFavorite[] = data.map((item: any) => ({
       id: item._id || item.id,
@@ -67,6 +68,7 @@ export const getUserFavorites = async (
       success: true,
       message: response.message || "User favorites fetched successfully",
       data: userFavorites,
+      pagination: response.pagination,
     };
   } catch (error: any) {
     const message =

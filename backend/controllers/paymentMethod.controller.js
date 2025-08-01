@@ -41,7 +41,7 @@ const paymentMethodController = {
       const {
         search,
         page = 1,
-        limit,
+        limit = 10,
         sort = "createdAt",
         order = "asc",
         status,
@@ -93,8 +93,6 @@ const paymentMethodController = {
           totalPages: Math.ceil(totalMethods / parseInt(limit)),
         },
       });
-
-      res.status(200).json(paymentMethods);
     } catch (error) {
       res.status(500).json(error);
     }

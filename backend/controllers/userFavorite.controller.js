@@ -70,13 +70,27 @@ const userFavoriteController = {
   getFavoritesByUserId: async (req, res) => {
     try {
       const userId = req.params.id;
-      const favorites = await UserFavorite.find({ user_id: userId }).populate(
-        "room_class user"
-      );
+      const { page = 1, limit = 10 } = req.query;
+      const query = { user_id: userId };
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const [favorites, total] = await Promise.all([
+        UserFavorite.find(query)
+          .populate("user room_class")
+          .skip(skip)
+          .limit(parseInt(limit)),
+        UserFavorite.countDocuments(query),
+      ]);
 
       res.status(200).json({
         message: "Lấy danh sách yêu thích thành công",
         data: favorites,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
       });
     } catch (error) {
       res.status(500).json({ message: error.message });

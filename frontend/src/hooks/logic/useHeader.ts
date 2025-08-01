@@ -12,6 +12,7 @@ interface HeaderProps {
   setShowDropdown: (show: boolean) => void;
   showSearch: boolean;
   setShowSearch: (show: boolean) => void;
+  level: string;
 }
 
 const levelMap: Record<string, { label: string; color: string }> = {
@@ -27,52 +28,13 @@ export const useHeader = ({
   setShowDropdown,
   showSearch,
   setShowSearch,
+  level,
 }: HeaderProps) => {
-  const { user, isLoading: isAuthLoading, logout } = useAuth();
-  const [mainRoomClass, setMainRoomClass] = useState<MainRoomClass[]>([]);
-  const [userData, setUserData] = useState<User | null>(null);
-  const [wallet, setWallet] = useState<Wallet | null>(null);
-  const { setLoading } = useLoading();
-  const level = levelMap[userData?.level || "normal"] || levelMap.normal;
+  const levelLabel = levelMap[level || "normal"] || levelMap.normal;
   const toggleSearch = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowSearch(!showSearch);
   };
-
-  const handleLogout = () => {
-    logout();
-    setUserData(null);
-    setWallet(null);
-    setShowDropdown(false);
-  };
-
-  useEffect(() => {
-    if (!isAuthLoading && !user) {
-      setUserData(null);
-      setWallet(null);
-      return;
-    }
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const mainRoomClassData = await fetchMainRoomClasses();
-
-        if (!mainRoomClassData.success) {
-          throw new Error(mainRoomClassData.message);
-        }
-
-        setMainRoomClass(mainRoomClassData.data);
-        setUserData(user); // ← Dùng user từ context
-        setWallet(user?.wallet || null); // ← Nếu có thông tin ví
-      } catch (error) {
-        console.error("Error fetching main room classes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,13 +69,7 @@ export const useHeader = ({
   }, [showDropdown, setShowDropdown]);
 
   return {
-    mainRoomClass,
-    userData,
-    wallet,
-    level,
-    setMainRoomClass,
-    setUserData,
+    level: levelLabel,
     toggleSearch,
-    handleLogout,
   };
 };

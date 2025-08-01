@@ -1,75 +1,61 @@
 import { publicApi, api } from "@/lib/axiosInstance";
 
 export const getSuggestions = async (q: string) => {
-  try {
-    const response = await publicApi.get("/suggestion", {
-      params: { q },
-    });
-    return response;
-  } catch (error) {
-    console.error("Error fetching suggestions:", error);
-    throw error;
-  }
+  const response = await publicApi.get("/suggestion", {
+    params: { q },
+  });
+  return response;
 };
 
-export const getSuggestionsByKeyword = async (type: string = "keyword", query: string) => {
-  try {
-    const response = await publicApi.get("/suggestion/keyword", {
-      params: { type, query },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching suggestions by keyword:", error);
-    throw error;
+export const getSuggestionsByKeyword = async (
+  type: string = "keyword",
+  query: string
+) => {
+  const response = await publicApi.get("/suggestion/keyword", {
+    params: { type, query },
+  });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-}
+  return response.data;
+};
 
 export const addSearchLog = async (keyword: string, type: string) => {
-  try {
-    const response = await api.post("/search-log", { keyword, type });
-    return response.data;
-  } catch (error) {
-    console.error("Error adding search log:", error);
-    throw error;
+  const response = await api.post("/search-log", { keyword, type });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };
 
 export const getSearchLogsByUser = async () => {
-  try {
-    const response = await api.get(`/search-log/history/`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching search logs by user:", error);
-    throw error;
+  const response = await api.get(`/search-log/history/`);
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };
 
 export const getSearchTrending = async () => {
-  try {
-    const response = await publicApi.get("/search-log/trending");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching search trending:", error);
-    throw error;
+  const response = await publicApi.get("/search-log/trending");
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };
 
 export const getSearchLogsForAI = async () => {
-  try {
-    const response = await publicApi.get("/search-log/ai-keywords");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching search logs for AI:", error);
-    throw error;
+  const response = await publicApi.get("/search-log/ai-keywords");
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };
 
 export const getSearchLogsByAI = async () => {
-  try {
-    const response = await publicApi.get("/search-cluster");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching search logs by AI:", error);
-    throw error;
+  const response = await publicApi.get("/search-cluster");
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
+  return response.data;
 };

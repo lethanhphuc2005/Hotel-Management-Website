@@ -11,9 +11,11 @@ import {
   PreviewDiscountBookingPriceResponse,
 } from "@/types/discount";
 
-export const fetchDiscounts = async (): Promise<DiscountListResponse> => {
+export const fetchDiscounts = async (
+  params = {}
+): Promise<DiscountListResponse> => {
   try {
-    const response = await getDiscountsApi();
+    const response = await getDiscountsApi(params);
     const data = response.data;
     const discounts: Discount[] = data.map((discount: any) => ({
       id: discount.id,

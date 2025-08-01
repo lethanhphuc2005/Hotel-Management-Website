@@ -18,30 +18,8 @@ const LoginPage = () => {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [resendCooldown, setResendCooldown] = useState(60);
-  const { login } = useAuth();
+  const { login, googleLogin, facebookLogin } = useAuth();
 
-  const handleGoogleLogin = async () => {
-    try {
-      await googleLogin();
-      // The redirect will be handled in the callback page
-    } catch (error) {
-      console.error("Google login error:", error);
-      toast.error(
-        "Đã xảy ra lỗi khi đăng nhập bằng Google. Vui lòng thử lại sau."
-      );
-    }
-  };
-
-  const handleFacebookLogin = async () => {
-    try {
-      await facebookLogin();
-    } catch (error) {
-      console.error("Facebook login error:", error);
-      toast.error(
-        "Đã xảy ra lỗi khi đăng nhập bằng Facebook. Vui lòng thử lại sau."
-      );
-    }
-  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -198,10 +176,10 @@ const LoginPage = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <a href="#" onClick={handleGoogleLogin}>
+              <a href="#" onClick={googleLogin}>
                 <i className="bi bi-google"></i>
               </a>
-              <a href="#" onClick={handleFacebookLogin}>
+              <a href="#" onClick={facebookLogin}>
                 <i className="bi bi-facebook"></i>
               </a>
             </motion.div>

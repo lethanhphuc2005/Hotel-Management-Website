@@ -7,23 +7,24 @@ import { useState } from "react";
 import Pagination from "@/components/sections/Pagination";
 import { showConfirmDialog } from "@/utils/swal";
 import { Comment } from "@/types/comment";
+import { useUserComments } from "@/hooks/data/useComment";
 
-export default function CommentSection({
-  userId,
-  comments,
-  setComments,
-}: {
+interface CommentSectionProps {
   userId: string;
-  comments: any[];
-  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
-}) {
+}
+
+export default function CommentSection({ userId }: CommentSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const totalItems = comments.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentComments = comments.slice(startIndex, endIndex);
+  const itemsPerPage = 3;
+
+  const { comments, mutate, total } = useUserComments(
+    userId,
+    currentPage,
+    itemsPerPage
+  );
+
+  const totalPages = Math.ceil(total / itemsPerPage);
+
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
   };
@@ -47,24 +48,10 @@ export default function CommentSection({
         toast.error(response.message || "Cập nhật bình luận thất bại.");
         return;
       }
-      const updatedComment = response.data;
-      if (!updatedComment) {
-        toast.error("Không tìm thấy bình luận để cập nhật.");
-        return;
-      }
       toast.success(response.message || "Cập nhật bình luận thành công");
-      setComments((prev) =>
-        prev.map((c) =>
-          c.id === comment.id
-            ? {
-                ...c,
-                content: updatedComment.content,
-                update_at: updatedComment.updatedAt,
-              }
-            : c
-        )
-      );
       setEditingId(null);
+      setEditContent("");
+      mutate();
     } catch {
       toast.error("Cập nhật bình luận thất bại. Vui lòng thử lại sau.");
     }
@@ -82,9 +69,9 @@ export default function CommentSection({
       if (!result) {
         return;
       }
-      await deleteComment({commentId, userId});
+      await deleteComment({ commentId, userId });
       toast.success("Xóa bình luận thành công");
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      mutate();
     } catch {
       toast.error("Xóa bình luận thất bại. Vui lòng thử lại sau.");
     }
@@ -92,7 +79,7 @@ export default function CommentSection({
 
   return (
     <div className="tw-space-y-4">
-      {currentComments.map((comment) => (
+      {comments.map((comment) => (
         <motion.div
           key={comment.id}
           className="tw-p-4 tw-rounded-xl tw-border tw-border-gray-700 tw-bg-black/50"

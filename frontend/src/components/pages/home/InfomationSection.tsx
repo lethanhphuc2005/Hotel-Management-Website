@@ -1,5 +1,5 @@
 import style from "@/styles/base/page.module.css";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/logic/useScrollAnimation";
 import { motion } from "framer-motion";
 import { Col, Row } from "react-bootstrap";
 import Image from "next/image";
@@ -99,7 +99,6 @@ export default function InformationSection({ title }: { title: string }) {
                   src="/img/phong14.avif"
                   alt="Check-in Information"
                   layout="fill"
-                  objectFit="cover"
                   className={style.infoCardImage}
                 />
                 <div className={style.infoCardOverlay}></div>

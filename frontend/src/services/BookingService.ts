@@ -2,6 +2,7 @@ import {
   createBooking as getBookingApi,
   getBookings as getBookingsApi,
   getBookingById as getBookingByIdApi,
+  getBookingForUser as getBookingForUserApi,
   previewCancellationFee as previewCancellationFeeApi,
   cancelBooking as cancelBookingApi,
 } from "@/api/bookingApi";
@@ -217,6 +218,67 @@ export const getBookingById = async (
       success: false,
       message,
       data: null as any, // Adjust type as necessary
+    };
+  }
+};
+
+export const getBookingsForUser = async (
+  userId: string,
+  params = {}
+): Promise<BookingListResponse> => {
+  try {
+    const response = await getBookingForUserApi(userId, params);
+    const data = response.data;
+    const bookings: Booking[] = data.map((booking: any) => ({
+      id: booking.id,
+      employee_id: booking.employee_id,
+      user_id: booking.user_id,
+      discount_id: booking.discount_id || null,
+      booking_method_id: booking.booking_method_id,
+      booking_status_id: booking.booking_status_id,
+      full_name: booking.full_name,
+      email: booking.email,
+      phone_number: booking.phone_number,
+      booking_date: new Date(booking.booking_date),
+      check_in_date: new Date(booking.check_in_date),
+      check_out_date: new Date(booking.check_out_date),
+      adult_amount: booking.adult_amount,
+      child_amount: booking.child_amount || 0,
+      request: booking.request || "",
+      extra_fee: booking.extra_fee || 0,
+      note: booking.note || "",
+      original_price: booking.original_price,
+      total_price: booking.total_price,
+      discount_value: booking.discount_value || 0,
+      cancel_reason: booking.cancel_reason || null,
+      cancel_date: booking.cancel_date ? new Date(booking.cancel_date) : null,
+      createdAt: new Date(booking.createdAt || booking.created_at),
+      updatedAt: new Date(booking.updatedAt || booking.updated_at),
+      booking_status: booking.booking_status,
+      booking_method: booking.booking_method,
+      user: booking.user,
+      discounts: booking.discounts,
+      payments: booking.payments,
+      employee: booking.employee,
+      booking_details: booking.booking_details,
+    }));
+
+    return {
+      success: true,
+      message: response.message || "Bookings for user fetched successfully",
+      data: bookings,
+      pagination: response.pagination,
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching bookings for user";
+    return {
+      success: false,
+      message,
+      data: [],
+      pagination: undefined,
     };
   }
 };

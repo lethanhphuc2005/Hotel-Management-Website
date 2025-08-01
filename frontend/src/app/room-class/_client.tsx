@@ -3,9 +3,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import FilterSidebar from "@/components/pages/roomClass/FilterSidebar";
 import RoomListDisplay from "@/components/pages/roomClass/ListDisplay";
-import { useRoomSearch } from "@/hooks/useRoomSearch";
-import { useRoomClass } from "@/hooks/useRoomClass";
+import { useRoomSearch } from "@/hooks/logic/useRoomSearch";
+import { useRoomClass } from "@/hooks/data/useRoomClass";
 import { useSearchParams } from "next/navigation";
+import { useFeature } from "@/hooks/data/useFeature";
+import { useMainRoomClass } from "@/hooks/data/useMainRoomClass";
 
 export default function RoomClassesPage() {
   const {
@@ -45,7 +47,9 @@ export default function RoomClassesPage() {
   const [showFeatureFilter, setShowFeatureFilter] = useState<boolean>(false);
   const [showMainRoomClassFilter, setShowMainRoomClassFilter] =
     useState<boolean>(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10_000_000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    0, 10_000_000,
+  ]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("price");
   const [sortOrder, setSortOrder] = useState<string>("asc");
@@ -119,8 +123,12 @@ export default function RoomClassesPage() {
     currentPage,
   ]);
 
-  const { roomClasses, features, mainRoomClasses, totalRoomClasses } =
-    useRoomClass(memoizedParams);
+  const { roomClasses, total } = useRoomClass(memoizedParams);
+  const { features } = useFeature({
+    page: 1,
+    limit: 100,
+  });
+  const { mainRoomClasses } = useMainRoomClass({ page: 1, limit: 3 });
 
   const handlePageChange = (selectedItem: { selected: number }) => {
     setCurrentPage(selectedItem.selected + 1);
@@ -185,7 +193,7 @@ export default function RoomClassesPage() {
       </div>
 
       <div className="row">
-        <div className="col-3 border-end border-top h-auto">
+        <div className="col-3 border-top h-auto">
           <FilterSidebar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -214,25 +222,23 @@ export default function RoomClassesPage() {
         </div>
 
         <div className="col-9 border-top">
-          <div className="row p-3 gap-3">
-            <RoomListDisplay
-              hasSearched={hasSearched}
-              displayRoomClasses={roomClasses}
-              numberOfNights={numberOfNights}
-              numberOfAdults={numberOfAdults}
-              numberOfChildrenUnder6={guests.children.age0to6}
-              numberOfChildrenOver6={guests.children.age7to17}
-              startDate={startDate}
-              endDate={endDate}
-              capacity={capacity}
-              hasSaturdayNight={hasSaturdayNight}
-              hasSundayNight={hasSundayNight}
-              totalRoomClasses={totalRoomClasses}
-              currentPage={currentPage}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-            />
-          </div>
+          <RoomListDisplay
+            hasSearched={hasSearched}
+            displayRoomClasses={roomClasses}
+            numberOfNights={numberOfNights}
+            numberOfAdults={numberOfAdults}
+            numberOfChildrenUnder6={guests.children.age0to6}
+            numberOfChildrenOver6={guests.children.age7to17}
+            startDate={startDate}
+            endDate={endDate}
+            capacity={capacity}
+            hasSaturdayNight={hasSaturdayNight}
+            hasSundayNight={hasSundayNight}
+            totalRoomClasses={total}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>

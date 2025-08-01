@@ -1,3 +1,4 @@
+import { PaginationResponse } from "./_common";
 import { RoomClass } from "./roomClass";
 import { User } from "./user";
 
@@ -15,6 +16,7 @@ export interface UserFavoriteListResponse {
   success: boolean;
   message?: string;
   data: UserFavorite[];
+  pagination?: PaginationResponse
 }
 
 export interface UserFavoriteResponse {

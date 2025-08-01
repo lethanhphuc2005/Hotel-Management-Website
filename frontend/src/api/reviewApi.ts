@@ -5,12 +5,28 @@ import {
   UpdateReviewRequest,
 } from "@/types/review";
 
-export const getReviews = async () => {
-  const response = await publicApi.get(`/review/user`);
+export const getReviews = async (userId: string, params = {}) => {
+  const response = await publicApi.get(`/review/user/${userId}`, { params });
   if (response.status !== 200) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
   return response.data; // [{ reviewId, content, createdAt, ... }, ...]
+};
+
+export const getReviewsByRoomClassId = async (
+  roomClassId: string,
+  params = {}
+) => {
+  const response = await publicApi.get(`/review/room/${roomClassId}`, {
+    params,
+  });
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  }
+  return {
+    data: response.data, // [{ reviewId, content, createdAt, ... }, ...]
+    status: response.status,
+  }; // [{ reviewId, content, createdAt, ... }, ...]
 };
 
 export const getReviewById = async (reviewId: string) => {

@@ -1,9 +1,11 @@
 import { publicApi, api } from "@/lib/axiosInstance";
 import { PreviewDiscountBookingPriceRequest } from "@/types/discount";
 
-export const getDiscounts = async () => {
+export const getDiscounts = async (params = {}) => {
   try {
-    const response = await publicApi.get("/discount/user");
+    const response = await publicApi.get("/discount/user", {
+      params,
+    });
     if (response.status !== 200) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }

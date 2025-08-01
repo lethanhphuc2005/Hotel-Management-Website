@@ -15,7 +15,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
-import { useHeader } from "@/hooks/useHeader";
+import { useHeader } from "@/hooks/logic/useHeader";
 import SearchSuggestions from "../sections/SearchSuggestion";
 import {
   fetchSuggestions,
@@ -28,6 +28,9 @@ import { AnimatedButton } from "@/components/common/Button";
 import { handleSearchClick } from "@/utils/handleSearchClick";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useUserWallet } from "@/hooks/data/useWallet";
+import { useMainRoomClass } from "@/hooks/data/useMainRoomClass";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
@@ -55,13 +58,17 @@ export default function Header() {
   };
 
   const cartCount = useSelector((state: RootState) => state.cart.rooms.length);
-  const { mainRoomClass, wallet, userData, toggleSearch, handleLogout, level } =
-    useHeader({
-      showDropdown,
-      setShowDropdown,
-      showSearch,
-      setShowSearch,
-    });
+  const { user: userData, logout } = useAuth();
+  const { toggleSearch, level } = useHeader({
+    showDropdown,
+    setShowDropdown,
+    showSearch,
+    setShowSearch,
+    level: userData?.level || "normal",
+  });
+
+  const { wallet } = useUserWallet(userData?.id || "");
+  const { mainRoomClasses } = useMainRoomClass({ page: 1, limit: 3 });
 
   useEffect(() => {
     if (!searchValue) {
@@ -90,7 +97,7 @@ export default function Header() {
       label: "Phòng",
       href: "/room-class",
       dropdown: true,
-      items: mainRoomClass.map((mainroom) => ({
+      items: mainRoomClasses.map((mainroom) => ({
         label: mainroom.name,
         href: `/room-class?mainRoomClassId=${mainroom.id}`,
       })),
@@ -294,7 +301,9 @@ export default function Header() {
                 onClick={() => setShowDropdown((prev) => !prev)}
                 className="tw-flex tw-items-center tw-gap-2 tw-text-white tw-cursor-pointer"
               >
-                <FontAwesomeIcon icon={faUser} className="tw-text-xl" />
+                {!userData && (
+                  <FontAwesomeIcon icon={faUser} className="tw-text-xl" />
+                )}
                 {userData && (
                   <div className="tw-hidden md:tw-flex tw-flex-col tw-items-start">
                     <span className="tw-text-white tw-font-semibold tw-text-sm">
@@ -342,7 +351,7 @@ export default function Header() {
                           Quản lý tài khoản
                         </Link>
                         <button
-                          onClick={handleLogout}
+                          onClick={logout}
                           className="tw-block tw-text-white hover:tw-text-red-400 tw-px-3 tw-py-2 tw-text-sm tw-w-full tw-text-left tw-no-underline"
                         >
                           Đăng xuất

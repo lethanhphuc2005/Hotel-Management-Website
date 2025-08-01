@@ -495,8 +495,8 @@ const bookingController = {
 
       const {
         page = 1,
-        limit,
-        sort = "booking_status_id",
+        limit = 10,
+        sort = "createdAt",
         order = "desc",
         status,
       } = req.query;
@@ -833,6 +833,8 @@ const bookingController = {
       booking.actual_check_in_date = new Date();
       booking.check_in_identity = identity;
       booking.booking_status_id = checkedInStatus._id;
+
+      const updatedBooking = await booking.save();
 
       res.json({ message: "Đã check-in thành công.", data: updatedBooking });
     } catch (error) {

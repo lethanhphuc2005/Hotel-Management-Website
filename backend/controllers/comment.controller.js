@@ -148,6 +148,7 @@ const commentController = {
 
   /// === LẤY DANH SÁCH BÌNH LUẬN CHO USER ===
   getAllCommentsForUser: async (req, res) => {
+    const userId = req.params.userId;
     try {
       const {
         search = "",
@@ -158,7 +159,65 @@ const commentController = {
         room_class,
       } = req.query;
 
-      const query = { status: true };
+      const query = { status: true, user_id: userId };
+      if (search) {
+        query.content = { $regex: search, $options: "i" };
+      }
+
+      if (room_class) {
+        query.room_class_id = room_class;
+      }
+
+      const sortOptions = {};
+      sortOptions[sort] = order === "asc" ? 1 : -1;
+
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const [comments, total] = await Promise.all([
+        Comment.find(query)
+          .populate("user employee room_class")
+          .sort(sortOptions)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .exec(),
+        Comment.countDocuments(query),
+      ]);
+
+      if (!comments || comments.length === 0) {
+        return res.status(404).json({ message: "Không có bình luận nào." });
+      }
+      // Trả về danh sách bình luận
+      return res.status(200).json({
+        message: "Lấy danh sách bình luận thành công.",
+        data: comments,
+        pagination: {
+          total: total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
+      });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Lỗi khi lấy danh sách bình luận." });
+    }
+  },
+
+  // === LẤY DANH SÁCH BÌNH LUẬN THEO ID LOẠI PHÒNG ===
+  getCommentsByRoomClassId: async (req, res) => {
+    try {
+      const roomId = req.params.roomId;
+      const {
+        search = "",
+        page = 1,
+        limit = 10,
+        sort,
+        order,
+        room_class,
+      } = req.query;
+
+      const query = { status: true, room_class_id: roomId };
       if (search) {
         query.content = { $regex: search, $options: "i" };
       }

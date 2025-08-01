@@ -1,6 +1,7 @@
 import {
   getComments as getCommnetsApi,
   getCommentById as getCommentByIdApi,
+  getCommentsByRoomClassId as getCommentsByRoomClassIdApi,
   createComment as createCommentApi,
   updateComment as updateCommentApi,
   deleteComment as deleteCommentApi,
@@ -14,9 +15,12 @@ import {
   UpdateCommentRequest,
 } from "@/types/comment";
 
-export const fetchComments = async (): Promise<CommentListResponse> => {
+export const fetchComments = async (
+  userId: string,
+  params = {}
+): Promise<CommentListResponse> => {
   try {
-    const response = await getCommnetsApi();
+    const response = await getCommnetsApi(userId, params);
     const data = response.data;
     const comments: Comment[] = data.map((comment: any) => ({
       id: comment.id,
@@ -26,8 +30,8 @@ export const fetchComments = async (): Promise<CommentListResponse> => {
       user_id: comment.user_id || null,
       content: comment.content,
       status: comment.status || true, // Default to true if status is not provided
-      created_at: new Date(comment.createdAt || comment.created_at),
-      updated_at: new Date(comment.updatedAt || comment.updated_at),
+      createdAt: new Date(comment.createdAt || comment.created_at),
+      updatedAt: new Date(comment.updatedAt || comment.updated_at),
       employee: comment.employee || null, // Assuming employee is included in the response
       user: comment.user || null, // Assuming user is included in the response
       room_class: comment.room_class || null, // Assuming room_class is included
@@ -45,6 +49,50 @@ export const fetchComments = async (): Promise<CommentListResponse> => {
       "An error occurred while fetching comments";
     return {
       success: false,
+      message,
+      data: [],
+      pagination: undefined, // Return null for pagination in case of error
+    };
+  }
+};
+
+export const fetchCommentsByRoomClassId = async (
+  roomClassId: string,
+  params = {}
+): Promise<CommentListResponse> => {
+  try {
+    const response = (await getCommentsByRoomClassIdApi(roomClassId, params))
+      .data;
+    console.log("Response from fetchCommentsByRoomClassId:", response);
+    const data = response.data;
+    const comments: Comment[] = data.map((comment: any) => ({
+      id: comment.id,
+      room_class_id: comment.room_class_id,
+      parent_id: comment.parent_id || null,
+      employee_id: comment.employee_id || null,
+      user_id: comment.user_id || null,
+      content: comment.content,
+      status: comment.status || true, // Default to true if status is not provided
+      createdAt: new Date(comment.createdAt || comment.created_at),
+      updatedAt: new Date(comment.updatedAt || comment.updated_at),
+      employee: comment.employee || null, // Assuming employee is included in the response
+      user: comment.user || null, // Assuming user is included in the response
+      room_class: comment.room_class || null, // Assuming room_class is included
+    }));
+    return {
+      success: true,
+      message: response.message || "Comments fetched successfully",
+      data: comments,
+      pagination: response.pagination, // Assuming pagination is included in the response
+    };
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data ||
+      "An error occurred while fetching comments by room class ID";
+    return {
+      success: false,
+      statusCode: error.response?.status || 500,
       message,
       data: [],
       pagination: undefined, // Return null for pagination in case of error

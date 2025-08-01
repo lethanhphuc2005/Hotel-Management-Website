@@ -34,5 +34,6 @@ export interface ChatbotResponse {
 
 export interface ChatbotSuggestionResponse {
   success: boolean;
+  message: string;
   data: RoomClass[];
 }

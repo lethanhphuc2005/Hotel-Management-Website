@@ -3,10 +3,17 @@ const reviewController = require("../controllers/review.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ ===
-router.get("/", authMiddleware.authorizeRoles("admin"), reviewController.getAllReviews);
+router.get(
+  "/",
+  authMiddleware.authorizeRoles("admin"),
+  reviewController.getAllReviews
+);
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ CHO USER ===
-router.get("/user", reviewController.getAllReviewsForUser);
+router.get("/user/:userId", reviewController.getAllReviewsForUser);
+
+// === LẤY DANH SÁCH ĐÁNH GIÁ THEO PHÒNG ===
+router.get("/room/:roomId", reviewController.getReviewsByRoomClassId);
 
 // === LẤY DANH SÁCH ĐÁNH GIÁ THEO ID ===
 router.get(

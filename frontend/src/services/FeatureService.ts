@@ -4,9 +4,9 @@ import {
 } from "@/api/featureApi";
 import { Feature, FeatureListResponse, FeatureResponse } from "@/types/feature";
 
-export const fetchFeatures = async (): Promise<FeatureListResponse> => {
+export const fetchFeatures = async (params = {}): Promise<FeatureListResponse> => {
   try {
-    const response = await getFeaturesApi();
+    const response = await getFeaturesApi(params);
     const data = response.data;
     const features: Feature[] = data.map((feature: any) => ({
       id: feature.id,
