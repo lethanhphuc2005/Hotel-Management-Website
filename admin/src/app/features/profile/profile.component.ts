@@ -105,7 +105,7 @@ export class ProfileComponent implements OnInit {
     }
 
     const body: ChangePasswordRequest = {
-      oldPassword: this.currentPassword,
+      password: this.currentPassword,
       newPassword: this.newPassword,
     };
 

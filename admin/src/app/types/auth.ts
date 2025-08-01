@@ -6,7 +6,7 @@ export interface LoginRequest {
 }
 
 export interface ChangePasswordRequest {
-  oldPassword: string;
+  password: string;
   newPassword: string;
 }
 
