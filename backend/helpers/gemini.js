@@ -15,12 +15,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 async function getAvailableGeminiModel() {
   try {
     // Ưu tiên 2.5-flash (chưa dùng hết quota)
-    const m = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const m = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     // Kiểm tra nhẹ bằng generateContent nhỏ
     await m.generateContent("ping");
     return m;
   } catch (err25) {
-    console.warn("⚠️ gemini-2.0-flash failed, fallback to 2.5-flash");
+    console.warn("⚠️ Gemini 2.5-flash-lite lỗi hoặc hết quota:", err25.message);
     try {
       const m = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       await m.generateContent("ping");

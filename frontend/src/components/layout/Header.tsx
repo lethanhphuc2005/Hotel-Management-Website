@@ -67,8 +67,14 @@ export default function Header() {
     level: userData?.level || "normal",
   });
 
-  const { wallet } = useUserWallet(userData?.id || "");
+  const { wallet, mutate: mutateWallet } = useUserWallet(userData?.id || "");
   const { mainRoomClasses } = useMainRoomClass({ page: 1, limit: 3 });
+
+  const handleLogout = () => {
+    logout();
+    mutateWallet();
+    setShowDropdown(false);
+  };
 
   useEffect(() => {
     if (!searchValue) {
@@ -351,7 +357,7 @@ export default function Header() {
                           Quản lý tài khoản
                         </Link>
                         <button
-                          onClick={logout}
+                          onClick={handleLogout}
                           className="tw-block tw-text-white hover:tw-text-red-400 tw-px-3 tw-py-2 tw-text-sm tw-w-full tw-text-left tw-no-underline"
                         >
                           Đăng xuất
