@@ -13,7 +13,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/v1/auth/google/callback",
+      callbackURL: `${process.env.BACKEND_URL}/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       // Tùy bạn xử lý user: tạo mới hoặc tìm trong DB
@@ -36,7 +36,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      callbackURL: "/api/v1/auth/facebook/callback",
+      callbackURL: `${process.env.BACKEND_URL}/auth/facebook/callback`,
       profileFields: ["id", "emails", "name", "picture.type(large)"],
     },
     async (accessToken, refreshToken, profile, done) => {
