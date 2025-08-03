@@ -16,7 +16,7 @@ router.post("/login", accountController.loginAuth);
 // === ĐĂNG KÝ GOOGLE ===
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email", "openid"] })
+  passport.authenticate("google", { scope: ["profile", "email", "openid"], prompt: "select_account" })
 );
 
 // === XỬ LÝ KHI GOOGLE TRẢ VỀ ===
@@ -32,7 +32,7 @@ router.get(
 // === ĐĂNG KÝ FACEBOOK ===
 router.get(
   "/facebook",
-  passport.authenticate("facebook", { scope: ["email"], prompt: "select_account" })
+  passport.authenticate("facebook", { scope: ["email"] })
 );
 
 // === XỬ LÝ KHI FACEBOOK TRẢ VỀ ===

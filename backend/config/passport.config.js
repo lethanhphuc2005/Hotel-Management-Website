@@ -14,6 +14,8 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: `${process.env.BACKEND_URL}/api/v1/auth/google/callback`,
+      passReqToCallback: true,
+      scope: ["profile", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
       // Tùy bạn xử lý user: tạo mới hoặc tìm trong DB
