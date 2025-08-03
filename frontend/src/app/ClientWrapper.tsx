@@ -9,6 +9,18 @@ import CartProvider from "@/providers/CartProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ToastContainer } from "react-toastify";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+
+export function ScrollToTop() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 export default function ClientWrapper({
   children,
@@ -35,6 +47,7 @@ export default function ClientWrapper({
           <CartProvider>
             <GlobalLoading />
             <Header />
+            <ScrollToTop />
             <div className="tw-min-h-screen"> {children}</div>
             <Footer />
             <ChatbotPopup />

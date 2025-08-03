@@ -118,7 +118,7 @@ export default function WalletSection({ userId }: Props) {
             currentTransactions?.map((tx: WalletTransaction) => (
               <li
                 key={tx.id}
-                className="tw-border-b tw-border-gray-600 tw-pb-3 tw-flex tw-justify-between tw-items-center"
+                className="tw-border-b tw-border-gray-600 tw-pb-3 tw-flex tw-justify-between tw-items-center tw-ml-2"
               >
                 <div>
                   <p className="tw-text-white">{tx.note}</p>

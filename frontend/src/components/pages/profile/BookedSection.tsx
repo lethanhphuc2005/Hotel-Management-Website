@@ -158,18 +158,17 @@ export default function BookedRoomSection({ userId }: BookedRoomSectionProps) {
                 <p className="tw-text-sm tw-text-gray-300">
                   Thông tin người đặt:
                 </p>
-                <ul className="tw-list-disc tw-text-gray-300 tw-text-sm/3">
-                  <li>
-                    <p>Họ và tên: {booking.full_name || "Không rõ"}</p>
+                <ul className="tw-list-disc tw-text-gray-300 tw-text-sm/3 tw-ml-4">
+                  <li className="tw-m-2">
+                    Họ và tên: {booking.full_name || "Không rõ"}
                   </li>
-                  <li>
-                    <p>Số điện thoại: {booking.phone_number || "Không rõ"}</p>
+                  <li className="tw-m-2">
+                    Số điện thoại: {booking.phone_number || "Không rõ"}
                   </li>
-                  <li>
-                    <p>Email: {booking.email || "Không rõ"}</p>
+                  <li className="tw-m-2">
+                    Email: {booking.email || "Không rõ"}
                   </li>
                 </ul>
-
                 <span
                   className={`tw-inline-block tw-px-3 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-uppercase ${getColorClass(
                     booking.booking_status.code
@@ -263,7 +262,7 @@ export default function BookedRoomSection({ userId }: BookedRoomSectionProps) {
                       initial={{ x: 30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ duration: 0.3 }}
-                      className="tw-space-y-2 tw-border-t tw-border-gray-600 tw-pt-4"
+                      className="tw-space-y-2 tw-border-t tw-border-gray-600 tw-py-4"
                     >
                       <p>
                         <strong>Yêu cầu:</strong>{" "}
@@ -280,20 +279,22 @@ export default function BookedRoomSection({ userId }: BookedRoomSectionProps) {
                         <strong>Hình thức:</strong>{" "}
                         {booking.booking_method.name || "Không xác định"}
                       </p>
-                      <strong>Thanh toán:</strong>{" "}
-                      {payments && payments.length > 0 ? (
-                        <ul className="tw-list-disc tw-ml-6">
-                          {payments.map((payment: Payment) => (
-                            <li key={payment.id}>
-                              {payment.payment_method.name} -{" "}
-                              {payment.amount.toLocaleString("vi-VN")}₫ -{" "}
-                              {payment.status}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        "Chưa thanh toán"
-                      )}
+                      <p>
+                        <strong>Thanh toán:</strong>{" "}
+                        {payments && payments.length > 0 ? (
+                          <ul className="tw-list-disc tw-ml-6">
+                            {payments.map((payment: Payment) => (
+                              <li key={payment.id}>
+                                {payment.payment_method.name} -{" "}
+                                {payment.amount.toLocaleString("vi-VN")}₫ -{" "}
+                                {payment.status}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          "Chưa thanh toán"
+                        )}
+                      </p>
                     </motion.div>
                   </div>
                   {booking.discounts && booking.discounts.length > 0 && (
@@ -301,7 +302,7 @@ export default function BookedRoomSection({ userId }: BookedRoomSectionProps) {
                       initial={{ x: 30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ duration: 0.3 }}
-                      className="tw-space-y-2 tw-border-t tw-border-gray-600 tw-pt-4"
+                      className="tw-space-y-2 tw-border-t tw-border-gray-600 tw-py-4"
                     >
                       <p className="tw-font-semibold tw-text-primary">
                         Giảm giá áp dụng:

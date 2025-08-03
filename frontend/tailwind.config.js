@@ -2,9 +2,31 @@
 module.exports = {
   prefix: "tw-", // Tiền tố cho các lớp Tailwind
   content: [
-    "./src/**/*.{js,ts,jsx,tsx}", // Nếu dùng Next.js
-    "./app/**/*.{js,ts,jsx,tsx}", // Nếu dùng Next.js với app directory
-    "./components/**/*.{js,ts,jsx,tsx}", // Nếu có thư mục components
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // nếu bạn để component trong src/
+  ],
+   safelist: [
+    // Text colors
+    'tw-text-yellow-500',
+    'tw-text-gray-300',
+    'tw-text-sm',
+    'tw-text-sm/3',
+
+    // Backgrounds
+    'tw-bg-black',
+    'tw-bg-black/50',
+    'tw-bg-white',
+    'tw-bg-yellow-500',
+
+    // Others
+    'tw-list-disc',
+    'tw-rounded-xl',
+    'tw-shadow',
+    'tw-p-4',
+    'tw-font-semibold',
+    'tw-mb-4',
   ],
   theme: {
     extend: {
