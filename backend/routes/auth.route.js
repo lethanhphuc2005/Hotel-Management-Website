@@ -32,7 +32,7 @@ router.get(
 // === ĐĂNG KÝ FACEBOOK ===
 router.get(
   "/facebook",
-  passport.authenticate("facebook", { scope: ["email"] })
+  passport.authenticate("facebook", { scope: ["email"], prompt: "select_account" })
 );
 
 // === XỬ LÝ KHI FACEBOOK TRẢ VỀ ===
