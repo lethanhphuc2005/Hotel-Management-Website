@@ -71,8 +71,8 @@ export default function Header() {
   const { mainRoomClasses } = useMainRoomClass({ page: 1, limit: 3 });
 
   const handleLogout = () => {
+        mutateWallet();
     logout();
-    mutateWallet();
     setShowDropdown(false);
   };
 

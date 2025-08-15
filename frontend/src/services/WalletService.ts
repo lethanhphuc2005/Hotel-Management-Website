@@ -28,7 +28,6 @@ export const fetchWalletByUserId = async (
         amount: transaction.amount,
         note: transaction.note,
         createdAt: new Date(transaction.createdAt),
-        updatedAt: new Date(transaction.updatedAt),
       })),
       createdAt: new Date(data.createdAt),
       updatedAt: new Date(data.updatedAt),
@@ -37,8 +36,7 @@ export const fetchWalletByUserId = async (
     const sortedWallet: Wallet = {
       ...wallet,
       transactions: wallet.transactions.sort(
-        (a: any, b: any) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        (a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime()
       ),
     };
 

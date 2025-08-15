@@ -34,7 +34,7 @@ export default function WalletSection({ userId }: Props) {
   const handlePageChange = ({ selected }: { selected: number }) => {
     setCurrentPage(selected + 1);
   };
-
+console.log("Current transactions:", wallet?.transactions);
   const handleDeposit = async () => {
     const amountStr = await showNumberInputDialog(
       "Nạp tiền vào ví",
@@ -123,7 +123,7 @@ export default function WalletSection({ userId }: Props) {
                 <div>
                   <p className="tw-text-white">{tx.note}</p>
                   <p className="tw-text-xs tw-text-gray-400">
-                    {formatDate(tx.createdAt || new Date())}
+                    {tx.createdAt?.toISOString()}
                   </p>
                 </div>
                 <p

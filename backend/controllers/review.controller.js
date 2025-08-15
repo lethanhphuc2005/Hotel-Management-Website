@@ -362,7 +362,7 @@ const reviewController = {
 
       // 4. Kiểm tra ngày check-out đã qua chưa
       const currentDate = new Date();
-      if (new Date(booking.check_out_date) > currentDate) {
+      if (new Date(booking.actual_check_in_date) > currentDate) {
         return res
           .status(400)
           .json({ message: "Chưa thể đánh giá trước khi hoàn tất lưu trú." });

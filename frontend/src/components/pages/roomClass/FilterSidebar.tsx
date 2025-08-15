@@ -73,7 +73,6 @@ export default function FilterSidebar({
   const [tempRange, setTempRange] = useState<[number, number]>(priceRange);
   const [inputValue, setInputValue] = useState(searchTerm);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
   const handleCheckboxdChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     state: string[],
@@ -86,6 +85,11 @@ export default function FilterSidebar({
         : prev.filter((item) => item !== value)
     );
   };
+
+  // Đồng bộ inputValue với searchTerm khi searchTerm thay đổi từ ngoài
+  useEffect(() => {
+    setInputValue(searchTerm);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);

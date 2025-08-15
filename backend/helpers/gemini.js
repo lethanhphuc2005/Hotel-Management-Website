@@ -15,7 +15,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 async function getAvailableGeminiModel() {
   try {
     // Ưu tiên 2.5-flash (chưa dùng hết quota)
-    const m = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const m = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     // Kiểm tra nhẹ bằng generateContent nhỏ
     await m.generateContent("ping");
     return m;
@@ -354,65 +354,65 @@ const generateResponseWithDB = async (req, res) => {
   )}
 
   💡 LUẬT CHỌN PHÒNG:
-  - Nếu khách **chỉ mô tả nhu cầu** (ví dụ: "tôi đi 4 người", "muốn phòng view biển"), gợi ý tối đa 3 phòng phù hợp nhất.
-  - Nếu khách **chỉ rõ tên hoặc ID của 1 hay nhiều phòng cụ thể** (ví dụ: "tôi chọn phòng Deluxe và Family View"), thì **chỉ dùng các phòng đó**, KHÔNG gợi ý thêm.
-  - Nếu chọn nhiều phòng, đảm bảo mỗi phòng có trong booking_details.
+  - Nếu khách chỉ mô tả nhu cầu (ví dụ: "tôi đi 4 người", "muốn phòng view biển"), gợi ý tối đa 3 phòng phù hợp nhất.
+  - Nếu khách chỉ rõ tên hoặc ID của 1 hay nhiều phòng cụ thể (ví dụ: "tôi chọn phòng Deluxe và Family View"), thì chỉ giữ nguyên các phòng đó, KHÔNG gợi ý thêm bất kỳ phòng khác.
+  - Nếu chọn nhiều phòng, đảm bảo mỗi phòng đều có trong booking_details.
 
   🧠 LUẬT TỰ ĐỘNG PHÁT HIỆN NHIỀU PHÒNG:
-  - Nếu khách dùng từ như: **"và", "cả 2", "2 phòng", "phòng số 1 và số 3", "Deluxe & Superior"**, hiểu là chọn nhiều phòng.
+  - Nếu khách dùng các từ như: "và", "cả 2", "2 phòng", "phòng số 1 và số 3", "Deluxe & Superior" → hiểu là chọn nhiều phòng.
 
   🧾 PHẢN HỒI:
   - Trình bày câu trả lời tự nhiên, ngắn gọn, lịch sự.
   - Sau phần hội thoại, luôn trả về dữ liệu JSON bên dưới:
 
-\`\`\`json
-{
-  "suggested_room_ids": ["ID1", "ID2", "ID3"], // Nếu chỉ gợi ý
-  "booking": null, // Mặc định null
+  \`\`\`json
+  {
+    "suggested_room_ids": ["ID1", "ID2", "ID3"], // Nếu chỉ gợi ý
+    "booking": null, // Mặc định null
 
-  // Nếu khách xác nhận đặt phòng rõ ràng thì mới tạo object booking:
-  "booking": {
-    "full_name": "Tên khách",
-    "email": "Email",
-    "phone_number": "SĐT",
-    "check_in_date": "${filters.check_in_date}",
-    "check_out_date": "${filters.check_out_date}",
-    "adult_amount": ${filters.adult_amount || 2},
-    "child_amount": ${filters.child_amount || 0},
-    "original_price": 0,
-    "total_price": 0,
-    "booking_details": [
-      {
-        "room_class_id": "ID phòng 1",
-        "price_per_night": 0,
-        "nights": ${nights},
-        "services": [],
-        "room_class": {
-          "name": "Tên loại phòng",
-          "bed": {
-            "type": "Loại giường",
-            "quantity": 1
-          },
-          "capacity": 2,
-          "description": "Mô tả loại phòng",
-          "images": ["URL ảnh 1", "URL ảnh 2"],
-          "features": ["Tiện nghi 1", "Tiện nghi 2"]
+    // Nếu khách xác nhận đặt phòng rõ ràng thì mới tạo object booking:
+    "booking": {
+      "full_name": "Tên khách",
+      "email": "Email",
+      "phone_number": "SĐT",
+      "check_in_date": "${filters.check_in_date}",
+      "check_out_date": "${filters.check_out_date}",
+      "adult_amount": ${filters.adult_amount || 2},
+      "child_amount": ${filters.child_amount || 0},
+      "original_price": 0,
+      "total_price": 0,
+      "booking_details": [
+        {
+          "room_class_id": "ID phòng 1",
+          "price_per_night": 0,
+          "nights": ${nights},
+          "services": [],
+          "room_class": {
+            "name": "Tên loại phòng",
+            "bed": {
+              "type": "Loại giường",
+              "quantity": 1
+            },
+            "capacity": 2,
+            "description": "Mô tả loại phòng",
+            "images": ["URL ảnh 1", "URL ảnh 2"],
+            "features": ["Tiện nghi 1", "Tiện nghi 2"]
+          }
+        },
+        {
+          "room_class_id": "ID phòng 2",
+          "price_per_night": 0,
+          "nights": ${nights},
+          "services": [],
+          "room_class": { ... } // Thông tin phòng thứ 2
         }
-      },
-      {
-        "room_class_id": "ID phòng 2",
-        "price_per_night": 0,
-        "nights": ${nights},
-        "services": [],
-        "room_class": { ... } // Thông tin phòng thứ 2
-      }
-    ]
+      ]
+    }
   }
-}
-\`\`\`
+  \`\`\`
 
-🚫 Không tạo phần "booking" nếu khách chưa xác nhận rõ ràng.
-`;
+  🚫 Không tạo phần "booking" nếu khách chưa xác nhận rõ ràng.
+  `;
 
     // ====== 6. Tránh cache nếu prompt khác nhiều (có thể disable hoàn toàn nếu cần) ======
     const cacheKey = `gemini:${JSON.stringify(filters)}:${JSON.stringify(
