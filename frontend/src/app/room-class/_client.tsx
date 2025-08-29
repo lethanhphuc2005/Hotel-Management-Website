@@ -162,9 +162,18 @@ export default function RoomClassesPage() {
   return (
     <div
       className="container text-white"
-      style={{ marginTop: "7%", marginBottom: "10%" }}
+      style={{ marginTop: "100px", marginBottom: "10%" }}
     >
-      <div className="row">
+      <div
+        style={{
+          zIndex: 999,
+          width: "90%",
+          maxWidth: "700px",
+          justifyContent: "center",
+          padding: "0 1rem",
+          margin: "0 auto",
+        }}
+      >
         <RoomSearchBar
           pendingDateRange={pendingDateRange}
           setPendingDateRange={setPendingDateRange}
@@ -192,8 +201,8 @@ export default function RoomClassesPage() {
         />
       </div>
 
-      <div className="row">
-        <div className="col-3 border-top h-auto">
+      <div className="row g-0">
+        <div className="col-12 col-md-3 border-top h-auto">
           <FilterSidebar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -221,7 +230,7 @@ export default function RoomClassesPage() {
           />
         </div>
 
-        <div className="col-9 border-top">
+        <div className="col-12 col-md-9 border-top">
           <RoomListDisplay
             hasSearched={hasSearched}
             displayRoomClasses={roomClasses}

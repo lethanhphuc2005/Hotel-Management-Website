@@ -1,4 +1,3 @@
-// app/ClientWrapper.tsx
 "use client";
 
 import { AuthProvider } from "@/providers/AuthProvider";
@@ -27,6 +26,11 @@ export default function ClientWrapper({
 }: {
   children: React.ReactNode;
 }) {
+  // ✅ Import Bootstrap JS khi client mount
+  useEffect(() => {
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, []);
+
   return (
     <>
       <ToastContainer
@@ -48,7 +52,7 @@ export default function ClientWrapper({
             <GlobalLoading />
             <Header />
             <ScrollToTop />
-            <div className="tw-min-h-screen"> {children}</div>
+            <div className="tw-min-h-screen">{children}</div>
             <Footer />
             <ChatbotPopup />
           </CartProvider>

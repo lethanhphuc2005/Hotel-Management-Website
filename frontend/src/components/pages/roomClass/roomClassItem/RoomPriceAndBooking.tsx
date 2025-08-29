@@ -18,7 +18,7 @@ export default function RoomPriceAndBooking({
   totalPrice: number;
 }) {
   return (
-    <div className="align-self-end mb-2 text-end">
+    <div>
       <h5 className="fw-bold text-white mb-0 tw-inline-block tw-whitespace-nowrap">
         {hasSearched ? (
           <>
@@ -28,7 +28,7 @@ export default function RoomPriceAndBooking({
           <>Giá từ: {formatCurrencyVN(basePrice)} /đêm</>
         )}
       </h5>
-      <p className="tw-text-xs tw-inline-block">Đã bao gồm thuế và phí</p>
+      <p className="tw-text-xs ">Đã bao gồm thuế và phí</p>
       <Link
         href={`/room-class/${roomClassId}`}
         className="text-decoration-none"

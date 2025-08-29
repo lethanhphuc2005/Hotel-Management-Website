@@ -15,8 +15,6 @@ import { useServices } from "@/hooks/data/useService";
 import { useWebsiteContent } from "@/hooks/data/useWebsiteContent";
 import { useDiscount } from "@/hooks/data/useDiscount";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
-import { RoomClass } from "@/types/roomClass";
 
 export default function Home() {
   const {

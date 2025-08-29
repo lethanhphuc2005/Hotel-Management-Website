@@ -391,10 +391,10 @@ const roomClassController = {
         query._id = { $in: matchedRoomClassIds };
       }
 
-      if (minCapacity) query["capacity"] = { $gte: parseInt(minCapacity) };
+      if (minCapacity) query.capacity = { $gte: parseInt(minCapacity) };
       if (maxCapacity)
-        query["capacity"] = {
-          ...query["capacity"],
+        query.capacity = {
+          ...query.capacity,
           $lte: parseInt(maxCapacity),
         };
 

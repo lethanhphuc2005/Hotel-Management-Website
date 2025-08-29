@@ -61,7 +61,7 @@ export function RoomClassList({
     );
   }
   return (
-    <div className="border-start tw-pt-5 tw-pl-5">
+    <div className="tw-pt-5 md:tw-pl-5 tw-border-l-0 md:tw-border-l ">
       {roomClasses.map((item) => (
         <RoomClassItem
           key={item.id}

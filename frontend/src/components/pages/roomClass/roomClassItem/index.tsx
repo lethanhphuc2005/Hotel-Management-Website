@@ -84,21 +84,23 @@ export default function RoomClassItem({
   };
 
   return (
-    <div className="border rounded-4 d-flex p-3 gap-3 position-relative tw-mb-4">
+    <div className="border rounded-4 d-flex flex-column flex-md-row p-3 gap-3 position-relative tw-mb-4">
       <button
         type="button"
-        className="btn btn-warning position-absolute top-0 end-0 m-2"
+        className="btn btn-warning position-absolute tw-end-0 tw-bottom-1 tw-m-3 md:tw-m-2 md:tw-bottom-auto md:tw-top-0"
         onClick={handleAddToCart}
       >
         <i className="bi bi-bag-plus-fill"></i>
       </button>
 
-      <RoomImageWithLike
-        imageUrl={roomClass.images[0].url}
-        roomId={roomClass.id}
-        liked={liked}
-        onLikeClick={handleLikeClick}
-      />
+      <div className="position-relative tw-aspect-square tw-w-full tw-max-w-[300px] tw-min-w-[200px] tw-rounded-2xl tw-overflow-hidden">
+        <RoomImageWithLike
+          imageUrl={roomClass.images[0].url}
+          roomId={roomClass.id}
+          liked={liked}
+          onLikeClick={handleLikeClick}
+        />
+      </div>
 
       <RoomInfo
         roomClass={roomClass}
@@ -109,13 +111,15 @@ export default function RoomClassItem({
         hasWeekend={hasSaturday || hasSunday}
       />
 
-      <RoomPriceAndBooking
-        roomClassId={roomClass.id}
-        hasSearched={hasSearched}
-        numberOfNights={numberOfNights}
-        basePrice={basePrice}
-        totalPrice={total}
-      />
+      <div className="mt-3 mt-md-0 align-self-md-end text-md-end">
+        <RoomPriceAndBooking
+          roomClassId={roomClass.id}
+          hasSearched={hasSearched}
+          numberOfNights={numberOfNights}
+          basePrice={basePrice}
+          totalPrice={total}
+        />
+      </div>
     </div>
   );
 }

@@ -109,7 +109,7 @@ export default function MainRoomClassList({
       initial={{ opacity: 0, y: 40 }}
       animate={controls}
       transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="mt-3 mb-3 d-flex row"
+      className="mt-3 mb-3 d-flex row g-0"
     >
       <div className={style.headerContainer}>
         <h2 className={style.sectionTitle}>{title}</h2>

@@ -38,6 +38,8 @@
   transform: translate(-50%, -50%);
   text-align: center;
   color: white;
+  padding: 0 1rem; /* thêm padding để chữ không sát màn hình */
+  max-width: 90%;
 }
 
 .bannerContent h1 {
@@ -106,6 +108,7 @@
   overflow: hidden;
   background: #000;
   transition: box-shadow 0.3s ease;
+  margin: 10px;
 }
 
 .roomCard:hover {
@@ -499,18 +502,18 @@
 .infoMainCard {
   display: flex;
   justify-content: space-between;
-  border-radius: 15px;
-  height: auto;
-  width: 100%;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap; /* fallback */
 }
 
 .infoMainContent {
-  padding-left: 3rem;
-  color: #d0d4e7;
-  /* background-color: #141627; */
+  padding-left: 1rem;
+  color: white;
   flex: 1 1 300px;
-  min-width: 250px;
+  /* min-width: 250px;  <- bỏ đi */
+  word-wrap: break-word; /* cho chắc chắn */
+  overflow-wrap: break-word; /* fallback */
 }
 
 .infoTitle {
@@ -544,6 +547,12 @@
 
 /* Responsive styles */
 @media (max-width: 1024px) {
+  .roomCardCol {
+    flex: 1 1 200px;
+  }
+  .bannerContent h1 {
+    font-size: 2.2rem;
+  }
   .imageWrapper {
     width: 100%;
     height: 350px;
@@ -554,6 +563,16 @@
 }
 
 @media (max-width: 768px) {
+  .roomCardCol {
+    flex: 1 1 150px; /* co nhỏ hơn khi màn hình hẹp */
+  }
+  .banner {
+    height: 60vh;
+  }
+  .bannerContent h1 {
+    font-size: 1.6rem;
+    line-height: 1.4;
+  }
   .infoMainCard {
     flex-direction: column;
     align-items: center;
@@ -572,6 +591,13 @@
 }
 
 @media (max-width: 480px) {
+  .infoMainContent {
+    min-width: auto;
+    padding-left: 1rem;
+  }
+  .bannerContent h1 {
+    font-size: 1.2rem;
+  }
   .infoTitle {
     font-size: 18px;
   }

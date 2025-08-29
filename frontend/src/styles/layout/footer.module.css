@@ -4,28 +4,32 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 100%;
-  padding-bottom: 40px;
-  background-color: rgba(0, 0, 0, 0.6); /* lớp đen mờ */
-  background-blend-mode: darken; /* trộn màu tối với ảnh */
+  padding: 40px 0;
+  background-color: rgba(0, 0, 0, 0.6); 
+  background-blend-mode: darken;
 }
+
 .quick {
   margin-top: 37px;
-  padding-left: 5rem;
+  padding-left: 2rem; /* giảm padding mặc định */
 }
+
 .send {
   margin-top: 37px;
 }
+
 .emailInput {
   padding: 10px 15px;
   background-color: #d0d4e7;
   outline: none;
   color: black;
 }
+
 .sendButton {
   padding: 10px 15px;
   background-color: #fab320;
 }
+
 .socialIcons a {
   color: white;
   text-decoration: none;
@@ -33,4 +37,18 @@
 }
 .socialIcons a:hover {
   color: #fab320;
+}
+
+/* ✅ Responsive */
+@media (max-width: 768px) {
+  .quick {
+    padding-left: 0; /* bỏ padding khi mobile */
+    text-align: center;
+  }
+  .send {
+    text-align: center;
+  }
+  .socialIcons {
+    justify-content: center;
+  }
 }

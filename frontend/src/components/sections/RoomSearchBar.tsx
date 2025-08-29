@@ -99,10 +99,10 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
 
   return (
     <div
-      className="border mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4 tw-px-5"
+      className="border mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4 tw-px-5 flex-wrap"
       style={{
         position: "relative",
-        width: "630px",
+        maxWidth: "100%", // thay vì width cố định
         backgroundColor: "rgba(0, 0, 0, 0.5)",
       }}
     >
@@ -299,16 +299,16 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
       </div>
 
       {/* Buttons */}
-      <div className="tw-flex tw-flex-1 tw-justify-end tw-items-center tw-gap-2 tw-h-[40px] tw-px-2">
+      <div className="tw-flex tw-flex-wrap tw-flex-1 tw-justify-end tw-items-center tw-gap-2 tw-h-auto tw-px-2 tw-py-5">
         <button
-          className="tw-btn tw-btn-primary tw-flex tw-items-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
+          className="tw-btn tw-btn-primary tw-flex-1 sm:tw-flex-none tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
           onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} />
           Tìm kiếm
         </button>
         <button
-          className="tw-btn tw-btn-primary tw-flex tw-items-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
+          className="tw-btn tw-btn-primary tw-flex-1 sm:tw-flex-none tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
           onClick={handleResetSearch}
         >
           <FontAwesomeIcon icon={faTrash} />

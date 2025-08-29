@@ -9,6 +9,7 @@ import "swiper/css/autoplay";
 import RoomSearchBar from "@/components/sections/RoomSearchBar";
 import Link from "next/link";
 import { SearchBar } from "@/types/_common";
+import useIsMobile from "@/hooks/logic/useIsMobile"; // file hook vừa tạo
 
 interface BannerProps extends SearchBar {
   banners: WebsiteContent[];
@@ -21,8 +22,6 @@ export default function Banner(props: BannerProps) {
     setPendingDateRange,
     dateRange,
     setDateRange,
-    hasSaturdayNight,
-    hasSundayNight,
     capacity,
     pendingGuests,
     setPendingGuests,
@@ -43,80 +42,131 @@ export default function Banner(props: BannerProps) {
     handleSearch,
     handleResetSearch,
   } = props;
+
+  const isMobile = useIsMobile(768);
+
   if (!banners || banners.length === 0) return <p>No banner</p>;
 
   const images = banners.map((banner) => banner.image);
   const titles = banners.map((banner) => banner.title);
 
   return (
-    <section className={style.banner}>
-      <div
-        style={{
-          position: "absolute",
-          top: "30%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 999,
-          width: "100%",
-        }}
-      >
-        <RoomSearchBar
-          pendingDateRange={pendingDateRange}
-          setPendingDateRange={setPendingDateRange}
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          capacity={capacity}
-          pendingGuests={pendingGuests}
-          setPendingGuests={setPendingGuests}
-          guests={guests}
-          setGuests={setGuests}
-          showCalendar={showCalendar}
-          setShowCalendar={setShowCalendar}
-          showGuestBox={showGuestBox}
-          setShowGuestBox={setShowGuestBox}
-          guestBoxRef={guestBoxRef}
-          calendarRef={calendarRef}
-          totalGuests={totalGuests}
-          numberOfAdults={numberOfAdults}
-          numberOfChildren={numberOfChildren}
-          numberOfNights={numberOfNights}
-          hasSearched={hasSearched}
-          setHasSearched={setHasSearched}
-          handleSearch={handleSearch}
-          handleResetSearch={handleResetSearch}
-        />
-      </div>
-      <Swiper
-        loop={true}
-        autoplay={{ delay: 5000 }}
-        modules={[Autoplay, Navigation]}
-        navigation={true}
-      >
-        {images.map((img, index) => (
-          <SwiperSlide key={index}>
-            <section className={style.banner}>
-              <img
-                src={img.url}
-                alt={`Banner ${index + 1}`}
-                className={style.bannerImage}
-              />
-              <div className={style.bannerContent}>
-                <h1 className={` ${style.text}`}>{titles[index]}</h1>
-                <Link
-                  href={"/room-class"}
-                  className="tw-text-decoration-none tw-text-white"
-                >
-                  <button
-                    className={`bg-transparent p-2 mt-3 ${style.btnBooking} fw-bold border-1`}
+    <>
+      <section className={style.banner}>
+        {/* SearchBar chỉ hiện trong banner nếu desktop */}
+        {!isMobile && (
+          <div
+            style={{
+              position: "absolute",
+              top: "25%",
+              left: "50%",
+              transform: "translate(-50%, 0)",
+              zIndex: 999,
+              width: "90%",
+              maxWidth: "700px",
+              padding: "0 1rem",
+            }}
+          >
+            <RoomSearchBar
+              pendingDateRange={pendingDateRange}
+              setPendingDateRange={setPendingDateRange}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+              capacity={capacity}
+              pendingGuests={pendingGuests}
+              setPendingGuests={setPendingGuests}
+              guests={guests}
+              setGuests={setGuests}
+              showCalendar={showCalendar}
+              setShowCalendar={setShowCalendar}
+              showGuestBox={showGuestBox}
+              setShowGuestBox={setShowGuestBox}
+              guestBoxRef={guestBoxRef}
+              calendarRef={calendarRef}
+              totalGuests={totalGuests}
+              numberOfAdults={numberOfAdults}
+              numberOfChildren={numberOfChildren}
+              numberOfNights={numberOfNights}
+              hasSearched={hasSearched}
+              setHasSearched={setHasSearched}
+              handleSearch={handleSearch}
+              handleResetSearch={handleResetSearch}
+            />
+          </div>
+        )}
+
+        <Swiper
+          loop={true}
+          autoplay={{ delay: 5000 }}
+          modules={[Autoplay, Navigation]}
+          navigation={true}
+        >
+          {images.map((img, index) => (
+            <SwiperSlide key={index}>
+              <section className={style.banner}>
+                <img
+                  src={img.url}
+                  alt={`Banner ${index + 1}`}
+                  className={style.bannerImage}
+                />
+                <div className={style.bannerContent}>
+                  <h1 className={` ${style.text}`}>{titles[index]}</h1>
+                  <Link
+                    href={"/room-class"}
+                    className="tw-text-decoration-none tw-text-white"
                   >
-                    BOOKING
-                  </button>
-                </Link>
-              </div>
-            </section>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
+                    <button
+                      className={`bg-transparent p-2 mt-3 ${style.btnBooking} fw-bold border-1`}
+                    >
+                      BOOKING
+                    </button>
+                  </Link>
+                </div>
+              </section>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </section>
+
+      {/* SearchBar tách riêng ra dưới Banner nếu mobile */}
+      {isMobile && (
+        <div
+          style={{
+            zIndex: 999,
+            width: "90%",
+            maxWidth: "700px",
+            justifyContent: "center",
+            padding: "0 1rem",
+            margin: "0 auto",
+          }}
+        >
+          <RoomSearchBar
+            pendingDateRange={pendingDateRange}
+            setPendingDateRange={setPendingDateRange}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            capacity={capacity}
+            pendingGuests={pendingGuests}
+            setPendingGuests={setPendingGuests}
+            guests={guests}
+            setGuests={setGuests}
+            showCalendar={showCalendar}
+            setShowCalendar={setShowCalendar}
+            showGuestBox={showGuestBox}
+            setShowGuestBox={setShowGuestBox}
+            guestBoxRef={guestBoxRef}
+            calendarRef={calendarRef}
+            totalGuests={totalGuests}
+            numberOfAdults={numberOfAdults}
+            numberOfChildren={numberOfChildren}
+            numberOfNights={numberOfNights}
+            hasSearched={hasSearched}
+            setHasSearched={setHasSearched}
+            handleSearch={handleSearch}
+            handleResetSearch={handleResetSearch}
+          />
+        </div>
+      )}
+    </>
   );
 }

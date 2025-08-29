@@ -47,6 +47,28 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  openGraph: {
+    title: "The Moon Hotel",
+    description: "Trải nghiệm nghỉ dưỡng sang trọng tại The Moon",
+    url: "https://themoonhotel.xyz",
+    siteName: "The Moon Hotel",
+    images: [
+      {
+        url: "/img/banner.webp", // 👉 ảnh preview khi share
+        width: 1200,
+        height: 630,
+        alt: "The Moon Hotel",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Moon Hotel",
+    description: "Khách sạn The Moon - Nơi nghỉ dưỡng lý tưởng",
+    images: ["/img/banner.webp"], // Twitter preview
+  },
 };
 
 export default function RootLayout({

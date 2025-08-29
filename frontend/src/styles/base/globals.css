@@ -10,6 +10,13 @@
   color: #fab320;
 }
 
+/* Đảm bảo các phần tử block không vượt khung */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+
 /* Font cho tiêu đề: Playfair Display */
 h1,
 h2,
@@ -44,6 +51,7 @@ body {
   color: var(--foreground) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 * {
