@@ -13,6 +13,7 @@ import { CommentReplyPopupComponent } from './comment-reply-popup/comment-reply-
 import { PaginationComponent } from '@/shared/components/pagination/pagination.component';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { finalize } from 'rxjs';
+import { EmployeeService } from '@/core/services/employee.service';
 
 @Component({
   selector: 'app-comment',
@@ -36,6 +37,7 @@ export class CommentComponent implements OnInit {
   selectedComment: Comment | null = null;
   isDetailPopupOpen = false;
   isReplyPopupOn = false;
+  employeeId: string | null = null;
   filter: CommentFilter = {
     search: '',
     page: 1,
@@ -50,10 +52,12 @@ export class CommentComponent implements OnInit {
     content: '',
     room_class_id: '',
     parent_id: '',
+    employee_id: '',
   };
 
   constructor(
     private commentService: CommentService,
+    private employeeService: EmployeeService,
     private toastService: ToastrService,
     private spinner: NgxSpinnerService
   ) {}
@@ -70,7 +74,22 @@ export class CommentComponent implements OnInit {
   }
 
   async loadInitialData() {
-    await Promise.all([this.loadAllComments()]);
+    await Promise.all([this.loadAllComments(), this.loadEmployeeId()]);
+  }
+
+  loadEmployeeId() {
+    this.employeeService.getCurrentEmployee().subscribe({
+      next: (response) => {
+        this.employeeId = response.data.id;
+      },
+      error: (error) => {
+        console.error('Error loading employee data:', error);
+        this.toastService.error(
+          error.error?.message || 'Failed to load employee data',
+          'Error'
+        );
+      },
+    });
   }
 
   loadAllComments(): void {
@@ -137,7 +156,12 @@ export class CommentComponent implements OnInit {
     this.isDetailPopupOpen = false;
     this.isReplyPopupOn = false;
     this.selectedComment = null;
-    this.newComment = { content: '', room_class_id: '', parent_id: '' };
+    this.newComment = {
+      content: '',
+      room_class_id: '',
+      parent_id: '',
+      employee_id: '',
+    };
   }
 
   onToggleChange(event: Event, item: Comment): void {
@@ -185,6 +209,7 @@ export class CommentComponent implements OnInit {
       content,
       room_class_id,
       parent_id: parent_id || this.selectedComment.id,
+      employee_id: this.employeeId || '',
     };
 
     this.commentService

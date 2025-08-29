@@ -82,7 +82,7 @@ const reviewController = {
     }
 
     // Kiểm tra xem employee_id hoặc user_id có tồn tại không
-    if (!employee_id && !user_id) {
+    if (employee_id == null && user_id == null) {
       return {
         valid: false,
         message:

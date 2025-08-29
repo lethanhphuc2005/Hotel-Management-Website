@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { finalize } from 'rxjs';
+import { EmployeeService } from '@/core/services/employee.service';
 
 @Component({
   selector: 'app-review',
@@ -53,8 +54,11 @@ export class ReviewComponent implements OnInit {
     room_class_id: '',
     parent_id: '',
     booking_id: '',
+    employee_id: '',
   };
+  employeeId: string | null = null;
   constructor(
+    private employeeService: EmployeeService,
     private reviewService: ReviewService,
     private toastService: ToastrService,
     private spinner: NgxSpinnerService
@@ -72,7 +76,11 @@ export class ReviewComponent implements OnInit {
   }
 
   async loadInitialData() {
-    await Promise.all([this.loadAllReviews()]);
+    await Promise.all([
+      this.loadEmployeeId(),
+      this.loadAllReviews(),
+    ]
+    );
   }
 
   loadAllReviews(): void {
@@ -142,6 +150,7 @@ export class ReviewComponent implements OnInit {
       room_class_id: '',
       parent_id: '',
       booking_id: '',
+      employee_id: '',
     };
   }
 
@@ -174,6 +183,21 @@ export class ReviewComponent implements OnInit {
     });
   }
 
+  loadEmployeeId() {
+    this.employeeService.getCurrentEmployee().subscribe({
+      next: (response) => {
+        this.employeeId = response.data.id;
+      },
+      error: (error) => {
+        console.error('Error loading employee data:', error);
+        this.toastService.error(
+          error.error?.message || 'Failed to load employee data',
+          'Error'
+        );
+      },
+    });
+  }
+
   onReplySubmit({
     content,
     room_class_id,
@@ -192,7 +216,10 @@ export class ReviewComponent implements OnInit {
       room_class_id,
       parent_id: parent_id || this.selectedReview.id,
       booking_id: booking_id || this.selectedReview.booking_id,
+      employee_id: this.employeeId || '',
     };
+
+    console.log('Submitting reply:', this.newReview);
 
     this.reviewService
       .createReview(this.newReview)
