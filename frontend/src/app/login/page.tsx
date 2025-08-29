@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { resendVerificationEmail, verifyEmail } from "@/services/AuthService";
 import { showConfirmDialog } from "@/utils/swal";
-import { facebookLogin, googleLogin } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
@@ -18,6 +17,7 @@ const LoginPage = () => {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [resendCooldown, setResendCooldown] = useState(60);
+  const [lastSentTime, setLastSentTime] = useState<number | null>(null);
   const { login, googleLogin, facebookLogin } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -48,6 +48,7 @@ const LoginPage = () => {
           toast.success("Email xác minh đã được gửi lại");
           setStep(2);
           setOtp("");
+          setLastSentTime(Date.now());
           setResendCooldown(60);
           return;
         }
@@ -89,6 +90,7 @@ const LoginPage = () => {
         return;
       }
       toast.success("Mã OTP đã được gửi lại");
+      setLastSentTime(Date.now());
       setResendCooldown(60);
     } catch (error) {
       toast.error("Đã xảy ra lỗi khi gửi lại mã OTP");
@@ -96,12 +98,20 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendCooldown > 0) {
-      timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [resendCooldown]);
+    if (resendCooldown <= 0) return;
+
+    const interval = setInterval(() => {
+      if (lastSentTime) {
+        const diff = Math.max(
+          60 - Math.floor((Date.now() - lastSentTime) / 1000),
+          0
+        );
+        setResendCooldown(diff);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastSentTime]);
 
   return (
     <div className={styles.container}>
@@ -203,9 +213,7 @@ const LoginPage = () => {
                 required
                 whileFocus={{ scale: 1.03, borderColor: "#fab320" }}
               />
-              <button type="submit" className={styles.continueButton}>
-                Xác minh
-              </button>
+
               <button
                 type="button"
                 onClick={handleResendOTP}
@@ -215,6 +223,9 @@ const LoginPage = () => {
                 {resendCooldown > 0
                   ? `Gửi lại sau ${resendCooldown}s`
                   : "Gửi lại mã OTP"}
+              </button>
+              <button type="submit" className={styles.continueButton}>
+                Xác minh
               </button>
             </form>
           </>

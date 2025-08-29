@@ -61,6 +61,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepassword, setShowRepassword] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(60);
+  const [lastSentTime, setLastSentTime] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -97,6 +98,7 @@ const RegisterPage = () => {
         }
 
         toast.success("Mã OTP đã được gửi đến email của bạn");
+        setLastSentTime(Date.now());
         setResendCooldown(60);
         setStep(2);
       } catch (error) {
@@ -135,6 +137,7 @@ const RegisterPage = () => {
         return;
       }
       toast.success("Mã OTP đã được gửi lại");
+      setLastSentTime(Date.now());
       setResendCooldown(60);
     } catch (error) {
       toast.error("Gửi lại mã OTP thất bại.");
@@ -142,12 +145,20 @@ const RegisterPage = () => {
   };
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendCooldown > 0) {
-      timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [resendCooldown]);
+    if (resendCooldown <= 0) return;
+
+    const interval = setInterval(() => {
+      if (lastSentTime) {
+        const diff = Math.max(
+          60 - Math.floor((Date.now() - lastSentTime) / 1000),
+          0
+        );
+        setResendCooldown(diff);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastSentTime]);
 
   return (
     <div className={styles.container}>
