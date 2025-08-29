@@ -24,6 +24,7 @@ import { CreateBookingRequest } from "@/types/booking";
 import { AppliedDiscount } from "@/types/discount";
 import { useUserWallet } from "@/hooks/data/useWallet";
 import { useRouter } from "next/navigation";
+import { getRoomTotalPrice } from "@/store/cartSelector";
 
 export default function PayMent() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function PayMent() {
   const dispatch = useDispatch();
 
   const total = rooms.reduce((sum, room) => {
-    return sum + (room.total ?? 0);
+    return sum + getRoomTotalPrice(room);
   }, 0);
 
   const extraTotal = rooms.reduce((sum, room) => sum + (room.extraFee || 0), 0);

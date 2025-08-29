@@ -12,6 +12,7 @@ const Discount = require("../models/discount.model");
 const Service = require("../models/service.model");
 const Room = require("../models/room.model");
 const walletController = require("./wallet.controller");
+const userController = require("./user.controller");
 const mailSender = require("../helpers/mail.sender");
 const { notificationEmail } = require("../config/mail");
 const calculateCancellationFee = require("../utils/cancellationPolicy");
@@ -833,6 +834,25 @@ const bookingController = {
       booking.actual_check_in_date = new Date();
       booking.check_in_identity = identity;
       booking.booking_status_id = checkedInStatus._id;
+
+      if (booking.user_id) {
+        const user = await User.findById(booking.user_id);
+        if (!user) throw new Error("User not found");
+
+        user.total_spent += Number(amount);
+        user.total_bookings += 1;
+        const nights = booking.check_out_date
+          ? Math.ceil(
+              (new Date(booking.check_out_date) -
+                new Date(booking.check_in_date)) /
+                (1000 * 60 * 60 * 24)
+            )
+          : 1;
+        user.total_nights += nights;
+
+        await user.save();
+        await userController.handleUpdateLevel(booking.user_id);
+      }
 
       const updatedBooking = await booking.save();
 

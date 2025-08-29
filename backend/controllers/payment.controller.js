@@ -7,8 +7,6 @@ const Booking = require("../models/booking.model");
 const Payment = require("../models/payment.model");
 const PaymentMethod = require("../models/paymentMethod.model");
 const walletController = require("./wallet.controller");
-const User = require("../models/user.model");
-const userController = require("./user.controller");
 const { isValidObjectId } = require("mongoose");
 const mongoose = require("mongoose");
 
@@ -112,25 +110,6 @@ const PaymentController = {
           payment_date: new Date(),
         });
         await payment.save();
-
-        if (booking.user_id) {
-          const user = await User.findById(booking.user_id);
-          if (!user) throw new Error("User not found");
-
-          user.total_spent += Number(amount);
-          user.total_bookings += 1;
-          const nights = booking.check_out_date
-            ? Math.ceil(
-                (new Date(booking.check_out_date) -
-                  new Date(booking.check_in_date)) /
-                  (1000 * 60 * 60 * 24)
-              )
-            : 1;
-          user.total_nights += nights;
-
-          await user.save();
-          await userController.handleUpdateLevel(booking.user_id);
-        }
 
         return res.status(200).json({
           success: true,
