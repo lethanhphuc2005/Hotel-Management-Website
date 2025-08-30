@@ -24,6 +24,7 @@ import { CreateBookingRequest } from "@/types/booking";
 import { AppliedDiscount } from "@/types/discount";
 import { useUserWallet } from "@/hooks/data/useWallet";
 import { useRouter } from "next/navigation";
+import { getRoomTotalPrice } from "@/store/cartSelector";
 
 export default function PayMent() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function PayMent() {
   const dispatch = useDispatch();
 
   const total = rooms.reduce((sum, room) => {
-    return sum + (room.total ?? 0);
+    return sum + getRoomTotalPrice(room);
   }, 0);
 
   const extraTotal = rooms.reduce((sum, room) => sum + (room.extraFee || 0), 0);
@@ -92,7 +93,7 @@ export default function PayMent() {
       icon: <img src="/img/vnpay.jpg" alt="VNPAY" style={{ width: 32 }} />,
     },
     {
-      label: "Thanh toán tiền mặt tại nơi ở",
+      label: "Thanh toán khi check-in",
       value: "cash",
       icon: <FontAwesomeIcon icon={faMoneyBill} className=" tw-text-2xl" />,
     },
@@ -311,9 +312,9 @@ export default function PayMent() {
 
         {/* Right Column - Room Info & Price */}
         <div className="col-md-5">
-          {rooms.map((room) => (
+          {rooms.map((room, index) => (
             <RoomCartItem
-              key={room.id}
+              key={room.id + "-" + index}
               room={room}
               onRemove={() => dispatch(removeRoomFromCart(room.id))}
             />

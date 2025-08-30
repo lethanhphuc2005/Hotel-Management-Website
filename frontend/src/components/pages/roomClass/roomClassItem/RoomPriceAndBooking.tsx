@@ -2,6 +2,7 @@ import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { AnimatedButtonPrimary } from "@/components/common/Button";
 
 export default function RoomPriceAndBooking({
   roomClassId,
@@ -16,33 +17,26 @@ export default function RoomPriceAndBooking({
   basePrice: number;
   totalPrice: number;
 }) {
-
   return (
-    <div className="ms-auto align-self-end mb-2 text-end">
-      {hasSearched && (
-        <div
-          className="mb-3"
-          style={{ fontSize: "14px", lineHeight: 1.4 }}
-        ></div>
-      )}
-      <h5 className="fw-bold text-white">
+    <div>
+      <h5 className="fw-bold text-white mb-0 tw-inline-block tw-whitespace-nowrap">
         {hasSearched ? (
-          <p>
-            Tổng: {formatCurrencyVN(totalPrice)} /{numberOfNights} đêm
-          </p>
+          <>
+            Tổng: {formatCurrencyVN(totalPrice)} <br /> /{numberOfNights} đêm
+          </>
         ) : (
-          <p>Giá từ: {formatCurrencyVN(basePrice)} /đêm</p>
+          <>Giá từ: {formatCurrencyVN(basePrice)} /đêm</>
         )}
       </h5>
-      <p style={{ fontSize: "12px" }}>Đã bao gồm thuế và phí</p>
+      <p className="tw-text-xs ">Đã bao gồm thuế và phí</p>
       <Link
         href={`/room-class/${roomClassId}`}
-        className=" tw-text-decoration-none tw-btn tw-btn-primary tw-px-4 tw-py-2 tw-rounded-xl tw-bg-primary tw-text-black tw-font-bold tw-align-items"
+        className="text-decoration-none"
       >
-        <button className="">
-          Xem thêm
-          <FontAwesomeIcon icon={faChevronRight} className="tw-ml-2" />
-        </button>
+        <AnimatedButtonPrimary className="tw-p-2 tw-inline-block tw-whitespace-nowrap">
+          <FontAwesomeIcon icon={faChevronRight} className="me-2" />
+          Xem chi tiết
+        </AnimatedButtonPrimary>
       </Link>
     </div>
   );

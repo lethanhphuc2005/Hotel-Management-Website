@@ -90,7 +90,7 @@ export default function InformationSection({ title }: { title: string }) {
           initial={{ opacity: 0, y: 40 }}
           animate={controls}
           transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="mt-3 mb-3 d-flex row"
+          className="mt-3 mb-3 d-flex row g-0 justify-content-center"
         >
           <Row className="g-4 justify-content-center mt-4">
             <Col lg={4} md={6}>

@@ -16,8 +16,21 @@ export class DashboardService {
     return this.http.get<DashboardOverview>(`${this.baseUrl}/overview`);
   }
 
-  getBookingStatusStatistics(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/statistics/booking-status`);
+  getBookingStatusStatistics(
+    period: string,
+    from: string | null,
+    to: string | null
+  ): Observable<any> {
+    let params = new HttpParams().set('period', period);
+    if (from) {
+      params = params.set('from', from);
+    }
+    if (to) {
+      params = params.set('to', to);
+    }
+    return this.http.get(`${this.baseUrl}/statistics/booking-status`, {
+      params,
+    });
   }
 
   getCancelRateStatistics(

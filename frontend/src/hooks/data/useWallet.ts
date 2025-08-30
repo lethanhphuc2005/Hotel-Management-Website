@@ -8,7 +8,7 @@ export const useUserWallet = (userId: string) => {
   const { setLoading } = useLoading();
   const didSetLoading = useRef(false);
 
-  const key = userId || userId !== "" ? [`/wallet/`, userId] : null;
+  const key = userId?.trim() ? [`/wallet/`, userId] : null;
 
   const fetcher = async () => {
     const response = await fetchWalletByUserId(userId);
@@ -21,9 +21,7 @@ export const useUserWallet = (userId: string) => {
   const { data, mutate, isLoading, error } = useSWR(key, fetcher, {
     revalidateOnFocus: false,
     keepPreviousData: true,
-    onError: (error) => {
-      toast.error(error.message || "Không thể lấy đặt phòng.");
-    },
+    onError: (error) => {},
   });
 
   useEffect(() => {
@@ -37,7 +35,7 @@ export const useUserWallet = (userId: string) => {
   }, [isLoading, setLoading]);
 
   return {
-    wallet: data,
+    wallet: userId?.trim() ? data : null,
     error,
     mutate,
   };

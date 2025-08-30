@@ -5,12 +5,10 @@ import { FiMessageCircle } from "react-icons/fi";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import QuestionModalSidebar from "./QuestionModalSidebar";
 import { motion, AnimatePresence } from "framer-motion";
-import { Comment } from "@/types/comment";
 import {
   AnimatedButtonPrimary,
   AnimatedButtonLink,
 } from "@/components/common/Button";
-import { useRoomComments } from "@/hooks/data/useComment";
 
 const faqColumns = [
   [

@@ -138,7 +138,7 @@
 .darkTable td,
 .darkTable th {
   background-color: #000;
-  color: #fff ;
+  color: #fff;
   border-color: #333;
 }
 
@@ -155,4 +155,97 @@
 .darkTable td:nth-child(5) {
   text-align: center;
   vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .darkTable,
+  .darkTable thead,
+  .darkTable tbody,
+  .darkTable th,
+  .darkTable td,
+  .darkTable tr {
+    display: block;
+    width: 100%;
+  }
+
+  .darkTable thead {
+    display: none; /* Ẩn header trên mobile */
+  }
+
+  .darkTable tr {
+    margin-bottom: 16px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 12px;
+    background: #111;
+  }
+
+  .darkTable td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border: none;
+  }
+
+  .darkTable td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    flex: 1;
+    color: #bbb;
+  }
+
+  .darkTable td:last-child {
+    font-weight: 700;
+    color: #fab320;
+  }
+}
+
+/* Bảng desktop */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Card mobile */
+.roomCardList {
+  display: none;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .tableWrapper {
+    display: none; /* Ẩn bảng */
+  }
+
+  .roomCardList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .roomCard {
+    background: #111;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #333;
+  }
+
+  .roomInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    word-break: break-word;
+  }
+
+  .roomName {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .roomDesc {
+    font-size: 0.85rem;
+    color: #ccc;
+  }
 }

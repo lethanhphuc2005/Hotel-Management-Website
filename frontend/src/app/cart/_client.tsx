@@ -24,6 +24,8 @@ export default function Cart() {
     }, 0);
   }, [rooms]);
 
+  const extraTotal = rooms.reduce((sum, room) => sum + (room.extraFee || 0), 0);
+
   const handleDeleteRoom = async (roomId: string) => {
     const room = rooms.find((r) => r.id === roomId);
     if (!room) return;
@@ -82,7 +84,7 @@ export default function Cart() {
       />
 
       {rooms.length > 0 && (
-        <CartAction total={total} handleDeleteCart={handleDeleteCart} />
+        <CartAction total={total} extraTotal={extraTotal} handleDeleteCart={handleDeleteCart} />
       )}
     </div>
   );

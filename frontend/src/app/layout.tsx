@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import {
   Geist,
@@ -8,8 +7,9 @@ import {
   Lora,
 } from "next/font/google";
 import "animate.css";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import "@/styles/base/globals.css";
-import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import ClientWrapper from "./ClientWrapper";
@@ -47,6 +47,28 @@ export const metadata: Metadata = {
   description: "Khách sạn The Moon - Nơi nghỉ dưỡng lý tưởng",
   icons: {
     icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "The Moon Hotel",
+    description: "Trải nghiệm nghỉ dưỡng sang trọng tại The Moon",
+    url: "https://themoonhotel.xyz",
+    siteName: "The Moon Hotel",
+    images: [
+      {
+        url: "/img/banner.webp", // 👉 ảnh preview khi share
+        width: 1200,
+        height: 630,
+        alt: "The Moon Hotel",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Moon Hotel",
+    description: "Khách sạn The Moon - Nơi nghỉ dưỡng lý tưởng",
+    images: ["/img/banner.webp"], // Twitter preview
   },
 };
 

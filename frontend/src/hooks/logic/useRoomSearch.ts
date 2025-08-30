@@ -84,7 +84,13 @@ export function useRoomSearch(): RoomSearchBarProps {
         hasSaturdayNight: hasSat,
         hasSundayNight: hasSun,
       };
-    }, [startDate, endDate, numberOfAdults, numberOfChildren06, numberOfChildren717]);
+    }, [
+      startDate,
+      endDate,
+      numberOfAdults,
+      numberOfChildren06,
+      numberOfChildren717,
+    ]);
 
   // ✅ Tìm kiếm phòng
   const handleSearch = () => {
@@ -108,7 +114,7 @@ export function useRoomSearch(): RoomSearchBarProps {
       pendingEndDate instanceof Date &&
       new Date(pendingEndDate).setHours(0, 0, 0, 0) === today.getTime();
 
-    if (isStartToday || isEndToday) {
+    if (isStartToday && isEndToday) {
       toast.info("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
       return;
     }
@@ -119,27 +125,32 @@ export function useRoomSearch(): RoomSearchBarProps {
     setShowCalendar(false);
     setShowGuestBox(false);
     setHasSearched(true);
+
+    const startISO = pendingStartDate.toISOString();
+    const endISO = pendingEndDate.toISOString();
+    // ✅ save localStorage
     localStorage.setItem(
       "lastRoomSearch",
       JSON.stringify({
-        startDate: pendingStartDate.toISOString(),
-        endDate: pendingEndDate.toISOString(),
+        startDate: startISO,
+        endDate: endISO,
         guests: pendingGuests,
       })
     );
-    toast.success("Tìm phòng thành công!");
 
-    // Redirect to room class page with search params
+    // ✅ build query từ pending* (đúng với localStorage)
     const query = new URLSearchParams({
-      start: startDate.toISOString(),
-      end: endDate.toISOString(),
-      adults: numberOfAdults.toString(),
-      children: numberOfChildren.toString(),
+      start: startISO,
+      end: endISO,
+      adults: pendingGuests.adults.toString(),
+      children6: pendingGuests.children.age0to6.toString(),
+      children17: pendingGuests.children.age7to17.toString(),
     });
 
-    router.push(
-      pathname === "/" ? `/room-class?${query.toString()}` : "/room-class"
-    );
+    toast.success("Tìm phòng thành công!");
+    if (pathname === "/") {
+      router.push(`/room-class?${query.toString()}`);
+    }
   };
 
   // 🔁 Reset

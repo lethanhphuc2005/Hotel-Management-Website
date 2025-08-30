@@ -5,11 +5,12 @@ import Link from "next/link";
 
 interface CartActionProps {
   total: number;
+  extraTotal: number;
   handleDeleteCart: () => void;
 }
 
 export default function CartAction(props: CartActionProps) {
-  const { total, handleDeleteCart } = props;
+  const { total, extraTotal, handleDeleteCart } = props;
   return (
     <>
       <button
@@ -25,17 +26,17 @@ export default function CartAction(props: CartActionProps) {
             <span>{formatCurrencyVN(total)}</span>
           </div>
           <div className={styles.summaryRow}>
-            <span>Phí dịch vụ</span>
-            <span>Miễn phí</span>
+            <span>Phụ phí</span>
+            <span>{formatCurrencyVN(extraTotal)}</span>
           </div>
           <div className={styles.summaryRow + " " + styles.summaryTotal}>
             <span>Tổng cộng</span>
-            <span>{formatCurrencyVN(total)}</span>
+            <span>{formatCurrencyVN(total + extraTotal)}</span>
           </div>
         </div>
-        <div className="text-end mt-4 mb-1">
+        <div className="mt-4 mb-1 tw-text-center sm:tw-text-end">
           <Link href="/payment" className={styles.checkoutBtn}>
-            Đặt phòng ({formatCurrencyVN(total)})
+            Đặt phòng ({formatCurrencyVN(total + extraTotal)})
           </Link>
         </div>
       </div>

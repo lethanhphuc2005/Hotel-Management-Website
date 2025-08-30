@@ -8,6 +8,7 @@ import { useRoomClass } from "@/hooks/data/useRoomClass";
 import { useSearchParams } from "next/navigation";
 import { useFeature } from "@/hooks/data/useFeature";
 import { useMainRoomClass } from "@/hooks/data/useMainRoomClass";
+import { handleSearchClick } from "../../utils/handleSearchClick";
 
 export default function RoomClassesPage() {
   const {
@@ -134,6 +135,11 @@ export default function RoomClassesPage() {
     setCurrentPage(selectedItem.selected + 1);
   };
 
+  const handleSearchClick = () => {
+    handleSearch();
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     const mainRoomClassId = params.get("mainRoomClassId");
     if (mainRoomClassId) {
@@ -162,9 +168,18 @@ export default function RoomClassesPage() {
   return (
     <div
       className="container text-white"
-      style={{ marginTop: "7%", marginBottom: "10%" }}
+      style={{ marginTop: "100px", marginBottom: "10%" }}
     >
-      <div className="row">
+      <div
+        style={{
+          zIndex: 999,
+          width: "90%",
+          maxWidth: "700px",
+          justifyContent: "center",
+          padding: "0 1rem",
+          margin: "0 auto",
+        }}
+      >
         <RoomSearchBar
           pendingDateRange={pendingDateRange}
           setPendingDateRange={setPendingDateRange}
@@ -187,13 +202,13 @@ export default function RoomClassesPage() {
           numberOfNights={numberOfNights}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
-          handleSearch={handleSearch}
+          handleSearch={handleSearchClick}
           handleResetSearch={handleResetSearch}
         />
       </div>
 
-      <div className="row">
-        <div className="col-3 border-top h-auto">
+      <div className="row g-0">
+        <div className="col-12 col-md-3 border-top h-auto">
           <FilterSidebar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -221,7 +236,7 @@ export default function RoomClassesPage() {
           />
         </div>
 
-        <div className="col-9 border-top">
+        <div className="col-12 col-md-9 border-top">
           <RoomListDisplay
             hasSearched={hasSearched}
             displayRoomClasses={roomClasses}

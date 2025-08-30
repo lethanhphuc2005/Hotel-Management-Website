@@ -1,15 +1,12 @@
 "use client";
 import { DateRange } from "react-date-range";
 import { vi } from "date-fns/locale";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
 import style from "@/styles/components/searchBar.module.css";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTrash } from "@fortawesome/free-solid-svg-icons";
 import type { RoomSearchBarProps, GuestCount } from "@/types/_common";
-
 export default function RoomSearchBar(props: RoomSearchBarProps) {
   const {
     pendingDateRange,
@@ -99,14 +96,16 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
 
   return (
     <div
-      className="border mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4 tw-px-5"
+      className="border mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4 tw-px-5 tw-flex-col sm:tw-flex-row tw-gap-4"
       style={{
         position: "relative",
-        width: "630px",
+        maxWidth: "100%", // thay vì width cố định
         backgroundColor: "rgba(0, 0, 0, 0.5)",
       }}
     >
-      <div className={`px-2 ${style.calendarHover} tw-flex-1`}>
+      <div
+        className={`px-2 ${style.calendarHover} tw-flex-1 tw-text-center sm:tw-text-left`}
+      >
         <div
           style={{ cursor: "pointer" }}
           onClick={() => setShowCalendar(!showCalendar)}
@@ -127,27 +126,34 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
             ref={calendarRef}
             style={{
               position: "absolute",
-              zIndex: 1050,
-              top: "80px",
-              left: 0,
+              zIndex: 20,
+              top: "70px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              minWidth: 300,
+              minHeight: 120,
             }}
+            className={style.hotelCalendar}
           >
             <DateRange
               editableDateInputs={true}
               onChange={(item: any) => {
-                setPendingDateRange([item.selection]); // Đồng thời cập nhật hiển thị chính
+                setPendingDateRange([item.selection]);
               }}
               moveRangeOnFirstSelection={false}
               ranges={pendingDateRange}
               locale={vi}
               minDate={new Date()}
+              rangeColors={["#fab320"]} // màu range vàng cam
+              showMonthAndYearPickers={true}
+              showDateDisplay={true}
+              monthDisplayFormat="MMMM yyyy"
+              weekdayDisplayFormat="EEE"
             />
           </div>
         )}
       </div>
-      <div
-        style={{ width: 1, height: 48, background: "white", opacity: 0.7 }}
-      />
+      <div />
       {/* Khách */}
       <div
         className={`${style.calendarHover} tw-flex-2`}
@@ -176,8 +182,9 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
             style={{
               position: "absolute",
               zIndex: 20,
-              top: "110%",
-              left: 0,
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
               minWidth: 300,
               minHeight: 120,
             }}
@@ -299,16 +306,16 @@ export default function RoomSearchBar(props: RoomSearchBarProps) {
       </div>
 
       {/* Buttons */}
-      <div className="tw-flex tw-flex-1 tw-justify-end tw-items-center tw-gap-2 tw-h-[40px] tw-px-2">
+      <div className="tw-flex tw-flex-1 tw-justify-end tw-items-center tw-gap-2 tw-h-auto tw-px-2 tw-py-5 tw-w-full">
         <button
-          className="tw-btn tw-btn-primary tw-flex tw-items-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
+          className="tw-btn tw-btn-primary tw-flex-1 sm:tw-flex-none tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
           onClick={handleSearch}
         >
           <FontAwesomeIcon icon={faSearch} />
           Tìm kiếm
         </button>
         <button
-          className="tw-btn tw-btn-primary tw-flex tw-items-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
+          className="tw-btn tw-btn-primary tw-flex-1 sm:tw-flex-none tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary tw-text-black tw-p-2 tw-rounded-lg hover:tw-bg-primaryHover hover:tw-shadow-glow"
           onClick={handleResetSearch}
         >
           <FontAwesomeIcon icon={faTrash} />

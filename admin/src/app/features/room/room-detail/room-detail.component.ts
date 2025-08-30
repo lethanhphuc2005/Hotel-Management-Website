@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
 
 @Component({
   selector: 'app-room-detail',

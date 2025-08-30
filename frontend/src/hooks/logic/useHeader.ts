@@ -1,11 +1,5 @@
-import { useState, useEffect } from "react";
-import { useLoading } from "@/contexts/LoadingContext";
-import { fetchMainRoomClasses } from "@/services/MainRoomClassService";
-import { MainRoomClass } from "@/types/mainRoomClass";
-import { Wallet } from "@/types/wallet";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 import style from "@/styles/layout/header.module.css";
-import { User } from "@/types/user";
 
 interface HeaderProps {
   showDropdown: boolean;

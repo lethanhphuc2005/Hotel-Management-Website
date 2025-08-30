@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { getRoomTotalPrice } from "@/store/cartSelector";
+import { getFinalRoomPrice } from "@/store/cartSelector";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 
 interface RoomCartItemProps {
@@ -54,7 +54,7 @@ const RoomCartItem: FC<RoomCartItemProps> = ({ room, onRemove }) => {
           </strong>
         </p>
         <p className="tw-text-sm">
-          {room.nights} đêm - {room.bedAmount} giường đôi
+          {room.nights} đêm - {room.bedAmount} giường {room.bedType}
         </p>
         <p className="tw-text-sm">
           Khách:{" "}
@@ -65,7 +65,7 @@ const RoomCartItem: FC<RoomCartItemProps> = ({ room, onRemove }) => {
         </p>
 
         <p className="tw-text-sm">
-          Tổng: <strong>{formatCurrencyVN(getRoomTotalPrice(room))}</strong>
+          Tổng: <strong>{formatCurrencyVN(getFinalRoomPrice(room))}</strong>
         </p>
 
         <p className="tw-text-sm tw-text-primary">

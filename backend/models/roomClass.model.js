@@ -142,6 +142,16 @@ RoomClassSchema.virtual("comments", {
   },
 });
 
+RoomClassSchema.virtual("rooms", {
+  ref: "room",
+  localField: "_id",
+  foreignField: "room_class_id",
+  justOne: false,
+  options: {
+    populate: "room_status",
+  }
+})
+
 RoomClassSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,

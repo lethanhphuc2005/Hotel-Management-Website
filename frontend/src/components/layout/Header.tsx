@@ -31,6 +31,7 @@ import { toast } from "react-toastify";
 import { useUserWallet } from "@/hooks/data/useWallet";
 import { useMainRoomClass } from "@/hooks/data/useMainRoomClass";
 import { useAuth } from "@/contexts/AuthContext";
+import useIsMobile from "@/hooks/logic/useIsMobile"; // file hook vừa tạo
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
@@ -42,6 +43,8 @@ export default function Header() {
   >([]);
   const [clusters, setClusters] = useState<{ representative: string }[]>([]);
   const [history, setHistory] = useState<string[]>([]);
+
+  const isMobile = useIsMobile(768); // Sử dụng hook kiểm tra thiết bị di động
 
   const router = useRouter();
   const handleSearch = () => {
@@ -67,8 +70,14 @@ export default function Header() {
     level: userData?.level || "normal",
   });
 
-  const { wallet } = useUserWallet(userData?.id || "");
+  const { wallet, mutate: mutateWallet } = useUserWallet(userData?.id || "");
   const { mainRoomClasses } = useMainRoomClass({ page: 1, limit: 3 });
+
+  const handleLogout = () => {
+    mutateWallet();
+    logout();
+    setShowDropdown(false);
+  };
 
   useEffect(() => {
     if (!searchValue) {
@@ -131,6 +140,7 @@ export default function Header() {
     setSearchValue("");
   };
 
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark fixed-top">
       <div className="container">
@@ -163,7 +173,7 @@ export default function Header() {
                   {item.label}
                 </Link>
 
-                {item.dropdown && item.items && (
+                {!isMobile && item.dropdown && item.items && (
                   <ul className={style.dropdownMenu}>
                     {item.items.map((subItem, subIndex) => (
                       <li key={subIndex}>
@@ -182,7 +192,7 @@ export default function Header() {
             ))}
           </ul>
 
-          <div className="d-flex gap-3 align-items-center">
+          <div className="d-flex gap-3 align-items-center justify-content-center">
             <AnimatePresence>
               {showSearch && (
                 <motion.div
@@ -351,7 +361,7 @@ export default function Header() {
                           Quản lý tài khoản
                         </Link>
                         <button
-                          onClick={logout}
+                          onClick={handleLogout}
                           className="tw-block tw-text-white hover:tw-text-red-400 tw-px-3 tw-py-2 tw-text-sm tw-w-full tw-text-left tw-no-underline"
                         >
                           Đăng xuất

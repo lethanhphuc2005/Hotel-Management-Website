@@ -4,19 +4,16 @@ import { vi } from "date-fns/locale";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useEffect } from "react";
-import { toast } from "react-toastify";
-
 import {
   AnimatedButton,
   AnimatedButtonPrimary,
 } from "@/components/common/Button";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/store";
 import { addRoomToCart } from "@/store/cartSlice";
 import { GuestCount, RoomSearchBarProps } from "@/types/_common";
 import { RoomClass } from "@/types/roomClass";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 interface RoomBookingBoxProps extends RoomSearchBarProps {
   roomClass: RoomClass;
@@ -93,6 +90,7 @@ export default function RoomBookingBox(props: RoomBookingBoxProps) {
         childrenUnder6: numberOfChildrenUnder6,
         childrenOver6: numberOfChildrenOver6,
         bedAmount: roomClass.bed.quantity,
+        bedType: roomClass.bed.type,
         view: roomClass.view,
         isNeedExtraBed,
         hasSaturdayNight,

@@ -8,9 +8,6 @@ import ReviewSection from "@/components/pages/roomClassDetail/ReviewSection";
 import FAQSection from "@/components/pages/roomClassDetail/FaqSection";
 import ImportantInfoSection from "@/components/pages/roomClassDetail/ImportantInfoSection";
 import { useRoomSearch } from "@/hooks/logic/useRoomSearch";
-import { useRoomReviews } from "@/hooks/data/useReview";
-import { useState } from "react";
-import { useRoomComments } from "@/hooks/data/useComment";
 
 const RoomDetailPage = () => {
   const {

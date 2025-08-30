@@ -20,7 +20,9 @@
       {{ rc.price | currency : "VND" : "" }}đ
     </div>
   </div>
-  <div>{{ rc.rooms?.length }}</div>
+  <div>
+    {{ countAvailableRooms(rc) }} / {{ rc.rooms?.length }}
+  </div>
 
   <!-- Tiện nghi -->
   <div>

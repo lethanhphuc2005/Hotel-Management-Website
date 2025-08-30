@@ -71,7 +71,7 @@ export class EmployeeService {
     id: string,
     data: ChangePasswordRequest
   ): Observable<EmployeeDetailResponse> {
-    return this.http.post<EmployeeDetailResponse>(
+    return this.http.patch<EmployeeDetailResponse>(
       `${this.baseUrl}/change-password/${id}`,
       data
     );

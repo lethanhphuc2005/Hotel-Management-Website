@@ -15,15 +15,6 @@ export const fetchProfile = async (): Promise<UserProfileResponse> => {
     const response = await getProfileApi();
     const data = response.data;
 
-    const wallet = data.wallet;
-
-    const sortedWallet: Wallet = {
-      ...wallet,
-      transactions: wallet.transactions.sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      ),
-    };
 
     const profile: User = {
       id: data.id || data._id,
@@ -45,7 +36,6 @@ export const fetchProfile = async (): Promise<UserProfileResponse> => {
       comments: data.comments || [],
       reviews: data.reviews || [],
       favorites: data.favorites || [],
-      wallet: sortedWallet, // Chỉ lấy ví đầu tiên đã sắp xếp
     };
     return {
       success: true,

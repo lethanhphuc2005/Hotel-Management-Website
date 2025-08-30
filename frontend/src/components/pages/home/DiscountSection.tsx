@@ -89,7 +89,7 @@ function renderConditions(dci: Discount) {
 
 export function DiscountItem({ dci }: { dci: Discount }) {
   return (
-    <Col lg={4} md={6} className="mb-4">
+    <Col lg={4} md={6} className="p-2 ">
       <motion.div
         whileHover={{ scale: 1.03 }}
         className={`card d-flex flex-column h-100 shadow-sm border-0 ${style.offerCard}`}
@@ -157,7 +157,7 @@ export default function DiscountList({
       initial={{ opacity: 0, y: 40 }}
       animate={controls}
       transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="mt-5 mb-5 d-flex row"
+      className="my-5 d-flex row g-0"
     >
       <div className={style.headerContainer}>
         <h2 className={style.sectionTitle}>{title}</h2>

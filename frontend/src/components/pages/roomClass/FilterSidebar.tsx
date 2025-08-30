@@ -73,7 +73,6 @@ export default function FilterSidebar({
   const [tempRange, setTempRange] = useState<[number, number]>(priceRange);
   const [inputValue, setInputValue] = useState(searchTerm);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
   const handleCheckboxdChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     state: string[],
@@ -86,6 +85,11 @@ export default function FilterSidebar({
         : prev.filter((item) => item !== value)
     );
   };
+
+  // Đồng bộ inputValue với searchTerm khi searchTerm thay đổi từ ngoài
+  useEffect(() => {
+    setInputValue(searchTerm);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -116,7 +120,7 @@ export default function FilterSidebar({
   };
 
   return (
-    <div style={{ top: "13%" }}>
+    <div className="tw-pt-3 md:tw-pr-4">
       <h4 className="tw-font-bold tw-my-4 tw-text-primary">LỌC TẤT CẢ PHÒNG</h4>
 
       <div className="tw-flex md:tw-flex-row tw-flex-col tw-gap-3 tw-mb-3">

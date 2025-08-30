@@ -6,12 +6,11 @@ import { generateChatResponse } from "@/services/ChatbotService";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { showConfirmDialog } from "@/utils/swal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addRoomToCart, CartRoom } from "@/store/cartSlice";
-import { toast } from "react-toastify";
-import { RootState } from "@/store/store";
 import { RoomClass } from "@/types/roomClass";
-import { Booking, BookingDetail } from "@/types/booking";
+import { BookingDetail } from "@/types/booking";
+import ReactMarkdown from "react-markdown";
 
 export default function ChatbotPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -160,6 +159,7 @@ export default function ChatbotPopup() {
             childrenUnder6: numberOfChildrenUnder6,
             childrenOver6: numberOfChildrenOver6,
             bedAmount: detail.room_class.bed.quantity,
+            bedType: detail.room_class.bed.type,
             view: detail.room_class.view,
             hasSaturdayNight: hasSaturday,
             hasSundayNight: hasSunday,
@@ -222,7 +222,9 @@ export default function ChatbotPopup() {
                         : "tw-bg-gray-200"
                     }`}
                   >
-                    <span className="tw-text-black">{msg.text}</span>
+                    <span className="tw-text-black">
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    </span>
                   </div>
 
                   {/* ✅ Gợi ý phòng (chỉ cho bot cuối) */}

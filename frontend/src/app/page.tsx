@@ -1,6 +1,5 @@
 "use client";
 import { Container } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import style from "@/styles/base/page.module.css";
 import Banner from "@/components/pages/home/BannerSection";
 import MainRoomClassList from "@/components/pages/home/MainRoomClassSection";
@@ -15,8 +14,6 @@ import { useServices } from "@/hooks/data/useService";
 import { useWebsiteContent } from "@/hooks/data/useWebsiteContent";
 import { useDiscount } from "@/hooks/data/useDiscount";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
-import { RoomClass } from "@/types/roomClass";
 
 export default function Home() {
   const {

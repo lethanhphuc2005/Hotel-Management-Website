@@ -118,6 +118,7 @@ const accountController = {
         request: req.body.request,
         status: true, // mặc định là true hoặc bạn xử lý theo logic riêng
         verification_code: verificationCode, // lưu để đối chiếu sau
+        verfitication_expired: new Date(Date.now() + 60 * 1000), // Đặt thời gian hết hạn là 1 phút
         is_verified: false,
       });
       // Lưu vào database bằng hàm save()

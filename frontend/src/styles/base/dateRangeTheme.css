@@ -1,0 +1,59 @@
+/* Wrapper */
+.rdrCalendarWrapper {
+  background: #000 !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  border: 1px solid #333 !important;
+  font-family: inherit !important;
+}
+
+/* Header (tháng/năm + input date) */
+.rdrMonthAndYearWrapper,
+.rdrMonthPicker select,
+.rdrYearPicker select {
+  background: #000 !important;
+  color: #fab329 !important;
+  border: none !important;
+}
+.rdrMonthAndYearPickers select option {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+/* Day number */
+.rdrDayNumber span {
+  color: #fff !important;
+}
+
+/* Day passive (ngày ngoài tháng) */
+.rdrDayPassive .rdrDayNumber span {
+  color: #555 !important;
+}
+
+/* Selected day */
+.rdrDaySelected .rdrDayNumber span {
+  background: #fab329 !important;
+  color: #000 !important;
+  border-radius: 50% !important;
+  font-weight: 700 !important;
+}
+
+/* In range days */
+.rdrInRange,
+.rdrStartEdge,
+.rdrEndEdge {
+  background: rgba(250, 179, 41, 0.25) !important;
+  color: #fab329 !important;
+}
+.rdrInRange .rdrDayNumber span,
+.rdrStartEdge .rdrDayNumber span,
+.rdrEndEdge .rdrDayNumber span {
+  color: #fab329 !important;
+}
+
+/* Hover day */
+.rdrDayHovered .rdrDayNumber span {
+  background: rgba(250, 179, 41, 0.2) !important;
+  color: #fab329 !important;
+  border-radius: 8px !important;
+}

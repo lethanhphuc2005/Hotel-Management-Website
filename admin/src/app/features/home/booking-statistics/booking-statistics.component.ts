@@ -3,8 +3,11 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
+  Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -19,18 +22,57 @@ import Chart from 'chart.js/auto';
 })
 export class BookingStatisticsComponent implements OnChanges {
   @Input() statusStats: BookingStatusStatistics = {};
-  @ViewChild('pieCanvas') pieCanvas!: ElementRef;
-  pieChart: any;
+  @Input() period: 'day' | 'week' | 'month' = 'day'; // input period
+  @Input() from?: string | null; // input from date
+  @Input() to?: string | null; // input to date
+
+  @ViewChild('pieCanvas') pieCanvas!: ElementRef<HTMLCanvasElement>;
+  pieChart: Chart | undefined;
+
+  selectedPeriod: 'day' | 'week' | 'month' | 'custom' = 'day';
+  customFrom?: string;
+  customTo?: string;
+
+  @Output() periodChange = new EventEmitter<{
+    period: string;
+    from?: string;
+    to?: string;
+  }>();
+
+  onPeriodChange() {
+    if (this.selectedPeriod !== 'custom') {
+      this.periodChange.emit({ period: this.selectedPeriod });
+    }
+  }
+
+  onCustomDateChange() {
+    if (this.customFrom && this.customTo) {
+      this.periodChange.emit({
+        period: 'custom',
+        from: this.customFrom,
+        to: this.customTo,
+      });
+    }
+  }
+
   chartLegend: {
     label: string;
     color: string;
     value: number;
     difference: number;
     percentageChange: number;
-  } [] = [];
+  }[] = [];
 
-  ngOnChanges() {
-    this.createPieChart();
+  ngOnChanges(changes: SimpleChanges) {
+    // chỉ tạo chart khi statusStats thay đổi
+    if (
+      changes['statusStats'] ||
+      changes['from'] ||
+      changes['to'] ||
+      changes['period']
+    ) {
+      this.createPieChart();
+    }
   }
 
   getLabelName(label: string): string {
@@ -53,42 +95,51 @@ export class BookingStatisticsComponent implements OnChanges {
   getColorByStatus(status: string): string {
     switch (status) {
       case 'PENDING':
-        return '#f59e0b'; // amber
+        return '#f59e0b';
       case 'CONFIRMED':
-        return '#52a8c8ff'; // blue
+        return '#52a8c8ff';
       case 'CHECKED_IN':
-        return '#22c55e'; // green
+        return '#22c55e';
       case 'CHECKED_OUT':
-        return '#ef4444'; // red
+        return '#ef4444';
       case 'CANCELLED':
-        return '#6b7280'; // gray
+        return '#6b7280';
       default:
-        return '#000000'; // fallback color
+        return '#000000';
     }
   }
 
+  private safeNumber(value?: number) {
+    return typeof value === 'number' ? value : 0;
+  }
+
   createPieChart() {
+    // rebuild chartLegend từ statusStats
     const labels = Object.keys(this.statusStats);
-    const values = labels.map((label) => this.statusStats[label]?.today || 0);
 
     this.chartLegend = labels.map((label) => ({
       label,
       color: this.getColorByStatus(label),
-      value: this.statusStats[label]?.today || 0,
-      difference: this.statusStats[label]?.difference || 0,
-      percentageChange: this.statusStats[label]?.percentageChange || 0,
+      value: this.safeNumber(this.statusStats[label]?.current),
+      difference: this.safeNumber(this.statusStats[label]?.difference),
+      percentageChange: this.safeNumber(
+        this.statusStats[label]?.percentageChange
+      ),
     }));
 
-    // Destroy old chart if exists
-    if (this.pieChart) this.pieChart.destroy();
+    // destroy chart cũ nếu có
+    if (this.pieChart) {
+      this.pieChart.destroy();
+    }
 
-    this.pieChart = new Chart(this.pieCanvas.nativeElement, {
+    const ctx = this.pieCanvas.nativeElement;
+    this.pieChart = new Chart(ctx, {
       type: 'pie',
       data: {
         labels: this.chartLegend.map((item) => this.getLabelName(item.label)),
         datasets: [
           {
-            data: values,
+            data: this.chartLegend.map((item) => item.value),
             backgroundColor: this.chartLegend.map((item) => item.color),
             borderWidth: 2,
             borderColor: '#fff',
@@ -97,8 +148,7 @@ export class BookingStatisticsComponent implements OnChanges {
         ],
       },
       options: {
-        responsive: false,
-        cutout: '0%',
+        responsive: true,
         plugins: {
           legend: { display: false },
           title: { display: false },
@@ -108,17 +158,16 @@ export class BookingStatisticsComponent implements OnChanges {
   }
 
   exportChartAsImage() {
-    const canvas = this.pieCanvas.nativeElement as HTMLCanvasElement;
+    const canvas = this.pieCanvas.nativeElement;
     const image = canvas.toDataURL('image/png');
-
     const link = document.createElement('a');
     link.href = image;
-    link.download = 'booking-statistics-chart.png';
+    link.download = 'booking-statistics.png';
     link.click();
   }
 
   printChart() {
-    const canvas = this.pieCanvas.nativeElement as HTMLCanvasElement;
+    const canvas = this.pieCanvas.nativeElement;
     const dataUrl = canvas.toDataURL();
 
     const windowContent = `
@@ -141,6 +190,34 @@ export class BookingStatisticsComponent implements OnChanges {
       printWin.document.open();
       printWin.document.write(windowContent);
       printWin.document.close();
+    }
+  }
+
+  getComparisonTitle(): string {
+    if (this.selectedPeriod === 'day') {
+      return 'So với ngày hôm qua';
+    } else if (this.selectedPeriod === 'week') {
+      return 'So với tuần trước';
+    } else if (this.selectedPeriod === 'month') {
+      return 'So với tháng trước';
+    } else if (
+      this.selectedPeriod === 'custom' &&
+      this.customFrom &&
+      this.customTo
+    ) {
+      // hiển thị theo định dạng ngày
+      const fromDate = new Date(this.customFrom);
+      const toDate = new Date(this.customTo);
+      const options: Intl.DateTimeFormatOptions = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      };
+      const fromStr = fromDate.toLocaleDateString('vi-VN', options);
+      const toStr = toDate.toLocaleDateString('vi-VN', options);
+      return `So với khoảng thời gian trước (${fromStr} → ${toStr})`;
+    } else {
+      return 'So với trước';
     }
   }
 }

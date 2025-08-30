@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
+const isProdStyle = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+  compiler: {
+    styledComponents: isProdStyle,
+  },
+  experimental: {
+    optimizeCss: !isProdStyle,
+  },
   images: {
     remotePatterns: [
       {

@@ -1,11 +1,10 @@
 .footerWrapper {
   color: #d0d4e7;
-  background-image: url('/assets/img/ft1.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   padding-bottom: 40px;
-  background-color: rgba(0, 0, 0, 0.6); // lớp đen mờ
+  background-color: #0c1329; // lớp đen mờ
   background-blend-mode: darken;        // trộn màu tối với ảnh
   position: relative;
 }

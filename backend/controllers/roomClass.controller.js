@@ -11,6 +11,7 @@ const Booking = require("../models/booking.model");
 const { BookingDetail } = require("../models/bookingDetail.model");
 const { BookingStatus } = require("../models/status.model");
 const parseJSONFields = require("../utils/parseJSONFields.js");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 const roomClassController = {
   // === KIỂM TRA CÁC ĐIỀU KIỆN LOẠI PHÒNG ===
@@ -154,7 +155,27 @@ const roomClassController = {
       // FEATURE (embedded document)
       if (feature) {
         const featureList = Array.isArray(feature) ? feature : [feature];
-        query["features.feature_id"] = { $all: featureList };
+        const validFeatureIds = featureList
+          .filter((id) => ObjectId.isValid(id))
+          .map((id) => new ObjectId(id));
+
+        const featureMatches = await Room_Class_Feature.find({
+          feature_id: { $in: validFeatureIds },
+        }).select("room_class_id");
+
+        const matchedRoomClassIds = featureMatches.map((f) =>
+          f.room_class_id.toString()
+        );
+
+        if (matchedRoomClassIds.length === 0) {
+          return res.status(200).json({
+            message:
+              "Không tìm thấy loại phòng nào phù hợp với tiện nghi đã chọn",
+            data: [],
+          });
+        }
+
+        query._id = { $in: matchedRoomClassIds };
       }
 
       if (minCapacity) query["capacity"] = { $gte: parseInt(minCapacity) };
@@ -171,9 +192,7 @@ const roomClassController = {
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
-        .skip(skip)
-        .limit(perPage)
-        .populate(["main_room_class", "features", "images"]);
+        .populate(["main_room_class", "features", "images", "rooms"]);
 
       // CHECK ROOM AVAILABILITY
       if (check_in_date && check_out_date) {
@@ -269,11 +288,12 @@ const roomClassController = {
           .json({ message: "Không tìm thấy loại phòng nào phù hợp", data: [] });
       }
 
-      const totalMatchingRoomCount = await RoomClass.countDocuments(query);
+      const totalMatchingRoomCount = roomClasses.length;
+      const paginatedRoomClasses = roomClasses.slice(skip, skip + perPage);
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        data: roomClasses,
+        data: paginatedRoomClasses,
         pagination: {
           total: totalMatchingRoomCount,
           page: parseInt(page),
@@ -345,16 +365,36 @@ const roomClassController = {
         query.main_room_class_id = { $in: typeList };
       }
 
-      // FEATURE (embedded document)
+      // FILTER BY FEATURES (from RoomClassFeature collection)
       if (feature) {
         const featureList = Array.isArray(feature) ? feature : [feature];
-        query["features.feature_id"] = { $all: featureList };
+        const validFeatureIds = featureList
+          .filter((id) => ObjectId.isValid(id))
+          .map((id) => new ObjectId(id));
+
+        const featureMatches = await Room_Class_Feature.find({
+          feature_id: { $in: validFeatureIds },
+        }).select("room_class_id feature_id");
+
+        const matchedRoomClassIds = featureMatches.map((f) =>
+          f.room_class_id.toString()
+        );
+
+        if (matchedRoomClassIds.length === 0) {
+          return res.status(200).json({
+            message:
+              "Không tìm thấy loại phòng nào phù hợp với tiện nghi đã chọn",
+            data: [],
+          });
+        }
+
+        query._id = { $in: matchedRoomClassIds };
       }
 
-      if (minCapacity) query["capacity"] = { $gte: parseInt(minCapacity) };
+      if (minCapacity) query.capacity = { $gte: parseInt(minCapacity) };
       if (maxCapacity)
-        query["capacity"] = {
-          ...query["capacity"],
+        query.capacity = {
+          ...query.capacity,
           $lte: parseInt(maxCapacity),
         };
 
@@ -365,8 +405,6 @@ const roomClassController = {
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
-        .skip(skip)
-        .limit(perPage)
         .populate(["main_room_class", "features", "images"]);
 
       // CHECK ROOM AVAILABILITY
@@ -463,11 +501,12 @@ const roomClassController = {
           .json({ message: "Không tìm thấy loại phòng nào phù hợp", data: [] });
       }
 
-      const totalMatchingRoomCount = await RoomClass.countDocuments(query);
+      const totalMatchingRoomCount = roomClasses.length;
+      const paginatedRoomClasses = roomClasses.slice(skip, skip + perPage);
 
       res.status(200).json({
         message: "Lấy tất cả loại phòng thành công",
-        data: roomClasses,
+        data: paginatedRoomClasses,
         pagination: {
           total: totalMatchingRoomCount,
           page: parseInt(page),

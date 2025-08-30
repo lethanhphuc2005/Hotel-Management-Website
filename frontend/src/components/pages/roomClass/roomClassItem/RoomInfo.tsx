@@ -18,7 +18,7 @@ export default function RoomInfo({
 }) {
   const showExtraBed = numChildrenUnder6 > 0;
   const totalGuests = numAdults + numChildrenUnder6 + numchildrenOver6;
-  const isExtraBedNeeded = totalGuests > capacity
+  const isExtraBedNeeded = totalGuests > roomClass.capacity;
 
   return (
     <div>
