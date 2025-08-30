@@ -114,7 +114,7 @@ export function useRoomSearch(): RoomSearchBarProps {
       pendingEndDate instanceof Date &&
       new Date(pendingEndDate).setHours(0, 0, 0, 0) === today.getTime();
 
-    if (isStartToday || isEndToday) {
+    if (isStartToday && isEndToday) {
       toast.info("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
       return;
     }

@@ -7,8 +7,8 @@ export interface DashboardOverview {
 }
 
 export interface StatusStatistics {
-  today: number;
-  yesterday: number;
+  current: number;
+  previous: number;
   difference: number;
   percentageChange: number;
 }

@@ -159,6 +159,7 @@ export default function ChatbotPopup() {
             childrenUnder6: numberOfChildrenUnder6,
             childrenOver6: numberOfChildrenOver6,
             bedAmount: detail.room_class.bed.quantity,
+            bedType: detail.room_class.bed.type,
             view: detail.room_class.view,
             hasSaturdayNight: hasSaturday,
             hasSundayNight: hasSunday,

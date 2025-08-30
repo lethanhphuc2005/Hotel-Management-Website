@@ -45,7 +45,7 @@ RoomSchema.virtual("room_status", {
   foreignField: "_id",
   justOne: true,
   options: {
-    select: "name description status",
+    select: "name code status",
   },
 });
 

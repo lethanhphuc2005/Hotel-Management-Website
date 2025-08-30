@@ -30,7 +30,7 @@ import { CancelRateChartComponent } from './cancel-rate/cancel-rate.component';
     BookingStatisticsComponent,
     PaymentHistoryComponent,
     NewUserComponent,
-    CancelRateChartComponent
+    CancelRateChartComponent,
   ],
 })
 export class HomeComponent implements OnInit {
@@ -45,6 +45,9 @@ export class HomeComponent implements OnInit {
   cancelRateData: CancelRateStatistics[] = [];
   from = this.getNDaysAgo(30);
   to = this.getToday();
+  period: 'day' | 'week' | 'month' = 'month';
+  statusFrom = null;
+  statusTo = null;
 
   getToday(): string {
     const today = new Date();
@@ -102,16 +105,22 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  fetchBookingStatusStatistics() {
-    this.dashboardService.getBookingStatusStatistics().subscribe({
-      next: (res) => {
-        this.statusStats = res.data;
-      },
-      error: (err) => {
-        this.toastService.error('Error fetching booking status statistics');
-        console.error('Error fetching booking status statistics:', err);
-      },
-    });
+  fetchBookingStatusStatistics(
+    period: string = this.period,
+    from: string | null = this.statusFrom,
+    to: string | null = this.statusTo
+  ) {
+    this.dashboardService
+      .getBookingStatusStatistics(period, from, to)
+      .subscribe({
+        next: (res) => {
+          this.statusStats = res.data;
+        },
+        error: (err) => {
+          this.toastService.error('Error fetching booking status statistics');
+          console.error('Error fetching booking status statistics:', err);
+        },
+      });
   }
 
   fetchPaymentHistory() {

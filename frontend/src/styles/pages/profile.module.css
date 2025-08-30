@@ -300,7 +300,7 @@
 @media (max-width: 1024px) {
   .settingsWrapper {
     flex-direction: column;
-    margin: 5% auto;
+    margin: 100px auto;
   }
 
   .sidebar {

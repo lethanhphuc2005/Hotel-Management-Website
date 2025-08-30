@@ -1,7 +1,7 @@
 <div class="card card-primary card-round">
   <div class="card-header">
     <div class="card-head-row">
-      <div class="card-title">Trạng thái đặt phòng hôm nay</div>
+      <div class="card-title">Trạng thái đặt phòng</div>
       <div class="card-tools">
         <div class="dropdown">
           <button
@@ -24,6 +24,48 @@
               >Print</a
             >
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Lựa chọn khoảng thời gian -->
+    <div
+      class="tw-flex tw-flex-col tw-items-left tw-gap-4 tw-mb-4 tw-text-black"
+    >
+      <!-- Select period -->
+      <div>
+        <label class="tw-block tw-text-sm tw-font-medium"
+          >Khoảng thời gian:</label
+        >
+        <select
+          class="tw-border tw-rounded-md tw-px-2 tw-py-1"
+          [(ngModel)]="selectedPeriod"
+          (change)="onPeriodChange()"
+        >
+          <option value="day">Ngày</option>
+          <option value="week">Tuần</option>
+          <option value="month">Tháng</option>
+          <option value="custom">Tùy chỉnh</option>
+        </select>
+      </div>
+      <!-- Date pickers -->
+      <div *ngIf="selectedPeriod === 'custom'" class="tw-flex tw-gap-2">
+        <div>
+          <label class="tw-block tw-text-sm tw-font-medium">Từ:</label>
+          <input
+            type="date"
+            class="tw-border tw-rounded-md tw-px-2 tw-py-1"
+            [(ngModel)]="customFrom"
+            (change)="onCustomDateChange()"
+          />
+        </div>
+        <div>
+          <label class="tw-block tw-text-sm tw-font-medium">Đến:</label>
+          <input
+            type="date"
+            class="tw-border tw-rounded-md tw-px-2 tw-py-1"
+            [(ngModel)]="customTo"
+            (change)="onCustomDateChange()"
+          />
         </div>
       </div>
     </div>
@@ -61,7 +103,7 @@
 </div>
 
 <div class="card card-round tw-p-4 tw-mt-4">
-  <h3 class="card-title">So với ngày hôm qua</h3>
+  <h3 class="card-title">{{ getComparisonTitle() }}</h3>
   <div class="tw-grid tw-grid-cols-2 md:tw-grid-cols-3 tw-gap-4">
     <div
       *ngFor="let item of chartLegend"

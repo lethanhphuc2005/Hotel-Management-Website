@@ -1,5 +1,5 @@
 import { CancelRateStatistics } from '@/types/dashboard';
-import { Component, ViewChild, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, ViewChild, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -37,7 +37,6 @@ export class CancelRateChartComponent implements OnChanges {
   public chartOptions!: Partial<ChartOptions>;
 
   ngOnChanges(): void {
-    console.log('Cancel Rate Data:', this.cancelRateData);
     this.chartOptions = {
       series: [
         {

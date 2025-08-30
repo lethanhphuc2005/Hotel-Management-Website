@@ -8,6 +8,7 @@ import { useRoomClass } from "@/hooks/data/useRoomClass";
 import { useSearchParams } from "next/navigation";
 import { useFeature } from "@/hooks/data/useFeature";
 import { useMainRoomClass } from "@/hooks/data/useMainRoomClass";
+import { handleSearchClick } from "../../utils/handleSearchClick";
 
 export default function RoomClassesPage() {
   const {
@@ -134,6 +135,11 @@ export default function RoomClassesPage() {
     setCurrentPage(selectedItem.selected + 1);
   };
 
+  const handleSearchClick = () => {
+    handleSearch();
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     const mainRoomClassId = params.get("mainRoomClassId");
     if (mainRoomClassId) {
@@ -196,7 +202,7 @@ export default function RoomClassesPage() {
           numberOfNights={numberOfNights}
           hasSearched={hasSearched}
           setHasSearched={setHasSearched}
-          handleSearch={handleSearch}
+          handleSearch={handleSearchClick}
           handleResetSearch={handleResetSearch}
         />
       </div>

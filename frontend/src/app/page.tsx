@@ -1,6 +1,5 @@
 "use client";
 import { Container } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import style from "@/styles/base/page.module.css";
 import Banner from "@/components/pages/home/BannerSection";
 import MainRoomClassList from "@/components/pages/home/MainRoomClassSection";

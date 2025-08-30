@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { formatCurrencyVN } from "@/utils/currencyUtils";
+import useIsMobile from "@/hooks/logic/useIsMobile";
 
 interface CartTableProps {
   rooms: CartRoom[];
@@ -16,29 +17,34 @@ interface CartTableProps {
 export default function CartTable(props: CartTableProps) {
   const { rooms, handleDeleteRoom, handleAddExtraBed, getRoomTotalPrice } =
     props;
+  const isMobile = useIsMobile();
+
+  if (rooms.length === 0) {
+    return (
+      <div className="text-center py-5 !tw-text-primary">
+        Giỏ hàng của bạn đang trống.
+      </div>
+    );
+  }
+
   return (
-    <div className="table-responsive">
-      <table className={`table align-middle ${styles.darkTable}`}>
-        <thead>
-          <tr>
-            <th></th>
-            <th className="fw-normal">PHÒNG</th>
-            <th className="fw-normal">DỊCH VỤ</th>
-            <th className="fw-normal">GIÁ/ĐÊM</th>
-            <th className="fw-normal">SỐ ĐÊM</th>
-            <th className="fw-normal">TỔNG</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.length === 0 ? (
+    <>
+      {/* Bảng desktop */}
+      <div className={styles.tableWrapper}>
+        <table className={`table align-middle ${styles.darkTable}`}>
+          <thead>
             <tr>
-              <td colSpan={6} className="text-center py-5 !tw-text-primary">
-                Giỏ hàng của bạn đang trống.
-              </td>
+              <th></th>
+              <th className="fw-normal">PHÒNG</th>
+              <th className="fw-normal">DỊCH VỤ</th>
+              <th className="fw-normal">GIÁ/ĐÊM</th>
+              <th className="fw-normal">SỐ ĐÊM</th>
+              <th className="fw-normal">TỔNG</th>
             </tr>
-          ) : (
-            rooms.map((room) => (
-              <tr key={room.id}>
+          </thead>
+          <tbody>
+            {rooms.map((room, index) => (
+              <tr key={room.id + "-" + index}>
                 <td>
                   <img
                     src={room.img}
@@ -47,32 +53,34 @@ export default function CartTable(props: CartTableProps) {
                   />
                 </td>
                 <td>
-                  <div className={styles.roomName}>{room.name}</div>
-                  <div className={styles.roomDesc}>{room.desc}</div>
-                  <div style={{ fontSize: "0.95rem", color: "#888" }}>
-                    Người lớn: {room.adults}, Trẻ dưới 6 tuổi:{" "}
-                    {room.childrenUnder6}, Trẻ trên 6 tuổi: {room.childrenOver6}
+                  <div className={styles.roomInfo}>
+                    <div className={styles.roomName}>{room.name}</div>
+                    <div className={styles.roomDesc}>
+                      Người lớn: {room.adults}, Trẻ dưới 6 tuổi:{" "}
+                      {room.childrenUnder6}, Trẻ trên 6 tuổi:{" "}
+                      {room.childrenOver6}
+                    </div>
+                    <div className={styles.roomDesc}>
+                      Nhận phòng: {room.checkIn}
+                    </div>
+                    <div className={styles.roomDesc}>
+                      Trả phòng: {room.checkOut}
+                    </div>
+                    <button
+                      className={styles.removeBtn}
+                      title="Xóa khỏi giỏ"
+                      onClick={() => handleDeleteRoom(room.id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="tw-mx-2" />
+                      Xóa
+                    </button>
                   </div>
-                  <div style={{ fontSize: "0.95rem", color: "#888" }}>
-                    Nhận phòng: {room.checkIn}
-                  </div>
-                  <div style={{ fontSize: "0.95rem", color: "#888" }}>
-                    Trả phòng: {room.checkOut}
-                  </div>
-                  <button
-                    className={`${styles.removeBtn} mt-2`}
-                    title="Xóa khỏi giỏ"
-                    onClick={() => handleDeleteRoom(room.id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} className="tw-mx-2" />
-                    Xóa
-                  </button>
                 </td>
                 <td className="tw-text-left">
                   {!room.services ? (
                     <Link
                       href={"/service"}
-                      className="text-decoration-none tw-text-white tw-"
+                      className="text-decoration-none tw-text-white"
                     >
                       <span className="tw-inline-flex tw-items-center tw-whitespace-nowrap hover:tw-text-primary">
                         Thêm dịch vụ
@@ -92,6 +100,7 @@ export default function CartTable(props: CartTableProps) {
                       ))}
                     </div>
                   )}
+                  <br />
                   {room.isNeedExtraBed && !room.isAddExtraBed && (
                     <button
                       onClick={() => handleAddExtraBed(room.id)}
@@ -116,7 +125,7 @@ export default function CartTable(props: CartTableProps) {
                 </td>
                 <td style={{ verticalAlign: "middle" }}>{room.nights} đêm</td>
                 <td style={{ verticalAlign: "middle" }}>
-                  {formatCurrencyVN(room.total || getRoomTotalPrice(room))}
+                  {formatCurrencyVN(getRoomTotalPrice(room))}
                   {room.extraFee && (
                     <div style={{ fontSize: "0.9rem", color: "#FAB320" }}>
                       (+{formatCurrencyVN(room.extraFee)})
@@ -124,10 +133,74 @@ export default function CartTable(props: CartTableProps) {
                   )}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Card mobile */}
+      <div className={styles.roomCardList}>
+        {isMobile &&
+          rooms.map((room) => (
+            <div key={room.id} className={styles.roomCard}>
+              <img src={room.img} alt={room.name} className={styles.roomImg} />
+              <div className={styles.roomInfo}>
+                <div className={styles.roomName}>{room.name}</div>
+                <div className={styles.roomDesc}>{room.desc}</div>
+                <div>Người lớn: {room.adults}</div>
+                <div>Trẻ dưới 6 tuổi: {room.childrenUnder6}</div>
+                <div>Trẻ trên 6 tuổi: {room.childrenOver6}</div>
+                <div>Nhận phòng: {room.checkIn}</div>
+                <div>Trả phòng: {room.checkOut}</div>
+
+                <div>Giá/đêm: {formatCurrencyVN(room.price)}</div>
+                <div>Số đêm: {room.nights}</div>
+                <div>
+                  Tổng:{" "}
+                  <span className="tw-text-primary tw-font-bold">
+                    {formatCurrencyVN(getRoomTotalPrice(room))}
+                  </span>
+                </div>
+                <div className="tw-mt-2 tw-flex tw-items-center tw-justify-between tw-gap-2">
+                  {!room.services ? (
+                    <Link
+                      href={"/service"}
+                      className="text-decoration-none tw-text-primary"
+                    >
+                      <span className="tw-inline-flex tw-items-center tw-underline tw-whitespace-nowrap hover:tw-text-primary">
+                        Thêm dịch vụ
+                      </span>
+                    </Link>
+                  ) : (
+                    <div>
+                      {room.services?.map((service, index) => (
+                        <span key={index}>
+                          {service.name} - {service.quantity}x <br />
+                          {formatCurrencyVN(service.price)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {room.isNeedExtraBed && !room.isAddExtraBed && (
+                    <button
+                      onClick={() => handleAddExtraBed(room.id)}
+                      className="tw-inline-flex tw-items-center tw-underline tw-whitespace-nowrap tw-text-primary"
+                    >
+                      Thêm giường
+                    </button>
+                  )}
+                </div>
+                <button
+                  className={styles.removeBtn}
+                  onClick={() => handleDeleteRoom(room.id)}
+                >
+                  <FontAwesomeIcon icon={faTrash} className="tw-mx-2" />
+                  Xóa
+                </button>
+              </div>
+            </div>
+          ))}
+      </div>
+    </>
   );
 }

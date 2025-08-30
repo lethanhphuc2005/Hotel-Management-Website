@@ -192,7 +192,7 @@ const roomClassController = {
 
       let roomClasses = await RoomClass.find(query)
         .sort(sortObj)
-        .populate(["main_room_class", "features", "images"]);
+        .populate(["main_room_class", "features", "images", "rooms"]);
 
       // CHECK ROOM AVAILABILITY
       if (check_in_date && check_out_date) {

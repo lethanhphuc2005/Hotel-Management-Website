@@ -112,7 +112,6 @@ export default function RateAfterBookingPage() {
       toast.success("Đánh giá đã được gửi!");
       setRatings((prev) => ({ ...prev, [bookingDetailId]: 0 }));
       setReviews((prev) => ({ ...prev, [bookingDetailId]: "" }));
-      window.location.href = `/profile`; // Điều hướng lại trang đánh giá
     } catch (error) {
       console.error("Lỗi gửi đánh giá:", error);
       toast.error("Không thể gửi đánh giá. Vui lòng thử lại sau.");

@@ -1,7 +1,6 @@
 "use client";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addRoomToCart } from "@/store/cartSlice";
-import { toast } from "react-toastify";
 import { RoomClass } from "@/types/roomClass";
 import { UserFavorite } from "@/types/userFavorite";
 import { useFavorite } from "@/hooks/logic/useFavoriteAction";
@@ -73,6 +72,7 @@ export default function RoomClassItem({
         childrenUnder6: numberOfChildrenUnder6,
         childrenOver6: numberOfChildrenOver6,
         bedAmount: roomClass.bed.quantity,
+        bedType: roomClass.bed.type,
         view: roomClass.view,
         isNeedExtraBed,
         hasSaturdayNight: hasSaturday,

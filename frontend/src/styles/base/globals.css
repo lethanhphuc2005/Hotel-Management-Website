@@ -16,7 +16,6 @@
   box-sizing: border-box;
 }
 
-
 /* Font cho tiêu đề: Playfair Display */
 h1,
 h2,
@@ -52,6 +51,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 * {
@@ -61,4 +62,97 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* date-range-dark-theme.css */
+
+/*
+  This file provides a custom dark theme for the react-date-range component.
+  Styles are scoped to the `.dark-theme-wrapper` class to prevent global
+  CSS pollution and ensure reusability.
+*/
+
+.dark-theme-wrapper.rdrCalendarWrapper {
+  background-color: #000000;
+  border: 1px solid #fab320;
+}
+
+.dark-theme-wrapper.rdrDateDisplayWrapper {
+  background-color: #000000;
+  border-bottom: 1px solid #222;
+}
+
+.dark-theme-wrapper.rdrDefinedRangesWrapper {
+  background-color: #111111;
+  border-right: 1px solid #222;
+}
+
+.dark-theme-wrapper.rdrCalendarWrapper,
+.dark-theme-wrapper.rdrMonthAndYearPickers,
+.dark-theme-wrapper.rdrMonthAndYearPickers select,
+.dark-theme-wrapper.rdrDateDisplay,
+.dark-theme-wrapper.rdrNextPrevButton {
+  color: #fab320;
+}
+
+.dark-theme-wrapper.rdrMonthAndYearPickers select option {
+  background-color: #111;
+}
+
+.dark-theme-wrapper.rdrMonthAndYearWrapper {
+  color: #fab320;
+}
+
+.dark-theme-wrapper.rdrWeekDays,
+.dark-theme-wrapper.rdrDay,
+.dark-theme-wrapper.rdrDayDisabled {
+  color: #fab320;
+}
+
+.dark-theme-wrapper.rdrDayHovered,
+.dark-theme-wrapper.rdrDayPassive:hover {
+  background-color: #333;
+}
+
+.dark-theme-wrapper.rdrDayToday.rdrDayNumber span:after {
+  background-color: #fab320;
+}
+
+.dark-theme-wrapper.rdrDay.rdrDayEnd,
+.dark-theme-wrapper.rdrDay.rdrDayStart {
+  background-color: #fab320;
+}
+
+.dark-theme-wrapper.rdrDay.rdrDayEnd.rdrDayNumber span,
+.dark-theme-wrapper.rdrDay.rdrDayStart.rdrDayNumber span,
+.dark-theme-wrapper.rdrDay.rdrDaySelected.rdrDayNumber span {
+  color: #000000;
+}
+
+.dark-theme-wrapper.rdrDayRange,
+.dark-theme-wrapper.rdrInRange {
+  background-color: #3d3a1f; /* A darker shade of gold for the range */
+}
+
+/* Specific styling for the range preview display */
+.dark-theme-wrapper.rdrDateDisplay {
+  background-color: #000000;
+}
+
+.dark-theme-wrapper.rdrDateInput {
+  color: #fab320;
+}
+
+.dark-theme-wrapper.rdrDayPassive {
+  color: #888;
+}
+
+.dark-theme-wrapper.rdrDayPassive.rdrDayToday.rdrDayNumber span:after {
+  background-color: #888;
+}
+
+.dark-theme-wrapper.rdrDayPassive.rdrDayEnd,
+.dark-theme-wrapper.rdrDayPassive.rdrDayStart {
+  background-color: transparent;
+  color: #888;
 }

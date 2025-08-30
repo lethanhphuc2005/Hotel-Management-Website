@@ -1,7 +1,118 @@
 .calendarHover {
+  position: relative;
   height: 100%;
   border-radius: 30px;
   transition: box-shadow 0.2s, background 0.2s, color 0.2s;
   background: transparent;
   padding: 10px;
+}
+
+/* Container calendar */
+.hotelCalendar .rdrCalendarWrapper {
+  font-family: 'Arial', sans-serif;
+  background-color: #000; /* nền đen */
+  color: #fab320; /* font vàng cam */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  width: 320px;
+}
+
+/* Hiển thị ngày chọn trên đầu */
+.hotelCalendar .rdrDateDisplayWrapper {
+  background-color: #111; 
+  color: #fab320;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 1px solid #222;
+}
+
+/* Calendar header */
+.hotelCalendar .rdrCalendarHeader {
+  background-color: #111;
+  text-align: center;
+  padding: 12px 0;
+  font-weight: bold;
+  font-size: 18px;
+  color: #fab320;
+}
+
+/* Navigation buttons */
+.hotelCalendar .rdrNextPrevButton {
+  background: none;
+  border: none;
+  color: #fab320;
+  cursor: pointer;
+  font-size: 20px;
+  transition: color 0.2s;
+}
+
+.hotelCalendar .rdrNextPrevButton:hover {
+  color: #fff;
+}
+
+/* Weekdays */
+.hotelCalendar .rdrWeekDays {
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0;
+  background-color: #111;
+  font-weight: bold;
+  color: #fab320;
+}
+
+/* Days */
+.hotelCalendar .rdrDayNumber span {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fab320;
+}
+
+/* Hover */
+.hotelCalendar .rdrDayNumber span:hover {
+  background-color: #222 !important;
+  color: #fff !important;
+}
+
+/* Ngày được chọn và range */
+.hotelCalendar .rdrDayNumber span.rdrDayNumber--selected,
+.hotelCalendar .rdrDayNumber span.rdrDayNumber--startEdge,
+.hotelCalendar .rdrDayNumber span.rdrDayNumber--endEdge {
+  background-color: #fab320 !important;
+  color: #000 !important;
+  font-weight: bold;
+}
+
+.hotelCalendar .rdrDayNumber span.rdrDayNumber--inRange {
+  background-color: rgba(250, 179, 32, 0.3) !important;
+  color: #fab320 !important;
+}
+
+/* Ngày hiện tại */
+.hotelCalendar .rdrDayNumber span.rdrDayNumber--today {
+  border: 1px solid #fab320;
+  font-weight: bold;
+}
+
+/* Ngày disabled */
+.hotelCalendar .rdrDayNumber span.rdrDayNumber--disabled {
+  color: #555;
+  cursor: not-allowed;
+}
+
+/* Footer / presets */
+.hotelCalendar .rdrCalendarFooter {
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #fab320;
+  background-color: #111;
 }

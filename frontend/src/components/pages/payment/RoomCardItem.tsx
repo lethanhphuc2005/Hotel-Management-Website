@@ -54,7 +54,7 @@ const RoomCartItem: FC<RoomCartItemProps> = ({ room, onRemove }) => {
           </strong>
         </p>
         <p className="tw-text-sm">
-          {room.nights} đêm - {room.bedAmount} giường đôi
+          {room.nights} đêm - {room.bedAmount} giường {room.bedType}
         </p>
         <p className="tw-text-sm">
           Khách:{" "}

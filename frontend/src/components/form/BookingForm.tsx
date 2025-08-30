@@ -32,20 +32,18 @@ const BookingForm: FC<BookingFormProps> = ({
         </p>
       </div>
       <form>
-        <div className="row">
-          <div className="mb-3">
-            <label className="form-label">
-              Họ và tên <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              className="form-control bg-black text-white"
-              placeholder="VD: Lê Thành Phúc"
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+        <div className="mb-3">
+          <label className="form-label">
+            Họ và tên <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            type="text"
+            className="form-control bg-black text-white"
+            placeholder="VD: Lê Thành Phúc"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
         <div className="mb-3">
           <label className="form-label">

@@ -2,11 +2,6 @@
 
   <!-- Thanh sidebar phụ bên trong -->
   <aside class="profile-sidebar">
-    <div class="avatar">
-      <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}" alt="Avatar">
-      <p>{{ user.role }}</p>
-    </div>
-
     <ul class="menu">
       <li [class.active]="!editing && !changingPassword" (click)="editing = false; changingPassword = false">
         Xem thông tin

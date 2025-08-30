@@ -7,8 +7,9 @@ import {
   Lora,
 } from "next/font/google";
 import "animate.css";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import "@/styles/base/globals.css";
-import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import ClientWrapper from "./ClientWrapper";

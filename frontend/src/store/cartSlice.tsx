@@ -24,6 +24,7 @@ export interface CartRoom {
   childrenUnder6: number;
   childrenOver6: number;
   bedAmount: number;
+  bedType: string;
   view: string;
   extraFee: number | null; // Phụ thu cuối tuần hoặc giường phụ
   total?: number;
@@ -82,15 +83,9 @@ const cartSlice = createSlice({
         return;
       }
 
-      if (isStartToday || isEndToday) {
-        toast.error("Vui lòng chọn ngày nhận và trả phòng không phải hôm nay!");
-        return;
-      }
-
-      const isDuplicate = cartRooms.some((room) => room.id === cartItem.id);
-
-      if (isDuplicate) {
-        toast.error("Phòng này bạn đã thêm vào giỏ hàng rồi!");
+      // Nếu khách vừa check-in vừa check-out trong hôm nay mà khách sạn không hỗ trợ day-use
+      if (isStartToday && isEndToday) {
+        toast.error("Không thể đặt và trả phòng trong cùng ngày!");
         return;
       }
 

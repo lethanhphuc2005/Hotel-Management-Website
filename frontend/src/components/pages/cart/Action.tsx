@@ -34,7 +34,7 @@ export default function CartAction(props: CartActionProps) {
             <span>{formatCurrencyVN(total + extraTotal)}</span>
           </div>
         </div>
-        <div className="text-end mt-4 mb-1">
+        <div className="mt-4 mb-1 tw-text-center sm:tw-text-end">
           <Link href="/payment" className={styles.checkoutBtn}>
             Đặt phòng ({formatCurrencyVN(total + extraTotal)})
           </Link>

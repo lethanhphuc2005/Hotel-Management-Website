@@ -122,19 +122,55 @@ const getDashboardOverview = async (req, res) => {
 
 const getBookingStatusStatistics = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const { period = "day", from, to } = req.query;
 
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    let startCurrent, endCurrent, startPrevious, endPrevious;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
 
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
+    if (from && to) {
+      // Nếu người dùng truyền from/to
+      startCurrent = new Date(from);
+      endCurrent = new Date(to);
+      endCurrent.setHours(23, 59, 59, 999);
 
-    const todayStart = new Date(today);
-    todayStart.setHours(0, 0, 0, 0);
+      // Tự tính khoảng trước cùng số ngày
+      const diffTime = endCurrent.getTime() - startCurrent.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      startPrevious = new Date(startCurrent);
+      startPrevious.setDate(startPrevious.getDate() - diffDays - 1);
+
+      endPrevious = new Date(endCurrent);
+      endPrevious.setDate(endPrevious.getDate() - diffDays - 1);
+    } else if (period === "week") {
+      const dayOfWeek = now.getDay() || 7;
+      startCurrent = new Date(now);
+      startCurrent.setDate(now.getDate() - dayOfWeek + 1);
+      startCurrent.setHours(0, 0, 0, 0);
+
+      endCurrent = new Date(startCurrent);
+      endCurrent.setDate(startCurrent.getDate() + 7);
+
+      startPrevious = new Date(startCurrent);
+      startPrevious.setDate(startCurrent.getDate() - 7);
+
+      endPrevious = new Date(startCurrent);
+    } else if (period === "month") {
+      startCurrent = new Date(now.getFullYear(), now.getMonth(), 1);
+      endCurrent = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+      startPrevious = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      endPrevious = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else {
+      startCurrent = new Date(now);
+      endCurrent = new Date(now);
+      endCurrent.setDate(endCurrent.getDate() + 1);
+
+      startPrevious = new Date(now);
+      startPrevious.setDate(startPrevious.getDate() - 1);
+      endPrevious = new Date(now);
+    }
 
     const statuses = await BookingStatus.find({ status: true })
       .select("_id code")
@@ -143,40 +179,46 @@ const getBookingStatusStatistics = async (req, res) => {
     const statusData = {};
 
     for (const status of statuses) {
-      let todayFilter = { booking_status_id: status._id };
-      let yesterdayFilter = { booking_status_id: status._id };
+      let currentFilter = { booking_status_id: status._id };
+      let previousFilter = { booking_status_id: status._id };
 
-      // --- Hôm nay ---
+      // --- Khoảng hiện tại ---
       if (status.code === "CHECKED_IN") {
-        todayFilter.actual_check_in_date = { $gte: today, $lt: tomorrow };
+        currentFilter.actual_check_in_date = {
+          $gte: startCurrent,
+          $lt: endCurrent,
+        };
+        previousFilter.actual_check_in_date = {
+          $gte: startPrevious,
+          $lt: endPrevious,
+        };
       } else if (status.code === "CHECKED_OUT") {
-        todayFilter.actual_check_out_date = { $gte: today, $lt: tomorrow };
+        currentFilter.actual_check_out_date = {
+          $gte: startCurrent,
+          $lt: endCurrent,
+        };
+        previousFilter.actual_check_out_date = {
+          $gte: startPrevious,
+          $lt: endPrevious,
+        };
       } else {
-        todayFilter.booking_date = { $gte: today, $lt: tomorrow };
+        currentFilter.booking_date = { $gte: startCurrent, $lt: endCurrent };
+        previousFilter.booking_date = { $gte: startPrevious, $lt: endPrevious };
       }
 
-      // --- Hôm qua ---
-      if (status.code === "CHECKED_IN") {
-        yesterdayFilter.actual_check_in_date = { $lte: yesterday };
-      } else if (status.code === "CHECKED_OUT") {
-        yesterdayFilter.actual_check_out_date = { $gte: yesterday, $lt: today };
-      } else {
-        yesterdayFilter.booking_date = { $gte: yesterday, $lt: today };
-      }
-
-      const todayCount = await Booking.countDocuments(todayFilter);
-      const yesterdayCount = await Booking.countDocuments(yesterdayFilter);
-      const difference = todayCount - yesterdayCount;
+      const currentCount = await Booking.countDocuments(currentFilter);
+      const previousCount = await Booking.countDocuments(previousFilter);
+      const difference = currentCount - previousCount;
       const percentageChange =
-        yesterdayCount === 0
-          ? todayCount > 0
+        previousCount === 0
+          ? currentCount > 0
             ? 100
             : 0
-          : ((difference / yesterdayCount) * 100).toFixed(2);
+          : ((difference / previousCount) * 100).toFixed(2);
 
       statusData[status.code] = {
-        today: todayCount,
-        yesterday: yesterdayCount,
+        current: currentCount,
+        previous: previousCount,
         difference,
         percentageChange: Number(percentageChange),
       };

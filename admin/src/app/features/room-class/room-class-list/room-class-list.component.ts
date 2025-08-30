@@ -22,4 +22,12 @@ export class RoomClassListComponent {
   }>();
   @Output() openEdit = new EventEmitter<RoomClass>();
   @Output() openDetail = new EventEmitter<RoomClass>();
+  availableRoom: number = 0;
+
+  countAvailableRooms(rc: any): number {
+    return (
+      rc.rooms?.filter((room: any) => room.room_status.code === 'AVAILABLE')
+        .length ?? 0
+    );
+  }
 }
