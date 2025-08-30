@@ -1,6 +1,5 @@
 "use client";
 import { DateRange } from "react-date-range";
-import "react-day-picker/dist/style.css";
 import { vi } from "date-fns/locale";
 import style from "@/styles/components/searchBar.module.css";
 import { useEffect } from "react";

@@ -106,16 +106,18 @@
 .searchInput::placeholder {
   color: white;
 }
-@media (max-width: 768px) {
-  :global(.navbar) {
-    background: black !important;
-    padding: 10px;
-    text-align: center;
-  }
+:global {
+  @media (max-width: 768px) {
+    .navbar {
+      background: black !important;
+      padding: 10px;
+      text-align: center;
+    }
 
-  :global(.navbar .nav-link),
-  :global(.navbar .navbar-brand),
-  :global(.navbar .bi) {
-    color: white !important;
+    .navbar .nav-link,
+    .navbar .navbar-brand,
+    .navbar .bi {
+      color: white !important;
+    }
   }
 }
